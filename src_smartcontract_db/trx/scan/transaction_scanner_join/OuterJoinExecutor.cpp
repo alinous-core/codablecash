@@ -43,6 +43,8 @@ void OuterJoinExecutor::start() {
 }
 
 bool OuterJoinExecutor::hasNext() {
+	bool joined = false;
+
 	while(!this->joinCandidateCursor->finished()){
 		if(!hasNextLeftRecord()){
 			this->joinCandidateCursor->inc();
@@ -53,10 +55,16 @@ bool OuterJoinExecutor::hasNext() {
 
 		// right scan for left record
 		if(!this->right->hasNext()){
+			if(!joined){
+
+			}
+
 			continue;
 		}
 
 		const CdbRecord* rightRecord = this->right->next();
+
+		joined = true;
 
 		return true;
 	}

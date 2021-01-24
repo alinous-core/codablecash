@@ -46,6 +46,8 @@ public:
 	virtual AbstractCdbValue* copy() const noexcept;
 	virtual AbstractCdbKey* toKey() const noexcept;
 
+
+
 	static CdbRecord* createFromBinary(ByteBuffer* in);
 
 	const ArrayList<AbstractCdbValue>* getValues() const noexcept;

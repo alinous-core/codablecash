@@ -34,7 +34,7 @@ TEST(TestJoinPartLeftGroup, case01){
 	_ST(File, sourceFile, projectFolder->get(L"src_test/smartcontract_db/select/table_join/resources/joinleft/case01/select01.alns"))
 
 	TestDbSchema01 schem(this->env);
-	schem.init();
+	schem.init(1024*512);
 
 	VirtualMachine* vm = schem.getVm();
 	{
@@ -57,4 +57,6 @@ TEST(TestJoinPartLeftGroup, case01){
 		stmt->init(vm);
 		stmt->interpret(vm);
 	}
+
+	// TODO: current test
 }

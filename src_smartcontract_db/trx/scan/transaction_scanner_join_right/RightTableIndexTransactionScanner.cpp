@@ -21,14 +21,17 @@
 
 #include "scan_select/scan/IndexScanner.h"
 
+#include "schema_table/record/table_record/CdbRecord.h"
 namespace codablecash {
 
 RightTableIndexTransactionScanner::RightTableIndexTransactionScanner(ScanResultMetadata* metadata, CdbTransaction* trx,
 		const CdbTable* table, const AbstractScanCondition* filterCondition, CdbTableIndex* index)
 			: AbstractTransactionScanner(metadata, trx, table, filterCondition){
 	this->index = index;
+	this->tableStore = nullptr;
 	this->indexStore = nullptr;
 	this->scanner = nullptr;
+	this->record = nullptr;
 }
 
 RightTableIndexTransactionScanner::~RightTableIndexTransactionScanner() {
@@ -42,10 +45,10 @@ void RightTableIndexTransactionScanner::start() {
 	CdbStorageManager* storageManager = mgr->getStorageManager();
 
 	const CdbOid* oid = this->table->getOid();
-	TableStore* tableStore = storageManager->getTableStore(oid);
+	this->tableStore = storageManager->getTableStore(oid);
 
 	const CdbOid* indexOid = this->index->getOid();
-	this->indexStore = tableStore->getIndexStore(indexOid);
+	this->indexStore = this->tableStore->getIndexStore(indexOid);
 
 }
 
@@ -62,11 +65,18 @@ bool RightTableIndexTransactionScanner::hasNext() {
 }
 
 const CdbRecord* RightTableIndexTransactionScanner::next() {
-	return nullptr;
+	delete this->record;
+
+	const CdbOid* recordOid = this->scanner->next();
+
+	this->record = this->tableStore->findRecord(recordOid);
+
+	return this->record;
 }
 
 void RightTableIndexTransactionScanner::shutdown() {
 	setScanner(nullptr);
+	delete this->record;
 }
 
 void RightTableIndexTransactionScanner::setScanner(IndexScanner* scanner) noexcept {

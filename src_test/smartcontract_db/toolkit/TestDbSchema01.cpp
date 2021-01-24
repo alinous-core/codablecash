@@ -150,6 +150,8 @@ void TestDbSchema01::insertData2() {
 
 	insertRecord2(trx, 11, L"tanaka@tanaka.com", &list2);
 	insertRecord2(trx, 11, L"yamada@yamada.com", &list2);
+
+	trx->commit();
 }
 
 void TestDbSchema01::insertRecord2(CdbTransaction* trx, int email_id, const wchar_t* email, ArrayList<CdbRecord>* list) {

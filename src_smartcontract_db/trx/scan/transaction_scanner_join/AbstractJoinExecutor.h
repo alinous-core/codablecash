@@ -23,7 +23,7 @@ public:
 	AbstractJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata, ScanJoinContext* context, AbstractScanCondition* filterCondition);
 	virtual ~AbstractJoinExecutor();
 
-	const ScanResultMetadata* getMedadata() const noexcept {
+	virtual const ScanResultMetadata* getMedadata() const noexcept {
 		return metadata;
 	}
 

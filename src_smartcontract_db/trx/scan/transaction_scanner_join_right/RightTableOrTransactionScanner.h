@@ -30,6 +30,10 @@ public:
 
 	virtual void shutdown();
 
+	virtual const ScanResultMetadata* getMetadata() const noexcept {
+		return this->metadata;
+	}
+
 private:
 	JoinOrCandidate* orCandidate;
 };

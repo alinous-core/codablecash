@@ -32,6 +32,7 @@ public:
 	const CdbRecord* nextInsertedRecord() noexcept;
 
 	const CdbRecord* checkUpdated(const CdbRecord* record) const noexcept;
+
 protected:
 	ScanResultMetadata* metadata;
 	CdbTransaction* trx;

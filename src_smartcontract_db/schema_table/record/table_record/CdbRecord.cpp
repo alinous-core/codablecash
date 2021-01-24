@@ -181,6 +181,19 @@ AbstractCdbValue* CdbRecord::copy() const noexcept {
 	return new CdbRecord(*this);
 }
 
+CdbRecord* CdbRecord::joinRecord(const CdbRecord* record) const noexcept {
+	CdbRecord* ret = new CdbRecord(*this);
+
+	int maxLoop = record->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractCdbValue* value = this->list.get(i);
+
+		ret->addValue(value != nullptr ? value->copy() : nullptr);
+	}
+
+	return ret;
+}
+
 const AbstractCdbValue* CdbRecord::get(int pos) const noexcept {
 	return this->list.get(pos);
 }

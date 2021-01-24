@@ -29,6 +29,9 @@ public:
 	virtual const CdbRecord* next();
 
 	virtual void shutdown();
+	virtual const ScanResultMetadata* getMetadata() const noexcept {
+		return this->metadata;
+	}
 
 private:
 	const OrIndexWrapperCollection* index;

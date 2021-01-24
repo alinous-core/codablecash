@@ -11,6 +11,7 @@
 namespace codablecash {
 
 class CdbRecord;
+class ScanResultMetadata;
 
 class IJoinLeftSource {
 public:
@@ -22,6 +23,8 @@ public:
 	virtual const CdbRecord* next() = 0;
 
 	virtual void shutdown() = 0;
+
+	virtual const ScanResultMetadata* getMetadata() const noexcept = 0;
 };
 
 } /* namespace codablecash */

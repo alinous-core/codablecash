@@ -25,12 +25,16 @@ OuterJoinExecutor::OuterJoinExecutor(IJoinLeftSource* left, IJoinRightSource* ri
 					: AbstractJoinExecutor(left, right, metadata, context, filterCondition){
 	this->leftRecord = nullptr;
 	this->joinCandidateCursor = nullptr;
+	this->nextRecord = nullptr;
+
+	this->joined = false;
 }
 
 OuterJoinExecutor::~OuterJoinExecutor() {
 	shutdown();
 
 	delete this->leftRecord;
+	delete this->nextRecord;
 	delete this->joinCandidateCursor;
 }
 
@@ -43,8 +47,6 @@ void OuterJoinExecutor::start() {
 }
 
 bool OuterJoinExecutor::hasNext() {
-	bool joined = false;
-
 	while(!this->joinCandidateCursor->finished()){
 		if(!hasNextLeftRecord()){
 			this->joinCandidateCursor->inc();
@@ -55,8 +57,9 @@ bool OuterJoinExecutor::hasNext() {
 
 		// right scan for left record
 		if(!this->right->hasNext()){
-			if(!joined){
-
+			delete this->nextRecord, this->nextRecord = nullptr;
+			if(!this->joined){
+				//this->right->
 			}
 
 			continue;
@@ -64,7 +67,9 @@ bool OuterJoinExecutor::hasNext() {
 
 		const CdbRecord* rightRecord = this->right->next();
 
-		joined = true;
+		delete this->nextRecord, this->nextRecord = nullptr;
+		this->nextRecord = this->leftRecord->joinRecord(rightRecord);
+		this->joined = true;
 
 		return true;
 	}
@@ -93,10 +98,11 @@ void OuterJoinExecutor::onChangeLeft() {
 	AbstractCdbKey* key = this->joinCandidateCursor->makeKey(this->leftRecord); __STP(key);
 
 	this->right->reset(key);
+	this->joined = false;
 }
 
 const CdbRecord* OuterJoinExecutor::next() {
-	return nullptr;
+	return this->nextRecord;
 }
 
 void OuterJoinExecutor::shutdown() {

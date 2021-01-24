@@ -24,6 +24,9 @@ public:
 	virtual const CdbRecord* next();
 
 	virtual void shutdown();
+	virtual const ScanResultMetadata* getMetadata() const noexcept {
+		return this->metadata;
+	}
 
 private:
 	bool hasNextLeftRecord();
@@ -32,6 +35,9 @@ private:
 private:
 	CdbRecord* leftRecord;
 	JoinCandidateCursor* joinCandidateCursor;
+	CdbRecord* nextRecord;
+
+	bool joined;
 };
 
 } /* namespace codablecash */

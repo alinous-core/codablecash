@@ -194,6 +194,16 @@ CdbRecord* CdbRecord::joinRecord(const CdbRecord* record) const noexcept {
 	return ret;
 }
 
+CdbRecord* CdbRecord::joinEmptyRecord(int numNull) const noexcept {
+	CdbRecord* ret = new CdbRecord(*this);
+
+	for(int i = 0; i != numNull; ++i){
+		ret->addValue(nullptr);
+	}
+
+	return ret;
+}
+
 const AbstractCdbValue* CdbRecord::get(int pos) const noexcept {
 	return this->list.get(pos);
 }

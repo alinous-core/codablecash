@@ -47,6 +47,7 @@ public:
 	virtual AbstractCdbKey* toKey() const noexcept;
 
 	CdbRecord* joinRecord(const CdbRecord* record) const noexcept;
+	CdbRecord* joinEmptyRecord(int numNull) const noexcept;
 
 	static CdbRecord* createFromBinary(ByteBuffer* in);
 

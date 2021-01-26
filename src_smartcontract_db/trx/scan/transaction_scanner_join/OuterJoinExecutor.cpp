@@ -18,6 +18,13 @@
 
 #include "base/StackRelease.h"
 
+#include "base/ArrayList.h"
+
+#include "trx/scan/transaction_scan_result/ScanResultFieldMetadata.h"
+#include "trx/scan/transaction_scan_result/ScanResultMetadata.h"
+
+using namespace alinous;
+
 namespace codablecash {
 
 OuterJoinExecutor::OuterJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata
@@ -59,7 +66,13 @@ bool OuterJoinExecutor::hasNext() {
 		if(!this->right->hasNext()){
 			delete this->nextRecord, this->nextRecord = nullptr;
 			if(!this->joined){
-				//this->right->
+				const ScanResultMetadata* rightMeta = this->right->getMetadata();
+				const ArrayList<ScanResultFieldMetadata>* l = rightMeta->getList();
+				int size = l->size();
+
+				// TODO add null
+
+				return true;
 			}
 
 			continue;

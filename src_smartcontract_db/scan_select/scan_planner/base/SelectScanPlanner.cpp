@@ -95,7 +95,7 @@ void SelectScanPlanner::executeQuery(VirtualMachine* vm) {
 	IJoinLeftSource* left = scanFactory->createScannerAsLeftSource(vm, this);
 
 	ScanResultExecutor exec(left, db);
-	exec.execScan();
+	exec.execScan(vm);
 
 	// TODO exec scan
 }

@@ -14,6 +14,8 @@
 
 #include "schema_table/record/table_record_local/LocalOidFactory.h"
 
+#include "vm/VirtualMachine.h"
+
 namespace codablecash {
 
 ScanResultExecutor::ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db) {
@@ -28,13 +30,13 @@ ScanResultExecutor::~ScanResultExecutor() {
 	this->db = nullptr;
 }
 
-void ScanResultExecutor::execScan() {
+void ScanResultExecutor::execScan(VirtualMachine* vm) {
 	if(this->source != nullptr){
-		doExecScan();
+		doExecScan(vm);
 	}
 }
 
-void ScanResultExecutor::doExecScan() {
+void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 	LocalOidFactory* localOidFactory = this->db->getLocalOidFactory();
 	CdbLocalCacheManager* cacheManager = this->db->getLocalCacheManager();
 

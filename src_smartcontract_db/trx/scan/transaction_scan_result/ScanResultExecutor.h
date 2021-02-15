@@ -8,6 +8,12 @@
 #ifndef TRX_SCAN_TRANSACTION_SCAN_RESULT_SCANRESULTEXECUTOR_H_
 #define TRX_SCAN_TRANSACTION_SCAN_RESULT_SCANRESULTEXECUTOR_H_
 
+namespace alinous {
+class VirtualMachine;
+}  // namespace alinous
+
+using namespace alinous;
+
 namespace codablecash {
 
 class IJoinLeftSource;
@@ -18,10 +24,10 @@ public:
 	explicit ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db);
 	virtual ~ScanResultExecutor();
 
-	void execScan();
+	void execScan(VirtualMachine* vm);
 
 private:
-	void doExecScan();
+	void doExecScan(VirtualMachine* vm);
 private:
 	IJoinLeftSource* source;
 	CodableDatabase* db;

@@ -59,6 +59,7 @@ bool OuterJoinExecutor::hasNext() {
 			this->joinCandidateCursor->inc();
 
 			delete this->leftRecord, this->leftRecord = nullptr;
+			this->joined = false;
 			continue;
 		}
 
@@ -68,13 +69,17 @@ bool OuterJoinExecutor::hasNext() {
 			if(!this->joined){
 				const ScanResultMetadata* rightMeta = this->right->getMetadata();
 				const ArrayList<ScanResultFieldMetadata>* l = rightMeta->getList();
-				int size = l->size();
 
 				// TODO add null
+				int size = l->size();
+				delete this->nextRecord, this->nextRecord = nullptr;
+				this->nextRecord = this->leftRecord->joinEmptyRecord(size);
+				this->joined = false;
 
 				return true;
 			}
 
+			this->joined = false;
 			continue;
 		}
 

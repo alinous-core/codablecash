@@ -435,6 +435,9 @@ TEST(TestBTreeGroup, add02){
 			CHECK(v == a)
 			CHECK(kv == a)
 		}
+
+		bool hn = scanner->hasNext();
+		CHECK(!hn)
 	}
 
 	{

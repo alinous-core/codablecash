@@ -336,7 +336,12 @@ IBlockObject* NodeCursor::getNext() {
 	NodePosition* current = top();
 
 	// get data from current node;
-	checkIsDataNode(current->getNodeHandle(), __FILE__, __LINE__);
+	NodeHandle* cnh = current->getNodeHandle();
+	if(!cnh->isData() && cnh->isRoot()){
+		return nullptr;
+	}
+
+	checkIsDataNode(cnh, __FILE__, __LINE__);
 	//uint64_t dfpos = current->nextData();
 
 	//if(dfpos != 0){

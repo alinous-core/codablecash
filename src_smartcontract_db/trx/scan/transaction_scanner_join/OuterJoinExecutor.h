@@ -29,6 +29,7 @@ public:
 	}
 
 private:
+	void resetLeftRecord();
 	bool hasNextLeftRecord();
 	void onChangeLeft();
 

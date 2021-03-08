@@ -66,6 +66,7 @@ bool OuterJoinExecutor::hasNext() {
 		// right scan for left record
 		if(!this->right->hasNext()){
 			delete this->nextRecord, this->nextRecord = nullptr;
+
 			if(!this->joined){
 				const ScanResultMetadata* rightMeta = this->right->getMetadata();
 				const ArrayList<ScanResultFieldMetadata>* l = rightMeta->getList();
@@ -76,10 +77,14 @@ bool OuterJoinExecutor::hasNext() {
 				this->nextRecord = this->leftRecord->joinEmptyRecord(size);
 				this->joined = false;
 
+				resetLeftRecord();
+
 				return true;
 			}
 
 			this->joined = false;
+			resetLeftRecord();
+
 			continue;
 		}
 
@@ -95,6 +100,11 @@ bool OuterJoinExecutor::hasNext() {
 	// TODO scan logic
 
 	return false;
+}
+
+void OuterJoinExecutor::resetLeftRecord() {
+	delete this->leftRecord;
+	this->leftRecord = nullptr;
 }
 
 bool OuterJoinExecutor::hasNextLeftRecord() {

@@ -77,6 +77,7 @@ const CdbRecord* RightTableIndexTransactionScanner::next() {
 void RightTableIndexTransactionScanner::shutdown() {
 	setScanner(nullptr);
 	delete this->record;
+	this->record = nullptr;
 }
 
 void RightTableIndexTransactionScanner::setScanner(IndexScanner* scanner) noexcept {

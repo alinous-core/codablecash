@@ -58,7 +58,7 @@ bool OuterJoinExecutor::hasNext() {
 		if(!hasNextLeftRecord()){
 			this->joinCandidateCursor->inc();
 
-			delete this->leftRecord, this->leftRecord = nullptr;
+			resetLeftRecord();
 			this->joined = false;
 			continue;
 		}

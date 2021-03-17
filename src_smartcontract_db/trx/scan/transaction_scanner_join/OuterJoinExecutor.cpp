@@ -114,8 +114,7 @@ bool OuterJoinExecutor::hasNextLeftRecord() {
 		const CdbRecord* rec = this->left->next();
 
 		AbstractCdbValue* v = rec->copy();
-
-		this->leftRecord = dynamic_cast<CdbRecord*>(rec->copy());
+		this->leftRecord = dynamic_cast<CdbRecord*>(v);
 		onChangeLeft();
 	}
 

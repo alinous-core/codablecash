@@ -97,8 +97,6 @@ bool OuterJoinExecutor::hasNext() {
 		return true;
 	}
 
-	// TODO scan logic
-
 	return false;
 }
 

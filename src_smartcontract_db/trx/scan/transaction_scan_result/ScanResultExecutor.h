@@ -24,6 +24,7 @@ public:
 	explicit ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db);
 	virtual ~ScanResultExecutor();
 
+	void init(VirtualMachine* vm);
 	void execScan(VirtualMachine* vm);
 
 private:

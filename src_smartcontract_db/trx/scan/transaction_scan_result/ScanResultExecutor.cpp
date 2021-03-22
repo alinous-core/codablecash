@@ -36,6 +36,10 @@ void ScanResultExecutor::execScan(VirtualMachine* vm) {
 	}
 }
 
+void ScanResultExecutor::init(VirtualMachine* vm) {
+
+}
+
 void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 	LocalOidFactory* localOidFactory = this->db->getLocalOidFactory();
 	CdbLocalCacheManager* cacheManager = this->db->getLocalCacheManager();

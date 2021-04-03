@@ -16,11 +16,14 @@
 
 #include "vm/VirtualMachine.h"
 
+#include "trx/transaction_cache/SingleKeyOidCache.h"
+
 namespace codablecash {
 
 ScanResultExecutor::ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db) {
 	this->source = source;
 	this->db = db;
+	this->cache = nullptr;
 }
 
 ScanResultExecutor::~ScanResultExecutor() {
@@ -28,6 +31,9 @@ ScanResultExecutor::~ScanResultExecutor() {
 
 	delete this->source;
 	this->db = nullptr;
+
+	delete this->cache;
+	this->cache = nullptr;
 }
 
 void ScanResultExecutor::execScan(VirtualMachine* vm) {
@@ -37,6 +43,8 @@ void ScanResultExecutor::execScan(VirtualMachine* vm) {
 }
 
 void ScanResultExecutor::init(VirtualMachine* vm) {
+	CdbLocalCacheManager* localCacheManager = this->db->getLocalCacheManager();
+	this->cache = localCacheManager->createSingleKeyOidCache();
 
 }
 

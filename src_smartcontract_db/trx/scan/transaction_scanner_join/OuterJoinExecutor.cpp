@@ -28,8 +28,8 @@ using namespace alinous;
 namespace codablecash {
 
 OuterJoinExecutor::OuterJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata
-		, ScanJoinContext* context, AbstractScanCondition* filterCondition)
-					: AbstractJoinExecutor(left, right, metadata, context, filterCondition){
+		, ScanJoinContext* context, AbstractScanCondition* filterCondition, LocalOidFactory* localOidFactory)
+					: AbstractJoinExecutor(left, right, metadata, context, filterCondition, localOidFactory){
 	this->leftRecord = nullptr;
 	this->joinCandidateCursor = nullptr;
 	this->nextRecord = nullptr;

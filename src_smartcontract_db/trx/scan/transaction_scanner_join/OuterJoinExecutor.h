@@ -16,7 +16,8 @@ class JoinCandidateCursor;
 
 class OuterJoinExecutor : public AbstractJoinExecutor {
 public:
-	OuterJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata, ScanJoinContext* context, AbstractScanCondition* filterCondition);
+	OuterJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata, ScanJoinContext* context
+			, AbstractScanCondition* filterCondition, LocalOidFactory* localOidFactory);
 	virtual ~OuterJoinExecutor();
 
 	virtual void start();

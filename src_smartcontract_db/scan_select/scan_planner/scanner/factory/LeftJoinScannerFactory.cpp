@@ -13,6 +13,10 @@
 
 #include "scan_select/scan_planner/scanner/ctx/ScanJoinContext.h"
 
+#include "engine/CodableDatabase.h"
+
+#include "vm/VirtualMachine.h"
+
 namespace codablecash {
 
 LeftJoinScannerFactory::LeftJoinScannerFactory(const ScanResultMetadata* metadata, const AbstractScanCondition* joinCondition)
@@ -31,7 +35,10 @@ IJoinLeftSource* LeftJoinScannerFactory::createScannerAsLeftSource(
 	IJoinLeftSource* leftSource = this->leftFactory->createScannerAsLeftSource(vm, planner);
 	IJoinRightSource* rightSource = this->rightFactory->createScannerAsRightSource(vm, planner, joinContext);
 
-	OuterJoinExecutor* exec = new OuterJoinExecutor(leftSource, rightSource, this->metadata, joinContext, this->filterCondition);
+	CodableDatabase* db = vm->getDb();
+	LocalOidFactory* localOidFactory = db->getLocalOidFactory();
+
+	OuterJoinExecutor* exec = new OuterJoinExecutor(leftSource, rightSource, this->metadata, joinContext, this->filterCondition, localOidFactory);
 
 	return exec;
 }

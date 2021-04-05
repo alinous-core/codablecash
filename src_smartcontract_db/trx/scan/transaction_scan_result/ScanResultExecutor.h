@@ -18,7 +18,7 @@ namespace codablecash {
 
 class IJoinLeftSource;
 class CodableDatabase;
-class SingleKeyOidCache;
+class OidKeyRecordCache;
 
 class ScanResultExecutor {
 public:
@@ -33,7 +33,7 @@ private:
 private:
 	IJoinLeftSource* source;
 	CodableDatabase* db;
-	SingleKeyOidCache* cache;
+	OidKeyRecordCache* cache;
 };
 
 } /* namespace codablecash */

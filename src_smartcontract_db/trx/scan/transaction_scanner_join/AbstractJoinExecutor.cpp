@@ -19,12 +19,13 @@
 namespace codablecash {
 
 AbstractJoinExecutor::AbstractJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata
-		, ScanJoinContext* context, AbstractScanCondition* filterCondition) {
+		, ScanJoinContext* context, AbstractScanCondition* filterCondition, LocalOidFactory* localOidFactory) {
 	this->left = left;
 	this->right = right;
 	this->metadata = new ScanResultMetadata(*metadata);
 	this->context = context;
 	this->filterCondition = filterCondition != nullptr ? filterCondition->cloneCondition() : nullptr;
+	this->localOidFactory = localOidFactory;
 }
 
 AbstractJoinExecutor::~AbstractJoinExecutor() {
@@ -33,6 +34,7 @@ AbstractJoinExecutor::~AbstractJoinExecutor() {
 	delete this->metadata;
 	delete this->context;
 	delete this->filterCondition;
+	this->localOidFactory = nullptr;
 }
 
 void AbstractJoinExecutor::start() {

@@ -17,10 +17,12 @@ class IJoinRightSource;
 class ScanResultMetadata;
 class ScanJoinContext;
 class AbstractScanCondition;
+class LocalOidFactory;
 
 class AbstractJoinExecutor : public IJoinLeftSource {
 public:
-	AbstractJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata, ScanJoinContext* context, AbstractScanCondition* filterCondition);
+	AbstractJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata, ScanJoinContext* context
+			, AbstractScanCondition* filterCondition, LocalOidFactory* localOidFactory);
 	virtual ~AbstractJoinExecutor();
 
 	virtual const ScanResultMetadata* getMedadata() const noexcept {
@@ -37,6 +39,8 @@ protected:
 	ScanResultMetadata* metadata;
 	ScanJoinContext* context;
 	AbstractScanCondition* filterCondition;
+
+	LocalOidFactory* localOidFactory;
 };
 
 } /* namespace codablecash */

@@ -16,6 +16,12 @@
 
 #include "scan_select/scan_condition/base/AbstractScanCondition.h"
 
+#include "schema_table/record/table_record_local/LocalOidFactory.h"
+#include "schema_table/record/table_record/CdbRecord.h"
+#include "schema_table/record/table_record_local/LocalCdbOid.h"
+
+#include "base/StackRelease.h"
+
 namespace codablecash {
 
 AbstractJoinExecutor::AbstractJoinExecutor(IJoinLeftSource* left, IJoinRightSource* right, ScanResultMetadata* metadata
@@ -47,5 +53,10 @@ void AbstractJoinExecutor::shutdown() {
 	this->right->shutdown();
 }
 
+void AbstractJoinExecutor::setLocalOid(CdbRecord* record) {
+	LocalCdbOid* localOid = this->localOidFactory->createLocalOid(); __STP(localOid);
+
+	record->setOid(localOid);
+}
 
 } /* namespace codablecash */

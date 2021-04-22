@@ -18,6 +18,7 @@ class ScanResultMetadata;
 class ScanJoinContext;
 class AbstractScanCondition;
 class LocalOidFactory;
+class CdbRecord;
 
 class AbstractJoinExecutor : public IJoinLeftSource {
 public:
@@ -31,6 +32,9 @@ public:
 
 	void start();
 	void shutdown();
+
+protected:
+	void setLocalOid(CdbRecord* record);
 
 protected:
 	IJoinLeftSource* left;

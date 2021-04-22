@@ -50,14 +50,11 @@ void ScanResultExecutor::init(VirtualMachine* vm) {
 void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 	assert(this->cache != nullptr);
 
-	LocalOidFactory* localOidFactory = this->db->getLocalOidFactory();
-	CdbLocalCacheManager* cacheManager = this->db->getLocalCacheManager();
-
 	this->source->start();
 	while(this->source->hasNext()){
 		const CdbRecord* record = this->source->next();
 
-
+		this->cache->insert(record);
 	}
 }
 

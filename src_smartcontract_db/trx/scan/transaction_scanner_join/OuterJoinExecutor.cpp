@@ -75,6 +75,8 @@ bool OuterJoinExecutor::hasNext() {
 				int size = l->size();
 				delete this->nextRecord, this->nextRecord = nullptr;
 				this->nextRecord = this->leftRecord->joinEmptyRecord(size);
+				setLocalOid(this->nextRecord);
+
 				this->joined = false;
 
 				resetLeftRecord();
@@ -92,6 +94,8 @@ bool OuterJoinExecutor::hasNext() {
 
 		delete this->nextRecord, this->nextRecord = nullptr;
 		this->nextRecord = this->leftRecord->joinRecord(rightRecord);
+		setLocalOid(this->nextRecord);
+
 		this->joined = true;
 
 		return true;

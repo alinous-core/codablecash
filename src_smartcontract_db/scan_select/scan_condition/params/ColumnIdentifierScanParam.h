@@ -44,6 +44,8 @@ public:
 
 	bool hasIndex() const noexcept;
 
+	virtual AbstractCdbValue* evaluate(VirtualMachine* vm, const CdbRecord* record) const;
+
 private:
 	bool resolveAlias(const UnicodeString* tableAlias, ScanTargetNameResolver* aliasResolver);
 

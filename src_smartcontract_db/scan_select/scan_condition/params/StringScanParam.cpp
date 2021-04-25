@@ -47,4 +47,9 @@ IValueProvider* StringScanParam::clone() const noexcept {
 	return new StringScanParam(*this);
 }
 
+AbstractCdbValue* StringScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+	// FIXME evaluate()
+	return nullptr;
+}
+
 } /* namespace codablecash */

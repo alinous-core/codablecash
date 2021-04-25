@@ -29,4 +29,9 @@ IValueProvider* WildCardScanParam::clone() const noexcept {
 	return new WildCardScanParam();
 }
 
+AbstractCdbValue* WildCardScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+	// FIXME evaluate()
+	return nullptr;
+}
+
 } /* namespace codablecash */

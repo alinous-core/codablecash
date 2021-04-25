@@ -12,7 +12,15 @@
 
 #include "scan_select/scan_condition/base/IValueProvider.h"
 
+namespace alinous {
+class VirtualMachine;
+}  // namespace alinous
+
+
 namespace codablecash {
+
+class CdbRecord;
+class AbstractCdbValue;
 
 class AbstractScanConditionParameter : public AbstractScanConditionElement, public IValueProvider {
 public:
@@ -23,6 +31,8 @@ public:
 	virtual bool isFilterable(VirtualMachine* vm, SelectScanPlanner* planner, FilterConditionDitector* detector) const noexcept;
 
 	virtual IValueProvider* clone() const noexcept = 0;
+
+	virtual AbstractCdbValue* evaluate(VirtualMachine* vm, const CdbRecord* record) const = 0;
 };
 
 } /* namespace codablecash */

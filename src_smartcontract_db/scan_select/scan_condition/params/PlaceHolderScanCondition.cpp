@@ -46,4 +46,9 @@ IValueProvider* PlaceHolderScanCondition::clone() const noexcept {
 	return new PlaceHolderScanCondition(*this);
 }
 
+AbstractCdbValue* PlaceHolderScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+	// FIXME evaluate()
+	return nullptr;
+}
+
 } /* namespace codablecash */

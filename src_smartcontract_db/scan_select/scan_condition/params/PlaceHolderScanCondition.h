@@ -26,6 +26,8 @@ public:
 	virtual const UnicodeString* toStringCode() noexcept;
 	virtual IValueProvider* clone() const noexcept;
 
+	virtual AbstractCdbValue* evaluate(VirtualMachine* vm, const CdbRecord* record) const;
+
 private:
 	void resetStr() noexcept;
 

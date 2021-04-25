@@ -12,6 +12,7 @@
 
 namespace alinous {
 class UnicodeString;
+class VirtualMachine;
 }  // namespace alinous
 
 namespace codablecash {
@@ -19,6 +20,7 @@ namespace codablecash {
 class JoinCandidateHolder;
 class FilterConditionDitector;
 class TableIndexDetector;
+class CdbRecord;
 
 class AbstractScanCondition : public AbstractScanConditionElement {
 public:
@@ -34,6 +36,8 @@ public:
 	virtual void detectIndexCondition(VirtualMachine* vm, SelectScanPlanner* planner, TableIndexDetector* detector) = 0;
 
 	virtual AbstractScanCondition* cloneCondition() const noexcept = 0;
+
+	//virtual bool evaluate(VirtualMachine* vm, const CdbRecord* record) const = 0;
 
 private:
 	short type;

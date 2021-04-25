@@ -41,4 +41,9 @@ IValueProvider* NumericScanParam::clone() const noexcept {
 	return new NumericScanParam(*this);
 }
 
+AbstractCdbValue* NumericScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+	// FIXME evaluate()
+	return nullptr;
+}
+
 } /* namespace codablecash */

@@ -35,4 +35,9 @@ IValueProvider* BooleanScanParam::clone() const noexcept {
 	return new BooleanScanParam(*this);
 }
 
+AbstractCdbValue* BooleanScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+	// FIXME evaluate()
+	return nullptr;
+}
+
 } /* namespace codablecash */

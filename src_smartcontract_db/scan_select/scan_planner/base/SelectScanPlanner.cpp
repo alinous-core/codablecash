@@ -28,6 +28,7 @@
 
 #include "base/StackRelease.h"
 
+#include "vm/VmSelectPlannerSetter.h"
 
 namespace codablecash {
 
@@ -93,6 +94,8 @@ void SelectScanPlanner::executeQuery(VirtualMachine* vm) {
 	AbstractScannerFactory* scanFactory = this->plan->getScanFactory();
 
 	IJoinLeftSource* left = scanFactory->createScannerAsLeftSource(vm, this);
+
+	VmSelectPlannerSetter setter(vm, this);
 
 	ScanResultExecutor exec(left, db);
 	exec.init(vm);

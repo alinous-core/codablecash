@@ -17,6 +17,13 @@
 #include "vm/VirtualMachine.h"
 
 #include "trx/transaction_cache/OidKeyRecordCache.h"
+
+#include "scan_select/scan_planner/base/ConditionsHolder.h"
+#include "scan_select/scan_planner/base/SelectScanPlanner.h"
+
+#include "scan_select/scan_condition/base/RootScanCondition.h"
+
+
 namespace codablecash {
 
 ScanResultExecutor::ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db) {
@@ -49,6 +56,10 @@ void ScanResultExecutor::init(VirtualMachine* vm) {
 
 void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 	assert(this->cache != nullptr);
+
+	SelectScanPlanner* planner = vm->getSelectPlanner();
+	ConditionsHolder* cholder = planner->getConditions();
+	RootScanCondition* root = cholder->getRoot();
 
 	this->source->start();
 	while(this->source->hasNext()){

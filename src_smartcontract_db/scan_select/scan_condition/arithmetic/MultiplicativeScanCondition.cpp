@@ -140,4 +140,11 @@ AbstractScanCondition* MultiplicativeScanCondition::cloneCondition() const noexc
 	return dynamic_cast<MultiplicativeScanCondition*>(clone());
 }
 
+AbstractCdbValue* MultiplicativeScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record,
+		const ScanResultMetadata* metadata) {
+	// FIXME evaluate()
+	return nullptr;
+}
+
+
 } /* namespace codablecash */

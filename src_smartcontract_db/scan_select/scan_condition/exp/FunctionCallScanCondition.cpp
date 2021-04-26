@@ -137,4 +137,11 @@ IValueProvider* FunctionCallScanCondition::clone() const noexcept {
 	return new FunctionCallScanCondition(*this);
 }
 
+AbstractCdbValue* FunctionCallScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record,
+		const ScanResultMetadata* metadata) {
+	// FIXME evaluate()
+	return nullptr;
+}
+
+
 } /* namespace codablecash */

@@ -37,6 +37,8 @@ public:
 
 	static AbstractIndexCandidate::IndexType toIndexType(uint8_t op, bool reverse);
 
+	virtual AbstractCdbValue* evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata);
+
 private:
 	void resetStr() noexcept;
 

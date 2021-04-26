@@ -168,5 +168,10 @@ AbstractIndexCandidate::IndexType RelationalScanCondition::toIndexType(uint8_t o
 	return idxType;
 }
 
+AbstractCdbValue* RelationalScanCondition::evaluate(VirtualMachine* vm,
+		const CdbRecord* record, const ScanResultMetadata* metadata) {
+	// FIXME evaluate()
+	return nullptr;
+}
 
 } /* namespace codablecash */

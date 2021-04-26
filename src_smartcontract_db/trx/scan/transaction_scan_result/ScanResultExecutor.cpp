@@ -57,12 +57,13 @@ void ScanResultExecutor::init(VirtualMachine* vm) {
 void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 	assert(this->cache != nullptr);
 
-
 	RootScanCondition* root = nullptr;
 
 	SelectScanPlanner* planner = vm->getSelectPlanner();
 	ConditionsHolder* cholder = planner->getConditions();
 	root = cholder->getRoot();
+
+	const ScanResultMetadata* metadata = this->source->getMetadata();
 
 	this->source->start();
 	while(this->source->hasNext()){

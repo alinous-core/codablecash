@@ -137,5 +137,11 @@ IValueProvider* AdditiveScanCondition::clone() const noexcept {
 	return cond;
 }
 
+AbstractCdbValue* AdditiveScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record,
+		const ScanResultMetadata* metadata) {
+	// FIXME evaluate()
+	return nullptr;
+}
+
 
 } /* namespace codablecash */

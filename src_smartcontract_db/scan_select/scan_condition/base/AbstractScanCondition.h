@@ -21,6 +21,8 @@ class JoinCandidateHolder;
 class FilterConditionDitector;
 class TableIndexDetector;
 class CdbRecord;
+class ScanResultMetadata;
+class AbstractCdbValue;
 
 class AbstractScanCondition : public AbstractScanConditionElement {
 public:
@@ -37,7 +39,7 @@ public:
 
 	virtual AbstractScanCondition* cloneCondition() const noexcept = 0;
 
-	//virtual bool evaluate(VirtualMachine* vm, const CdbRecord* record) const = 0;
+	virtual AbstractCdbValue* evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) = 0;
 
 private:
 	short type;

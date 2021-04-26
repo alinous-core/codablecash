@@ -216,5 +216,10 @@ void AndScanCondition::collectJoinCandidate(VirtualMachine* vm,
 	}
 }
 
+AbstractCdbValue* AndScanCondition::evaluate(VirtualMachine* vm,
+		const CdbRecord* record, const ScanResultMetadata* metadata) {
+	// FIXME evaluate()
+	return nullptr;
+}
 
 } /* namespace codablecash */

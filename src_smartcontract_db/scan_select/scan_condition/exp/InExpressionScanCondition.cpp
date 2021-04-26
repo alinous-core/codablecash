@@ -101,5 +101,12 @@ void InExpressionScanCondition::analyzeConditions(VirtualMachine* vm, SelectScan
 	this->left->analyzeConditions(vm, planner);
 }
 
+AbstractCdbValue* InExpressionScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record,
+		const ScanResultMetadata* metadata) {
+	// FIXME evaluate()
+	return nullptr;
+}
+
+
 
 } /* namespace codablecash */

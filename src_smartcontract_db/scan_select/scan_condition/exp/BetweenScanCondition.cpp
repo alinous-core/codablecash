@@ -114,5 +114,10 @@ void BetweenScanCondition::analyzeConditions(VirtualMachine* vm, SelectScanPlann
 
 }
 
+AbstractCdbValue* BetweenScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record,
+		const ScanResultMetadata* metadata) {
+	// FIXME evaluate()
+	return nullptr;
+}
 
 } /* namespace codablecash */

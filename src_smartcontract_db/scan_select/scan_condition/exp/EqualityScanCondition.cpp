@@ -176,4 +176,10 @@ bool EqualityScanCondition::hasLeftAndRightScanTarget(
 	return l && r;
 }
 
+AbstractCdbValue* EqualityScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record,
+		const ScanResultMetadata* metadata) {
+	// FIXME evaluate()
+	return nullptr;
+}
+
 } /* namespace codablecash */

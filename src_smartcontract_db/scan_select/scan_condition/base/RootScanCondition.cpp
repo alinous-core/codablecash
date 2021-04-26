@@ -10,6 +10,8 @@
 #include "scan_select/scan_planner/scanner/ctx/FilterConditionStackMarker.h"
 #include "scan_select/scan_planner/scanner/ctx/FilterConditionDitector.h"
 
+#include "schema_table/record/table_record_value/CdbByteValue.h"
+
 namespace codablecash {
 
 RootScanCondition::RootScanCondition() : AbstractScanCondition(0) {
@@ -58,6 +60,10 @@ AbstractScanCondition* RootScanCondition::cloneCondition() const noexcept {
 
 AbstractCdbValue* RootScanCondition::evaluate(VirtualMachine* vm,
 		const CdbRecord* record, const ScanResultMetadata* metadata) {
+	if(this->cond == nullptr){
+		return new CdbByteValue(0);
+	}
+
 	// FIXME evaluate()
 	return nullptr;
 }

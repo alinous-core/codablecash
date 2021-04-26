@@ -19,6 +19,9 @@ namespace codablecash {
 class IJoinLeftSource;
 class CodableDatabase;
 class OidKeyRecordCache;
+class CdbRecord;
+class ScanResultMetadata;
+class RootScanCondition;
 
 class ScanResultExecutor {
 public:
@@ -30,6 +33,9 @@ public:
 
 private:
 	void doExecScan(VirtualMachine* vm);
+	bool checkRecord(VirtualMachine* vm, RootScanCondition* root, const CdbRecord* record, const ScanResultMetadata* metadata);
+
+
 private:
 	IJoinLeftSource* source;
 	CodableDatabase* db;

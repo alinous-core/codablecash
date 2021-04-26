@@ -41,7 +41,7 @@ IValueProvider* NumericScanParam::clone() const noexcept {
 	return new NumericScanParam(*this);
 }
 
-AbstractCdbValue* NumericScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+AbstractCdbValue* NumericScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) {
 	// FIXME evaluate()
 	return nullptr;
 }

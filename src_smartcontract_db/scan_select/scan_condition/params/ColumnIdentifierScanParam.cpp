@@ -158,7 +158,7 @@ bool ColumnIdentifierScanParam::hasIndex() const noexcept {
 	return index != nullptr;
 }
 
-AbstractCdbValue* ColumnIdentifierScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+AbstractCdbValue* ColumnIdentifierScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) {
 	// FIXME evaluate() column
 	return nullptr;
 }

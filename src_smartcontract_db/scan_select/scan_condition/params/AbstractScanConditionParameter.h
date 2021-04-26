@@ -31,8 +31,6 @@ public:
 	virtual bool isFilterable(VirtualMachine* vm, SelectScanPlanner* planner, FilterConditionDitector* detector) const noexcept;
 
 	virtual IValueProvider* clone() const noexcept = 0;
-
-	virtual AbstractCdbValue* evaluate(VirtualMachine* vm, const CdbRecord* record) const = 0;
 };
 
 } /* namespace codablecash */

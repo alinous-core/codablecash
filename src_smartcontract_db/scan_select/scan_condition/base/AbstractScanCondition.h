@@ -39,8 +39,6 @@ public:
 
 	virtual AbstractScanCondition* cloneCondition() const noexcept = 0;
 
-	virtual AbstractCdbValue* evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) = 0;
-
 private:
 	short type;
 };

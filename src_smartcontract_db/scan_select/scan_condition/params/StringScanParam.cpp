@@ -47,7 +47,7 @@ IValueProvider* StringScanParam::clone() const noexcept {
 	return new StringScanParam(*this);
 }
 
-AbstractCdbValue* StringScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+AbstractCdbValue* StringScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) {
 	// FIXME evaluate()
 	return nullptr;
 }

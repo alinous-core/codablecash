@@ -53,7 +53,7 @@ IValueProvider* MultipleValueProvidorScanParam::clone() const noexcept {
 	return new MultipleValueProvidorScanParam(*this);
 }
 
-AbstractCdbValue* MultipleValueProvidorScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+AbstractCdbValue* MultipleValueProvidorScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) {
 	// FIXME evaluate()
 	return nullptr;
 }

@@ -46,7 +46,7 @@ IValueProvider* PlaceHolderScanCondition::clone() const noexcept {
 	return new PlaceHolderScanCondition(*this);
 }
 
-AbstractCdbValue* PlaceHolderScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record) const {
+AbstractCdbValue* PlaceHolderScanCondition::evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) {
 	// FIXME evaluate()
 	return nullptr;
 }

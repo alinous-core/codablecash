@@ -64,8 +64,7 @@ AbstractCdbValue* RootScanCondition::evaluate(VirtualMachine* vm,
 		return new CdbByteValue(0);
 	}
 
-	// FIXME evaluate()
-	return nullptr;
+	return this->cond->evaluate(vm, record, metadata);
 }
 
 

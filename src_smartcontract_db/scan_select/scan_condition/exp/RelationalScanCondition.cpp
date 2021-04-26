@@ -16,6 +16,7 @@
 #include "engine/CdbException.h"
 
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
 
 #include "lang_sql/sql_expression/SQLRelationalExpression.h"
 
@@ -26,6 +27,12 @@
 #include "scan_select/scan_planner/scanner/index/TableIndexDetector.h"
 
 #include "scan_select/scan_planner/base/SelectScanPlanner.h"
+
+#include "schema_table/record/table_record_value/AbstractCdbValue.h"
+#include "schema_table/record/table_record_value/CdbByteValue.h"
+
+#include "schema_table/record/table_record_key/AbstractCdbKey.h"
+
 
 using namespace alinous;
 
@@ -170,11 +177,36 @@ AbstractIndexCandidate::IndexType RelationalScanCondition::toIndexType(uint8_t o
 
 AbstractCdbValue* RelationalScanCondition::evaluate(VirtualMachine* vm,
 		const CdbRecord* record, const ScanResultMetadata* metadata) {
+	AbstractScanConditionElement* leftElement = dynamic_cast<AbstractScanConditionElement*>(this->left);
+	AbstractScanConditionElement* rightElement = dynamic_cast<AbstractScanConditionElement*>(this->right);
 
+	AbstractCdbValue* lv = leftElement->evaluate(vm, record, metadata); __STP(lv);
+	AbstractCdbValue* rv = rightElement->evaluate(vm, record, metadata); __STP(rv);
 
+	AbstractCdbKey* lk = lv->toKey(); __STP(lk);
+	AbstractCdbKey* rk = lv->toKey(); __STP(rk);
+
+	int cmp = lk->compareTo(rk);
+	int result = 0;
+
+	switch(op){
+	case SQLRelationalExpression::GT:
+		result = cmp > 0 ? 1 : 0;
+		break;
+	case SQLRelationalExpression::GT_EQ:
+		result = cmp >= 0 ? 1 : 0;
+		break;
+	case SQLRelationalExpression::LT:
+		result = cmp < 0 ? 1 : 0;
+		break;
+	case SQLRelationalExpression::LT_EQ:
+	default:
+		result = cmp <= 0 ? 1 : 0;
+		break;
+	}
 
 	// FIXME evaluate()
-	return nullptr;
+	return new CdbByteValue(result);
 }
 
 } /* namespace codablecash */

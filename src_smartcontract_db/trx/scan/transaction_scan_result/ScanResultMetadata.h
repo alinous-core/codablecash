@@ -21,6 +21,7 @@ namespace codablecash {
 class CdbTable;
 class CdbTableColumn;
 class ScanResultFieldMetadata;
+class ColumnIdentifierScanParam;
 
 class ScanResultMetadata {
 public:
@@ -35,6 +36,8 @@ public:
 	const ArrayList<ScanResultFieldMetadata>* getList() const noexcept {
 		return list;
 	}
+
+	const ScanResultFieldMetadata* findField(ColumnIdentifierScanParam* scanColumnId) const noexcept;
 
 private:
 	ArrayList<ScanResultFieldMetadata> *list;

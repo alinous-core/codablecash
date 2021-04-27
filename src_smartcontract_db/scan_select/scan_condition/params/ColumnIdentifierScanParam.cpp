@@ -24,6 +24,8 @@
 
 #include "schema_table/schema/SchemaManager.h"
 
+#include "schema_table/record/table_record/CdbRecord.h"
+
 #include "scan_select/scan_planner/analyze/AnalyzedScanPlan.h"
 #include "scan_select/scan_planner/analyze/ScanTargetNameResolver.h"
 
@@ -33,23 +35,30 @@
 
 #include "scan_select/scan_planner/base/TablesHolder.h"
 
+#include "trx/scan/transaction_scan_result/ScanResultMetadata.h"
+#include "trx/scan/transaction_scan_result/ScanResultFieldMetadata.h"
+
+
 namespace codablecash {
 
 ColumnIdentifierScanParam::ColumnIdentifierScanParam(const ColumnIdentifierScanParam& inst) : sqlColId(inst.sqlColId) {
 	this->cdbColumn = inst.cdbColumn;
 	this->str = nullptr;
 	this->sourceTarget = inst.sourceTarget;
+	this->fieldMetadata = nullptr;
 }
 
 ColumnIdentifierScanParam::ColumnIdentifierScanParam(SQLColumnIdentifier* sqlColId) : sqlColId(sqlColId){
 	this->cdbColumn = nullptr;
 	this->str = nullptr;
 	this->sourceTarget = nullptr;
+	this->fieldMetadata = nullptr;
 }
 
 ColumnIdentifierScanParam::~ColumnIdentifierScanParam() {
 	delete this->str;
 	this->cdbColumn = nullptr;
+	this->fieldMetadata = nullptr;
 }
 
 const UnicodeString* ColumnIdentifierScanParam::toStringCode() noexcept {
@@ -159,8 +168,14 @@ bool ColumnIdentifierScanParam::hasIndex() const noexcept {
 }
 
 AbstractCdbValue* ColumnIdentifierScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) {
-	// FIXME evaluate() column
-	return nullptr;
+	if(this->fieldMetadata == nullptr){
+		this->fieldMetadata = metadata->findField(this);
+	}
+
+	int pos = this->fieldMetadata->getPosition();
+	const AbstractCdbValue* v = record->get(pos);
+
+	return v != nullptr ? v->copy() : nullptr;
 }
 
 } /* namespace codablecash */

@@ -10,6 +10,8 @@
 #include "base/UnicodeString.h"
 #include "base/Long.h"
 
+#include "schema_table/record/table_record_value/CdbLongValue.h"
+
 using namespace alinous;
 
 namespace codablecash {
@@ -42,8 +44,7 @@ IValueProvider* NumericScanParam::clone() const noexcept {
 }
 
 AbstractCdbValue* NumericScanParam::evaluate(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) {
-	// FIXME evaluate()
-	return nullptr;
+	return new CdbLongValue(this->value);
 }
 
 } /* namespace codablecash */

@@ -53,5 +53,20 @@ void ScanResultMetadata::join(const ScanResultMetadata* other) noexcept {
 	}
 }
 
-} /* namespace codablecash */
+const ScanResultFieldMetadata* ScanResultMetadata::findField(ColumnIdentifierScanParam* scanColumnId) const noexcept {
+	const ScanResultFieldMetadata* result = nullptr;
 
+	int maxLoop = this->list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		ScanResultFieldMetadata* fld = this->list->get(i);
+		if(fld->match(scanColumnId)){
+			result = fld;
+			break;
+		}
+	}
+
+	return result;
+}
+
+
+} /* namespace codablecash */

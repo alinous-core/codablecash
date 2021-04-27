@@ -20,6 +20,7 @@ namespace codablecash {
 class CdbTableColumn;
 class ScanTargetNameResolver;
 class AbstractScanTableTarget;
+class ScanResultFieldMetadata;
 
 class ColumnIdentifierScanParam : public AbstractScanConditionParameter {
 public:
@@ -56,6 +57,8 @@ private:
 	const CdbTableColumn* cdbColumn;
 
 	UnicodeString* str;
+
+	const ScanResultFieldMetadata* fieldMetadata;
 };
 
 } /* namespace codablecash */

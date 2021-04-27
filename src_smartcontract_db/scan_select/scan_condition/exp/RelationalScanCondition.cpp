@@ -183,6 +183,10 @@ AbstractCdbValue* RelationalScanCondition::evaluate(VirtualMachine* vm,
 	AbstractCdbValue* lv = leftElement->evaluate(vm, record, metadata); __STP(lv);
 	AbstractCdbValue* rv = rightElement->evaluate(vm, record, metadata); __STP(rv);
 
+	if(lv == nullptr || rv == nullptr){
+
+	}
+
 	AbstractCdbKey* lk = lv->toKey(); __STP(lk);
 	AbstractCdbKey* rk = lv->toKey(); __STP(rk);
 
@@ -205,7 +209,6 @@ AbstractCdbValue* RelationalScanCondition::evaluate(VirtualMachine* vm,
 		break;
 	}
 
-	// FIXME evaluate()
 	return new CdbByteValue(result);
 }
 

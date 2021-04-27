@@ -23,6 +23,7 @@
 
 #include "schema_table/record/table_record/CdbRecord.h"
 
+#include "schema_table/record/table_record_value/CdbNullValue.h"
 namespace codablecash {
 
 CdbDataFactory::CdbDataFactory() {
@@ -38,6 +39,9 @@ IBlockObject* CdbDataFactory::makeDataFromBinary(ByteBuffer* in) {
 	AbstractCdbValue* value = nullptr;
 
 	switch(type){
+	case AbstractCdbValue::TYPE_NULL:
+		value = new CdbNullValue();
+		break;
 	case AbstractCdbValue::TYPE_BYTE:
 		value = new CdbByteValue();
 		break;

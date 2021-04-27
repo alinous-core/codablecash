@@ -5,6 +5,7 @@ set(__src
 	CdbByteValue.cpp
 	CdbIntValue.cpp
 	CdbLongValue.cpp
+	CdbNullValue.cpp
 	CdbOidValueList.cpp
 	CdbOidValueListCursor.cpp
 	CdbShortValue.cpp

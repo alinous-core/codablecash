@@ -18,6 +18,7 @@
 #include "schema_table/record/table_record_key/CdbStringKey.h"
 #include "schema_table/record/table_record_key/CdbRecordKey.h"
 #include "schema_table/record/table_record_key/CdbOidKey.h"
+#include "schema_table/record/table_record_key/CdbNullKey.h"
 
 namespace codablecash {
 
@@ -33,6 +34,9 @@ AbstractBtreeKey* CdbKeyFactory::fromBinary(uint32_t keyType, ByteBuffer* in) co
 	AbstractCdbKey* retKey = nullptr;
 
 	switch(keyType){
+	case AbstractCdbKey::TYPE_NULL:
+		retKey = new CdbNullKey();
+		break;
 	case AbstractCdbKey::TYPE_BYTE:
 		retKey = new CdbByteKey();
 		break;

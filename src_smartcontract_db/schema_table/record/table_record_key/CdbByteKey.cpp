@@ -39,8 +39,8 @@ int CdbByteKey::compareTo(const AbstractBtreeKey* key) const noexcept {
 		return 1;
 	}
 
-	const CdbByteKey* cdbkey = dynamic_cast<const CdbByteKey*>(key);
-	return this->value - cdbkey->value;
+	const AbstractCdbKey* cdbkey = dynamic_cast<const AbstractCdbKey*>(key);
+	return (int64_t)this->value - cdbkey->toInt64();
 }
 
 int CdbByteKey::binarySize() const {

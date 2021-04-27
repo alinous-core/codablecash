@@ -28,6 +28,10 @@ public:
 	virtual void fromBinary(ByteBuffer* in);
 
 	void addKey(AbstractBtreeKey* key) noexcept;
+
+	virtual int64_t toInt64() const noexcept {
+		return this->list.size();
+	}
 private:
 	ArrayList<AbstractBtreeKey> list;
 };

@@ -30,6 +30,10 @@ public:
 		return value;
 	}
 
+	virtual int64_t toInt64() const noexcept {
+		return this->value;
+	}
+
 private:
 	int64_t value;
 };

@@ -10,6 +10,8 @@
 
 #include "schema_table/record/table_record_key/AbstractCdbKey.h"
 
+#include "engine/CdbOid.h"
+
 namespace codablecash {
 
 class CdbOid;
@@ -33,6 +35,10 @@ public:
 
 	const CdbOid* getOid() const noexcept {
 		return this->oid;
+	}
+
+	virtual int64_t toInt64() const noexcept {
+		return this->oid->getOidValue();
 	}
 
 private:

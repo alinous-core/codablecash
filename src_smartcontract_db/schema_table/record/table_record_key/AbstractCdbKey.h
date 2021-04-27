@@ -35,6 +35,8 @@ public:
 	virtual bool isNull() const;
 	virtual void fromBinary(ByteBuffer* in) = 0;
 
+	virtual int64_t toInt64() const noexcept = 0;
+
 protected:
 	uint32_t type;
 };

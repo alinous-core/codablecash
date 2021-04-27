@@ -30,6 +30,10 @@ AbstractBtreeKey* CdbNullKey::clone() const noexcept {
 }
 
 int CdbNullKey::compareTo(const AbstractBtreeKey* key) const noexcept {
+	if(key->isNull()){
+		return 0;
+	}
+	return -1;
 }
 
 int CdbNullKey::binarySize() const {

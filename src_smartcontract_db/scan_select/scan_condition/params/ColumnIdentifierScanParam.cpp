@@ -26,6 +26,8 @@
 
 #include "schema_table/record/table_record/CdbRecord.h"
 
+#include "schema_table/record/table_record_value/CdbNullValue.h"
+
 #include "scan_select/scan_planner/analyze/AnalyzedScanPlan.h"
 #include "scan_select/scan_planner/analyze/ScanTargetNameResolver.h"
 
@@ -175,7 +177,7 @@ AbstractCdbValue* ColumnIdentifierScanParam::evaluate(VirtualMachine* vm, const 
 	int pos = this->fieldMetadata->getPosition();
 	const AbstractCdbValue* v = record->get(pos);
 
-	return v != nullptr ? v->copy() : nullptr;
+	return v != nullptr ? v->copy() : new CdbNullValue();
 }
 
 } /* namespace codablecash */

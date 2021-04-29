@@ -147,7 +147,7 @@ TEST(TestCdbValuesGroup, CdbString03){
 TEST(TestCdbValuesGroup, dataFactoryError){
 	int size = 10;
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(size, true); __STP(buff);
-	buff->put(100);
+	buff->put(123);
 	buff->position(0);
 
 	CdbDataFactory factory;

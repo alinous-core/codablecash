@@ -2,4 +2,4 @@ SELECT * FROM test_table LEFT JOIN emails
 ON
 	test_table.email_id = emails.email_id
 WHERE
-	test_table.email_id < 10;
+	test_table.email_id < 12;

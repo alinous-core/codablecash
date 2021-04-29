@@ -184,7 +184,7 @@ AbstractCdbValue* RelationalScanCondition::evaluate(VirtualMachine* vm,
 	AbstractCdbValue* rv = rightElement->evaluate(vm, record, metadata); __STP(rv);
 
 	AbstractCdbKey* lk = lv->toKey(); __STP(lk);
-	AbstractCdbKey* rk = lv->toKey(); __STP(rk);
+	AbstractCdbKey* rk = rv->toKey(); __STP(rk);
 
 	int cmp = lk->compareTo(rk);
 	int result = 0;

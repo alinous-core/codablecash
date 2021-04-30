@@ -33,6 +33,10 @@
 #include "engine/sc_analyze/ValidationError.h"
 
 #include "vm/type_check/InternalTypeChecker.h"
+
+#include "base/StackRelease.h"
+
+#include "vm/variable_access/StackVariableAccess.h"
 namespace alinous {
 
 VariableDeclareStatement::VariableDeclareStatement() : AbstractStatement(CodeElement::STMT_VARIABLE_DECLARE) {
@@ -86,10 +90,17 @@ void VariableDeclareStatement::analyze(AnalyzeContext* actx) {
 	AnalyzeStack* stack = stackManager->top();
 
 	const UnicodeString* strName = this->variableId->getName();
+
+	// duplicated variable
+	StackVariableAccess* access = stackManager->findDuplicatedVariableAccess(strName); __STP(access);
+	if(access != nullptr){
+		actx->addValidationError(ValidationError::CODE_DUPLICATED_VARIABLE, this, L"Declared variable is duplicated.", {});
+		return;
+	}
+
 	AnalyzedStackReference* ref = new AnalyzedStackReference(strName, this->atype);
 	stack->addVariableDeclare(ref);
 
-	// FIXME duplicated ref
 
 	if(this->exp != nullptr){
 		AnalyzedTypeChecker checker;

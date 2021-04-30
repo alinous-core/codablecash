@@ -30,11 +30,11 @@ public:
 
 	void init(VirtualMachine* vm);
 	void execScan(VirtualMachine* vm);
+	void putResult(VirtualMachine* vm);
 
 private:
 	void doExecScan(VirtualMachine* vm);
 	bool checkRecord(VirtualMachine* vm, RootScanCondition* root, const CdbRecord* record, const ScanResultMetadata* metadata);
-
 
 private:
 	IJoinLeftSource* source;

@@ -89,6 +89,8 @@ void VariableDeclareStatement::analyze(AnalyzeContext* actx) {
 	AnalyzedStackReference* ref = new AnalyzedStackReference(strName, this->atype);
 	stack->addVariableDeclare(ref);
 
+	// FIXME duplicated ref
+
 	if(this->exp != nullptr){
 		AnalyzedTypeChecker checker;
 		AnalyzedType exAt = this->exp->getType(actx);

@@ -32,6 +32,7 @@ public:
 	AnalyzeStack* get(int pos) const noexcept;
 
 	StackVariableAccess* findStackVariableAccess(const UnicodeString* name) const noexcept;
+	StackVariableAccess* findDuplicatedVariableAccess(const UnicodeString* name) const noexcept;
 
 	StackVariableAccess* getThisPointer() const noexcept;
 

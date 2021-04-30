@@ -64,6 +64,8 @@ public:
 	static constexpr int CODE_CAST_TYPE_INCOMPATIBLE = 90;
 	static constexpr int CODE_CAST_TYPE_NOT_EXIST = 91;
 
+	static constexpr int CODE_DUPLICATED_VARIABLE = 100;
+
 	static constexpr int CODE_CONSTRUCTOR_MUST_BE_FIRST_STMT = 120;
 
 	static constexpr int DB_TYPE_NOT_EXISTS = 1001;

@@ -81,6 +81,20 @@ StackVariableAccess* AnalyzeStackManager::findStackVariableAccess(const UnicodeS
 	return access;
 }
 
+StackVariableAccess* AnalyzeStackManager::findDuplicatedVariableAccess(const UnicodeString* name) const noexcept {
+	StackVariableAccess* access = nullptr;
+
+	int topStack = this->stack->size() - 1;
+	AnalyzeStack* stack = this->stack->get(topStack);
+
+	int pos = stack->findStackPosOfVariable(name);
+	if(pos >= 0){
+		access = new StackVariableAccess(0, pos);
+	}
+
+	return access;
+}
+
 int AnalyzeStackManager::topIndex() const noexcept {
 	return this->stack->size() - 1;
 }

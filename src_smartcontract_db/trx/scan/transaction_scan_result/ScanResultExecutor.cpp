@@ -94,4 +94,7 @@ bool ScanResultExecutor::checkRecord(VirtualMachine* vm, RootScanCondition* root
 	return i > 0;
 }
 
+void ScanResultExecutor::putResult(VirtualMachine* vm) {
+}
+
 } /* namespace codablecash */

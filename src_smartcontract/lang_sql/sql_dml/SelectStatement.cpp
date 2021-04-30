@@ -28,6 +28,8 @@
 
 #include "vm/vm_trx/VmTransactionHandler.h"
 
+#include "vm/variable_access/StackVariableAccess.h"
+
 #include "scan_select/scan_planner/base/SelectScanPlanner.h"
 #include "scan_select/scan_planner/base/TablesHolder.h"
 
@@ -45,6 +47,9 @@
 
 #include "trx/transaction_exception/DatabaseExceptionClassDeclare.h"
 
+#include "engine/sc_analyze/ValidationError.h"
+
+#include "base/StackRelease.h"
 
 namespace alinous {
 
@@ -111,9 +116,15 @@ void SelectStatement::analyze(AnalyzeContext* actx) {
 	if(this->where != nullptr){
 		this->where->analyze(actx);
 	}
-	//this->intoVar
-	if(this->intoVar != nullptr){
-		AnalyzeStackManager* stackManager = actx->getAnalyzeStackManager();
+
+	AnalyzeStackManager* stackManager = actx->getAnalyzeStackManager();
+	if(this->intoVar != nullptr && stackManager->topIndex() >= 0){
+		StackVariableAccess* access = stackManager->findDuplicatedVariableAccess(this->intoVar); __STP(access);
+		if(access != nullptr){
+			actx->addValidationError(ValidationError::CODE_DUPLICATED_VARIABLE, this, L"Declared variable is duplicated.", {});
+			return;
+		}
+
 		AnalyzeStack* stack = stackManager->top();
 
 		AnalyzedType at(AnalyzedType::TYPE_DOM);

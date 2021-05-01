@@ -17,6 +17,8 @@ class File;
 class VirtualMachine;
 class ExtExceptionObject;
 class StackPopper;
+class AnalyzeContext;
+class SelectStatement;
 }
 using namespace alinous;
 
@@ -71,6 +73,8 @@ public:
 	CdbStorageManager* getStorageManager() const noexcept;
 
 	bool execDDL(const File* sourceFile);
+	void execSelectStmt(SelectStatement* stmt);
+
 	void setupTopStack();
 
 	TableScanTarget* getScanTarget(const wchar_t* schema, const wchar_t* table) const;

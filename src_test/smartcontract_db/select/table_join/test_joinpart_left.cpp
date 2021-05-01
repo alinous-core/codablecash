@@ -44,18 +44,7 @@ TEST(TestJoinPartLeftGroup, case01){
 		SelectStatement* stmt = lang->selectStatement(); __STP(stmt);
 		CHECK(!parser.hasError())
 
-		AnalyzeContext* actx = new AnalyzeContext(); __STP(actx);
-		actx->setVm(vm);
-
-		stmt->preAnalyze(actx);
-		stmt->analyzeTypeRef(actx);
-		stmt->analyze(actx);
-
-		SelectScanPlanner* planner = new SelectScanPlanner(); __STP(planner);
-		VmSelectPlannerSetter setter(vm, planner);
-
-		stmt->init(vm);
-		stmt->interpret(vm);
+		schem.execSelectStmt(stmt);
 	}
 
 	// TODO: current test

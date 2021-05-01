@@ -47,7 +47,15 @@
 
 #include "vm/stack/StackPopper.h"
 
+#include "engine/sc_analyze_stack/AnalyzeStackPopper.h"
 
+#include "engine/sc_analyze_stack/AnalyzeStackManager.h"
+
+#include "lang_sql/sql_dml/SelectStatement.h"
+
+#include "scan_select/scan_planner/base/SelectScanPlanner.h"
+
+#include "vm/VmSelectPlannerSetter.h"
 namespace codablecash {
 
 TestDbSchemaBase::TestDbSchemaBase(TestEnv* env) {
@@ -281,6 +289,30 @@ bool TestDbSchemaBase::execDDL(const File* sourceFile) {
 	stmt->interpret(this->vm);
 
 	return true;
+}
+
+void TestDbSchemaBase::execSelectStmt(SelectStatement* stmt) {
+	AnalyzeContext* actx = new AnalyzeContext(); __STP(actx);
+	actx->setVm(this->vm);
+
+	{
+		AnalyzeStackManager* stackMgr = actx->getAnalyzeStackManager();
+		AnalyzeStackPopper popper(stackMgr, true);
+		stackMgr->addFunctionStack();
+
+		stmt->preAnalyze(actx);
+		stmt->analyzeTypeRef(actx);
+		stmt->analyze(actx);
+	}
+
+	SelectScanPlanner* planner = new SelectScanPlanner(); __STP(planner);
+	VmSelectPlannerSetter setter(vm, planner);
+
+	setupTopStack();
+
+	stmt->init(vm);
+	stmt->interpret(vm);
+
 }
 
 void TestDbSchemaBase::setupTopStack() {

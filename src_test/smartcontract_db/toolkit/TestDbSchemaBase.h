@@ -16,6 +16,7 @@ class TestEnv;
 class File;
 class VirtualMachine;
 class ExtExceptionObject;
+class StackPopper;
 }
 using namespace alinous;
 
@@ -70,6 +71,7 @@ public:
 	CdbStorageManager* getStorageManager() const noexcept;
 
 	bool execDDL(const File* sourceFile);
+	void setupTopStack();
 
 	TableScanTarget* getScanTarget(const wchar_t* schema, const wchar_t* table) const;
 protected:
@@ -88,6 +90,8 @@ protected:
 	File* folder; // smart contract base
 
 	ExtExceptionObject* exobj;
+
+	StackPopper* stackPopper;
 };
 
 } /* namespace codablecash */

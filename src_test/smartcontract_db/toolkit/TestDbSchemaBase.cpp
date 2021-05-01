@@ -34,6 +34,8 @@
 
 #include "scan_select/scan/RecordScanner.h"
 
+#include "scan_select/scan_table/TableScanTarget.h"
+
 #include "engine/compiler/SmartContractParser.h"
 
 #include "engine/sc/SmartContract.h"
@@ -43,7 +45,8 @@
 
 #include "engine/sc_analyze/AnalyzeContext.h"
 
-#include "scan_select/scan_table/TableScanTarget.h"
+#include "vm/stack/StackPopper.h"
+
 
 namespace codablecash {
 
@@ -55,9 +58,13 @@ TestDbSchemaBase::TestDbSchemaBase(TestEnv* env) {
 
 	this->folder = nullptr;
 	this->exobj = nullptr;
+
+	this->stackPopper = nullptr;
 }
 
 TestDbSchemaBase::~TestDbSchemaBase() {
+	delete this->stackPopper;
+
 	this->env = nullptr;
 	delete this->dbDir;
 	delete this->vm;
@@ -274,6 +281,13 @@ bool TestDbSchemaBase::execDDL(const File* sourceFile) {
 	stmt->interpret(this->vm);
 
 	return true;
+}
+
+void TestDbSchemaBase::setupTopStack() {
+	GcManager* gc = vm->getGc();
+	vm->newStack();
+
+	this->stackPopper = new StackPopper(this->vm);
 }
 
 TableScanTarget* TestDbSchemaBase::getScanTarget(const wchar_t* schema, const wchar_t* table) const {

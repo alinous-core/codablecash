@@ -20,6 +20,8 @@
 
 #include "vm/VirtualMachine.h"
 
+#include "vm/stack/VmStack.h"
+
 #include "scan_select/scan_planner/base/ConditionsHolder.h"
 #include "scan_select/scan_planner/base/SelectScanPlanner.h"
 
@@ -30,6 +32,16 @@
 #include "schema_table/record/table_record_value/AbstractCdbValue.h"
 
 #include "schema_table/record/table_record_value/CdbByteValue.h"
+
+#include "instance/instance_gc/GcManager.h"
+
+#include "engine/sc_analyze/AnalyzedType.h"
+
+#include "instance/instance_ref/AbstractReference.h"
+
+#include "instance/instance_ref/RefereceFactory.h"
+
+#include "instance/instance_dom/DomArrayVariable.h"
 namespace codablecash {
 
 ScanResultExecutor::ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db) {
@@ -95,6 +107,23 @@ bool ScanResultExecutor::checkRecord(VirtualMachine* vm, RootScanCondition* root
 }
 
 void ScanResultExecutor::putResult(VirtualMachine* vm) {
+	GcManager* gc = vm->getGc();
+
+	VmStack* stack = vm->topStack();
+
+	AnalyzedType atype(AnalyzedType::TYPE_DOM_ARRAY);
+	AbstractReference* ref = RefereceFactory::createReferenceFromAnalyzedType(stack, &atype, vm);
+	stack->addInnerReference(ref);
+
+	DomArrayVariable* variable = getRecordsVariable(vm);
+	ref->substitute(variable, vm);
+	// TODO:put record
+}
+
+DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {
+	DomArrayVariable* array = new(vm) DomArrayVariable(vm);
+
+	return array;
 }
 
 } /* namespace codablecash */

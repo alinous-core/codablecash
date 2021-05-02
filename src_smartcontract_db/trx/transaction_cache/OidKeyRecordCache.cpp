@@ -25,7 +25,6 @@ namespace codablecash {
 
 OidKeyRecordCache::OidKeyRecordCache(const File* folder, const UnicodeString* name, CdbKeyFactory* keyFactory, CdbDataFactory* dataFactory, DiskCacheManager* diskCache)
 			: AbstractSwapCache(folder, name, keyFactory, dataFactory, diskCache) {
-
 }
 
 OidKeyRecordCache::~OidKeyRecordCache() {

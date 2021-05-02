@@ -10,6 +10,7 @@
 
 namespace alinous {
 class VirtualMachine;
+class DomArrayVariable;
 }  // namespace alinous
 
 using namespace alinous;
@@ -35,6 +36,7 @@ public:
 private:
 	void doExecScan(VirtualMachine* vm);
 	bool checkRecord(VirtualMachine* vm, RootScanCondition* root, const CdbRecord* record, const ScanResultMetadata* metadata);
+	DomArrayVariable* getRecordsVariable(VirtualMachine* vm);
 
 private:
 	IJoinLeftSource* source;

@@ -8,9 +8,12 @@
 #include "schema_table/record/table_record/CdbRecord.h"
 #include "schema_table/record/table_record/CdbDataFactory.h"
 
+#include "schema_table/record/table_record_value/VmInstanceValueConverter.h"
 #include "schema_table/record/table_record_value/AbstractCdbValue.h"
 
 #include "schema_table/record/table_record_key/CdbRecordKey.h"
+
+#include "base/StackRelease.h"
 
 #include "base_io/ByteBuffer.h"
 
@@ -19,6 +22,9 @@
 #include "engine/CdbOid.h"
 
 #include "instance/instance_dom/DomVariableInstance.h"
+
+#include "instance/instance_string/VmStringInstance.h"
+
 
 namespace codablecash {
 
@@ -217,7 +223,10 @@ DomVariableInstance* CdbRecord::toDomInstance(VirtualMachine* vm, ArrayList<cons
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractCdbValue* value = this->list.get(i);
 		const UnicodeString* name = nameList->get(i);
+		VmStringInstance* vmString = new(vm) VmStringInstance(vm, name); __STP(vmString);
 
+		IAbstractVmInstanceSubstance* inst = VmInstanceValueConverter::toVmInstance(vm, value);
+		dom->putProperty(vm, vmString, inst);
 	}
 
 	return dom;

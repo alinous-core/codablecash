@@ -38,10 +38,18 @@
 #include "engine/sc_analyze/AnalyzedType.h"
 
 #include "instance/instance_ref/AbstractReference.h"
-
 #include "instance/instance_ref/RefereceFactory.h"
 
 #include "instance/instance_dom/DomArrayVariable.h"
+#include "instance/instance_dom/DomVariableInstance.h"
+
+#include "btree/IBtreeScanner.h"
+
+#include "filestore_block/IBlockObject.h"
+
+#include "schema_table/record/table_record/CdbRecord.h"
+
+
 namespace codablecash {
 
 ScanResultExecutor::ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db) {
@@ -87,11 +95,9 @@ void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 	while(this->source->hasNext()){
 		const CdbRecord* record = this->source->next();
 
-		if(!checkRecord(vm, root, record, metadata)){
-			continue;
+		if(checkRecord(vm, root, record, metadata)){
+			this->cache->insert(record);
 		}
-
-		this->cache->insert(record);
 	}
 }
 
@@ -122,6 +128,17 @@ void ScanResultExecutor::putResult(VirtualMachine* vm) {
 
 DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {
 	DomArrayVariable* array = new(vm) DomArrayVariable(vm);
+
+	IBtreeScanner* scanner = this->cache->getScanner(); __STP(scanner);
+	scanner->begin();
+
+	while(scanner->hasNext()){
+		const IBlockObject* obj = scanner->next();
+		const CdbRecord* record = dynamic_cast<const CdbRecord*>(obj);
+
+		DomVariableInstance* dom = record->toDomInstance(vm);
+		array->add(vm, dom);
+	}
 
 	return array;
 }

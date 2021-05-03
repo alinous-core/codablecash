@@ -18,6 +18,8 @@
 
 #include "engine/CdbOid.h"
 
+#include "instance/instance_dom/DomVariableInstance.h"
+
 namespace codablecash {
 
 
@@ -206,6 +208,12 @@ CdbRecord* CdbRecord::joinEmptyRecord(int numNull) const noexcept {
 
 const AbstractCdbValue* CdbRecord::get(int pos) const noexcept {
 	return this->list.get(pos);
+}
+
+DomVariableInstance* CdbRecord::toDomInstance(VirtualMachine* vm) const {
+	DomVariableInstance* dom = new(vm) DomVariableInstance(vm);
+
+	return dom;
 }
 
 } /* namespace codablecash */

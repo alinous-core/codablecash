@@ -15,6 +15,8 @@
 
 namespace alinous {
 class ByteBuffer;
+class VirtualMachine;
+class DomVariableInstance;
 }
 using namespace alinous;
 
@@ -54,6 +56,8 @@ public:
 	const ArrayList<AbstractCdbValue>* getValues() const noexcept;
 
 	const AbstractCdbValue* get(int pos) const noexcept;
+
+	DomVariableInstance* toDomInstance(VirtualMachine* vm) const;
 
 private:
 	CdbOid* oid;

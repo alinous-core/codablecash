@@ -83,4 +83,9 @@ AbstractCdbValue* VmInstanceValueConverter::fromPrimitiveToCdbValue(PrimitiveRef
 	return value;
 }
 
+IAbstractVmInstanceSubstance* VmInstanceValueConverter::toVmInstance(VirtualMachine* vm, AbstractCdbValue* cdbValue) {
+
+}
+
+
 } /* namespace codablecash */

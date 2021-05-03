@@ -27,6 +27,7 @@
 
 #include "scan_select/scan_condition/base/RootScanCondition.h"
 
+#include "base/UnicodeString.h"
 #include "base/StackRelease.h"
 
 #include "schema_table/record/table_record_value/AbstractCdbValue.h"
@@ -49,6 +50,9 @@
 
 #include "schema_table/record/table_record/CdbRecord.h"
 
+#include "trx/scan/transaction_scan_result/ScanResultMetadata.h"
+
+#include "trx/scan/transaction_scan_result/ScanResultFieldMetadata.h"
 
 namespace codablecash {
 
@@ -123,11 +127,22 @@ void ScanResultExecutor::putResult(VirtualMachine* vm) {
 
 	DomArrayVariable* variable = getRecordsVariable(vm);
 	ref->substitute(variable, vm);
-	// TODO:put record
 }
 
 DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {
 	DomArrayVariable* array = new(vm) DomArrayVariable(vm);
+
+	const ScanResultMetadata* metadata = this->source->getMetadata();
+	const ArrayList<ScanResultFieldMetadata>* fldMetadataList = metadata->getList();
+	ArrayList<const UnicodeString> nameList;
+
+	int maxLoop = fldMetadataList->size();
+	for(int i = 0; i != maxLoop; ++i){
+		ScanResultFieldMetadata* fldMeta = fldMetadataList->get(i);
+		const UnicodeString* name = fldMeta->getDisplayName();
+
+		nameList.addElement(name);
+	}
 
 	IBtreeScanner* scanner = this->cache->getScanner(); __STP(scanner);
 	scanner->begin();
@@ -136,9 +151,11 @@ DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {
 		const IBlockObject* obj = scanner->next();
 		const CdbRecord* record = dynamic_cast<const CdbRecord*>(obj);
 
-		DomVariableInstance* dom = record->toDomInstance(vm);
+		DomVariableInstance* dom = record->toDomInstance(vm, &nameList);
 		array->add(vm, dom);
 	}
+
+	// TODO:put record
 
 	return array;
 }

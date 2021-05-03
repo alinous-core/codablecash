@@ -65,4 +65,12 @@ bool ScanResultFieldMetadata::match(ColumnIdentifierScanParam* scanColumnId) con
 	return false;
 }
 
+const UnicodeString* ScanResultFieldMetadata::getDisplayName() noexcept {
+	if(this->asName != nullptr){
+		return this->asName;
+	}
+
+	return this->column->getName();
+}
+
 } /* namespace codablecash */

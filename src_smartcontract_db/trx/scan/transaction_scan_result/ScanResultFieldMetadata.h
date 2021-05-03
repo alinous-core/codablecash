@@ -33,6 +33,8 @@ public:
 
 	bool match(ColumnIdentifierScanParam* scanColumnId) const noexcept;
 
+	const UnicodeString* getDisplayName() noexcept;
+
 private:
 	int position; // position in scanned metadata, not in the table
 	const AbstractScanTableTarget* sourceTarget;

@@ -210,10 +210,18 @@ const AbstractCdbValue* CdbRecord::get(int pos) const noexcept {
 	return this->list.get(pos);
 }
 
-DomVariableInstance* CdbRecord::toDomInstance(VirtualMachine* vm) const {
+DomVariableInstance* CdbRecord::toDomInstance(VirtualMachine* vm, ArrayList<const UnicodeString>* nameList) const {
 	DomVariableInstance* dom = new(vm) DomVariableInstance(vm);
+
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractCdbValue* value = this->list.get(i);
+		const UnicodeString* name = nameList->get(i);
+
+	}
 
 	return dom;
 }
+
 
 } /* namespace codablecash */

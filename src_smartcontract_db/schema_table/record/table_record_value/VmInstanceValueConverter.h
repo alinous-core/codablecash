@@ -13,6 +13,7 @@ namespace alinous {
 class IAbstractVmInstanceSubstance;
 class PrimitiveReference;
 class VmStringInstance;
+class VirtualMachine;
 }
 using namespace alinous;
 
@@ -23,7 +24,7 @@ class AbstractCdbValue;
 class VmInstanceValueConverter {
 public:
 	static AbstractCdbValue* toCdbValue(IAbstractVmInstanceSubstance* substance, uint8_t targetCdbColumnType);
-
+	static IAbstractVmInstanceSubstance* toVmInstance(VirtualMachine* vm, AbstractCdbValue* cdbValue);
 private:
 	static AbstractCdbValue* fromPrimitiveToCdbValue(PrimitiveReference* pref, uint8_t targetCdbColumnType);
 };

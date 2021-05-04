@@ -12,14 +12,14 @@
 
 #include "instance/instance_ref/PrimitiveReference.h"
 
+#include "instance/instance_string/VmStringInstance.h"
+
 #include "schema_table/record/table_record_value/AbstractCdbValue.h"
 #include "schema_table/record/table_record_value/CdbByteValue.h"
 #include "schema_table/record/table_record_value/CdbShortValue.h"
 #include "schema_table/record/table_record_value/CdbIntValue.h"
 #include "schema_table/record/table_record_value/CdbLongValue.h"
 #include "schema_table/record/table_record_value/CdbStringValue.h"
-
-#include "instance/instance_string/VmStringInstance.h"
 
 #include "engine/CdbException.h"
 
@@ -84,7 +84,61 @@ AbstractCdbValue* VmInstanceValueConverter::fromPrimitiveToCdbValue(PrimitiveRef
 }
 
 IAbstractVmInstanceSubstance* VmInstanceValueConverter::toVmInstance(VirtualMachine* vm, AbstractCdbValue* cdbValue) {
+	IAbstractVmInstanceSubstance* ret = nullptr;
 
+	uint8_t type = cdbValue->getType();
+	switch(type){
+	case AbstractCdbValue::TYPE_BYTE:
+	{
+		CdbByteValue* byteValue = dynamic_cast<CdbByteValue*>(cdbValue);
+		int8_t value = byteValue->getValue();
+		PrimitiveReference* ref = PrimitiveReference::createByteReference(vm, value);
+
+		ret = ref;
+		break;
+	}
+	case AbstractCdbValue::TYPE_SHORT:
+	{
+		CdbShortValue* shortValue = dynamic_cast<CdbShortValue*>(cdbValue);
+		int16_t value = shortValue->getValue();
+		PrimitiveReference* ref = PrimitiveReference::createShortReference(vm, value);
+
+		ret = ref;
+		break;
+	}
+	case AbstractCdbValue::TYPE_INT:
+	{
+		CdbIntValue* intValue = dynamic_cast<CdbIntValue*>(cdbValue);
+		int32_t value = intValue->getValue();
+		PrimitiveReference* ref = PrimitiveReference::createIntReference(vm, value);
+
+		ret = ref;
+		break;
+	}
+	case AbstractCdbValue::TYPE_LONG:
+	{
+		CdbLongValue* longValue = dynamic_cast<CdbLongValue*>(cdbValue);
+		int64_t value = longValue->getValue();
+		PrimitiveReference* ref = PrimitiveReference::createLongReference(vm, value);
+
+		ret = ref;
+		break;
+	}
+	case AbstractCdbValue::TYPE_STRING:
+	{
+		CdbStringValue* stringValue = dynamic_cast<CdbStringValue*>(cdbValue);
+		const UnicodeString* value = stringValue->getValue();
+		VmStringInstance* vmString = new(vm) VmStringInstance(vm, value);
+
+		ret = vmString;
+		break;
+	}
+	case AbstractCdbValue::TYPE_NULL:
+	default:
+		break;
+	}
+
+	return ret;
 }
 
 

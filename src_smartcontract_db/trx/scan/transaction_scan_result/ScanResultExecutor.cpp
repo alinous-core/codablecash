@@ -155,8 +155,6 @@ DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {
 		array->add(vm, dom);
 	}
 
-	// TODO:put record
-
 	return array;
 }
 

@@ -12,6 +12,8 @@
 
 namespace codablecash {
 
+class CdbTransaction;
+
 class TestDbSchemaGroupBy01 : public TestDbSchemaBase {
 public:
 	explicit TestDbSchemaGroupBy01(TestEnv* env);
@@ -23,6 +25,8 @@ public:
 private:
 	void createTable();
 	void insertData();
+
+	void insertRecord1(CdbTransaction* trx, int id, const wchar_t* name, int email_id);
 };
 
 } /* namespace codablecash */

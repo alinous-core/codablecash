@@ -13,10 +13,14 @@
 
 #include "../../toolkit_groupby/TestDbSchemaGroupBy01.h"
 
-using codablecash::TestDbSchemaGroupBy01;
+#include "engine/compiler/SmartContractParser.h"
+
+#include "lang_sql/sql_dml/SelectStatement.h"
+
+#include "alinous_lang/AlinousLang.h"
 
 using namespace alinous;
-//using namespace codablecash;
+using namespace codablecash;
 
 TEST_GROUP(TestSelectGroupBy01Group) {
 	TEST_SETUP(){
@@ -37,7 +41,11 @@ TEST(TestSelectGroupBy01Group, case01){
 
 	VirtualMachine* vm = schem.getVm();
 	{
+		SmartContractParser parser(sourceFile);
+		AlinousLang* lang = parser.getDebugAlinousLang();
 
+		SelectStatement* stmt = lang->selectStatement(); __STP(stmt);
+		CHECK(!parser.hasError())
 	}
 }
 

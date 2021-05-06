@@ -15,10 +15,18 @@
 #include "schema_table/table/CdbTable.h"
 
 #include "schema_table/record/table_record_value/AbstractCdbValue.h"
+#include "schema_table/record/table_record_value/CdbIntValue.h"
+#include "schema_table/record/table_record_value/CdbStringValue.h"
+
+#include "schema_table/record/table_record_local/LocalCdbOid.h"
+
+#include "schema_table/record/table_record/CdbTableIdentifier.h"
+#include "schema_table/record/table_record/CdbRecord.h"
 
 #include "trx/transaction/CdbTransaction.h"
 
 #include "trx/transaction_log/CreateTableLog.h"
+#include "trx/transaction_log/InsertLog.h"
 
 
 namespace codablecash {
@@ -65,6 +73,37 @@ void TestDbSchemaGroupBy01::createTable() {
 }
 
 void TestDbSchemaGroupBy01::insertData() {
+	CdbTransaction* trx = getDatabase()->newTransaction(); __STP(trx);
+	insertRecord1(trx, 1, L"tanaka", 11);
+	insertRecord1(trx, 2, L"yamada", 12);
+	insertRecord1(trx, 3, L"yamamoto", 13);
+	insertRecord1(trx, 4, L"iizuka", 13);
+	insertRecord1(trx, 5, L"sato", 11);
+	insertRecord1(trx, 6, L"fujita", 13);
+	insertRecord1(trx, 7, L"inoue", 11);
+
+	trx->commit();
+}
+
+void TestDbSchemaGroupBy01::insertRecord1(CdbTransaction* trx, int id, const wchar_t* name, int email_id) {
+	InsertLog* log = new InsertLog();
+
+	CdbTableIdentifier* tableId = new CdbTableIdentifier();
+	tableId->setTable(new UnicodeString(L"test_table"));
+	log->setTable(tableId);
+
+	CdbRecord* record = new CdbRecord();
+	LocalCdbOid loid(this->loidSerial++);
+	record->setOid(&loid);
+
+	record->addValue(new CdbIntValue(id));
+
+	record->addValue(new CdbStringValue(name));
+	record->addValue(new CdbIntValue(email_id));
+
+	log->addRecord(record);
+
+	trx->insert(log);
 }
 
 } /* namespace codablecash */

@@ -21,7 +21,8 @@ public:
 	virtual void init(uint64_t memCapacity);
 
 private:
-
+	void createTable();
+	void insertData();
 };
 
 } /* namespace codablecash */

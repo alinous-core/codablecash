@@ -9,8 +9,10 @@
 
 #include "base/StackRelease.h"
 
-using namespace alinous;
+#include "smartcontract_vm/VmTestUtils.h"
 
+using namespace alinous;
+//using namespace codablecash;
 
 TEST_GROUP(TestSelectGroupBy01Group) {
 	TEST_SETUP(){
@@ -23,6 +25,8 @@ TEST_GROUP(TestSelectGroupBy01Group) {
 
 
 TEST(TestSelectGroupBy01Group, case01){
+	const File* projectFolder = this->env->getProjectRoot();
+	_ST(File, sourceFile, projectFolder->get(L"src_test/smartcontract_db/select/table_group_by/resources/group01/case01/select01.alns"))
 
 }
 

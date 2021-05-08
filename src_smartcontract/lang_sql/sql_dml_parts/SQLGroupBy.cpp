@@ -30,18 +30,26 @@ void SQLGroupBy::setHaving(SQLHaving* having) noexcept {
 }
 
 void SQLGroupBy::preAnalyze(AnalyzeContext* actx) {
+	this->list->setParent(this);
+	this->list->preAnalyze(actx);
+
 	if(this->having != nullptr){
+		this->having->setParent(this);
 		this->having->preAnalyze(actx);
 	}
 }
 
 void SQLGroupBy::analyzeTypeRef(AnalyzeContext* actx) {
+	this->list->analyzeTypeRef(actx);
+
 	if(this->having != nullptr){
 		this->having->analyzeTypeRef(actx);
 	}
 }
 
 void SQLGroupBy::analyze(AnalyzeContext* actx) {
+	this->list->analyze(actx);
+
 	if(this->having != nullptr){
 		this->having->analyze(actx);
 	}

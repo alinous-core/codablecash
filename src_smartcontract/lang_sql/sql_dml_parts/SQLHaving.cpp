@@ -23,12 +23,18 @@ void SQLHaving::setExpression(AbstractSQLExpression* exp) noexcept {
 }
 
 void SQLHaving::preAnalyze(AnalyzeContext* actx) {
+	if(this->exp != nullptr){
+		this->exp->setParent(this);
+		this->exp->preAnalyze(actx);
+	}
 }
 
 void SQLHaving::analyzeTypeRef(AnalyzeContext* actx) {
+	this->exp->analyzeTypeRef(actx);
 }
 
 void SQLHaving::analyze(AnalyzeContext* actx) {
+	this->exp->analyze(actx);
 }
 
 

@@ -21,6 +21,35 @@ void SQLColumnsList::addColumn(SQLColumnIdentifier* colId) noexcept {
 	this->list.addElement(colId);
 }
 
+void SQLColumnsList::preAnalyze(AnalyzeContext* actx) {
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		SQLColumnIdentifier* colId = this->list.get(i);
+
+		colId->setParent(this);
+		colId->preAnalyze(actx);
+	}
+}
+
+void SQLColumnsList::analyzeTypeRef(AnalyzeContext* actx) {
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		SQLColumnIdentifier* colId = this->list.get(i);
+
+		colId->analyzeTypeRef(actx);
+	}
+}
+
+void SQLColumnsList::analyze(AnalyzeContext* actx) {
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		SQLColumnIdentifier* colId = this->list.get(i);
+
+		colId->analyze(actx);
+	}
+}
+
+
 int SQLColumnsList::binarySize() const {
 	int total = sizeof(uint16_t);
 

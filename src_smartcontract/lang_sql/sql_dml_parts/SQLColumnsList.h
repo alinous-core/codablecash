@@ -13,6 +13,7 @@
 
 namespace alinous {
 class SQLColumnIdentifier;
+class AnalyzeContext;
 
 class SQLColumnsList : public AbstractSQLPart {
 public:
@@ -21,6 +22,10 @@ public:
 
 	void addColumn(SQLColumnIdentifier* colId) noexcept;
 	int numColumns() const noexcept;
+
+	void preAnalyze(AnalyzeContext* actx);
+	void analyzeTypeRef(AnalyzeContext* actx);
+	void analyze(AnalyzeContext* actx);
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out);

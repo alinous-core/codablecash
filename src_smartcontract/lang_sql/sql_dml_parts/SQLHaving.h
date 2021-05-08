@@ -12,6 +12,7 @@
 
 namespace alinous {
 class AbstractSQLExpression;
+class AnalyzeContext;
 
 class SQLHaving : public AbstractSQLPart {
 public:
@@ -19,6 +20,10 @@ public:
 	virtual ~SQLHaving();
 
 	void setExpression(AbstractSQLExpression* exp) noexcept;
+
+	void preAnalyze(AnalyzeContext* actx);
+	void analyzeTypeRef(AnalyzeContext* actx);
+	void analyze(AnalyzeContext* actx);
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out);

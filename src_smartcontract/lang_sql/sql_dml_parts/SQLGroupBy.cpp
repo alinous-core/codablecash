@@ -29,6 +29,25 @@ void SQLGroupBy::setHaving(SQLHaving* having) noexcept {
 	this->having = having;
 }
 
+void SQLGroupBy::preAnalyze(AnalyzeContext* actx) {
+	if(this->having != nullptr){
+		this->having->preAnalyze(actx);
+	}
+}
+
+void SQLGroupBy::analyzeTypeRef(AnalyzeContext* actx) {
+	if(this->having != nullptr){
+		this->having->analyzeTypeRef(actx);
+	}
+}
+
+void SQLGroupBy::analyze(AnalyzeContext* actx) {
+	if(this->having != nullptr){
+		this->having->analyze(actx);
+	}
+}
+
+
 int SQLGroupBy::binarySize() const {
 	checkNotNull(this->list);
 

@@ -18,9 +18,19 @@ SQLHaving::~SQLHaving() {
 	delete this->exp;
 }
 
-void alinous::SQLHaving::setExpression(AbstractSQLExpression* exp) noexcept {
+void SQLHaving::setExpression(AbstractSQLExpression* exp) noexcept {
 	this->exp = exp;
 }
+
+void SQLHaving::preAnalyze(AnalyzeContext* actx) {
+}
+
+void SQLHaving::analyzeTypeRef(AnalyzeContext* actx) {
+}
+
+void SQLHaving::analyze(AnalyzeContext* actx) {
+}
+
 
 int SQLHaving::binarySize() const {
 	checkNotNull(this->exp);

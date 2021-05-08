@@ -13,6 +13,7 @@
 namespace alinous {
 class SQLColumnsList;
 class SQLHaving;
+class AnalyzeContext;
 
 class SQLGroupBy : public AbstractSQLPart {
 public:
@@ -21,6 +22,10 @@ public:
 
 	void setList(SQLColumnsList* list) noexcept;
 	void setHaving(SQLHaving* having) noexcept;
+
+	void preAnalyze(AnalyzeContext* actx);
+	void analyzeTypeRef(AnalyzeContext* actx);
+	void analyze(AnalyzeContext* actx);
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out);

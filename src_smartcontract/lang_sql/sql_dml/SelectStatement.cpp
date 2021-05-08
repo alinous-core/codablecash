@@ -301,9 +301,6 @@ void SelectStatement::interpret(VirtualMachine* vm) {
 			}
 		}
 
-		// TODO
-
-
 		this->planner->executeQuery(vm);
 	}
 	catch(Exception* e){

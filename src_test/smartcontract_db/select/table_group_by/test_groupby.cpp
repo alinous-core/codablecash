@@ -46,7 +46,11 @@ TEST(TestSelectGroupBy01Group, case01){
 
 		SelectStatement* stmt = lang->selectStatement(); __STP(stmt);
 		CHECK(!parser.hasError())
+
+		schem.execSelectStmt(stmt);
 	}
+
+	// TODO: current test
 }
 
 

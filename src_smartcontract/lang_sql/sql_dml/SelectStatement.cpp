@@ -90,6 +90,11 @@ void SelectStatement::preAnalyze(AnalyzeContext* actx) {
 		this->where->setParent(this);
 		this->where->preAnalyze(actx);
 	}
+
+	if(this->groupBy != nullptr){
+		this->groupBy->setParent(this);
+		this->groupBy->preAnalyze(actx);
+	}
 }
 
 void SelectStatement::analyzeTypeRef(AnalyzeContext* actx) {
@@ -103,6 +108,10 @@ void SelectStatement::analyzeTypeRef(AnalyzeContext* actx) {
 	if(this->where != nullptr){
 		this->where->analyzeTypeRef(actx);
 	}
+
+	if(this->groupBy != nullptr){
+		this->groupBy->analyzeTypeRef(actx);
+	}
 }
 
 void SelectStatement::analyze(AnalyzeContext* actx) {
@@ -115,6 +124,10 @@ void SelectStatement::analyze(AnalyzeContext* actx) {
 
 	if(this->where != nullptr){
 		this->where->analyze(actx);
+	}
+
+	if(this->groupBy != nullptr){
+		this->groupBy->analyze(actx);
 	}
 
 	AnalyzeStackManager* stackManager = actx->getAnalyzeStackManager();

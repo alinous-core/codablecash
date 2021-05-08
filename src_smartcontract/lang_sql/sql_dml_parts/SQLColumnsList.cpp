@@ -49,6 +49,14 @@ void SQLColumnsList::analyze(AnalyzeContext* actx) {
 	}
 }
 
+void SQLColumnsList::init(VirtualMachine* vm) {
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		SQLColumnIdentifier* colId = this->list.get(i);
+
+		colId->init(vm);
+	}
+}
 
 int SQLColumnsList::binarySize() const {
 	int total = sizeof(uint16_t);

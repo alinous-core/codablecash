@@ -55,6 +55,17 @@ void SQLGroupBy::analyze(AnalyzeContext* actx) {
 	}
 }
 
+void SQLGroupBy::init(VirtualMachine* vm) {
+	this->list->init(vm);
+	if(this->having != nullptr){
+		this->having->init(vm);
+	}
+}
+
+AbstractVmInstance* SQLGroupBy::interpret(VirtualMachine* vm) {
+
+	return nullptr;
+}
 
 int SQLGroupBy::binarySize() const {
 	checkNotNull(this->list);

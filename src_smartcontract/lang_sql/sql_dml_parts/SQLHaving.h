@@ -14,6 +14,8 @@ namespace alinous {
 class AbstractSQLExpression;
 class AnalyzeContext;
 
+class VirtualMachine;
+
 class SQLHaving : public AbstractSQLPart {
 public:
 	SQLHaving();
@@ -24,6 +26,8 @@ public:
 	void preAnalyze(AnalyzeContext* actx);
 	void analyzeTypeRef(AnalyzeContext* actx);
 	void analyze(AnalyzeContext* actx);
+
+	void init(VirtualMachine* vm);
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out);

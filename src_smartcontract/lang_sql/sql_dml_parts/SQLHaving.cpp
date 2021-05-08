@@ -30,13 +30,22 @@ void SQLHaving::preAnalyze(AnalyzeContext* actx) {
 }
 
 void SQLHaving::analyzeTypeRef(AnalyzeContext* actx) {
-	this->exp->analyzeTypeRef(actx);
+	if(this->exp != nullptr){
+		this->exp->analyzeTypeRef(actx);
+	}
 }
 
 void SQLHaving::analyze(AnalyzeContext* actx) {
-	this->exp->analyze(actx);
+	if(this->exp != nullptr){
+		this->exp->analyze(actx);
+	}
 }
 
+void SQLHaving::init(VirtualMachine* vm) {
+	if(this->exp != nullptr){
+		this->exp->init(vm);
+	}
+}
 
 int SQLHaving::binarySize() const {
 	checkNotNull(this->exp);

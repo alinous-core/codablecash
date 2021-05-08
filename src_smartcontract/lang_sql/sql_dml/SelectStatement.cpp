@@ -281,6 +281,10 @@ void SelectStatement::init(VirtualMachine* vm) {
 	if(this->where != nullptr){
 		this->where->init(vm);
 	}
+
+	if(this->groupBy != nullptr){
+		this->groupBy->init(vm);
+	}
 }
 
 void SelectStatement::interpret(VirtualMachine* vm) {

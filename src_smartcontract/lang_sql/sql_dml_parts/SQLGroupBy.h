@@ -14,6 +14,8 @@ namespace alinous {
 class SQLColumnsList;
 class SQLHaving;
 class AnalyzeContext;
+class AbstractVmInstance;
+class VirtualMachine;
 
 class SQLGroupBy : public AbstractSQLPart {
 public:
@@ -26,6 +28,9 @@ public:
 	void preAnalyze(AnalyzeContext* actx);
 	void analyzeTypeRef(AnalyzeContext* actx);
 	void analyze(AnalyzeContext* actx);
+
+	void init(VirtualMachine* vm);
+	AbstractVmInstance* interpret(VirtualMachine* vm);
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out);

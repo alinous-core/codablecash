@@ -9,6 +9,12 @@
 #include "lang_sql/sql_dml_parts/SQLColumnsList.h"
 #include "lang_sql/sql_dml_parts/SQLHaving.h"
 
+#include "vm/VirtualMachine.h"
+
+#include "scan_select/scan_planner/base/SelectScanPlanner.h"
+
+using namespace codablecash;
+
 namespace alinous {
 
 SQLGroupBy::SQLGroupBy() : AbstractSQLPart(CodeElement::SQL_PART_GROUP_BY) {
@@ -63,6 +69,9 @@ void SQLGroupBy::init(VirtualMachine* vm) {
 }
 
 AbstractVmInstance* SQLGroupBy::interpret(VirtualMachine* vm) {
+	SelectScanPlanner* planner = vm->getSelectPlanner();
+
+
 
 	return nullptr;
 }

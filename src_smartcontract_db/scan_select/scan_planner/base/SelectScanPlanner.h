@@ -23,6 +23,7 @@ class TablesHolder;
 class ScanColumnHolder;
 class AnalyzedScanPlan;
 class ConditionsHolderStack;
+class GroupByPlanner;
 
 class SelectScanPlanner {
 public:
@@ -68,6 +69,7 @@ private:
 	TablesHolder* tablesHolder;
 
 	AnalyzedScanPlan* plan;
+	GroupByPlanner* groupPlan;
 };
 
 } /* namespace codablecash */

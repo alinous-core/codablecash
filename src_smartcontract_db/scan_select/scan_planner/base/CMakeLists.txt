@@ -4,6 +4,7 @@ set(__src
 	ConditionsHolder.cpp
 	ConditionsHolderStack.cpp
 	ConditionsHolderStackMarker.cpp
+	GroupByPlanner.cpp
 	SelectScanPlanner.cpp
 	TablesHolder.cpp
 )

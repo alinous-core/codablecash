@@ -11,6 +11,7 @@
 #include "scan_select/scan_planner/base/ConditionsHolder.h"
 #include "scan_select/scan_planner/base/TablesHolder.h"
 #include "scan_select/scan_planner/base/ConditionsHolderStack.h"
+#include "scan_select/scan_planner/base/GroupByPlanner.h"
 
 #include "scan_select/scan_planner/analyze/AnalyzedScanPlan.h"
 
@@ -30,6 +31,7 @@
 
 #include "vm/VmSelectPlannerSetter.h"
 
+
 namespace codablecash {
 
 SelectScanPlanner::SelectScanPlanner() {
@@ -37,6 +39,7 @@ SelectScanPlanner::SelectScanPlanner() {
 	this->tablesHolder = new TablesHolder();
 	this->columnHolder = new ScanColumnHolder();
 	this->plan = new AnalyzedScanPlan();
+	this->groupPlan = nullptr;
 }
 
 SelectScanPlanner::~SelectScanPlanner() {
@@ -44,6 +47,7 @@ SelectScanPlanner::~SelectScanPlanner() {
 	delete this->tablesHolder;
 	delete this->columnHolder;
 	delete this->plan;
+	delete this->groupPlan;
 }
 
 void SelectScanPlanner::push(AbstractScanConditionElement* cond) noexcept {

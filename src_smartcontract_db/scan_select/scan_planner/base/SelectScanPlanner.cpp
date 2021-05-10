@@ -88,6 +88,14 @@ void SelectScanPlanner::analyzeConditions(VirtualMachine* vm) {
 	this->conditions->analyzeConditions(vm, this);
 }
 
+GroupByPlanner* SelectScanPlanner::getGroupPlan() noexcept {
+	if(this->groupPlan == nullptr){
+		this->groupPlan = new GroupByPlanner();
+	}
+
+	return this->groupPlan;
+}
+
 void SelectScanPlanner::buildScannerFactories(VirtualMachine* vm) {
 	this->tablesHolder->buildScannerFactories(vm, this);
 }

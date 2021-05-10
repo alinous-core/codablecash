@@ -54,6 +54,8 @@ public:
 		return plan;
 	}
 
+	GroupByPlanner* getGroupPlan() noexcept;
+
 private:
 	void resolveTable(VirtualMachine* vm);
 	void resolveColumn(VirtualMachine* vm);

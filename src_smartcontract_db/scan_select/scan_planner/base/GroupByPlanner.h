@@ -14,6 +14,9 @@ class GroupByPlanner {
 public:
 	GroupByPlanner();
 	virtual ~GroupByPlanner();
+
+private:
+
 };
 
 } /* namespace codablecash */

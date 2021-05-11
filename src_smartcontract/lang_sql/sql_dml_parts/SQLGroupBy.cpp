@@ -71,6 +71,7 @@ void SQLGroupBy::init(VirtualMachine* vm) {
 AbstractVmInstance* SQLGroupBy::interpret(VirtualMachine* vm) {
 	SelectScanPlanner* planner = vm->getSelectPlanner();
 
+	GroupByPlanner* groupPlan = planner->getGroupPlan();
 
 
 	return nullptr;

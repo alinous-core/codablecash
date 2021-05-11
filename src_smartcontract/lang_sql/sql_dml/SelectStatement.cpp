@@ -355,14 +355,15 @@ void SelectStatement::buildPlanner(VirtualMachine* vm, uint64_t currentVer) {
 		this->where->interpret(vm);
 	}
 
+	this->planner->makeplan(vm);
+
 	if(this->groupBy != nullptr){
 		this->groupBy->interpret(vm);
 	}
 
-	this->planner->makeplan(vm);
-
 	// analyze column
 	this->list->interpret(vm);
+	this->planner->resolveColumn(vm);
 
 	this->lastSchemaVersion = currentVer;
 }

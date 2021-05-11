@@ -48,6 +48,8 @@ public:
 	}
 
 	void makeplan(VirtualMachine* vm);
+	void resolveColumn(VirtualMachine* vm);
+
 	void executeQuery(VirtualMachine* vm);
 
 	AnalyzedScanPlan* getPlan() const noexcept {
@@ -58,7 +60,7 @@ public:
 
 private:
 	void resolveTable(VirtualMachine* vm);
-	void resolveColumn(VirtualMachine* vm);
+
 
 	void analyzeConditions(VirtualMachine* vm);
 

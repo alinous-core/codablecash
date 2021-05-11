@@ -69,7 +69,6 @@ void SelectScanPlanner::makeplan(VirtualMachine* vm) {
 	this->plan = new AnalyzedScanPlan();
 
 	resolveTable(vm);
-	resolveColumn(vm);
 
 	analyzeConditions(vm);
 

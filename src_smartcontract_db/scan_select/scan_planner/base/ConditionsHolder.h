@@ -36,11 +36,13 @@ public:
 	}
 
 	RootScanCondition* getRoot() const noexcept;
+	RootScanCondition* getHavingRoot() const noexcept;
 
 	void analyzeConditions(VirtualMachine* vm, SelectScanPlanner* planner);
 
 private:
 	RootScanCondition* root;
+	RootScanCondition* havingRoot;
 
 	ConditionsHolderStack* stack;
 };

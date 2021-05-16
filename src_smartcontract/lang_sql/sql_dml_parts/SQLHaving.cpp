@@ -8,6 +8,17 @@
 #include "lang_sql/sql_dml_parts/SQLHaving.h"
 #include "lang_sql/sql/AbstractSQLExpression.h"
 
+#include "scan_select/scan_planner/base/ConditionsHolder.h"
+#include "scan_select/scan_planner/base/SelectScanPlanner.h"
+
+#include "scan_select/scan_condition/base/ScanConditionCast.h"
+#include "scan_select/scan_condition/base/RootScanCondition.h"
+
+#include "vm/VirtualMachine.h"
+
+
+using namespace alinous;
+
 namespace alinous {
 
 SQLHaving::SQLHaving() : AbstractSQLPart(CodeElement::SQL_PART_HAVING) {
@@ -41,10 +52,29 @@ void SQLHaving::analyze(AnalyzeContext* actx) {
 	}
 }
 
+
 void SQLHaving::init(VirtualMachine* vm) {
 	if(this->exp != nullptr){
 		this->exp->init(vm);
 	}
+}
+
+AbstractVmInstance* SQLHaving::interpret(VirtualMachine* vm){
+	if(this->exp != nullptr){
+		this->exp->interpret(vm);
+
+		SelectScanPlanner* planner = vm->getSelectPlanner();
+		ConditionsHolder* cholder = planner->getConditions();
+
+		RootScanCondition* root = cholder->getHavingRoot();
+
+		AbstractScanConditionElement* element = cholder->pop();
+		AbstractScanCondition* cond = ScanConditionCast::toAbstractScanCondition(element, vm, this);
+
+		root->addCondition(cond);
+	}
+
+	return nullptr;
 }
 
 int SQLHaving::binarySize() const {

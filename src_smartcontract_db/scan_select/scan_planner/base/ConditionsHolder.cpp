@@ -19,12 +19,14 @@ namespace codablecash {
 
 ConditionsHolder::ConditionsHolder() {
 	this->root = new RootScanCondition();
+	this->havingRoot = new RootScanCondition();
 	this->stack = new ConditionsHolderStack();
 }
 
 ConditionsHolder::~ConditionsHolder() {
 	delete this->stack;
 	delete this->root;
+	delete this->havingRoot;
 }
 
 void ConditionsHolder::push(AbstractScanConditionElement* cond) noexcept {
@@ -42,6 +44,10 @@ AbstractScanConditionElement* ConditionsHolder::pop() noexcept {
 
 RootScanCondition* ConditionsHolder::getRoot() const noexcept {
 	return this->root;
+}
+
+RootScanCondition* ConditionsHolder::getHavingRoot() const noexcept {
+	return this->havingRoot;
 }
 
 void ConditionsHolder::analyzeConditions(VirtualMachine* vm, SelectScanPlanner* planner) {

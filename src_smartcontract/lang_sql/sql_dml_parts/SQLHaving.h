@@ -15,6 +15,7 @@ class AbstractSQLExpression;
 class AnalyzeContext;
 
 class VirtualMachine;
+class AbstractVmInstance;
 
 class SQLHaving : public AbstractSQLPart {
 public:
@@ -28,6 +29,7 @@ public:
 	void analyze(AnalyzeContext* actx);
 
 	void init(VirtualMachine* vm);
+	AbstractVmInstance* interpret(VirtualMachine* vm);
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out);

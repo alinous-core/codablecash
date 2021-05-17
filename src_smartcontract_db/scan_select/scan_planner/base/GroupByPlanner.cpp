@@ -7,15 +7,22 @@
 
 #include "scan_select/scan_planner/base/GroupByPlanner.h"
 
+#include "scan_select/scan_columns/ScanColumnHolder.h"
+
 namespace codablecash {
 
 GroupByPlanner::GroupByPlanner() {
-	// TODO Auto-generated constructor stub
+	this->columnHolder = new ScanColumnHolder();
 
 }
 
 GroupByPlanner::~GroupByPlanner() {
-	// TODO Auto-generated destructor stub
+	delete this->columnHolder;
 }
+
+void codablecash::GroupByPlanner::addColumn(AbstractScanColumnsTarget* col) {
+	this->columnHolder->addColumn(col);
+}
+
 
 } /* namespace codablecash */

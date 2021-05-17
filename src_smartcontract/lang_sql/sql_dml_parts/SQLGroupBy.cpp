@@ -12,6 +12,17 @@
 #include "vm/VirtualMachine.h"
 
 #include "scan_select/scan_planner/base/SelectScanPlanner.h"
+#include "scan_select/scan_planner/base/GroupByPlanner.h"
+
+#include "scan_select/scan_columns/AbstractScanColumnsTarget.h"
+#include "scan_select/scan_columns/ScanColumnHolder.h"
+
+#include "lang_sql/sql_expression/SQLColumnIdentifier.h"
+
+#include "scan_select/scan_condition/base/AbstractScanConditionElement.h"
+
+#include "scan_select/scan_columns/ScanColumn.h"
+
 
 using namespace codablecash;
 
@@ -70,9 +81,20 @@ void SQLGroupBy::init(VirtualMachine* vm) {
 
 AbstractVmInstance* SQLGroupBy::interpret(VirtualMachine* vm) {
 	SelectScanPlanner* planner = vm->getSelectPlanner();
+	ScanColumnHolder* colHolder = planner->getColumnHolder();
+
 	GroupByPlanner* groupPlan = planner->getGroupPlan();
 
+	const ArrayList<SQLColumnIdentifier>* cols = this->list->getList();
 
+	int maxLoop = cols->size();
+	for(int i = 0; i != maxLoop; ++i){
+		SQLColumnIdentifier* colId = cols->get(i);
+
+		ScanColumn* param = new ScanColumn(colId);
+
+		groupPlan->addColumn(param);
+	}
 
 	if(this->having != nullptr){
 		this->having->interpret(vm);

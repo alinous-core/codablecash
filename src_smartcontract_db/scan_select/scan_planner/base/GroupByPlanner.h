@@ -10,13 +10,17 @@
 
 namespace codablecash {
 
+class ScanColumnHolder;
+class AbstractScanColumnsTarget;
+
 class GroupByPlanner {
 public:
 	GroupByPlanner();
 	virtual ~GroupByPlanner();
 
+	void addColumn(AbstractScanColumnsTarget* col);
 private:
-
+	ScanColumnHolder* columnHolder;
 };
 
 } /* namespace codablecash */

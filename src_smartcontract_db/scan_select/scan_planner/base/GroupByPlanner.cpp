@@ -13,7 +13,6 @@ namespace codablecash {
 
 GroupByPlanner::GroupByPlanner() {
 	this->columnHolder = new ScanColumnHolder();
-
 }
 
 GroupByPlanner::~GroupByPlanner() {
@@ -23,6 +22,11 @@ GroupByPlanner::~GroupByPlanner() {
 void codablecash::GroupByPlanner::addColumn(AbstractScanColumnsTarget* col) {
 	this->columnHolder->addColumn(col);
 }
+
+void GroupByPlanner::resolveColumns(VirtualMachine* vm,	SelectScanPlanner* planner) {
+	this->columnHolder->resolveColumns(vm, planner);
+}
+
 
 
 } /* namespace codablecash */

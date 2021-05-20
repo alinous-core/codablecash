@@ -363,6 +363,7 @@ void SelectStatement::buildPlanner(VirtualMachine* vm, uint64_t currentVer) {
 
 	// analyze column
 	this->list->interpret(vm);
+
 	this->planner->resolveColumn(vm);
 
 	this->lastSchemaVersion = currentVer;

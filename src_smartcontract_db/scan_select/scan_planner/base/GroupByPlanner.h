@@ -8,10 +8,18 @@
 #ifndef SCAN_SELECT_SCAN_PLANNER_BASE_GROUPBYPLANNER_H_
 #define SCAN_SELECT_SCAN_PLANNER_BASE_GROUPBYPLANNER_H_
 
+namespace alinous {
+class UnicodeString;
+class VirtualMachine;
+}
+
+using namespace alinous;
+
 namespace codablecash {
 
 class ScanColumnHolder;
 class AbstractScanColumnsTarget;
+class SelectScanPlanner;
 
 class GroupByPlanner {
 public:
@@ -19,6 +27,8 @@ public:
 	virtual ~GroupByPlanner();
 
 	void addColumn(AbstractScanColumnsTarget* col);
+
+	void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
 private:
 	ScanColumnHolder* columnHolder;
 };

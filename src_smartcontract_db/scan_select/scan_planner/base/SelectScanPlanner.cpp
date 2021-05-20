@@ -80,6 +80,10 @@ void SelectScanPlanner::resolveTable(VirtualMachine* vm) {
 }
 
 void SelectScanPlanner::resolveColumn(VirtualMachine* vm) {
+	if(this->groupPlan != nullptr){
+
+	}
+
 	this->columnHolder->resolveColumns(vm, this);
 }
 

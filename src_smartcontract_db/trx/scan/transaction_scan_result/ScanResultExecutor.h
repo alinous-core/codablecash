@@ -23,6 +23,7 @@ class OidKeyRecordCache;
 class CdbRecord;
 class ScanResultMetadata;
 class RootScanCondition;
+class SelectScanPlanner;
 
 class ScanResultExecutor {
 public:
@@ -37,6 +38,8 @@ private:
 	void doExecScan(VirtualMachine* vm);
 	bool checkRecord(VirtualMachine* vm, RootScanCondition* root, const CdbRecord* record, const ScanResultMetadata* metadata);
 	DomArrayVariable* getRecordsVariable(VirtualMachine* vm);
+
+	void doGroupBy(VirtualMachine* vm, SelectScanPlanner* planner);
 
 private:
 	IJoinLeftSource* source;

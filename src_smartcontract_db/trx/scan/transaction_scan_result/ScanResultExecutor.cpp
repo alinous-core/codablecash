@@ -17,6 +17,8 @@
 #include "schema_table/record/table_record_local/LocalOidFactory.h"
 
 #include "schema_table/record/table_record_value/CdbValueCaster.h"
+#include "schema_table/record/table_record_value/AbstractCdbValue.h"
+#include "schema_table/record/table_record_value/CdbByteValue.h"
 
 #include "vm/VirtualMachine.h"
 
@@ -29,10 +31,6 @@
 
 #include "base/UnicodeString.h"
 #include "base/StackRelease.h"
-
-#include "schema_table/record/table_record_value/AbstractCdbValue.h"
-
-#include "schema_table/record/table_record_value/CdbByteValue.h"
 
 #include "instance/instance_gc/GcManager.h"
 
@@ -51,9 +49,9 @@
 #include "schema_table/record/table_record/CdbRecord.h"
 
 #include "trx/scan/transaction_scan_result/ScanResultMetadata.h"
-
 #include "trx/scan/transaction_scan_result/ScanResultFieldMetadata.h"
 
+#include "scan_select/scan_planner/base/GroupByPlanner.h"
 namespace codablecash {
 
 ScanResultExecutor::ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db) {
@@ -95,6 +93,7 @@ void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 
 	const ScanResultMetadata* metadata = this->source->getMetadata();
 
+	// scan
 	this->source->start();
 	while(this->source->hasNext()){
 		const CdbRecord* record = this->source->next();
@@ -102,6 +101,27 @@ void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 		if(checkRecord(vm, root, record, metadata)){
 			this->cache->insert(record);
 		}
+	}
+
+	// check group by
+	if(planner->getGroupPlan() != nullptr){
+		doGroupBy(vm, planner);
+	}
+}
+
+void ScanResultExecutor::doGroupBy(VirtualMachine* vm, SelectScanPlanner* planner) {
+	GroupByPlanner* groupByPlan = planner->getGroupPlan();
+
+	const ScanResultMetadata* metadata = this->source->getMetadata();
+
+	IBtreeScanner* scanner = this->cache->getScanner(); __STP(scanner);
+	scanner->begin();
+
+	while(scanner->hasNext()){
+		const IBlockObject* obj = scanner->next();
+		const CdbRecord* record = dynamic_cast<const CdbRecord*>(obj);
+
+
 	}
 }
 

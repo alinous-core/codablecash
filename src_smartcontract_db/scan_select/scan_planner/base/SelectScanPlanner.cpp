@@ -81,7 +81,7 @@ void SelectScanPlanner::resolveTable(VirtualMachine* vm) {
 
 void SelectScanPlanner::resolveColumn(VirtualMachine* vm) {
 	if(this->groupPlan != nullptr){
-
+		this->groupPlan->resolveColumns(vm, this);
 	}
 
 	this->columnHolder->resolveColumns(vm, this);

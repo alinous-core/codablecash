@@ -122,6 +122,7 @@ void ScanResultExecutor::doGroupBy(VirtualMachine* vm, SelectScanPlanner* planne
 		const CdbRecord* record = dynamic_cast<const CdbRecord*>(obj);
 
 
+
 	}
 }
 

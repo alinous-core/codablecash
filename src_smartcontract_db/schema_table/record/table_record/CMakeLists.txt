@@ -2,6 +2,7 @@
 
 set(__src
 	CdbDataFactory.cpp
+	CdbGroupedRecord.cpp
 	CdbKeyFactory.cpp
 	CdbRecord.cpp
 	CdbTableIdentifier.cpp

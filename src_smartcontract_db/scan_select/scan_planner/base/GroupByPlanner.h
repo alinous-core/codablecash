@@ -29,6 +29,9 @@ public:
 	void addColumn(AbstractScanColumnsTarget* col);
 
 	void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
+
+
+
 private:
 	ScanColumnHolder* columnHolder;
 };

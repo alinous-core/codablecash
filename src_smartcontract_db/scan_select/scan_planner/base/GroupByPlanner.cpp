@@ -27,6 +27,9 @@ void GroupByPlanner::resolveColumns(VirtualMachine* vm,	SelectScanPlanner* plann
 	this->columnHolder->resolveColumns(vm, planner);
 }
 
-
+CdbGroupedRecord* GroupByPlanner::groupBy(const CdbRecord* record) {
+	// TODO:
+	return nullptr;
+}
 
 } /* namespace codablecash */

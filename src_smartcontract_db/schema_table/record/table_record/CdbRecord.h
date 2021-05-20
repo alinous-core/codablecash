@@ -60,7 +60,7 @@ public:
 
 	DomVariableInstance* toDomInstance(VirtualMachine* vm, ArrayList<const UnicodeString>* nameList) const;
 
-private:
+protected:
 	CdbOid* oid;
 	ArrayList<AbstractCdbValue> list;
 };

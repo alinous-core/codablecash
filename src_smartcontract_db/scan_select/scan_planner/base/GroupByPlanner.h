@@ -20,6 +20,8 @@ namespace codablecash {
 class ScanColumnHolder;
 class AbstractScanColumnsTarget;
 class SelectScanPlanner;
+class CdbRecord;
+class CdbGroupedRecord;
 
 class GroupByPlanner {
 public:
@@ -30,7 +32,7 @@ public:
 
 	void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
 
-
+	CdbGroupedRecord* groupBy(const CdbRecord* record);
 
 private:
 	ScanColumnHolder* columnHolder;

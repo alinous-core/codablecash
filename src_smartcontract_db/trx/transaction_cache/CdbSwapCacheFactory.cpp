@@ -18,6 +18,9 @@
 namespace codablecash {
 
 const UnicodeString CdbSwapCacheFactory::PREFIX_SINGLE_KEY(L"singlekey_");
+const UnicodeString CdbSwapCacheFactory::PREFIX_OID_KEY(L"oidkey_");
+const UnicodeString CdbSwapCacheFactory::PREFIX_GROUP_KEY(L"groupkey_");
+
 
 CdbSwapCacheFactory::CdbSwapCacheFactory(const File* tmpdir, DiskCacheManager* diskCache)
 		: SwapCacheFactory(tmpdir, diskCache, nullptr, nullptr) {
@@ -50,7 +53,7 @@ SingleKeyOidCache* CdbSwapCacheFactory::createSingleKeyOidCache(int swappiness) 
 }
 
 OidKeyRecordCache* CdbSwapCacheFactory::createOidKeyRecordCache(int swappiness) {
-	UnicodeString* name = new UnicodeString(CdbSwapCacheFactory::PREFIX_SINGLE_KEY); __STP(name);
+	UnicodeString* name = new UnicodeString(CdbSwapCacheFactory::PREFIX_OID_KEY); __STP(name);
 	name->append((int)this->serial++);
 
 	OidKeyRecordCache* cache = new OidKeyRecordCache(this->baseDir, name, dynamic_cast<CdbKeyFactory*>(this->keyFactory),
@@ -60,5 +63,13 @@ OidKeyRecordCache* CdbSwapCacheFactory::createOidKeyRecordCache(int swappiness) 
 
 	return cache;
 }
+
+GroupKeyCache* CdbSwapCacheFactory::createGroupKeyCache(int swappiness) {
+	UnicodeString* name = new UnicodeString(CdbSwapCacheFactory::PREFIX_OID_KEY); __STP(name);
+	name->append((int)this->serial++);
+
+	// TODO createGroupKeyCache()
+}
+
 
 } /* namespace codablecash */

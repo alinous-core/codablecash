@@ -5,17 +5,16 @@
  *      Author: iizuka
  */
 
-#include <trx/transaction_cache/GroupKeyCache.h>
+#include "trx/transaction_cache/GroupKeyCache.h"
 
 namespace codablecash {
 
-GroupKeyCache::GroupKeyCache() {
-	// TODO Auto-generated constructor stub
-
+GroupKeyCache::GroupKeyCache(CdbLocalCacheManager* localCacheManager) {
+	this->localCacheManager = localCacheManager;
 }
 
 GroupKeyCache::~GroupKeyCache() {
-	// TODO Auto-generated destructor stub
+	this->localCacheManager = nullptr;
 }
 
 } /* namespace codablecash */

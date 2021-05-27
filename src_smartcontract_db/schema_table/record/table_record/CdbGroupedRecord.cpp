@@ -13,10 +13,7 @@
 namespace codablecash {
 
 CdbGroupedRecord::CdbGroupedRecord(const CdbGroupedRecord& inst) : CdbRecord(inst)  {
-	int maxLoop = inst.oidlist.size();
-	for(int i = 0; i != maxLoop; ++i){
 
-	}
 }
 
 CdbGroupedRecord::CdbGroupedRecord() {

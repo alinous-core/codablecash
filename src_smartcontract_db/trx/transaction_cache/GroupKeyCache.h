@@ -10,10 +10,16 @@
 
 namespace codablecash {
 
+class CdbLocalCacheManager;
+
 class GroupKeyCache {
 public:
-	GroupKeyCache();
+	explicit GroupKeyCache(CdbLocalCacheManager* localCacheManager);
 	virtual ~GroupKeyCache();
+
+private:
+	CdbLocalCacheManager* localCacheManager;
+
 };
 
 } /* namespace codablecash */

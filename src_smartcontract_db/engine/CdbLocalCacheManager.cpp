@@ -13,6 +13,7 @@
 
 #include "trx/transaction_cache/CdbSwapCacheFactory.h"
 #include "trx/transaction_cache/SingleKeyOidCache.h"
+#include "trx/transaction_cache/GroupKeyCache.h"
 
 #include "base/StackRelease.h"
 
@@ -48,5 +49,10 @@ OidKeyRecordCache* CdbLocalCacheManager::createOidKeyRecordCache() {
 SingleKeyOidCache* CdbLocalCacheManager::createSingleKeyOidCache() {
 	return this->cacheFactory->createSingleKeyOidCache(CdbLocalCacheManager::DEFAULT_SWAPPINESS);
 }
+
+GroupKeyCache* CdbLocalCacheManager::createGroupKeyCache() {
+	return new GroupKeyCache(this);
+}
+
 
 } /* namespace codablecash */

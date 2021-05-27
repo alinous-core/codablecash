@@ -10,6 +10,7 @@
 #include "trx/scan/transaction_scanner_join/IJoinLeftSource.h"
 
 #include "trx/transaction_cache/OidKeyRecordCache.h"
+#include "trx/transaction_cache/GroupKeyCache.h"
 
 #include "engine/CodableDatabase.h"
 #include "engine/CdbLocalCacheManager.h"
@@ -52,12 +53,15 @@
 #include "trx/scan/transaction_scan_result/ScanResultFieldMetadata.h"
 
 #include "scan_select/scan_planner/base/GroupByPlanner.h"
+
+
 namespace codablecash {
 
 ScanResultExecutor::ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db) {
 	this->source = source;
 	this->db = db;
 	this->cache = nullptr;
+	this->groupKeyCache = nullptr;
 }
 
 ScanResultExecutor::~ScanResultExecutor() {
@@ -68,6 +72,9 @@ ScanResultExecutor::~ScanResultExecutor() {
 
 	delete this->cache;
 	this->cache = nullptr;
+
+	delete this->groupKeyCache;
+	this->groupKeyCache = nullptr;
 }
 
 void ScanResultExecutor::execScan(VirtualMachine* vm) {
@@ -111,6 +118,12 @@ void ScanResultExecutor::doExecScan(VirtualMachine* vm) {
 
 void ScanResultExecutor::doGroupBy(VirtualMachine* vm, SelectScanPlanner* planner) {
 	GroupByPlanner* groupByPlan = planner->getGroupPlan();
+
+	CdbLocalCacheManager* localCacheManager = this->db->getLocalCacheManager();
+	//this->cache = localCacheManager->createOidKeyRecordCache();
+
+	//this->groupKeyCache = new GroupKeyCache();
+
 
 	const ScanResultMetadata* metadata = this->source->getMetadata();
 

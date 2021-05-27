@@ -13,7 +13,7 @@
 
 #include "trx/transaction_cache/CdbSwapCacheFactory.h"
 #include "trx/transaction_cache/SingleKeyOidCache.h"
-#include "trx/transaction_cache/GroupKeyCache.h"
+#include "trx/transaction_cache/GroupCache.h"
 
 #include "base/StackRelease.h"
 
@@ -50,8 +50,8 @@ SingleKeyOidCache* CdbLocalCacheManager::createSingleKeyOidCache() {
 	return this->cacheFactory->createSingleKeyOidCache(CdbLocalCacheManager::DEFAULT_SWAPPINESS);
 }
 
-GroupKeyCache* CdbLocalCacheManager::createGroupKeyCache() {
-	return new GroupKeyCache(this);
+GroupCache* CdbLocalCacheManager::createGroupKeyCache() {
+	return new GroupCache(this);
 }
 
 

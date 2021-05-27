@@ -10,7 +10,7 @@
 #include "trx/scan/transaction_scanner_join/IJoinLeftSource.h"
 
 #include "trx/transaction_cache/OidKeyRecordCache.h"
-#include "trx/transaction_cache/GroupKeyCache.h"
+#include "trx/transaction_cache/GroupCache.h"
 
 #include "engine/CodableDatabase.h"
 #include "engine/CdbLocalCacheManager.h"

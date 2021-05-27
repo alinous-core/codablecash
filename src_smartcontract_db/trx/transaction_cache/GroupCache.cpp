@@ -5,15 +5,15 @@
  *      Author: iizuka
  */
 
-#include "trx/transaction_cache/GroupKeyCache.h"
+#include "trx/transaction_cache/GroupCache.h"
 
 namespace codablecash {
 
-GroupKeyCache::GroupKeyCache(CdbLocalCacheManager* localCacheManager) {
+GroupCache::GroupCache(CdbLocalCacheManager* localCacheManager) {
 	this->localCacheManager = localCacheManager;
 }
 
-GroupKeyCache::~GroupKeyCache() {
+GroupCache::~GroupCache() {
 	this->localCacheManager = nullptr;
 }
 

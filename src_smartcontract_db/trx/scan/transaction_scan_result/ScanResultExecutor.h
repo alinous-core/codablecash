@@ -20,7 +20,7 @@ namespace codablecash {
 class IJoinLeftSource;
 class CodableDatabase;
 class OidKeyRecordCache;
-class GroupKeyCache;
+class GroupCache;
 class CdbRecord;
 class ScanResultMetadata;
 class RootScanCondition;
@@ -46,7 +46,7 @@ private:
 	IJoinLeftSource* source;
 	CodableDatabase* db;
 	OidKeyRecordCache* cache;
-	GroupKeyCache* groupKeyCache;
+	GroupCache* groupKeyCache;
 };
 
 } /* namespace codablecash */

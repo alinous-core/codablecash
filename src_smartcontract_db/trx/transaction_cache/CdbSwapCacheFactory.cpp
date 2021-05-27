@@ -64,7 +64,7 @@ OidKeyRecordCache* CdbSwapCacheFactory::createOidKeyRecordCache(int swappiness) 
 	return cache;
 }
 
-GroupKeyCache* CdbSwapCacheFactory::createGroupKeyCache(int swappiness) {
+GroupCache* CdbSwapCacheFactory::createGroupKeyCache(int swappiness) {
 	UnicodeString* name = new UnicodeString(CdbSwapCacheFactory::PREFIX_OID_KEY); __STP(name);
 	name->append((int)this->serial++);
 

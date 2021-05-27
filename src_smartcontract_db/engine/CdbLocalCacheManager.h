@@ -20,7 +20,7 @@ class CdbSwapCacheFactory;
 class LocalOidFactory;
 class OidKeyRecordCache;
 class SingleKeyOidCache;
-class GroupKeyCache;
+class GroupCache;
 
 class CdbLocalCacheManager {
 public:
@@ -33,7 +33,7 @@ public:
 
 	OidKeyRecordCache* createOidKeyRecordCache();
 	SingleKeyOidCache* createSingleKeyOidCache();
-	GroupKeyCache* createGroupKeyCache();
+	GroupCache* createGroupKeyCache();
 
 private:
 	File* folder;

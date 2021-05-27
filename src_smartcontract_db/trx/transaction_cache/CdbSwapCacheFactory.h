@@ -16,7 +16,7 @@ class CdbKeyFactory;
 class CdbDataFactory;
 class SingleKeyOidCache;
 class OidKeyRecordCache;
-class GroupKeyCache;
+class GroupCache;
 
 class CdbSwapCacheFactory: public SwapCacheFactory {
 public:
@@ -31,7 +31,7 @@ public:
 
 	SingleKeyOidCache* createSingleKeyOidCache(int swappiness);
 	OidKeyRecordCache* createOidKeyRecordCache(int swappiness);
-	GroupKeyCache* createGroupKeyCache(int swappiness);
+	GroupCache* createGroupKeyCache(int swappiness);
 
 };
 

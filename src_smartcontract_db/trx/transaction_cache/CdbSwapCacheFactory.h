@@ -31,7 +31,6 @@ public:
 
 	SingleKeyOidCache* createSingleKeyOidCache(int swappiness);
 	OidKeyRecordCache* createOidKeyRecordCache(int swappiness);
-	GroupCache* createGroupKeyCache(int swappiness);
 
 };
 

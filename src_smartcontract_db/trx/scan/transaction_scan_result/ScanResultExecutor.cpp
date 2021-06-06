@@ -122,7 +122,8 @@ void ScanResultExecutor::doGroupBy(VirtualMachine* vm, SelectScanPlanner* planne
 	CdbLocalCacheManager* localCacheManager = this->db->getLocalCacheManager();
 	//this->cache = localCacheManager->createOidKeyRecordCache();
 
-	//this->groupKeyCache = new GroupKeyCache();
+	this->groupKeyCache = new GroupCache(localCacheManager);
+	this->groupKeyCache->init(vm);
 
 
 	const ScanResultMetadata* metadata = this->source->getMetadata();
@@ -134,8 +135,7 @@ void ScanResultExecutor::doGroupBy(VirtualMachine* vm, SelectScanPlanner* planne
 		const IBlockObject* obj = scanner->next();
 		const CdbRecord* record = dynamic_cast<const CdbRecord*>(obj);
 
-
-
+		this->groupKeyCache->groupRecord(record, metadata, groupByPlan);
 	}
 }
 

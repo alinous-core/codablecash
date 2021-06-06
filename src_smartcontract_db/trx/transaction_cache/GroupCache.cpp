@@ -7,6 +7,11 @@
 
 #include "trx/transaction_cache/GroupCache.h"
 
+
+#include "vm/VirtualMachine.h"
+
+
+
 namespace codablecash {
 
 GroupCache::GroupCache(CdbLocalCacheManager* localCacheManager) {
@@ -16,5 +21,12 @@ GroupCache::GroupCache(CdbLocalCacheManager* localCacheManager) {
 GroupCache::~GroupCache() {
 	this->localCacheManager = nullptr;
 }
+
+void GroupCache::init(VirtualMachine* vm) {
+}
+
+void GroupCache::groupRecord(const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan) {
+}
+
 
 } /* namespace codablecash */

@@ -49,6 +49,8 @@ const UnicodeString* ScanColumn::toStringCode() noexcept {
 void ScanColumn::resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner) {
 	CodableDatabase* db = vm->getDb();
 
+
+
 	// FIXME resolveColumns
 }
 

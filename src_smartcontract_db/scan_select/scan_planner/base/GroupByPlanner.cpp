@@ -8,6 +8,7 @@
 #include "scan_select/scan_planner/base/GroupByPlanner.h"
 
 #include "scan_select/scan_columns/ScanColumnHolder.h"
+#include "scan_select/scan_columns/AbstractScanColumnsTarget.h"
 
 #include "schema_table/record/table_record/CdbRecord.h"
 
@@ -30,7 +31,7 @@ void GroupByPlanner::resolveColumns(VirtualMachine* vm,	SelectScanPlanner* plann
 	this->columnHolder->resolveColumns(vm, planner);
 }
 
-CdbRecord* GroupByPlanner::groupBy(const CdbRecord* record, const ScanResultMetadata* metadata) {
+CdbRecord* GroupByPlanner::groupBy(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata) {
 	CdbRecord* groupedRecord = new CdbRecord();
 
 	const ArrayList<AbstractScanColumnsTarget>* list = this->columnHolder->getList();
@@ -38,7 +39,7 @@ CdbRecord* GroupByPlanner::groupBy(const CdbRecord* record, const ScanResultMeta
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractScanColumnsTarget* colTarget = list->get(i);
 
-
+		colTarget->scanColumns(vm, record, metadata, groupedRecord);
 	}
 
 	// TODO:

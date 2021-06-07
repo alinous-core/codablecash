@@ -135,7 +135,7 @@ void ScanResultExecutor::doGroupBy(VirtualMachine* vm, SelectScanPlanner* planne
 		const IBlockObject* obj = scanner->next();
 		const CdbRecord* record = dynamic_cast<const CdbRecord*>(obj);
 
-		this->groupKeyCache->groupRecord(record, metadata, groupByPlan);
+		this->groupKeyCache->groupRecord(vm, record, metadata, groupByPlan);
 	}
 }
 

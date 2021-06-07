@@ -27,7 +27,7 @@ public:
 
 	void init(VirtualMachine* vm);
 
-	void groupRecord(const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan);
+	void groupRecord(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan);
 
 private:
 	CdbLocalCacheManager* localCacheManager;

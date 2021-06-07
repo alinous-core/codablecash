@@ -32,8 +32,10 @@ GroupCache::~GroupCache() {
 void GroupCache::init(VirtualMachine* vm) {
 }
 
-void GroupCache::groupRecord(const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan) {
-	CdbRecord* newRecord = groupByPlan->groupBy(record, metadata); __STP(newRecord);
+void GroupCache::groupRecord(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan) {
+	CdbRecord* newRecord = groupByPlan->groupBy(vm, record, metadata); __STP(newRecord);
+
+
 }
 
 

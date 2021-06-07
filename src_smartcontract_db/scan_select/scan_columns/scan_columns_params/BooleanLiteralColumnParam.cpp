@@ -27,7 +27,7 @@ const UnicodeString* BooleanLiteralColumnParam::toStringCode() noexcept {
 }
 
 void BooleanLiteralColumnParam::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
-	// FIXME
+	// FIXME scanColumns()
 }
 
 

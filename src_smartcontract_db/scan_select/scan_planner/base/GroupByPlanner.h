@@ -33,7 +33,7 @@ public:
 
 	void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
 
-	CdbRecord* groupBy(const CdbRecord* record, const ScanResultMetadata* metadata);
+	CdbRecord* groupBy(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata);
 
 private:
 	ScanColumnHolder* columnHolder;

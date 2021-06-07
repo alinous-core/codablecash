@@ -25,6 +25,7 @@ public:
 
 	virtual void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
 
+	virtual void scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
 private:
 	ArrayList<AbstractScanColumnsTarget> list;
 };

@@ -36,6 +36,11 @@ public:
 	void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
 
 	UnicodeString* toCodeString() noexcept;
+
+	const ArrayList<AbstractScanColumnsTarget>* getList() const {
+		return &list;
+	}
+
 private:
 	ArrayList<AbstractScanColumnsTarget> stack;
 

@@ -20,6 +20,8 @@ public:
 	virtual const UnicodeString* toStringCode() noexcept;
 
 	virtual void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
+
+	virtual void scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
 };
 
 } /* namespace codablecash */

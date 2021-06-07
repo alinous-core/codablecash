@@ -51,4 +51,8 @@ void OrScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScanPlanner* p
 	}
 }
 
+void OrScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+	// FIXME scanColumns()
+}
+
 } /* namespace codablecash */

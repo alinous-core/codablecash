@@ -22,6 +22,8 @@ public:
 
 	virtual const UnicodeString* toStringCode() noexcept;
 
+	virtual void scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
+
 private:
 	bool value;
 };

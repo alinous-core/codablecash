@@ -67,4 +67,9 @@ void MultiplicativeExpressionScanColumnTarget::resolveColumns(VirtualMachine* vm
 	}
 }
 
+void MultiplicativeExpressionScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata,	CdbRecord* newRecord) {
+	// FIXME scanColumns()
+
+}
+
 } /* namespace codablecash */

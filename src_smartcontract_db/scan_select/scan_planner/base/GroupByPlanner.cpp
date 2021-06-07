@@ -9,6 +9,9 @@
 
 #include "scan_select/scan_columns/ScanColumnHolder.h"
 
+#include "schema_table/record/table_record/CdbRecord.h"
+
+
 namespace codablecash {
 
 GroupByPlanner::GroupByPlanner() {
@@ -27,9 +30,19 @@ void GroupByPlanner::resolveColumns(VirtualMachine* vm,	SelectScanPlanner* plann
 	this->columnHolder->resolveColumns(vm, planner);
 }
 
-CdbGroupedRecord* GroupByPlanner::groupBy(const CdbRecord* record, const ScanResultMetadata* metadata) {
+CdbRecord* GroupByPlanner::groupBy(const CdbRecord* record, const ScanResultMetadata* metadata) {
+	CdbRecord* groupedRecord = new CdbRecord();
+
+	const ArrayList<AbstractScanColumnsTarget>* list = this->columnHolder->getList();
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractScanColumnsTarget* colTarget = list->get(i);
+
+
+	}
+
 	// TODO:
-	return nullptr;
+	return groupedRecord;
 }
 
 } /* namespace codablecash */

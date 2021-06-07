@@ -51,5 +51,10 @@ void ExpressionListScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectSc
 	}
 }
 
+void ExpressionListScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+	// FIXME scanColumns()
+}
+
+
 
 } /* namespace codablecash */

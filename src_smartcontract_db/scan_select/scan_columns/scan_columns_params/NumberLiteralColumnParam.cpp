@@ -28,4 +28,9 @@ const UnicodeString* NumberLiteralColumnParam::toStringCode() noexcept {
 	return this->str;
 }
 
+void NumberLiteralColumnParam::scanColumns(const CdbRecord* record,	const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+	// FIXME scanColumns()
+}
+
+
 } /* namespace codablecash */

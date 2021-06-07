@@ -66,5 +66,9 @@ void InExpressionScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScan
 	this->list->resolveColumns(vm, planner);
 }
 
+void InExpressionScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+	// FIXME scanColumns()
+
+}
 
 } /* namespace codablecash */

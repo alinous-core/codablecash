@@ -17,6 +17,8 @@ using namespace alinous;
 namespace codablecash {
 
 class SelectScanPlanner;
+class CdbRecord;
+class ScanResultMetadata;
 
 class AbstractScanColumnsTarget {
 public:
@@ -28,6 +30,8 @@ public:
 	virtual const UnicodeString* toStringCode() noexcept = 0;
 
 	virtual void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner) = 0;
+
+	virtual void scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) = 0;
 protected:
 	void resetStr() noexcept;
 

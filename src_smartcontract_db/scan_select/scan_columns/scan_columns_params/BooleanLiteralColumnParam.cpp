@@ -26,4 +26,9 @@ const UnicodeString* BooleanLiteralColumnParam::toStringCode() noexcept {
 	return this->value ? &TRUE: &FALSE;;
 }
 
+void BooleanLiteralColumnParam::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+	// FIXME
+}
+
+
 } /* namespace codablecash */

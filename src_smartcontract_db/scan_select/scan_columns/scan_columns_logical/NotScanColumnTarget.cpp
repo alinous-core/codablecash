@@ -38,5 +38,8 @@ void NotScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScanPlanner* 
 	this->cond->resolveColumns(vm, planner);
 }
 
+void NotScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+	// FIXME scanColumns()
+}
 
 } /* namespace codablecash */

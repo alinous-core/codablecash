@@ -50,7 +50,7 @@ ColumnIdentifierScanParam::ColumnIdentifierScanParam(const ColumnIdentifierScanP
 	this->fieldMetadata = nullptr;
 }
 
-ColumnIdentifierScanParam::ColumnIdentifierScanParam(SQLColumnIdentifier* sqlColId) : sqlColId(sqlColId){
+ColumnIdentifierScanParam::ColumnIdentifierScanParam(const SQLColumnIdentifier* sqlColId) : sqlColId(sqlColId){
 	this->cdbColumn = nullptr;
 	this->str = nullptr;
 	this->sourceTarget = nullptr;

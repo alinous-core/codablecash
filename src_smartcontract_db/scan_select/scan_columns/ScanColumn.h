@@ -17,6 +17,8 @@ using namespace alinous;
 
 namespace codablecash {
 
+class ColumnIdentifierScanParam;
+
 class ScanColumn : public AbstractScanColumnsTarget {
 public:
 	explicit ScanColumn(const SQLColumnIdentifier* sqlColumnId);
@@ -29,6 +31,8 @@ public:
 	virtual void scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
 private:
 	const SQLColumnIdentifier* sqlColumnId;
+
+	ColumnIdentifierScanParam* scanParam;
 };
 
 } /* namespace codablecash */

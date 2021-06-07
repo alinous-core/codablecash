@@ -13,14 +13,18 @@
 
 #include "vm/VirtualMachine.h"
 
+#include "scan_select/scan_condition/params/ColumnIdentifierScanParam.h"
+
 namespace codablecash {
 
 ScanColumn::ScanColumn(const SQLColumnIdentifier* sqlColumnId) {
 	this->sqlColumnId = sqlColumnId;
+	this->scanParam = nullptr;
 }
 
 ScanColumn::~ScanColumn() {
 	this->sqlColumnId = nullptr;
+	delete this->scanParam;
 }
 
 const UnicodeString* ScanColumn::toStringCode() noexcept {
@@ -49,9 +53,8 @@ const UnicodeString* ScanColumn::toStringCode() noexcept {
 void ScanColumn::resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner) {
 	CodableDatabase* db = vm->getDb();
 
-
-
-	// FIXME resolveColumns
+	this->scanParam = new ColumnIdentifierScanParam(this->sqlColumnId);
+	this->scanParam->analyzeConditions(vm, planner);
 }
 
 void ScanColumn::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {

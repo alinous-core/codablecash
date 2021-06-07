@@ -25,7 +25,7 @@ class ScanResultFieldMetadata;
 class ColumnIdentifierScanParam : public AbstractScanConditionParameter {
 public:
 	ColumnIdentifierScanParam(const ColumnIdentifierScanParam& inst);
-	explicit ColumnIdentifierScanParam(SQLColumnIdentifier* sqlColId);
+	explicit ColumnIdentifierScanParam(const SQLColumnIdentifier* sqlColId);
 	virtual ~ColumnIdentifierScanParam();
 
 	virtual const UnicodeString* toStringCode() noexcept;

@@ -61,7 +61,7 @@ AbstractScanCondition* RootScanCondition::cloneCondition() const noexcept {
 AbstractCdbValue* RootScanCondition::evaluate(VirtualMachine* vm,
 		const CdbRecord* record, const ScanResultMetadata* metadata) {
 	if(this->cond == nullptr){
-		return new CdbByteValue(0);
+		return new CdbByteValue(1);
 	}
 
 	return this->cond->evaluate(vm, record, metadata);

@@ -15,6 +15,8 @@
 
 #include "scan_select/scan_condition/params/ColumnIdentifierScanParam.h"
 
+#include "schema_table/record/table_record/CdbRecord.h"
+
 namespace codablecash {
 
 ScanColumn::ScanColumn(const SQLColumnIdentifier* sqlColumnId) {
@@ -58,6 +60,10 @@ void ScanColumn::resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner) 
 }
 
 void ScanColumn::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+	AbstractCdbValue* v = this->scanParam->evaluate(vm, record, metadata);
+
+	newRecord->addValue(v);
+
 	// FIXME scanColumns()
 }
 

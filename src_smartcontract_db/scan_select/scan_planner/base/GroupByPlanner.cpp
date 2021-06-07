@@ -27,7 +27,7 @@ void GroupByPlanner::resolveColumns(VirtualMachine* vm,	SelectScanPlanner* plann
 	this->columnHolder->resolveColumns(vm, planner);
 }
 
-CdbGroupedRecord* GroupByPlanner::groupBy(const CdbRecord* record) {
+CdbGroupedRecord* GroupByPlanner::groupBy(const CdbRecord* record, const ScanResultMetadata* metadata) {
 	// TODO:
 	return nullptr;
 }

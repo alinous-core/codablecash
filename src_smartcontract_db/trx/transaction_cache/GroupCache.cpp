@@ -7,9 +7,16 @@
 
 #include "trx/transaction_cache/GroupCache.h"
 
+#include "trx/scan/transaction_scan_result/ScanResultMetadata.h"
+
+#include "scan_select/scan_planner/base/GroupByPlanner.h"
+
+#include "schema_table/record/table_record/CdbRecord.h"
+#include "schema_table/record/table_record/CdbGroupedRecord.h"
 
 #include "vm/VirtualMachine.h"
 
+#include "base/StackRelease.h"
 
 
 namespace codablecash {
@@ -26,6 +33,7 @@ void GroupCache::init(VirtualMachine* vm) {
 }
 
 void GroupCache::groupRecord(const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan) {
+	CdbGroupedRecord* newRecord = groupByPlan->groupBy(record, metadata); __STP(newRecord);
 }
 
 

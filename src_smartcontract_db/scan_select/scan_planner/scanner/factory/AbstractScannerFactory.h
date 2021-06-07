@@ -34,6 +34,10 @@ public:
 
 	void setFilterCondition(const AbstractScanCondition* filterCondition) noexcept;
 
+	const ScanResultMetadata* getMetadata() const {
+		return metadata;
+	}
+
 protected:
 	ScanResultMetadata* metadata;
 	AbstractScanCondition* filterCondition;

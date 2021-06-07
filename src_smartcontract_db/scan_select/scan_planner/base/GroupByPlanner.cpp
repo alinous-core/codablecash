@@ -6,12 +6,16 @@
  */
 
 #include "scan_select/scan_planner/base/GroupByPlanner.h"
+#include "scan_select/scan_planner/base/SelectScanPlanner.h"
 
 #include "scan_select/scan_columns/ScanColumnHolder.h"
 #include "scan_select/scan_columns/AbstractScanColumnsTarget.h"
 
 #include "schema_table/record/table_record/CdbRecord.h"
 
+#include "scan_select/scan_planner/analyze/AnalyzedScanPlan.h"
+
+#include "scan_select/scan_planner/scanner/factory/AbstractScannerFactory.h"
 
 namespace codablecash {
 
@@ -28,6 +32,10 @@ void codablecash::GroupByPlanner::addColumn(AbstractScanColumnsTarget* col) {
 }
 
 void GroupByPlanner::resolveColumns(VirtualMachine* vm,	SelectScanPlanner* planner) {
+	AnalyzedScanPlan* plan = planner->getPlan();
+	AbstractScannerFactory* scannerFactory = plan->getScanFactory();
+	const ScanResultMetadata* metadata = scannerFactory->getMetadata();
+
 	this->columnHolder->resolveColumns(vm, planner);
 }
 

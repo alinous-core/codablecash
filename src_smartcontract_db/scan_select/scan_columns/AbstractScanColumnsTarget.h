@@ -31,7 +31,7 @@ public:
 
 	virtual void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner) = 0;
 
-	virtual void scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) = 0;
+	virtual void scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) = 0;
 protected:
 	void resetStr() noexcept;
 

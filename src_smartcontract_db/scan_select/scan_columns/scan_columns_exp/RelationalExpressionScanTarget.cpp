@@ -66,7 +66,7 @@ void RelationalExpressionScanTarget::resolveColumns(VirtualMachine* vm, SelectSc
 	this->right->resolveColumns(vm, planner);
 }
 
-void RelationalExpressionScanTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+void RelationalExpressionScanTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
 	// FIXME scanColumns()
 }
 

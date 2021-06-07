@@ -63,7 +63,7 @@ void LikeExpressionScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectSc
 	}
 }
 
-void LikeExpressionScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+void LikeExpressionScanColumnTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
 	// FIXME scanColumns()
 }
 

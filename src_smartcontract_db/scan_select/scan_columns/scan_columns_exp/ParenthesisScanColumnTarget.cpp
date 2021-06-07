@@ -39,8 +39,8 @@ void ParenthesisScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScanP
 	this->cond->resolveColumns(vm, planner);
 }
 
-void ParenthesisScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
-	this->cond->scanColumns(record, metadata, newRecord);
+void ParenthesisScanColumnTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+	this->cond->scanColumns(vm, record, metadata, newRecord);
 }
 
 } /* namespace codablecash */

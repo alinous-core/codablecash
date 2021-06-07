@@ -48,7 +48,7 @@ void EqualityScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScanPlan
 	this->right->resolveColumns(vm, planner);
 }
 
-void EqualityScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+void EqualityScanColumnTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
 	// FIXME scanColumns()
 }
 

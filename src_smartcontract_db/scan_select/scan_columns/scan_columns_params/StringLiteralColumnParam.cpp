@@ -29,7 +29,7 @@ const UnicodeString* StringLiteralColumnParam::toStringCode() noexcept {
 	return this->str;
 }
 
-void codablecash::StringLiteralColumnParam::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+void StringLiteralColumnParam::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
 	// FIXME scanColumns();
 }
 

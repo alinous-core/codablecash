@@ -65,7 +65,7 @@ void AdditiveExpressionScanColumnTarget::resolveColumns(VirtualMachine* vm, Sele
 	}
 }
 
-void AdditiveExpressionScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+void AdditiveExpressionScanColumnTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
 	// FIXME scanColumns()
 }
 

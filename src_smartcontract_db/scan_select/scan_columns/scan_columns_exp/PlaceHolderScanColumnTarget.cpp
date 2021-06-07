@@ -32,7 +32,7 @@ void PlaceHolderScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScanP
 
 
 
-void codablecash::PlaceHolderScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata,	CdbRecord* newRecord) {
+void PlaceHolderScanColumnTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata,	CdbRecord* newRecord) {
 	// FIXME scanColumns()
 }
 

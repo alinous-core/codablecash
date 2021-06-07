@@ -59,7 +59,7 @@ void BetweenScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScanPlann
 	this->end->resolveColumns(vm, planner);
 }
 
-void BetweenScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+void BetweenScanColumnTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
 	// FIXME scanColumns()
 
 }

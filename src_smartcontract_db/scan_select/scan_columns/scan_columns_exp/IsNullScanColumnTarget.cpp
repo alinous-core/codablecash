@@ -50,7 +50,7 @@ void IsNullScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScanPlanne
 	this->cond->resolveColumns(vm, planner);
 }
 
-void IsNullScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+void IsNullScanColumnTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
 	// FIXME scanColumns()
 
 }

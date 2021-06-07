@@ -62,7 +62,7 @@ void FunctionCallScanColumnTarget::resolveColumns(VirtualMachine* vm, SelectScan
 	}
 }
 
-void FunctionCallScanColumnTarget::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata,	CdbRecord* newRecord) {
+void FunctionCallScanColumnTarget::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata,	CdbRecord* newRecord) {
 	// FIXME scanColumns()
 }
 

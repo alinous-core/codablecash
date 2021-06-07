@@ -24,7 +24,7 @@ public:
 
 	virtual const UnicodeString* toStringCode() noexcept;
 
-	virtual void scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
+	virtual void scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
 
 private:
 	UnicodeString* value;

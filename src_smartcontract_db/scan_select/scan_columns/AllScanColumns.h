@@ -21,7 +21,7 @@ public:
 
 	virtual void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
 
-	virtual void scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
+	virtual void scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
 };
 
 } /* namespace codablecash */

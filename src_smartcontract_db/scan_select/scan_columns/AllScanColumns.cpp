@@ -31,7 +31,7 @@ void AllScanColumns::resolveColumns(VirtualMachine* vm, SelectScanPlanner* plann
 
 }
 
-void AllScanColumns::scanColumns(const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
+void AllScanColumns::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
 	// FIXME scanColumns()
 }
 

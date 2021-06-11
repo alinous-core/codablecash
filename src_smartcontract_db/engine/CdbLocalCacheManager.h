@@ -33,7 +33,6 @@ public:
 
 	OidKeyRecordCache* createOidKeyRecordCache();
 	SingleKeyOidCache* createSingleKeyOidCache();
-	GroupCache* createGroupKeyCache();
 
 private:
 	File* folder;

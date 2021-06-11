@@ -63,8 +63,6 @@ void ScanColumn::scanColumns(VirtualMachine* vm, const CdbRecord* record, const 
 	AbstractCdbValue* v = this->scanParam->evaluate(vm, record, metadata);
 
 	newRecord->addValue(v);
-
-	// FIXME scanColumns()
 }
 
 } /* namespace codablecash */

@@ -50,7 +50,6 @@ CdbRecord* GroupByPlanner::groupBy(VirtualMachine* vm, const CdbRecord* record, 
 		colTarget->scanColumns(vm, record, metadata, groupedRecord);
 	}
 
-	// TODO: groupBy()
 	return groupedRecord;
 }
 

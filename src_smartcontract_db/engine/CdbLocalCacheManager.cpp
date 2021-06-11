@@ -50,9 +50,5 @@ SingleKeyOidCache* CdbLocalCacheManager::createSingleKeyOidCache() {
 	return this->cacheFactory->createSingleKeyOidCache(CdbLocalCacheManager::DEFAULT_SWAPPINESS);
 }
 
-GroupCache* CdbLocalCacheManager::createGroupKeyCache() {
-	return new GroupCache(this);
-}
-
 
 } /* namespace codablecash */

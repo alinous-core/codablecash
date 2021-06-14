@@ -120,7 +120,6 @@ void ScanResultExecutor::doGroupBy(VirtualMachine* vm, SelectScanPlanner* planne
 	GroupByPlanner* groupByPlan = planner->getGroupPlan();
 
 	CdbLocalCacheManager* localCacheManager = this->db->getLocalCacheManager();
-	//this->cache = localCacheManager->createOidKeyRecordCache();
 
 	this->groupKeyCache = new GroupCache(localCacheManager);
 	this->groupKeyCache->init(vm);

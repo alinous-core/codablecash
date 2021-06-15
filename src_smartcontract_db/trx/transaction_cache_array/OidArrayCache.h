@@ -8,12 +8,25 @@
 #ifndef TRX_TRANSACTION_CACHE_ARRAY_OIDARRAYCACHE_H_
 #define TRX_TRANSACTION_CACHE_ARRAY_OIDARRAYCACHE_H_
 
+namespace alinous {
+class BlockFileStore;
+class DiskCacheManager;
+class UnicodeString;
+}
+using namespace alinous;
+
 namespace codablecash {
 
 class OidArrayCache {
 public:
 	OidArrayCache();
 	virtual ~OidArrayCache();
+
+	void init(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager);
+	void shutdown();
+
+private:
+	BlockFileStore* blockStore;
 };
 
 } /* namespace codablecash */

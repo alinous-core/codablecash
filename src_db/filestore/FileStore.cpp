@@ -69,6 +69,11 @@ void FileStore::createStore(bool del, uint64_t defaultSize) noexcept(false) {
 	close();
 }
 
+void FileStore::deleteFiles() const noexcept {
+	File baseDir(dir);
+	deleteLastFiles(baseDir);
+}
+
 void FileStore::deleteLastFiles(File& baseDir) const noexcept{
 	_ST(UnicodeString, filename, new UnicodeString(this->name))
 	filename->append(L".bin");
@@ -139,5 +144,3 @@ void FileStore::close() noexcept {
 
 
 } /* namespace alinous */
-
-

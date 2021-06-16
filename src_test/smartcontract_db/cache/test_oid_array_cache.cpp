@@ -19,8 +19,10 @@
 
 TEST_GROUP(TestOidArrayCacheGroup) {
 	TEST_SETUP() {
+		env->setup();
 	}
 	TEST_TEARDOWN() {
+		env->teardown();
 	}
 };
 

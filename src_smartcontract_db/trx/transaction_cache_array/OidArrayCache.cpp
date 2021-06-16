@@ -33,6 +33,7 @@ void OidArrayCache::shutdown() {
 	if(this->blockStore != nullptr){
 		if(this->blockStore->isOpened()){
 			this->blockStore->close();
+			this->blockStore->deleteFiles();
 		}
 
 		delete this->blockStore;

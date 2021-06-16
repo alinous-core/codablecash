@@ -30,6 +30,8 @@ public:
 	bool isOpened() const noexcept;
 	void close() noexcept;
 
+	void deleteFiles() const noexcept;
+
 protected:
 	void openFile(File& baseDir, bool sync);
 	void openHeaderFile(File& baseDir, bool sync);

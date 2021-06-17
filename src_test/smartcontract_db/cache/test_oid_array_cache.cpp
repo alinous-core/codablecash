@@ -41,3 +41,21 @@ TEST(TestOidArrayCacheGroup, case01){
 
 	cache.shutdown();
 }
+
+TEST(TestOidArrayCacheGroup, case02){
+	UnicodeString fileName(L"tmp_cache");
+	File testCaseFolder = this->env->testCaseDir();
+	File* tmpDir = testCaseFolder.get(&fileName); __STP(tmpDir);
+
+	UnicodeString* dir = testCaseFolder.getAbsolutePath(); __STP(dir);
+
+	DiskCacheManager diskCache;
+
+	OidArrayCache cache;
+	cache.init(dir, &fileName, &diskCache);
+
+
+}
+
+
+

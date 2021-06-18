@@ -9,13 +9,17 @@
 
 namespace codablecash {
 
-OidArrayIndexElement::OidArrayIndexElement() {
-	// TODO Auto-generated constructor stub
+OidArrayIndexElement::OidArrayIndexElement(int numElements) {
+	this->numElements = numElements;
 
+	this->fpos = 0;
+	this->elementsPos = new uint64_t[this->numElements];
+
+	this->nextFpos = 0;
 }
 
 OidArrayIndexElement::~OidArrayIndexElement() {
-	// TODO Auto-generated destructor stub
+	delete [] this->elementsPos;
 }
 
 } /* namespace codablecash */

@@ -9,6 +9,8 @@
 
 #include "filestore_block/BlockFileStore.h"
 
+#include "engine/CdbOid.h"
+
 namespace codablecash {
 
 OidArrayCache::OidArrayCache() {
@@ -39,6 +41,11 @@ void OidArrayCache::shutdown() {
 		delete this->blockStore;
 		this->blockStore = nullptr;
 	}
+}
+
+void OidArrayCache::add(int index, CdbOid* oid) {
+
+
 }
 
 } /* namespace codablecash */

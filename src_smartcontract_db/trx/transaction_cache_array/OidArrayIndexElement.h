@@ -8,12 +8,21 @@
 #ifndef TRX_TRANSACTION_CACHE_ARRAY_OIDARRAYINDEXELEMENT_H_
 #define TRX_TRANSACTION_CACHE_ARRAY_OIDARRAYINDEXELEMENT_H_
 
+#include <cstdint>
+
 namespace codablecash {
 
 class OidArrayIndexElement {
 public:
-	OidArrayIndexElement();
+	explicit OidArrayIndexElement(int numElements);
 	virtual ~OidArrayIndexElement();
+
+private:
+	uint64_t fpos;
+	int numElements;
+	uint64_t* elementsPos;
+
+	uint64_t nextFpos;
 };
 
 } /* namespace codablecash */

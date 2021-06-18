@@ -17,6 +17,8 @@ using namespace alinous;
 
 namespace codablecash {
 
+class CdbOid;
+
 class OidArrayCache {
 public:
 	OidArrayCache();
@@ -24,6 +26,8 @@ public:
 
 	void init(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager);
 	void shutdown();
+
+	void add(int index, CdbOid* oid);
 
 private:
 	BlockFileStore* blockStore;

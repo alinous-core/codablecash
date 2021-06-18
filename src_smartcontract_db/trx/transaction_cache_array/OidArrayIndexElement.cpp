@@ -7,6 +7,8 @@
 
 #include "trx/transaction_cache_array/OidArrayIndexElement.h"
 
+#include "base_io/ByteBuffer.h"
+
 namespace codablecash {
 
 OidArrayIndexElement::OidArrayIndexElement(int numElements) {
@@ -20,6 +22,21 @@ OidArrayIndexElement::OidArrayIndexElement(int numElements) {
 
 OidArrayIndexElement::~OidArrayIndexElement() {
 	delete [] this->elementsPos;
+}
+
+int OidArrayIndexElement::blockSize() {
+	int total = sizeof(this->fpos);
+
+	total += sizeof(uint8_t);
+	total += sizeof(uint64_t) * this->numElements;
+
+	total += sizeof(this->nextFpos);
+
+	return total;
+}
+
+void OidArrayIndexElement::toBinary(ByteBuffer* buff) {
+
 }
 
 } /* namespace codablecash */

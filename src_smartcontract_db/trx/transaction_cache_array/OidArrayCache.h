@@ -21,6 +21,8 @@ class CdbOid;
 
 class OidArrayCache {
 public:
+	static constexpr int INDEX_ELEMENT_SIZE{32};
+
 	OidArrayCache();
 	virtual ~OidArrayCache();
 
@@ -28,6 +30,9 @@ public:
 	void shutdown();
 
 	void add(int index, CdbOid* oid);
+
+private:
+	void initFirstIndexElement();
 
 private:
 	BlockFileStore* blockStore;

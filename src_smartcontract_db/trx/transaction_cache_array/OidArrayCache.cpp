@@ -48,6 +48,8 @@ void OidArrayCache::initFirstIndexElement() {
 	ByteBuffer* buff = handle->getBuffer();
 
 	buff->position(0);
+
+	element.setFpos(handle->getFpos());
 	element.toBinary(buff);
 
 	buff->position(0);

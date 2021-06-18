@@ -36,7 +36,15 @@ int OidArrayIndexElement::blockSize() {
 }
 
 void OidArrayIndexElement::toBinary(ByteBuffer* buff) {
+	buff->putLong(this->fpos);
 
+	buff->put(this->numElements);
+
+	for(int i = 0; i != this->numElements; ++i){
+		buff->putLong(this->elementsPos[i]);
+	}
+
+	buff->putLong(this->nextFpos);
 }
 
 } /* namespace codablecash */

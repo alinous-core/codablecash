@@ -25,6 +25,10 @@ public:
 	int blockSize();
 	void toBinary(ByteBuffer* buff);
 
+	void setFpos(uint64_t fpos) {
+		this->fpos = fpos;
+	}
+
 private:
 	uint64_t fpos;
 	int numElements;

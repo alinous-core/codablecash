@@ -15,7 +15,7 @@ OidArrayIndexElement::OidArrayIndexElement(int numElements) {
 	this->numElements = numElements;
 
 	this->fpos = 0;
-	this->elementsPos = new uint64_t[this->numElements];
+	this->elementsPos = new uint64_t[this->numElements]{};
 
 	this->nextFpos = 0;
 }

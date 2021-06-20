@@ -80,13 +80,25 @@ uint64_t OidArrayCache::getIndexFpos(int index) {
 	int mod = index % INDEX_ELEMENT_SIZE;
 	int page = mod == 0 ? index / INDEX_ELEMENT_SIZE : (index / INDEX_ELEMENT_SIZE) + 1;
 
-
+	OidArrayIndexElement* lastElement = loadOidArrayIndexElement(this->firstIndexFpos);
 
 	for(int i = 1; 1 <= page; ++i){
 
 	}
 
+	uint64_t ret = lastElement->getElementPos(mod);
+	delete lastElement;
 
+	return ret;
+}
+
+OidArrayIndexElement* OidArrayCache::loadOidArrayIndexElement(uint64_t fpos) {
+	BlockHandle* handle = this->blockStore->get(fpos); __STP(handle);
+
+	ByteBuffer* buff = handle->getBuffer();
+	OidArrayIndexElement* element = OidArrayIndexElement::fromBinary(buff);
+
+	return element;
 }
 
 } /* namespace codablecash */

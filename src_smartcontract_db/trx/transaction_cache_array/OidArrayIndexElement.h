@@ -35,6 +35,8 @@ public:
 		this->nextFpos = nextFpos;
 	}
 	void setElementPos(int index, uint64_t fpos);
+	uint64_t getElementPos(int index);
+
 private:
 	uint64_t fpos;
 	int numElements;

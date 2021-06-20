@@ -19,6 +19,7 @@ using namespace alinous;
 namespace codablecash {
 
 class CdbOid;
+class OidArrayIndexElement;
 
 class OidArrayCache {
 public:
@@ -34,8 +35,8 @@ public:
 
 private:
 	void initFirstIndexElement();
-
 	uint64_t getIndexFpos(int index);
+	OidArrayIndexElement* loadOidArrayIndexElement(uint64_t fpos);
 
 private:
 	BlockFileStore* blockStore;

@@ -34,6 +34,9 @@ public:
 	void setNextFpos(uint64_t nextFpos) {
 		this->nextFpos = nextFpos;
 	}
+	uint64_t getNextFpos() const {
+		return nextFpos;
+	}
 	void setElementPos(int index, uint64_t fpos);
 	uint64_t getElementPos(int index);
 

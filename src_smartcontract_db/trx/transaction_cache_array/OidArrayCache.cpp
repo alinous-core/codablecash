@@ -78,15 +78,28 @@ void OidArrayCache::add(int index, const CdbOid* oid) {
 
 uint64_t OidArrayCache::getIndexFpos(int index) {
 	int mod = index % INDEX_ELEMENT_SIZE;
-	int page = mod == 0 ? index / INDEX_ELEMENT_SIZE : (index / INDEX_ELEMENT_SIZE) + 1;
+	int page = index / INDEX_ELEMENT_SIZE;
 
 	OidArrayIndexElement* lastElement = loadOidArrayIndexElement(this->firstIndexFpos);
 
 	for(int i = 1; 1 <= page; ++i){
+		uint64_t nextFpos = lastElement->getNextFpos();
+		if(nextFpos == 0){
+			// create index
+			nextFpos = createIndexElement();
+		}
 
+		OidArrayIndexElement* element = loadOidArrayIndexElement(nextFpos);
+
+		delete lastElement;
+		lastElement = element;
 	}
 
 	uint64_t ret = lastElement->getElementPos(mod);
+	if(ret == 0){
+
+	}
+
 	delete lastElement;
 
 	return ret;
@@ -99,6 +112,28 @@ OidArrayIndexElement* OidArrayCache::loadOidArrayIndexElement(uint64_t fpos) {
 	OidArrayIndexElement* element = OidArrayIndexElement::fromBinary(buff);
 
 	return element;
+}
+
+uint64_t OidArrayCache::createIndexElement() {
+	OidArrayIndexElement element(INDEX_ELEMENT_SIZE);
+
+	int blkSize = element.blockSize();
+
+	BlockHandle* handle = this->blockStore->alloc(blkSize); __STP(handle);
+	ByteBuffer* buff = handle->getBuffer();
+
+	buff->position(0);
+
+	uint64_t pos = handle->getFpos();
+	element.setFpos(pos);
+	element.toBinary(buff);
+
+	buff->position(0);
+	const char* array = (const char*)buff->array();
+
+	handle->write(array, blkSize);
+
+	return pos;
 }
 
 } /* namespace codablecash */

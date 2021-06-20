@@ -17,6 +17,8 @@
 
 #include "trx/transaction_cache_array/OidArrayCache.h"
 
+#include "schema_table/record/table_record_local/LocalCdbOid.h"
+
 TEST_GROUP(TestOidArrayCacheGroup) {
 	TEST_SETUP() {
 		env->setup();
@@ -54,7 +56,11 @@ TEST(TestOidArrayCacheGroup, case02){
 	OidArrayCache cache;
 	cache.init(dir, &fileName, &diskCache);
 
+	LocalCdbOid oid(10);
+	//cache.add(2, &oid);
 
+
+	cache.add(OidArrayCache::INDEX_ELEMENT_SIZE + 3, &oid);
 }
 
 

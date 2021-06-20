@@ -36,7 +36,9 @@ public:
 private:
 	void initFirstIndexElement();
 	uint64_t getIndexFpos(int index);
+
 	OidArrayIndexElement* loadOidArrayIndexElement(uint64_t fpos);
+	uint64_t createIndexElement();
 
 private:
 	BlockFileStore* blockStore;

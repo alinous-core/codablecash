@@ -7,6 +7,7 @@
 
 #ifndef TRX_TRANSACTION_CACHE_ARRAY_OIDARRAYCACHE_H_
 #define TRX_TRANSACTION_CACHE_ARRAY_OIDARRAYCACHE_H_
+#include <cstdint>
 
 namespace alinous {
 class BlockFileStore;
@@ -29,13 +30,16 @@ public:
 	void init(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager);
 	void shutdown();
 
-	void add(int index, CdbOid* oid);
+	void add(int index, const CdbOid* oid);
 
 private:
 	void initFirstIndexElement();
+	uint64_t getIndexFpos(int index);
 
 private:
 	BlockFileStore* blockStore;
+
+	uint64_t firstIndexFpos;
 };
 
 } /* namespace codablecash */

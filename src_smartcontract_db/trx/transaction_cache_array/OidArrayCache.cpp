@@ -21,7 +21,7 @@ namespace codablecash {
 
 OidArrayCache::OidArrayCache() {
 	this->blockStore = nullptr;
-
+	this->firstIndexFpos = 0;
 }
 
 OidArrayCache::~OidArrayCache() {
@@ -49,7 +49,8 @@ void OidArrayCache::initFirstIndexElement() {
 
 	buff->position(0);
 
-	element.setFpos(handle->getFpos());
+	this->firstIndexFpos = handle->getFpos();
+	element.setFpos(this->firstIndexFpos);
 	element.toBinary(buff);
 
 	buff->position(0);
@@ -70,7 +71,20 @@ void OidArrayCache::shutdown() {
 	}
 }
 
-void OidArrayCache::add(int index, CdbOid* oid) {
+void OidArrayCache::add(int index, const CdbOid* oid) {
+	uint64_t fpos = getIndexFpos(index);
+
+}
+
+uint64_t OidArrayCache::getIndexFpos(int index) {
+	int mod = index % INDEX_ELEMENT_SIZE;
+	int page = mod == 0 ? index / INDEX_ELEMENT_SIZE : (index / INDEX_ELEMENT_SIZE) + 1;
+
+
+
+	for(int i = 1; 1 <= page; ++i){
+
+	}
 
 
 }

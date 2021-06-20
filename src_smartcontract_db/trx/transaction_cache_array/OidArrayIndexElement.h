@@ -28,6 +28,9 @@ public:
 	void toBinary(ByteBuffer* buff);
 	static OidArrayIndexElement* fromBinary(ByteBuffer* buff);
 
+	uint64_t getFpos() const {
+		return fpos;
+	}
 	void setFpos(uint64_t fpos) {
 		this->fpos = fpos;
 	}

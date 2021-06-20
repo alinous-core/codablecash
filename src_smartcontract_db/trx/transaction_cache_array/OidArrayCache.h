@@ -39,6 +39,7 @@ private:
 
 	OidArrayIndexElement* loadOidArrayIndexElement(uint64_t fpos);
 	uint64_t createIndexElement();
+	void saveIndexElement(OidArrayIndexElement* element);
 
 private:
 	BlockFileStore* blockStore;

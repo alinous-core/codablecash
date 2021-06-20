@@ -56,7 +56,8 @@ void OidArrayCache::initFirstIndexElement() {
 	buff->position(0);
 	const char* array = (const char*)buff->array();
 
-	handle->write(array, blkSize);
+	BlockHandle* handlew = this->blockStore->get(handle->getFpos()); __STP(handlew);
+	handlew->write(array, blkSize);
 }
 
 void OidArrayCache::shutdown() {
@@ -82,11 +83,14 @@ uint64_t OidArrayCache::getIndexFpos(int index) {
 
 	OidArrayIndexElement* lastElement = loadOidArrayIndexElement(this->firstIndexFpos);
 
-	for(int i = 1; 1 <= page; ++i){
+	for(int i = 1; i <= page; ++i){
 		uint64_t nextFpos = lastElement->getNextFpos();
 		if(nextFpos == 0){
 			// create index
 			nextFpos = createIndexElement();
+
+			lastElement->setNextFpos(nextFpos);
+			saveIndexElement(lastElement);
 		}
 
 		OidArrayIndexElement* element = loadOidArrayIndexElement(nextFpos);
@@ -131,9 +135,28 @@ uint64_t OidArrayCache::createIndexElement() {
 	buff->position(0);
 	const char* array = (const char*)buff->array();
 
-	handle->write(array, blkSize);
+	BlockHandle* handlew = this->blockStore->get(handle->getFpos()); __STP(handlew);
+	handlew->write(array, blkSize);
 
 	return pos;
+}
+
+void OidArrayCache::saveIndexElement(OidArrayIndexElement* element) {
+	uint64_t fpos = element->getFpos();
+
+	BlockHandle* handle = this->blockStore->get(fpos); __STP(handle);
+	ByteBuffer* buff = handle->getBuffer();
+
+	buff->position(0);
+	element->toBinary(buff);
+
+	buff->position(0);
+	const char* array = (const char*)buff->array();
+
+	int blkSize = element->blockSize();
+
+	BlockHandle* handlew = this->blockStore->get(handle->getFpos()); __STP(handlew);
+	handlew->write(array, blkSize);
 }
 
 } /* namespace codablecash */

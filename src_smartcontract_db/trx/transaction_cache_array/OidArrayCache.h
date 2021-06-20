@@ -34,6 +34,7 @@ public:
 
 private:
 	void initFirstIndexElement();
+
 	uint64_t getIndexFpos(int index);
 
 private:

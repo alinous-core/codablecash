@@ -47,4 +47,26 @@ void OidArrayIndexElement::toBinary(ByteBuffer* buff) {
 	buff->putLong(this->nextFpos);
 }
 
+OidArrayIndexElement* OidArrayIndexElement::fromBinary(ByteBuffer* buff) {
+	uint64_t fpos = buff->getLong();
+	int numElements = buff->get();
+
+	OidArrayIndexElement* element = new OidArrayIndexElement(numElements);
+	element->setFpos(fpos);
+
+	for(int i = 0; i != numElements; ++i){
+		fpos = buff->getLong();
+		element->setFpos(i, fpos);
+	}
+
+	fpos = buff->getLong();
+	element->setNextFpos(fpos);
+
+	return element;
+}
+
+void OidArrayIndexElement::setElementPos(int index, uint64_t fpos) {
+	this->elementsPos[index] = fpos;
+}
+
 } /* namespace codablecash */

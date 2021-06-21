@@ -103,7 +103,6 @@ uint64_t OidArrayCache::getIndexFpos(int index) {
 
 	uint64_t ret = lastElement->getElementPos(mod);
 	if(ret == 0){
-		// TODO create array
 		OidArrayCacheElement* el = createOidArrayElement(); __STP(el);
 		uint64_t arFpos = el->getFpos();
 

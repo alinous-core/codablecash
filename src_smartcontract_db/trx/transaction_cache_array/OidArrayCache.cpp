@@ -101,6 +101,7 @@ uint64_t OidArrayCache::getIndexFpos(int index) {
 
 	uint64_t ret = lastElement->getElementPos(mod);
 	if(ret == 0){
+		// create array
 
 	}
 

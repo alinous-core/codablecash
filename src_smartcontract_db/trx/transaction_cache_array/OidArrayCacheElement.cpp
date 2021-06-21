@@ -5,17 +5,21 @@
  *      Author: iizuka
  */
 
-#include <trx/transaction_cache_array/OidArrayCacheElement.h>
+#include "trx/transaction_cache_array/OidArrayCacheElement.h"
+
+#include "engine/CdbOid.h"
 
 namespace codablecash {
 
-OidArrayCacheElement::OidArrayCacheElement() {
-	// TODO Auto-generated constructor stub
+OidArrayCacheElement::OidArrayCacheElement(int size) {
+	this->size = size;
 
+	this->fpos = 0;
+	this->nextFpos = 0;
 }
 
 OidArrayCacheElement::~OidArrayCacheElement() {
-	// TODO Auto-generated destructor stub
+	this->list.deleteElements();
 }
 
 } /* namespace codablecash */

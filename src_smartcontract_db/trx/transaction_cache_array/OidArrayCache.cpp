@@ -77,6 +77,9 @@ void OidArrayCache::shutdown() {
 void OidArrayCache::add(int index, const CdbOid* oid) {
 	uint64_t fpos = getIndexFpos(index);
 
+	int mod = index % INDEX_ELEMENT_SIZE;
+	OidArrayCacheElement* cache = loadOidArrayElement(fpos);
+
 }
 
 uint64_t OidArrayCache::getIndexFpos(int index) {
@@ -184,6 +187,17 @@ OidArrayCacheElement* OidArrayCache::createOidArrayElement() {
 
 	BlockHandle* handlew = this->blockStore->get(handle->getFpos()); __STP(handlew);
 	handlew->write(array, blockSize);
+
+	return element;
+}
+
+OidArrayCacheElement* OidArrayCache::loadOidArrayElement(uint64_t fpos) {
+	BlockHandle* handle = this->blockStore->get(fpos); __STP(handle);
+
+	ByteBuffer* buff = handle->getBuffer();
+
+	OidArrayCacheElement* element = OidArrayCacheElement::fromBinary(buff, ARRAY_ELEMENT_SIZE);
+	element->setFpos(handle->getFpos());
 
 	return element;
 }

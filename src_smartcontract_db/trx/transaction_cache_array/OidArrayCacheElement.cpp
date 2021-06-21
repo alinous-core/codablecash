@@ -50,4 +50,18 @@ void OidArrayCacheElement::toBinary(ByteBuffer* buff) {
 	buff->putLong(this->nextFpos);
 }
 
+OidArrayCacheElement* OidArrayCacheElement::fromBinary(ByteBuffer* buff, int maxsize) {
+	OidArrayCacheElement* element = new OidArrayCacheElement(maxsize);
+
+	int maxLoop = (int)buff->get();
+	for(int i = 0; i != maxLoop; ++i){
+
+	}
+
+	element->nextFpos = buff->getLong();
+
+	return element;
+}
+
+
 } /* namespace codablecash */

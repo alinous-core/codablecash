@@ -27,6 +27,7 @@ public:
 
 	int blockSize();
 	void toBinary(ByteBuffer* buff);
+	static OidArrayCacheElement* fromBinary(ByteBuffer* buff, int maxsize);
 
 	uint64_t getFpos() const {
 		return fpos;

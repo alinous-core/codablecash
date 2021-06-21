@@ -9,6 +9,8 @@
 
 #include "engine/CdbOid.h"
 
+#include "base_io/ByteBuffer.h"
+
 namespace codablecash {
 
 OidArrayCacheElement::OidArrayCacheElement(int size) {
@@ -20,6 +22,32 @@ OidArrayCacheElement::OidArrayCacheElement(int size) {
 
 OidArrayCacheElement::~OidArrayCacheElement() {
 	this->list.deleteElements();
+}
+
+int OidArrayCacheElement::blockSize() {
+	int total = sizeof(uint8_t);
+
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		CdbOid* oid = this->list.get(i);
+		total += oid->binarySize();
+	}
+
+	total += sizeof(this->nextFpos);
+	return total;
+}
+
+void OidArrayCacheElement::toBinary(ByteBuffer* buff) {
+	int maxLoop = this->list.size();
+	buff->put(maxLoop);
+
+	for(int i = 0; i != maxLoop; ++i){
+		CdbOid* oid = this->list.get(i);
+
+		oid->toBinary(buff);
+	}
+
+	buff->putLong(this->nextFpos);
 }
 
 } /* namespace codablecash */

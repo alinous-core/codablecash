@@ -7,6 +7,7 @@
 
 #include "trx/transaction_cache_array/OidArrayCache.h"
 #include "trx/transaction_cache_array/OidArrayIndexElement.h"
+#include "trx/transaction_cache_array/OidArrayCacheElement.h"
 
 #include "filestore_block/BlockFileStore.h"
 #include "filestore_block/BlockHandle.h"
@@ -16,6 +17,7 @@
 #include "base_io/ByteBuffer.h"
 
 #include "base/StackRelease.h"
+
 
 namespace codablecash {
 
@@ -101,8 +103,12 @@ uint64_t OidArrayCache::getIndexFpos(int index) {
 
 	uint64_t ret = lastElement->getElementPos(mod);
 	if(ret == 0){
-		// create array
+		// TODO create array
+		OidArrayCacheElement* el = createOidArrayElement(); __STP(el);
+		uint64_t arFpos = el->getFpos();
 
+		lastElement->setElementPos(mod, arFpos);
+		saveIndexElement(lastElement);
 	}
 
 	delete lastElement;
@@ -158,6 +164,29 @@ void OidArrayCache::saveIndexElement(OidArrayIndexElement* element) {
 
 	BlockHandle* handlew = this->blockStore->get(handle->getFpos()); __STP(handlew);
 	handlew->write(array, blkSize);
+}
+
+OidArrayCacheElement* OidArrayCache::createOidArrayElement() {
+	OidArrayCacheElement* element = new OidArrayCacheElement(ARRAY_ELEMENT_SIZE);
+
+	int blockSize = element->blockSize();
+
+	BlockHandle* handle = this->blockStore->alloc(blockSize); __STP(handle);
+	ByteBuffer* buff = handle->getBuffer();
+
+	buff->position(0);
+
+	uint64_t pos = handle->getFpos();
+	element->setFpos(pos);
+	element->toBinary(buff);
+
+	buff->position(0);
+	const char* array = (const char*)buff->array();
+
+	BlockHandle* handlew = this->blockStore->get(handle->getFpos()); __STP(handlew);
+	handlew->write(array, blockSize);
+
+	return element;
 }
 
 } /* namespace codablecash */

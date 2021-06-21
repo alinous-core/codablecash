@@ -20,10 +20,12 @@ namespace codablecash {
 
 class CdbOid;
 class OidArrayIndexElement;
+class OidArrayCacheElement;
 
 class OidArrayCache {
 public:
 	static constexpr int INDEX_ELEMENT_SIZE{32};
+	static constexpr int ARRAY_ELEMENT_SIZE{16};
 
 	OidArrayCache();
 	virtual ~OidArrayCache();
@@ -40,6 +42,8 @@ private:
 	OidArrayIndexElement* loadOidArrayIndexElement(uint64_t fpos);
 	uint64_t createIndexElement();
 	void saveIndexElement(OidArrayIndexElement* element);
+
+	OidArrayCacheElement* createOidArrayElement();
 
 private:
 	BlockFileStore* blockStore;

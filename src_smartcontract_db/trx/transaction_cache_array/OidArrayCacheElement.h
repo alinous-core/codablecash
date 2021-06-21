@@ -9,9 +9,12 @@
 #define TRX_TRANSACTION_CACHE_ARRAY_OIDARRAYCACHEELEMENT_H_
 #include <cstdint>
 
-#include "base/ArrayList.h"
-
+namespace alinous {
+class ByteBuffer;
+}  // namespace alinous
 using namespace alinous;
+
+#include "base/ArrayList.h"
 
 namespace codablecash {
 
@@ -21,6 +24,16 @@ class OidArrayCacheElement {
 public:
 	explicit OidArrayCacheElement(int size);
 	virtual ~OidArrayCacheElement();
+
+	int blockSize();
+	void toBinary(ByteBuffer* buff);
+
+	uint64_t getFpos() const {
+		return fpos;
+	}
+	void setFpos(uint64_t fpos) {
+		this->fpos = fpos;
+	}
 
 private:
 	int size;

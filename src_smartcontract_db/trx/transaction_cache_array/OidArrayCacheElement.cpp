@@ -55,7 +55,8 @@ OidArrayCacheElement* OidArrayCacheElement::fromBinary(ByteBuffer* buff, int max
 
 	int maxLoop = (int)buff->get();
 	for(int i = 0; i != maxLoop; ++i){
-
+		CdbOid* oid = CdbOid::fromBinary(buff);
+		element->list.addElement(oid);
 	}
 
 	element->nextFpos = buff->getLong();

@@ -80,7 +80,29 @@ void OidArrayCache::add(int index, const CdbOid* oid) {
 	int mod = index % INDEX_ELEMENT_SIZE;
 	OidArrayCacheElement* cache = loadOidArrayElement(fpos);
 
+	while(cache->isFull()){
+		uint64_t nextFpos = cache->getNextFpos();
+		if(nextFpos == 0){
+			OidArrayCacheElement* nextcache = createOidArrayElement();
 
+			cache->setNextFpos(nextcache->getFpos());
+			saveOidArrayElement(cache);
+
+			delete cache;
+			cache = nextcache;
+		}
+		else{
+			OidArrayCacheElement* nextcache = loadOidArrayElement(nextFpos);
+
+			delete cache;
+			cache = nextcache;
+		}
+	}
+
+	cache->addOid(oid);
+	saveOidArrayElement(cache);
+
+	delete cache;
 }
 
 uint64_t OidArrayCache::getIndexFpos(int index) {
@@ -112,6 +134,8 @@ uint64_t OidArrayCache::getIndexFpos(int index) {
 
 		lastElement->setElementPos(mod, arFpos);
 		saveIndexElement(lastElement);
+
+		ret = arFpos;
 	}
 
 	delete lastElement;
@@ -153,10 +177,9 @@ uint64_t OidArrayCache::createIndexElement() {
 
 void OidArrayCache::saveIndexElement(OidArrayIndexElement* element) {
 	uint64_t fpos = element->getFpos();
+	int blockSize = element->blockSize();
 
-	BlockHandle* handle = this->blockStore->get(fpos); __STP(handle);
-	ByteBuffer* buff = handle->getBuffer();
-
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(blockSize, true); __STP(buff);
 	buff->position(0);
 	element->toBinary(buff);
 
@@ -165,7 +188,7 @@ void OidArrayCache::saveIndexElement(OidArrayIndexElement* element) {
 
 	int blkSize = element->blockSize();
 
-	BlockHandle* handlew = this->blockStore->get(handle->getFpos()); __STP(handlew);
+	BlockHandle* handlew = this->blockStore->get(fpos); __STP(handlew);
 	handlew->write(array, blkSize);
 }
 
@@ -201,6 +224,20 @@ OidArrayCacheElement* OidArrayCache::loadOidArrayElement(uint64_t fpos) {
 	element->setFpos(handle->getFpos());
 
 	return element;
+}
+
+void OidArrayCache::saveOidArrayElement(OidArrayCacheElement* element) {
+	uint64_t fpos = element->getFpos();
+	int blockSize = element->blockSize();
+
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(blockSize, true); __STP(buff);
+	element->toBinary(buff);
+
+	buff->position(0);
+	const char* array = (const char*)buff->array();
+
+	BlockHandle* handlew = this->blockStore->get(fpos); __STP(handlew);
+	handlew->write(array, blockSize);
 }
 
 } /* namespace codablecash */

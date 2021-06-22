@@ -69,7 +69,7 @@ void OidArrayCacheElement::addOid(const CdbOid* oid) {
 }
 
 bool OidArrayCacheElement::isFull() const noexcept {
-	return this->list.size() < this->size;
+	return this->list.size() >= this->size;
 }
 
 

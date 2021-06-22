@@ -29,16 +29,24 @@ public:
 	void toBinary(ByteBuffer* buff);
 	static OidArrayCacheElement* fromBinary(ByteBuffer* buff, int maxsize);
 
-	uint64_t getFpos() const {
+	uint64_t getFpos() const noexcept {
 		return fpos;
 	}
-	void setFpos(uint64_t fpos) {
+	void setFpos(uint64_t fpos) noexcept {
 		this->fpos = fpos;
+	}
+	uint64_t getNextFpos() const noexcept {
+		return nextFpos;
+	}
+	void setNextFpos(uint64_t nextFpos) noexcept {
+		this->nextFpos = nextFpos;
 	}
 
 	void addOid(const CdbOid* oid);
 
 	bool isFull() const noexcept;
+
+
 
 private:
 	int size;

@@ -45,6 +45,7 @@ private:
 
 	OidArrayCacheElement* createOidArrayElement();
 	OidArrayCacheElement* loadOidArrayElement(uint64_t fpos);
+	void saveOidArrayElement(OidArrayCacheElement* element);
 
 private:
 	BlockFileStore* blockStore;

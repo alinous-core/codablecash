@@ -64,5 +64,13 @@ OidArrayCacheElement* OidArrayCacheElement::fromBinary(ByteBuffer* buff, int max
 	return element;
 }
 
+void OidArrayCacheElement::addOid(const CdbOid* oid) {
+	this->list.addElement(oid->copy());
+}
+
+bool OidArrayCacheElement::isFull() const noexcept {
+	return this->list.size() < this->size;
+}
+
 
 } /* namespace codablecash */

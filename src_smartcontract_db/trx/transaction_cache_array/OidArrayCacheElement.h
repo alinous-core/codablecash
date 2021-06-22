@@ -36,6 +36,10 @@ public:
 		this->fpos = fpos;
 	}
 
+	void addOid(const CdbOid* oid);
+
+	bool isFull() const noexcept;
+
 private:
 	int size;
 

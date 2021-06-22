@@ -80,6 +80,7 @@ void OidArrayCache::add(int index, const CdbOid* oid) {
 	int mod = index % INDEX_ELEMENT_SIZE;
 	OidArrayCacheElement* cache = loadOidArrayElement(fpos);
 
+
 }
 
 uint64_t OidArrayCache::getIndexFpos(int index) {

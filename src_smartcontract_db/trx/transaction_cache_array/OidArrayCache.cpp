@@ -8,6 +8,7 @@
 #include "trx/transaction_cache_array/OidArrayCache.h"
 #include "trx/transaction_cache_array/OidArrayIndexElement.h"
 #include "trx/transaction_cache_array/OidArrayCacheElement.h"
+#include "trx/transaction_cache_array/OidArrayCacheScanner.h"
 
 #include "filestore_block/BlockFileStore.h"
 #include "filestore_block/BlockHandle.h"
@@ -17,7 +18,6 @@
 #include "base_io/ByteBuffer.h"
 
 #include "base/StackRelease.h"
-
 
 namespace codablecash {
 
@@ -173,6 +173,10 @@ uint64_t OidArrayCache::createIndexElement() {
 	handlew->write(array, blkSize);
 
 	return pos;
+}
+
+OidArrayCacheScanner* OidArrayCache::getScanner() {
+	return new OidArrayCacheScanner(this);
 }
 
 void OidArrayCache::saveIndexElement(OidArrayIndexElement* element) {

@@ -21,6 +21,7 @@ namespace codablecash {
 class CdbOid;
 class OidArrayIndexElement;
 class OidArrayCacheElement;
+class OidArrayCacheScanner;
 
 class OidArrayCache {
 public:
@@ -34,6 +35,8 @@ public:
 	void shutdown();
 
 	void add(int index, const CdbOid* oid);
+
+	OidArrayCacheScanner* getScanner();
 
 private:
 	void initFirstIndexElement();

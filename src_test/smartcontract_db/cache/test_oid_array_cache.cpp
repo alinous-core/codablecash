@@ -16,8 +16,10 @@
 #include "random_access_file/DiskCacheManager.h"
 
 #include "trx/transaction_cache_array/OidArrayCache.h"
+#include "trx/transaction_cache_array/OidArrayCacheScanner.h"
 
 #include "schema_table/record/table_record_local/LocalCdbOid.h"
+
 
 TEST_GROUP(TestOidArrayCacheGroup) {
 	TEST_SETUP() {
@@ -59,11 +61,14 @@ TEST(TestOidArrayCacheGroup, case02){
 	LocalCdbOid oid(10);
 	//cache.add(2, &oid);
 
+	int index = OidArrayCache::INDEX_ELEMENT_SIZE + 3;
+	cache.add(index, &oid);
 
-	cache.add(OidArrayCache::INDEX_ELEMENT_SIZE + 3, &oid);
-
+	OidArrayCacheScanner* scanner = cache.getScanner(index); __STP(scanner);
+	while(scanner->hasNext()){
+		CdbOid* oid = scanner->next();
+	}
 
 }
-
 
 

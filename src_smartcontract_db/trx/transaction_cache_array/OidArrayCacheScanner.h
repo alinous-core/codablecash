@@ -11,11 +11,16 @@
 namespace codablecash {
 
 class OidArrayCache;
+class CdbOid;
 
 class OidArrayCacheScanner {
 public:
 	OidArrayCacheScanner(OidArrayCache* cache);
 	virtual ~OidArrayCacheScanner();
+
+	void init(int index);
+	bool hasNext();
+	CdbOid* next();
 
 private:
 	OidArrayCache* cache;

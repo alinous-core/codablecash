@@ -61,6 +61,8 @@ TEST(TestOidArrayCacheGroup, case02){
 
 
 	cache.add(OidArrayCache::INDEX_ELEMENT_SIZE + 3, &oid);
+
+
 }
 
 

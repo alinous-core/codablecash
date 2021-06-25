@@ -17,4 +17,15 @@ OidArrayCacheScanner::~OidArrayCacheScanner() {
 	this->cache = nullptr;
 }
 
+void OidArrayCacheScanner::init(int index) {
+
+}
+
+bool OidArrayCacheScanner::hasNext() {
+
+}
+
+CdbOid* OidArrayCacheScanner::next() {
+}
+
 } /* namespace codablecash */

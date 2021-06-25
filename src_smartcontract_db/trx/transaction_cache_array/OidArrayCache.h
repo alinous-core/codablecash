@@ -25,6 +25,8 @@ class OidArrayCacheScanner;
 
 class OidArrayCache {
 public:
+	friend class OidArrayCacheScanner;
+
 	static constexpr int INDEX_ELEMENT_SIZE{32};
 	static constexpr int ARRAY_ELEMENT_SIZE{16};
 
@@ -36,7 +38,7 @@ public:
 
 	void add(int index, const CdbOid* oid);
 
-	OidArrayCacheScanner* getScanner();
+	OidArrayCacheScanner* getScanner(int index);
 
 private:
 	void initFirstIndexElement();

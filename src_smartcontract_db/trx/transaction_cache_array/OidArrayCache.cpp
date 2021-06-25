@@ -175,8 +175,11 @@ uint64_t OidArrayCache::createIndexElement() {
 	return pos;
 }
 
-OidArrayCacheScanner* OidArrayCache::getScanner() {
-	return new OidArrayCacheScanner(this);
+OidArrayCacheScanner* OidArrayCache::getScanner(int index) {
+	OidArrayCacheScanner* scanner = new OidArrayCacheScanner(this);
+	scanner->init(index);
+
+	return scanner;
 }
 
 void OidArrayCache::saveIndexElement(OidArrayIndexElement* element) {

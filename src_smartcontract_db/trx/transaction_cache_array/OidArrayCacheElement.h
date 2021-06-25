@@ -46,8 +46,6 @@ public:
 
 	bool isFull() const noexcept;
 
-
-
 private:
 	int size;
 

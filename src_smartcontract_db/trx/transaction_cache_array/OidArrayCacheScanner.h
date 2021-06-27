@@ -11,6 +11,7 @@
 namespace codablecash {
 
 class OidArrayCache;
+class OidArrayCacheElement;
 class CdbOid;
 
 class OidArrayCacheScanner {
@@ -23,7 +24,14 @@ public:
 	CdbOid* next();
 
 private:
+	void resetNextObject() noexcept;
+
+private:
 	OidArrayCache* cache;
+	OidArrayCacheElement* element;
+	int cursor;
+
+	CdbOid* nextOid;
 };
 
 } /* namespace codablecash */

@@ -45,9 +45,10 @@ public:
 	void addOid(const CdbOid* oid);
 
 	bool isFull() const noexcept;
+	int size() const noexcept;
 
 private:
-	int size;
+	int listSize;
 
 	ArrayList<CdbOid> list;
 

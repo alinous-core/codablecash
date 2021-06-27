@@ -14,7 +14,7 @@
 namespace codablecash {
 
 OidArrayCacheElement::OidArrayCacheElement(int size) {
-	this->size = size;
+	this->listSize = size;
 
 	this->fpos = 0;
 	this->nextFpos = 0;
@@ -69,8 +69,11 @@ void OidArrayCacheElement::addOid(const CdbOid* oid) {
 }
 
 bool OidArrayCacheElement::isFull() const noexcept {
-	return this->list.size() >= this->size;
+	return this->list.size() >= this->listSize;
 }
 
+int OidArrayCacheElement::size() const noexcept {
+	return this->list.size();
+}
 
 } /* namespace codablecash */

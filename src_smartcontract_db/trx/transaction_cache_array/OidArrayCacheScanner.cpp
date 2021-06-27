@@ -23,7 +23,7 @@ OidArrayCacheScanner::OidArrayCacheScanner(OidArrayCache* cache) {
 OidArrayCacheScanner::~OidArrayCacheScanner() {
 	this->cache = nullptr;
 	delete this->element;
-	delete this->nextOid;
+	this->nextOid = nullptr;
 }
 
 void OidArrayCacheScanner::init(int index) {
@@ -36,20 +36,39 @@ void OidArrayCacheScanner::init(int index) {
 bool OidArrayCacheScanner::hasNext() {
 	resetNextObject();
 
-	if(this->element->size() <= this->cursor){
-
+	if(!checkCacheElement()){
+		return false;
 	}
 
+	this->nextOid = this->element->get(this->cursor);
+	this->cursor++;
 
-	return false;
+	return true;
+}
+
+bool OidArrayCacheScanner::checkCacheElement() noexcept {
+	if(this->element->size() <= this->cursor){
+		// new element
+		uint64_t nextFpos = this->element->getNextFpos();
+		delete this->element;
+		this->element = nullptr;
+
+		if(nextFpos == 0){
+			return false;
+		}
+
+		this->element = this->cache->loadOidArrayElement(nextFpos);
+	}
+
+	return true;
 }
 
 void OidArrayCacheScanner::resetNextObject() noexcept {
-	delete this->nextOid;
+	//delete this->nextOid;
 	this->nextOid = nullptr;
 }
 
-CdbOid* OidArrayCacheScanner::next() {
+const CdbOid* OidArrayCacheScanner::next() {
 	return this->nextOid;
 }
 

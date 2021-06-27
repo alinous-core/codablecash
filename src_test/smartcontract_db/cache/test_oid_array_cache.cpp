@@ -66,7 +66,10 @@ TEST(TestOidArrayCacheGroup, case02){
 
 	OidArrayCacheScanner* scanner = cache.getScanner(index); __STP(scanner);
 	while(scanner->hasNext()){
-		CdbOid* oid = scanner->next();
+		const CdbOid* oid = scanner->next();
+
+		uint64_t v = oid->getOidValue();
+		CHECK(v == 10);
 	}
 
 }

@@ -21,17 +21,18 @@ public:
 
 	void init(int index);
 	bool hasNext();
-	CdbOid* next();
+	const CdbOid* next();
 
 private:
 	void resetNextObject() noexcept;
+	bool checkCacheElement() noexcept;
 
 private:
 	OidArrayCache* cache;
 	OidArrayCacheElement* element;
 	int cursor;
 
-	CdbOid* nextOid;
+	const CdbOid* nextOid;
 };
 
 } /* namespace codablecash */

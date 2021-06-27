@@ -46,6 +46,7 @@ public:
 
 	bool isFull() const noexcept;
 	int size() const noexcept;
+	const CdbOid* get(int i) const noexcept;
 
 private:
 	int listSize;

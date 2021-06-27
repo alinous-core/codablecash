@@ -76,4 +76,8 @@ int OidArrayCacheElement::size() const noexcept {
 	return this->list.size();
 }
 
+const CdbOid* OidArrayCacheElement::get(int i) const noexcept {
+	return this->list.get(i);
+}
+
 } /* namespace codablecash */

@@ -50,7 +50,7 @@ void OidArrayCacheScanner::resetNextObject() noexcept {
 }
 
 CdbOid* OidArrayCacheScanner::next() {
-	return nullptr;
+	return this->nextOid;
 }
 
 } /* namespace codablecash */

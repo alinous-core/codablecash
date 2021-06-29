@@ -21,7 +21,10 @@
 
 namespace codablecash {
 
-OidArrayCache::OidArrayCache() {
+OidArrayCache::OidArrayCache(int indexElementSize, int arrayElementSize) {
+	this->indexElementSize = indexElementSize;
+	this->arrayElementSize = arrayElementSize;
+
 	this->blockStore = nullptr;
 	this->firstIndexFpos = 0;
 }
@@ -42,7 +45,7 @@ void OidArrayCache::init(UnicodeString* dir, UnicodeString* name, DiskCacheManag
 }
 
 void OidArrayCache::initFirstIndexElement() {
-	OidArrayIndexElement element(INDEX_ELEMENT_SIZE);
+	OidArrayIndexElement element(this->indexElementSize);
 
 	int blkSize = element.blockSize();
 
@@ -106,8 +109,8 @@ void OidArrayCache::add(int index, const CdbOid* oid) {
 }
 
 uint64_t OidArrayCache::getIndexFpos(int index) {
-	int mod = index % INDEX_ELEMENT_SIZE;
-	int page = index / INDEX_ELEMENT_SIZE;
+	int mod = index % this->indexElementSize;
+	int page = index / this->indexElementSize;
 
 	OidArrayIndexElement* lastElement = loadOidArrayIndexElement(this->firstIndexFpos);
 
@@ -153,7 +156,7 @@ OidArrayIndexElement* OidArrayCache::loadOidArrayIndexElement(uint64_t fpos) {
 }
 
 uint64_t OidArrayCache::createIndexElement() {
-	OidArrayIndexElement element(INDEX_ELEMENT_SIZE);
+	OidArrayIndexElement element(this->indexElementSize);
 
 	int blkSize = element.blockSize();
 
@@ -200,7 +203,7 @@ void OidArrayCache::saveIndexElement(OidArrayIndexElement* element) {
 }
 
 OidArrayCacheElement* OidArrayCache::createOidArrayElement() {
-	OidArrayCacheElement* element = new OidArrayCacheElement(ARRAY_ELEMENT_SIZE);
+	OidArrayCacheElement* element = new OidArrayCacheElement(this->arrayElementSize);
 
 	int blockSize = element->blockSize();
 
@@ -227,7 +230,7 @@ OidArrayCacheElement* OidArrayCache::loadOidArrayElement(uint64_t fpos) {
 
 	ByteBuffer* buff = handle->getBuffer();
 
-	OidArrayCacheElement* element = OidArrayCacheElement::fromBinary(buff, ARRAY_ELEMENT_SIZE);
+	OidArrayCacheElement* element = OidArrayCacheElement::fromBinary(buff, this->arrayElementSize);
 	element->setFpos(handle->getFpos());
 
 	return element;

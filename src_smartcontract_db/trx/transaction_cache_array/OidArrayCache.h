@@ -27,10 +27,10 @@ class OidArrayCache {
 public:
 	friend class OidArrayCacheScanner;
 
-	static constexpr int INDEX_ELEMENT_SIZE{32};
-	static constexpr int ARRAY_ELEMENT_SIZE{16};
+	static const constexpr int DEFAULT_INDEX_ELEMENT_SIZE{32};
+	static const constexpr int DEFAULT_ARRAY_ELEMENT_SIZE{16};
 
-	OidArrayCache();
+	OidArrayCache(int indexElementSize = DEFAULT_INDEX_ELEMENT_SIZE, int arrayElementSize = DEFAULT_ARRAY_ELEMENT_SIZE);
 	virtual ~OidArrayCache();
 
 	void init(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager);
@@ -54,6 +54,9 @@ private:
 
 private:
 	BlockFileStore* blockStore;
+
+	int indexElementSize;
+	int arrayElementSize;
 
 	uint64_t firstIndexFpos;
 };

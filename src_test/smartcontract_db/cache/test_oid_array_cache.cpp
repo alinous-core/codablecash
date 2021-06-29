@@ -61,7 +61,7 @@ TEST(TestOidArrayCacheGroup, case02){
 	LocalCdbOid oid(10);
 	//cache.add(2, &oid);
 
-	int index = OidArrayCache::INDEX_ELEMENT_SIZE + 3;
+	int index = OidArrayCache::DEFAULT_INDEX_ELEMENT_SIZE + 3;
 	cache.add(index, &oid);
 
 	OidArrayCacheScanner* scanner = cache.getScanner(index); __STP(scanner);
@@ -72,6 +72,35 @@ TEST(TestOidArrayCacheGroup, case02){
 		CHECK(v == 10);
 	}
 
+}
+
+TEST(TestOidArrayCacheGroup, case03){
+	UnicodeString fileName(L"tmp_cache");
+	File testCaseFolder = this->env->testCaseDir();
+	File* tmpDir = testCaseFolder.get(&fileName); __STP(tmpDir);
+
+	UnicodeString* dir = testCaseFolder.getAbsolutePath(); __STP(dir);
+
+	DiskCacheManager diskCache;
+
+	OidArrayCache cache(2, 2);
+	cache.init(dir, &fileName, &diskCache);
+
+	int maxLoop = 10;
+	for(int i = 0; i != maxLoop; ++i){
+		LocalCdbOid oid(i + 1);
+		cache.add(i, &oid);
+	}
+
+	for(int i = 0; i != maxLoop; ++i){
+		OidArrayCacheScanner* scanner = cache.getScanner(i); __STP(scanner);
+		while(scanner->hasNext()){
+			const CdbOid* oid = scanner->next();
+
+			uint64_t v = oid->getOidValue();
+			CHECK(v == i + 1);
+		}
+	}
 }
 
 

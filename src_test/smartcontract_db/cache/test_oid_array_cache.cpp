@@ -103,4 +103,33 @@ TEST(TestOidArrayCacheGroup, case03){
 	}
 }
 
+TEST(TestOidArrayCacheGroup, case04){
+	UnicodeString fileName(L"tmp_cache");
+	File testCaseFolder = this->env->testCaseDir();
+	File* tmpDir = testCaseFolder.get(&fileName); __STP(tmpDir);
+
+	UnicodeString* dir = testCaseFolder.getAbsolutePath(); __STP(dir);
+
+	DiskCacheManager diskCache;
+
+	OidArrayCache cache(2, 2);
+	cache.init(dir, &fileName, &diskCache);
+
+	int arindex = 3;
+	int maxLoop = 10;
+	for(int i = 0; i != maxLoop; ++i){
+		LocalCdbOid oid(i + 1);
+		cache.add(arindex, &oid);
+	}
+
+	int value = 1;
+	OidArrayCacheScanner* scanner = cache.getScanner(arindex); __STP(scanner);
+	while(scanner->hasNext()){
+		const CdbOid* oid = scanner->next();
+
+		uint64_t v = oid->getOidValue();
+		CHECK(v == value);
+		value++;
+	}
+}
 

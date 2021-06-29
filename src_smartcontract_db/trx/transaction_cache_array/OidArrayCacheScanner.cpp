@@ -58,6 +58,7 @@ bool OidArrayCacheScanner::checkCacheElement() noexcept {
 		}
 
 		this->element = this->cache->loadOidArrayElement(nextFpos);
+		this->cursor = 0;
 	}
 
 	return true;

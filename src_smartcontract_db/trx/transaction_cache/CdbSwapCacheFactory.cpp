@@ -8,12 +8,14 @@
 #include "trx/transaction_cache/CdbSwapCacheFactory.h"
 #include "trx/transaction_cache/SingleKeyOidCache.h"
 #include "trx/transaction_cache/OidKeyRecordCache.h"
+#include "trx/transaction_cache/GroupRecordCache.h"
 
 #include "schema_table/record/table_record/CdbDataFactory.h"
 #include "schema_table/record/table_record/CdbKeyFactory.h"
 
 #include "base/UnicodeString.h"
 #include "base/StackRelease.h"
+
 
 namespace codablecash {
 
@@ -64,6 +66,17 @@ OidKeyRecordCache* CdbSwapCacheFactory::createOidKeyRecordCache(int swappiness) 
 	return cache;
 }
 
+GroupRecordCache* CdbSwapCacheFactory::createGroupRecordCache(int swappiness) {
+	UnicodeString* name = new UnicodeString(CdbSwapCacheFactory::PREFIX_GROUP_KEY); __STP(name);
+	name->append((int)this->serial++);
 
+	GroupRecordCache* cache = new GroupRecordCache(this->baseDir, name, dynamic_cast<CdbKeyFactory*>(this->keyFactory),
+			dynamic_cast<CdbDataFactory*>(this->dataFactory), this->diskCache);
+
+	cache->setSwappiness(swappiness);
+	cache->init(8);
+
+	return cache;
+}
 
 } /* namespace codablecash */

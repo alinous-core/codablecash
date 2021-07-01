@@ -19,6 +19,8 @@ class CdbLocalCacheManager;
 class CdbRecord;
 class ScanResultMetadata;
 class GroupByPlanner;
+class OidArrayCache;
+class GroupRecordCache;
 
 class GroupCache {
 public:
@@ -31,6 +33,10 @@ public:
 
 private:
 	CdbLocalCacheManager* localCacheManager;
+
+	GroupRecordCache* cache;
+	OidArrayCache* arrayCache;
+
 
 };
 

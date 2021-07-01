@@ -6,6 +6,9 @@
  */
 
 #include "trx/transaction_cache/GroupCache.h"
+#include "trx/transaction_cache/GroupRecordCache.h"
+
+#include "trx/transaction_cache_array/OidArrayCache.h"
 
 #include "trx/scan/transaction_scan_result/ScanResultMetadata.h"
 
@@ -23,10 +26,15 @@ namespace codablecash {
 
 GroupCache::GroupCache(CdbLocalCacheManager* localCacheManager) {
 	this->localCacheManager = localCacheManager;
+	this->arrayCache = nullptr;
+	this->cache = nullptr;
 }
 
 GroupCache::~GroupCache() {
 	this->localCacheManager = nullptr;
+
+	delete this->cache;
+	delete this->arrayCache;
 }
 
 void GroupCache::init(VirtualMachine* vm) {

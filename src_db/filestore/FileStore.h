@@ -20,7 +20,7 @@ class File;
 class FileStore {
 public:
 	FileStore(const FileStore& base) = delete;
-	FileStore(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager) noexcept;
+	FileStore(const UnicodeString* dir, const UnicodeString* name, DiskCacheManager* cacheManager) noexcept;
 	virtual ~FileStore() noexcept;
 
 	void createStore(bool del, uint64_t defaultSize) noexcept(false);

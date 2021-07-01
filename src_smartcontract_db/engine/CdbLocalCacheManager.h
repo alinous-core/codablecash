@@ -21,6 +21,7 @@ class LocalOidFactory;
 class OidKeyRecordCache;
 class SingleKeyOidCache;
 class GroupRecordCache;
+class OidArrayCache;
 
 class CdbLocalCacheManager {
 public:
@@ -34,6 +35,7 @@ public:
 	OidKeyRecordCache* createOidKeyRecordCache();
 	SingleKeyOidCache* createSingleKeyOidCache();
 	GroupRecordCache* createGroupRecordCache();
+	OidArrayCache* createOidArrayCache();
 
 private:
 	File* folder;

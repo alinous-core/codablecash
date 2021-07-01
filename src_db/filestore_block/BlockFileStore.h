@@ -23,7 +23,7 @@ namespace alinous {
 class BlockFileStore : public FileStore {
 public:
 	BlockFileStore(const FileStore& base) = delete;
-	BlockFileStore(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager) noexcept;
+	BlockFileStore(const UnicodeString* dir, const UnicodeString* name, DiskCacheManager* cacheManager) noexcept;
 	virtual ~BlockFileStore() noexcept;
 
 

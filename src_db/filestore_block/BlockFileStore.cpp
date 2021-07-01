@@ -21,7 +21,7 @@
 
 namespace alinous {
 
-BlockFileStore::BlockFileStore(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager) noexcept
+BlockFileStore::BlockFileStore(const UnicodeString* dir, const UnicodeString* name, DiskCacheManager* cacheManager) noexcept
 	: FileStore(dir, name, cacheManager)
 {
 	this->header = nullptr;

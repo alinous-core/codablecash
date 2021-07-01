@@ -21,6 +21,7 @@
 
 #include "base/StackRelease.h"
 
+#include "engine/CdbLocalCacheManager.h"
 
 namespace codablecash {
 
@@ -38,6 +39,7 @@ GroupCache::~GroupCache() {
 }
 
 void GroupCache::init(VirtualMachine* vm) {
+	this->cache = this->localCacheManager->createGroupRecordCache();
 }
 
 void GroupCache::groupRecord(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan) {

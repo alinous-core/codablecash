@@ -20,7 +20,7 @@
 
 namespace alinous {
 
-FileStore::FileStore(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager) noexcept {
+FileStore::FileStore(const UnicodeString* dir, const UnicodeString* name, DiskCacheManager* cacheManager) noexcept {
 	this->cacheManager = cacheManager;
 	this->headerFile = nullptr;
 	this->file = nullptr;

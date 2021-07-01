@@ -33,7 +33,7 @@ public:
 	OidArrayCache(int indexElementSize = DEFAULT_INDEX_ELEMENT_SIZE, int arrayElementSize = DEFAULT_ARRAY_ELEMENT_SIZE);
 	virtual ~OidArrayCache();
 
-	void init(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager);
+	void init(const UnicodeString* dir, const UnicodeString* name, DiskCacheManager* cacheManager);
 	void shutdown();
 
 	void add(int index, const CdbOid* oid);

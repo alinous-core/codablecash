@@ -33,7 +33,7 @@ OidArrayCache::~OidArrayCache() {
 	shutdown();
 }
 
-void OidArrayCache::init(UnicodeString* dir, UnicodeString* name, DiskCacheManager* cacheManager) {
+void OidArrayCache::init(const UnicodeString* dir, const UnicodeString* name, DiskCacheManager* cacheManager) {
 	shutdown();
 
 	this->blockStore = new BlockFileStore(dir, name, cacheManager);

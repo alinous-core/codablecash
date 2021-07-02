@@ -40,6 +40,7 @@ GroupCache::~GroupCache() {
 
 void GroupCache::init(VirtualMachine* vm) {
 	this->cache = this->localCacheManager->createGroupRecordCache();
+	this->arrayCache = this->localCacheManager->createOidArrayCache();
 }
 
 void GroupCache::groupRecord(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan) {

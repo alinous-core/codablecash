@@ -10,18 +10,22 @@
 #include "trx/transaction_cache/OidKeyRecordCache.h"
 #include "trx/transaction_cache/GroupRecordCache.h"
 
+#include "trx/transaction_cache_array/OidArrayCache.h"
+
 #include "schema_table/record/table_record/CdbDataFactory.h"
 #include "schema_table/record/table_record/CdbKeyFactory.h"
 
 #include "base/UnicodeString.h"
 #include "base/StackRelease.h"
 
+#include "base_io/File.h"
 
 namespace codablecash {
 
 const UnicodeString CdbSwapCacheFactory::PREFIX_SINGLE_KEY(L"singlekey_");
 const UnicodeString CdbSwapCacheFactory::PREFIX_OID_KEY(L"oidkey_");
 const UnicodeString CdbSwapCacheFactory::PREFIX_GROUP_KEY(L"groupkey_");
+const UnicodeString CdbSwapCacheFactory::PREFIX_OID_ARRAY_KEY(L"oidarraykey_");
 
 
 CdbSwapCacheFactory::CdbSwapCacheFactory(const File* tmpdir, DiskCacheManager* diskCache)
@@ -75,6 +79,18 @@ GroupRecordCache* CdbSwapCacheFactory::createGroupRecordCache(int swappiness) {
 
 	cache->setSwappiness(swappiness);
 	cache->init(8);
+
+	return cache;
+}
+
+OidArrayCache* CdbSwapCacheFactory::createOidArrayCache(int swappiness) {
+	UnicodeString* name = new UnicodeString(CdbSwapCacheFactory::PREFIX_OID_ARRAY_KEY); __STP(name);
+	name->append((int)this->serial++);
+
+	OidArrayCache* cache = new OidArrayCache();
+	UnicodeString* dir = this->baseDir->getAbsolutePath(); __STP(dir);
+
+	cache->init(dir, name, this->diskCache);
 
 	return cache;
 }

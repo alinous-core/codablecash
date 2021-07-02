@@ -55,7 +55,7 @@ GroupRecordCache* CdbLocalCacheManager::createGroupRecordCache() {
 }
 
 OidArrayCache* CdbLocalCacheManager::createOidArrayCache() {
-
+	return this->cacheFactory->createOidArrayCache(CdbLocalCacheManager::DEFAULT_SWAPPINESS);
 }
 
 } /* namespace codablecash */

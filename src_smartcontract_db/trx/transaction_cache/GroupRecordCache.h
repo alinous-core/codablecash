@@ -16,13 +16,20 @@ class CdbKeyFactory;
 class CdbDataFactory;
 class CdbOidKey;
 class CdbRecord;
+class AbstractCdbKey;
 
 class GroupRecordCache : public AbstractSwapCache {
 public:
 	GroupRecordCache(const File* folder, const UnicodeString* name, CdbKeyFactory* keyFactory, CdbDataFactory* dataFactory, DiskCacheManager* diskCache);
 	virtual ~GroupRecordCache();
 
+	uint64_t getRecordIndex(const CdbRecord* groupedRecord);
 
+private:
+	uint64_t newRecordIndex(const AbstractCdbKey* key);
+
+private:
+	uint64_t indexSerial;
 };
 
 } /* namespace codablecash */

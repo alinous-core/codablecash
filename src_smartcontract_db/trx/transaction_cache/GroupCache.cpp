@@ -46,9 +46,10 @@ void GroupCache::init(VirtualMachine* vm) {
 void GroupCache::groupRecord(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan) {
 	CdbRecord* groupedRecord = groupByPlan->groupBy(vm, record, metadata); __STP(groupedRecord);
 
-	int index = this->cache->getRecordIndex(groupedRecord);
+	uint64_t index = this->cache->getRecordIndex(groupedRecord);
 
 	const CdbOid* originalOid = record->getOid();
+	this->arrayCache->add(index, originalOid);
 }
 
 

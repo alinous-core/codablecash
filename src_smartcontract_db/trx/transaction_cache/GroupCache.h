@@ -36,8 +36,6 @@ private:
 
 	GroupRecordCache* cache;
 	OidArrayCache* arrayCache;
-
-
 };
 
 } /* namespace codablecash */

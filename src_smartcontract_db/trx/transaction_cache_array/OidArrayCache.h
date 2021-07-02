@@ -36,7 +36,7 @@ public:
 	void init(const UnicodeString* dir, const UnicodeString* name, DiskCacheManager* cacheManager);
 	void shutdown();
 
-	void add(int index, const CdbOid* oid);
+	void add(uint64_t index, const CdbOid* oid);
 
 	OidArrayCacheScanner* getScanner(int index);
 

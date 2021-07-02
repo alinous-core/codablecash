@@ -77,7 +77,7 @@ void OidArrayCache::shutdown() {
 	}
 }
 
-void OidArrayCache::add(int index, const CdbOid* oid) {
+void OidArrayCache::add(uint64_t index, const CdbOid* oid) {
 	uint64_t fpos = getIndexFpos(index);
 
 //	int mod = index % INDEX_ELEMENT_SIZE;

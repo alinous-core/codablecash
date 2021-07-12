@@ -5,17 +5,21 @@
  *      Author: iizuka
  */
 
-#include <trx/scan/transaction_scan_result/GroupedScanResultMetadata.h>
+#include "trx/scan/transaction_scan_result/GroupedScanResultMetadata.h"
 
 namespace codablecash {
 
-GroupedScanResultMetadata::GroupedScanResultMetadata() {
-	// TODO Auto-generated constructor stub
+GroupedScanResultMetadata::GroupedScanResultMetadata(const GroupedScanResultMetadata& inst)
+ : ScanResultMetadata(inst) {
+	this->base = new ScanResultMetadata(*inst.base);
+}
 
+GroupedScanResultMetadata::GroupedScanResultMetadata(const ScanResultMetadata* base) : ScanResultMetadata() {
+	this->base = new ScanResultMetadata(*base);
 }
 
 GroupedScanResultMetadata::~GroupedScanResultMetadata() {
-	// TODO Auto-generated destructor stub
+	delete this->base;
 }
 
 } /* namespace codablecash */

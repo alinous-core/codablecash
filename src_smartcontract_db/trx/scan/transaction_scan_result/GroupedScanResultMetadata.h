@@ -14,8 +14,12 @@ namespace codablecash {
 
 class GroupedScanResultMetadata : public ScanResultMetadata {
 public:
-	GroupedScanResultMetadata();
+	GroupedScanResultMetadata(const GroupedScanResultMetadata& inst);
+	explicit GroupedScanResultMetadata(const ScanResultMetadata* base);
 	virtual ~GroupedScanResultMetadata();
+
+private:
+	ScanResultMetadata* base;
 };
 
 } /* namespace codablecash */

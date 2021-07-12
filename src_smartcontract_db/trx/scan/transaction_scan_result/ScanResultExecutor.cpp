@@ -176,6 +176,7 @@ DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {
 	const ArrayList<ScanResultFieldMetadata>* fldMetadataList = metadata->getList();
 	ArrayList<const UnicodeString> nameList;
 
+	// FIXME not name list
 	int maxLoop = fldMetadataList->size();
 	for(int i = 0; i != maxLoop; ++i){
 		ScanResultFieldMetadata* fldMeta = fldMetadataList->get(i);

@@ -59,7 +59,7 @@ void CdbByteKey::fromBinary(ByteBuffer* in) {
 	this->value = in->get();
 }
 
-AbstractCdbValue* CdbByteKey::toCdbValue() {
+AbstractCdbValue* CdbByteKey::toCdbValue() const {
 	return new CdbByteValue(this->value);
 }
 

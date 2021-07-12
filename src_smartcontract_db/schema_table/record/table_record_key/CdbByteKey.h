@@ -34,7 +34,7 @@ public:
 		return this->value;
 	}
 
-	virtual AbstractCdbValue* toCdbValue();
+	virtual AbstractCdbValue* toCdbValue() const;
 
 private:
 	int8_t value;

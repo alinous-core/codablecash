@@ -13,6 +13,9 @@
 
 #include "schema_table/record/table_record/CdbKeyFactory.h"
 
+#include "schema_table/record/table_record/CdbRecord.h"
+
+#include "schema_table/record/table_record_key/AbstractCdbKey.h"
 namespace codablecash {
 
 CdbRecordKey::CdbRecordKey(const CdbRecordKey& inst) : AbstractCdbKey(AbstractCdbKey::TYPE_RECORD_KEY) {
@@ -130,5 +133,20 @@ void CdbRecordKey::addKey(AbstractBtreeKey* key) noexcept {
 
 	this->list.addElement(key);
 }
+
+AbstractCdbValue* CdbRecordKey::toCdbValue() const {
+	CdbRecord* rec = new CdbRecord();
+
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBtreeKey* key = this->list.get(i);
+		const AbstractCdbKey* cdbKey = dynamic_cast<const AbstractCdbKey*>(key);
+
+		rec->addValue(cdbKey != nullptr ? cdbKey->toCdbValue() : nullptr);
+	}
+
+	return rec;
+}
+
 
 } /* namespace codablecash */

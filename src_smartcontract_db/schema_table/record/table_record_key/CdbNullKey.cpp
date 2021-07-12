@@ -48,7 +48,7 @@ void CdbNullKey::toBinary(ByteBuffer* out) const {
 void CdbNullKey::fromBinary(ByteBuffer* in) {
 }
 
-AbstractCdbValue* CdbNullKey::toCdbValue() {
+AbstractCdbValue* CdbNullKey::toCdbValue() const {
 	return new CdbNullValue();
 }
 

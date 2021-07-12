@@ -32,6 +32,7 @@ public:
 	virtual int64_t toInt64() const noexcept {
 		return this->list.size();
 	}
+	virtual AbstractCdbValue* toCdbValue() const;
 private:
 	ArrayList<AbstractBtreeKey> list;
 };

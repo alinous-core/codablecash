@@ -58,7 +58,7 @@ void CdbLongKey::fromBinary(ByteBuffer* in) {
 	this->value = in->getLong();
 }
 
-AbstractCdbValue* CdbLongKey::toCdbValue() {
+AbstractCdbValue* CdbLongKey::toCdbValue() const {
 	return new CdbLongValue(this->value);
 }
 

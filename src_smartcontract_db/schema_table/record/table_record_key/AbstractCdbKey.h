@@ -41,7 +41,7 @@ public:
 
 	virtual int64_t toInt64() const noexcept = 0;
 
-	virtual AbstractCdbValue* toCdbValue() = 0;
+	virtual AbstractCdbValue* toCdbValue() const = 0;
 
 protected:
 	uint32_t type;

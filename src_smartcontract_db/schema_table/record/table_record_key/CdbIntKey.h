@@ -29,7 +29,7 @@ public:
 	virtual int64_t toInt64() const noexcept {
 		return this->value;
 	}
-	virtual AbstractCdbValue* toCdbValue();
+	virtual AbstractCdbValue* toCdbValue() const;
 
 private:
 	int32_t value;

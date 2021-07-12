@@ -30,7 +30,7 @@ public:
 	virtual int64_t toInt64() const noexcept {
 		return 0;
 	}
-	virtual AbstractCdbValue* toCdbValue();
+	virtual AbstractCdbValue* toCdbValue() const;
 };
 
 } /* namespace codablecash */

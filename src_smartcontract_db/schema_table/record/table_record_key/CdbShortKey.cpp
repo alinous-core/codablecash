@@ -57,7 +57,7 @@ void CdbShortKey::fromBinary(ByteBuffer* in) {
 	this->value = in->getShort();
 }
 
-AbstractCdbValue* CdbShortKey::toCdbValue() {
+AbstractCdbValue* CdbShortKey::toCdbValue() const {
 	return new CdbShortValue(this->value);
 }
 

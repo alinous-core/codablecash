@@ -9,6 +9,8 @@
 
 #include "base/UnicodeString.h"
 
+#include "schema_table/record/table_record/CdbRecord.h"
+
 namespace codablecash {
 
 AllScanColumns::AllScanColumns() {
@@ -32,7 +34,14 @@ void AllScanColumns::resolveColumns(VirtualMachine* vm, SelectScanPlanner* plann
 }
 
 void AllScanColumns::scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord) {
-	// FIXME scanColumns()
+	const ArrayList<AbstractCdbValue>* list = record->getValues();
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractCdbValue* v = list->get(i);
+
+		newRecord->addValue(v != nullptr ? v->copy() : nullptr);
+	}
 }
 
 } /* namespace codablecash */

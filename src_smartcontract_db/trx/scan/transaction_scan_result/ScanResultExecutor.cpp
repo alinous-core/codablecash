@@ -61,6 +61,7 @@
 #include "scan_select/scan_columns/ScanColumnHolder.h"
 #include "scan_select/scan_columns/AbstractScanColumnsTarget.h"
 
+#include "schema_table/record/table_record_local/LocalCdbOid.h"
 namespace codablecash {
 
 ScanResultExecutor::ScanResultExecutor(IJoinLeftSource* source, CodableDatabase* db) {
@@ -224,14 +225,16 @@ void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner*
 	}
 
 	delete this->cache, this->cache = nullptr;
-	this->cache = newResultCache;
-
+	this->cache = __st_newResultCache__.move();
 }
 
 CdbRecord* ScanResultExecutor::scanResultColumns(VirtualMachine* vm, ScanColumnHolder* scanColumns, const CdbRecord* record,
 		const ScanResultMetadata* metadata) {
+	LocalOidFactory* loidFactory = this->db->getLocalOidFactory();
+	LocalCdbOid* localOid = loidFactory->createLocalOid(); __STP(localOid);
 
 	CdbRecord* newRecord = new CdbRecord();
+	newRecord->setOid(localOid);
 
 	const ArrayList<AbstractScanColumnsTarget>* list = scanColumns->getList();
 	int maxLoop = list->size();

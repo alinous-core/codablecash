@@ -124,7 +124,7 @@ void CdbRecord::toBinary(ByteBuffer* out) const {
 
 void CdbRecord::setOid(const CdbOid* oid) noexcept {
 	delete this->oid;
-	this->oid = oid->copy();
+	this->oid = oid != nullptr ? oid->copy() : nullptr;
 }
 
 CdbRecord* CdbRecord::createFromBinary(ByteBuffer* in) {

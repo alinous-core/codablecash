@@ -21,13 +21,16 @@ class OidKeyRecordCache;
 class CdbGroupedRecord : public CdbRecord {
 public:
 	CdbGroupedRecord(const CdbGroupedRecord& inst);
-	CdbGroupedRecord(const CdbRecordKey* recordKey, OidArrayCache* oidCache, OidKeyRecordCache* orgCache);
+	CdbGroupedRecord(const CdbRecord* record, OidArrayCache* oidCache, OidKeyRecordCache* orgCache);
 	virtual ~CdbGroupedRecord();
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
+private:
+	OidArrayCache* oidCache;
+	OidKeyRecordCache* orgCache;
 };
 
 } /* namespace codablecash */

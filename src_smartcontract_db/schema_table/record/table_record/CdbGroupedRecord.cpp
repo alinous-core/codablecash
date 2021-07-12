@@ -10,18 +10,32 @@
 #include "base_io/ByteBuffer.h"
 #include "engine/CdbOid.h"
 
+#include "schema_table/record/table_record_key/CdbRecordKey.h"
+
 namespace codablecash {
 
 CdbGroupedRecord::CdbGroupedRecord(const CdbGroupedRecord& inst) : CdbRecord(inst)  {
-
+	this->oidCache = inst.oidCache;
+	this->orgCache = inst.orgCache;
 }
 
-CdbGroupedRecord::CdbGroupedRecord(const CdbRecordKey* recordKey, OidArrayCache* oidCache, OidKeyRecordCache* orgCache) {
+CdbGroupedRecord::CdbGroupedRecord(const CdbRecord* record, OidArrayCache* oidCache, OidKeyRecordCache* orgCache) : CdbRecord() {
+	const ArrayList<AbstractCdbValue>* list = record->getValues();
 
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop;++i){
+		const AbstractCdbValue* v = list->get(i);
+
+		addValue(v->copy());
+	}
+
+	this->oidCache = oidCache;
+	this->orgCache = orgCache;
 }
 
 CdbGroupedRecord::~CdbGroupedRecord() {
-	// TODO Auto-generated destructor stub
+	this->oidCache = nullptr;
+	this->orgCache = nullptr;
 }
 
 int CdbGroupedRecord::binarySize() const {

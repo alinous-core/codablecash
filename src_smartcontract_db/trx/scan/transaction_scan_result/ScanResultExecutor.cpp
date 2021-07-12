@@ -56,6 +56,10 @@
 
 #include "scan_select/scan_planner/base/GroupByPlanner.h"
 
+#include "trx/scan/transaction_scan_result/GroupedScanResultMetadata.h"
+
+#include "scan_select/scan_columns/ScanColumnHolder.h"
+#include "scan_select/scan_columns/AbstractScanColumnsTarget.h"
 
 namespace codablecash {
 
@@ -205,8 +209,8 @@ void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner*
 	CdbLocalCacheManager* localCacheManager = this->db->getLocalCacheManager();
 	OidKeyRecordCache* newResultCache = localCacheManager->createOidKeyRecordCache(); __STP(newResultCache);
 
-	const ScanResultMetadata* metadata = this->source->getMetadata(); // base record metadata
-
+	const ScanResultMetadata* basemetadata = this->source->getMetadata(); // base record metadata
+	GroupedScanResultMetadata* metadata = new GroupedScanResultMetadata(basemetadata);
 
 	GroupByPlanner* gplan = planner->getGroupPlan();
 	ScanColumnHolder* scanColumns = planner->getColumnHolder();
@@ -216,7 +220,7 @@ void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner*
 	while(scanner->hasNext()){
 		const CdbGroupedRecord* grecord = scanner->next(this->cache);
 
-		CdbRecord* record = scanResultColumns(vm, scanColumns, grecord, nullptr);
+		CdbRecord* record = scanResultColumns(vm, scanColumns, grecord, metadata);
 	}
 
 	delete this->cache, this->cache = nullptr;
@@ -225,6 +229,18 @@ void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner*
 
 CdbRecord* ScanResultExecutor::scanResultColumns(VirtualMachine* vm, ScanColumnHolder* scanColumns, const CdbRecord* record,
 		const ScanResultMetadata* metadata) {
+
+	CdbRecord* newRecord = new CdbRecord();
+
+	const ArrayList<AbstractScanColumnsTarget>* list = scanColumns->getList();
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractScanColumnsTarget* colTarget = list->get(i);
+
+		colTarget->scanColumns(vm, record, metadata, newRecord);
+	}
+
+	return newRecord;
 }
 
 } /* namespace codablecash */

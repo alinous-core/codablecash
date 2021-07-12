@@ -10,18 +10,24 @@
 #include "trx/transaction_cache/GroupRecordCache.h"
 
 #include "btree/IBtreeScanner.h"
+#include "btree/AbstractBtreeKey.h"
 
+#include "schema_table/record/table_record/CdbGroupedRecord.h"
+
+#include "schema_table/record/table_record_key/CdbRecordKey.h"
 
 namespace codablecash {
 
 GroupCacheScanner::GroupCacheScanner(GroupCache* gcache) {
 	this->gcache = gcache;
 	this->scanner = nullptr;
+	this->nextObj = nullptr;
 }
 
 GroupCacheScanner::~GroupCacheScanner() {
 	this->gcache = nullptr;
 	delete this->scanner;
+	delete this->nextObj;
 }
 
 void GroupCacheScanner::init() {
@@ -33,6 +39,21 @@ void GroupCacheScanner::init() {
 
 bool GroupCacheScanner::hasNext() {
 	return this->scanner->hasNext();
+}
+
+const CdbGroupedRecord* GroupCacheScanner::next(OidKeyRecordCache* orgCache) {
+	delete this->nextObj;
+	this->nextObj = nullptr;
+
+	const IBlockObject* obj = this->scanner->next();
+	const AbstractBtreeKey* key = this->scanner->nextKey();
+
+	const CdbRecordKey* rec = dynamic_cast<const CdbRecordKey*>(key);
+
+
+
+	// TODO:
+	return this->nextObj;
 }
 
 } /* namespace codablecash */

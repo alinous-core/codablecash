@@ -14,10 +14,14 @@
 
 namespace codablecash {
 
+class CdbRecordKey;
+class OidArrayCache;
+class OidKeyRecordCache;
+
 class CdbGroupedRecord : public CdbRecord {
 public:
 	CdbGroupedRecord(const CdbGroupedRecord& inst);
-	CdbGroupedRecord();
+	CdbGroupedRecord(const CdbRecordKey* recordKey, OidArrayCache* oidCache, OidKeyRecordCache* orgCache);
 	virtual ~CdbGroupedRecord();
 
 	virtual int binarySize() const;

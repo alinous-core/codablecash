@@ -16,8 +16,7 @@ CdbGroupedRecord::CdbGroupedRecord(const CdbGroupedRecord& inst) : CdbRecord(ins
 
 }
 
-CdbGroupedRecord::CdbGroupedRecord() {
-	// TODO Auto-generated constructor stub
+CdbGroupedRecord::CdbGroupedRecord(const CdbRecordKey* recordKey, OidArrayCache* oidCache, OidKeyRecordCache* orgCache) {
 
 }
 

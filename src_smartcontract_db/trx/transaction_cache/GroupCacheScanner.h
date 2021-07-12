@@ -16,6 +16,8 @@ using namespace alinous;
 namespace codablecash {
 
 class GroupCache;
+class CdbGroupedRecord;
+class OidKeyRecordCache;
 
 class GroupCacheScanner {
 public:
@@ -25,10 +27,12 @@ public:
 	void init();
 
 	bool hasNext();
+	const CdbGroupedRecord* next(OidKeyRecordCache* orgCache);
 private:
 	GroupCache* gcache;
 
 	IBtreeScanner* scanner;
+	CdbGroupedRecord* nextObj;
 };
 
 } /* namespace codablecash */

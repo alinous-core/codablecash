@@ -174,7 +174,7 @@ void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner*
 	GroupCacheScanner* scanner = this->groupKeyCache->getScanner(); __STP(scanner);
 
 	while(scanner->hasNext()){
-
+		const CdbGroupedRecord* grecord = scanner->next(this->cache);
 	}
 
 }

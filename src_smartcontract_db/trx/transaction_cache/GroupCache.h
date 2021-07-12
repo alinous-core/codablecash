@@ -21,6 +21,7 @@ class ScanResultMetadata;
 class GroupByPlanner;
 class OidArrayCache;
 class GroupRecordCache;
+class GroupCacheScanner;
 
 class GroupCache {
 public:
@@ -30,6 +31,8 @@ public:
 	void init(VirtualMachine* vm);
 
 	void groupRecord(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, GroupByPlanner* groupByPlan);
+
+	GroupCacheScanner* getScanner();
 
 private:
 	CdbLocalCacheManager* localCacheManager;

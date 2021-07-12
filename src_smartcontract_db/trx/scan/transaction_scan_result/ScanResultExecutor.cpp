@@ -168,6 +168,9 @@ void ScanResultExecutor::putResult(VirtualMachine* vm, SelectScanPlanner* planne
 }
 
 void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner* planner) {
+	GroupByPlanner* gplan = planner->getGroupPlan();
+
+	this->groupKeyCache;
 
 }
 

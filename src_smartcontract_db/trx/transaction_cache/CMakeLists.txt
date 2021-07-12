@@ -4,6 +4,7 @@ set(__src
 	AbstractSwapCache.cpp
 	CdbSwapCacheFactory.cpp
 	GroupCache.cpp
+	GroupCacheScanner.cpp
 	GroupRecordCache.cpp
 	OidKeyRecordCache.cpp
 	SingleKeyOidCache.cpp

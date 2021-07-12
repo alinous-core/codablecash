@@ -9,6 +9,7 @@
 
 #include "base_io/ByteBuffer.h"
 
+#include "schema_table/record/table_record_value/CdbShortValue.h"
 namespace codablecash {
 
 CdbShortKey::CdbShortKey(const CdbShortKey& inst) : AbstractCdbKey(AbstractCdbKey::TYPE_SHORT) {
@@ -54,6 +55,10 @@ void CdbShortKey::toBinary(ByteBuffer* out) const {
 
 void CdbShortKey::fromBinary(ByteBuffer* in) {
 	this->value = in->getShort();
+}
+
+AbstractCdbValue* CdbShortKey::toCdbValue() {
+	return new CdbShortValue(this->value);
 }
 
 } /* namespace codablecash */

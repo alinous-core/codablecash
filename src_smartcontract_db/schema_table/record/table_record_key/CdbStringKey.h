@@ -30,6 +30,7 @@ public:
 	virtual int64_t toInt64() const noexcept {
 		return this->value->hashCode();
 	}
+	virtual AbstractCdbValue* toCdbValue();
 
 private:
 	UnicodeString* value;

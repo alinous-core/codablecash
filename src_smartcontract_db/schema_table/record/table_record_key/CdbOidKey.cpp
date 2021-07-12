@@ -60,4 +60,8 @@ void CdbOidKey::fromBinary(ByteBuffer* in) {
 	this->oid = CdbOid::fromBinary(in);
 }
 
+AbstractCdbValue* CdbOidKey::toCdbValue() {
+	return getOid();
+}
+
 } /* namespace codablecash */

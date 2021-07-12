@@ -9,6 +9,7 @@
 
 #include "base_io/ByteBuffer.h"
 
+#include "schema_table/record/table_record_value/CdbLongValue.h"
 namespace codablecash {
 
 CdbLongKey::CdbLongKey(const CdbLongKey& inst) : AbstractCdbKey(AbstractCdbKey::TYPE_LONG) {
@@ -55,6 +56,10 @@ void CdbLongKey::toBinary(ByteBuffer* out) const {
 
 void CdbLongKey::fromBinary(ByteBuffer* in) {
 	this->value = in->getLong();
+}
+
+AbstractCdbValue* CdbLongKey::toCdbValue() {
+	return new CdbLongValue(this->value);
 }
 
 } /* namespace codablecash */

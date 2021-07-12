@@ -57,4 +57,8 @@ void CdbIntKey::fromBinary(ByteBuffer* in) {
 	this->value = in->getInt();
 }
 
+AbstractCdbValue* CdbIntKey::toCdbValue() {
+	return new CdbIntValue(this->value);
+}
+
 } /* namespace codablecash */

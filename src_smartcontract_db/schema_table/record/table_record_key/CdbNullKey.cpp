@@ -9,6 +9,7 @@
 
 #include "base_io/ByteBuffer.h"
 
+#include "schema_table/record/table_record_value/CdbNullValue.h"
 namespace codablecash {
 
 CdbNullKey::CdbNullKey(const CdbNullKey& inst) : AbstractCdbKey(AbstractCdbKey::TYPE_NULL) {
@@ -45,6 +46,10 @@ void CdbNullKey::toBinary(ByteBuffer* out) const {
 }
 
 void CdbNullKey::fromBinary(ByteBuffer* in) {
+}
+
+AbstractCdbValue* CdbNullKey::toCdbValue() {
+	return new CdbNullValue();
 }
 
 } /* namespace codablecash */

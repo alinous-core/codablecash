@@ -34,6 +34,8 @@ public:
 		return this->value;
 	}
 
+	virtual AbstractCdbValue* toCdbValue();
+
 private:
 	int8_t value;
 };

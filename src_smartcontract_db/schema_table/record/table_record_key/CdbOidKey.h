@@ -40,6 +40,7 @@ public:
 	virtual int64_t toInt64() const noexcept {
 		return this->oid->getOidValue();
 	}
+	virtual AbstractCdbValue* toCdbValue();
 
 private:
 	CdbOid* oid;

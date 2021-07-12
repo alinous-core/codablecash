@@ -116,9 +116,7 @@ void SelectScanPlanner::executeQuery(VirtualMachine* vm) {
 	exec.init(vm);
 	exec.execScan(vm);
 
-	exec.putResult(vm);
-
-	// TODO exec scan
+	exec.putResult(vm, this);
 }
 
 ConditionsHolderStack* SelectScanPlanner::getConditionsStack() const noexcept {

@@ -149,9 +149,14 @@ bool ScanResultExecutor::checkRecord(VirtualMachine* vm, RootScanCondition* root
 	return i > 0;
 }
 
-void ScanResultExecutor::putResult(VirtualMachine* vm) {
-	GcManager* gc = vm->getGc();
+void ScanResultExecutor::putResult(VirtualMachine* vm, SelectScanPlanner* planner) {
+	// check group by
+	if(planner->getGroupPlan() != nullptr){
+		putResultGroupBy(vm, planner);
+		return;
+	}
 
+	GcManager* gc = vm->getGc();
 	VmStack* stack = vm->topStack();
 
 	AnalyzedType atype(AnalyzedType::TYPE_DOM_ARRAY);
@@ -160,6 +165,10 @@ void ScanResultExecutor::putResult(VirtualMachine* vm) {
 
 	DomArrayVariable* variable = getRecordsVariable(vm);
 	ref->substitute(variable, vm);
+}
+
+void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner* planner) {
+
 }
 
 DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {

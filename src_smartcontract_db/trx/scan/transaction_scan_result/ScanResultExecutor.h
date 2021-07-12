@@ -33,7 +33,7 @@ public:
 
 	void init(VirtualMachine* vm);
 	void execScan(VirtualMachine* vm);
-	void putResult(VirtualMachine* vm);
+	void putResult(VirtualMachine* vm, SelectScanPlanner* planner);
 
 private:
 	void doExecScan(VirtualMachine* vm);
@@ -41,6 +41,7 @@ private:
 	DomArrayVariable* getRecordsVariable(VirtualMachine* vm);
 
 	void doGroupBy(VirtualMachine* vm, SelectScanPlanner* planner);
+	void putResultGroupBy(VirtualMachine* vm, SelectScanPlanner* planner);
 
 private:
 	IJoinLeftSource* source;

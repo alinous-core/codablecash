@@ -213,7 +213,7 @@ void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner*
 	ScanColumnHolder* scanColumns = planner->getColumnHolder();
 
 	const ScanResultMetadata* basemetadata = this->source->getMetadata(); // base record metadata
-	GroupedScanResultMetadata* metadata = gplan->getMetadata(basemetadata);
+	GroupedScanResultMetadata* metadata = gplan->getMetadata(basemetadata); __STP(metadata);
 
 	GroupCacheScanner* scanner = this->groupKeyCache->getScanner(); __STP(scanner);
 

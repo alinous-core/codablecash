@@ -31,7 +31,7 @@ public:
 		return position;
 	}
 
-	bool match(ColumnIdentifierScanParam* scanColumnId) const noexcept;
+	bool match(const ColumnIdentifierScanParam* scanColumnId) const noexcept;
 
 	const UnicodeString* getDisplayName() noexcept;
 

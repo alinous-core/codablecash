@@ -23,6 +23,7 @@ class SelectScanPlanner;
 class CdbRecord;
 class CdbGroupedRecord;
 class ScanResultMetadata;
+class GroupedScanResultMetadata;
 
 class GroupByPlanner {
 public:
@@ -34,6 +35,7 @@ public:
 	void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
 
 	CdbRecord* groupBy(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata);
+	GroupedScanResultMetadata* getMetadata(const ScanResultMetadata* base);
 
 private:
 	ScanColumnHolder* columnHolder;

@@ -130,7 +130,6 @@ void ScanResultExecutor::doGroupBy(VirtualMachine* vm, SelectScanPlanner* planne
 	this->groupKeyCache = new GroupCache(localCacheManager);
 	this->groupKeyCache->init(vm);
 
-
 	const ScanResultMetadata* metadata = this->source->getMetadata();
 
 	IBtreeScanner* scanner = this->cache->getScanner(); __STP(scanner);
@@ -209,21 +208,23 @@ void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner*
 	CdbLocalCacheManager* localCacheManager = this->db->getLocalCacheManager();
 	OidKeyRecordCache* newResultCache = localCacheManager->createOidKeyRecordCache(); __STP(newResultCache);
 
-	const ScanResultMetadata* basemetadata = this->source->getMetadata(); // base record metadata
-	GroupedScanResultMetadata* metadata = new GroupedScanResultMetadata(basemetadata);
-
 	GroupByPlanner* gplan = planner->getGroupPlan();
 	ScanColumnHolder* scanColumns = planner->getColumnHolder();
+
+	const ScanResultMetadata* basemetadata = this->source->getMetadata(); // base record metadata
+	GroupedScanResultMetadata* metadata = gplan->getMetadata(basemetadata);
 
 	GroupCacheScanner* scanner = this->groupKeyCache->getScanner(); __STP(scanner);
 
 	while(scanner->hasNext()){
 		const CdbGroupedRecord* grecord = scanner->next(this->cache);
 
-		CdbRecord* record = scanResultColumns(vm, scanColumns, grecord, metadata);
+		CdbRecord* record = scanResultColumns(vm, scanColumns, grecord, metadata); __STP(record);
+		this->cache->insert(record);
 	}
 
 	delete this->cache, this->cache = nullptr;
+	this->cache = newResultCache;
 
 }
 

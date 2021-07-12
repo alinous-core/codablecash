@@ -53,7 +53,7 @@ void ScanResultMetadata::join(const ScanResultMetadata* other) noexcept {
 	}
 }
 
-const ScanResultFieldMetadata* ScanResultMetadata::findField(ColumnIdentifierScanParam* scanColumnId) const noexcept {
+const ScanResultFieldMetadata* ScanResultMetadata::findField(const ColumnIdentifierScanParam* scanColumnId) const noexcept {
 	const ScanResultFieldMetadata* result = nullptr;
 
 	int maxLoop = this->list->size();

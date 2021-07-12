@@ -44,7 +44,7 @@ void ScanResultFieldMetadata::setPosition(int pos) noexcept {
 	this->position = pos;
 }
 
-bool ScanResultFieldMetadata::match(ColumnIdentifierScanParam* scanColumnId) const noexcept {
+bool ScanResultFieldMetadata::match(const ColumnIdentifierScanParam* scanColumnId) const noexcept {
 	const AbstractScanTableTarget* sourceTarget = scanColumnId->getSourceTarget();
 
 	if(this->sourceTarget != sourceTarget){

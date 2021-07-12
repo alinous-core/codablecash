@@ -37,7 +37,7 @@ public:
 		return list;
 	}
 
-	const ScanResultFieldMetadata* findField(ColumnIdentifierScanParam* scanColumnId) const noexcept;
+	const ScanResultFieldMetadata* findField(const ColumnIdentifierScanParam* scanColumnId) const noexcept;
 
 private:
 	ArrayList<ScanResultFieldMetadata> *list;

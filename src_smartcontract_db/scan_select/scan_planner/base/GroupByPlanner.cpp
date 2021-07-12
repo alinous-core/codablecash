@@ -17,6 +17,13 @@
 
 #include "scan_select/scan_planner/scanner/factory/AbstractScannerFactory.h"
 
+#include "trx/scan/transaction_scan_result/GroupedScanResultMetadata.h"
+
+#include "scan_select/scan_columns/ScanColumn.h"
+
+#include "trx/scan/transaction_scan_result/ScanResultMetadata.h"
+
+#include "engine/CdbException.h"
 namespace codablecash {
 
 GroupByPlanner::GroupByPlanner() {
@@ -51,6 +58,28 @@ CdbRecord* GroupByPlanner::groupBy(VirtualMachine* vm, const CdbRecord* record, 
 	}
 
 	return groupedRecord;
+}
+
+GroupedScanResultMetadata* GroupByPlanner::getMetadata(const ScanResultMetadata* base) {
+	GroupedScanResultMetadata* meta = new GroupedScanResultMetadata(base);
+
+	const ArrayList<AbstractScanColumnsTarget>* list = this->columnHolder->getList();
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractScanColumnsTarget* colTarget = list->get(i);
+
+		ScanColumn* scanColumn = dynamic_cast<ScanColumn*>(colTarget);
+		const ColumnIdentifierScanParam* colParam = scanColumn->getScanParam();
+
+		const ScanResultFieldMetadata* fldMetadata = base->findField(colParam);
+		if(fldMetadata == nullptr){
+			throw new CdbException(L"Can not find field from metadata", __FILE__, __LINE__);
+		}
+
+		meta->addField(fldMetadata);
+	}
+
+	return meta;
 }
 
 } /* namespace codablecash */

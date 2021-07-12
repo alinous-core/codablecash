@@ -29,6 +29,11 @@ public:
 	virtual void resolveColumns(VirtualMachine* vm, SelectScanPlanner* planner);
 
 	virtual void scanColumns(VirtualMachine* vm, const CdbRecord* record, const ScanResultMetadata* metadata, CdbRecord* newRecord);
+
+	const ColumnIdentifierScanParam* getScanParam() const noexcept {
+		return scanParam;
+	}
+
 private:
 	const SQLColumnIdentifier* sqlColumnId;
 

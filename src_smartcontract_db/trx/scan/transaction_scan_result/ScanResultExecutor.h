@@ -25,6 +25,7 @@ class CdbRecord;
 class ScanResultMetadata;
 class RootScanCondition;
 class SelectScanPlanner;
+class ScanColumnHolder;
 
 class ScanResultExecutor {
 public:
@@ -42,6 +43,8 @@ private:
 
 	void doGroupBy(VirtualMachine* vm, SelectScanPlanner* planner);
 	void putResultGroupBy(VirtualMachine* vm, SelectScanPlanner* planner);
+
+	CdbRecord* scanResultColumns(VirtualMachine* vm, ScanColumnHolder* scanColumns, const CdbRecord* record, const ScanResultMetadata* metadata);
 
 private:
 	IJoinLeftSource* source;

@@ -1,6 +1,7 @@
 
 
 set(__src
+	GroupedScanResultMetadata.cpp
 	ScanResultExecutor.cpp
 	ScanResultFieldMetadata.cpp
 	ScanResultMetadata.cpp

@@ -49,6 +49,7 @@
 #include "filestore_block/IBlockObject.h"
 
 #include "schema_table/record/table_record/CdbRecord.h"
+#include "schema_table/record/table_record/CdbGroupedRecord.h"
 
 #include "trx/scan/transaction_scan_result/ScanResultMetadata.h"
 #include "trx/scan/transaction_scan_result/ScanResultFieldMetadata.h"
@@ -168,17 +169,6 @@ void ScanResultExecutor::putResult(VirtualMachine* vm, SelectScanPlanner* planne
 	ref->substitute(variable, vm);
 }
 
-void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner* planner) {
-	GroupByPlanner* gplan = planner->getGroupPlan();
-
-	GroupCacheScanner* scanner = this->groupKeyCache->getScanner(); __STP(scanner);
-
-	while(scanner->hasNext()){
-		const CdbGroupedRecord* grecord = scanner->next(this->cache);
-	}
-
-}
-
 DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {
 	DomArrayVariable* array = new(vm) DomArrayVariable(vm);
 
@@ -201,11 +191,39 @@ DomArrayVariable* ScanResultExecutor::getRecordsVariable(VirtualMachine* vm) {
 		const IBlockObject* obj = scanner->next();
 		const CdbRecord* record = dynamic_cast<const CdbRecord*>(obj);
 
+		// FIXME scan by column holder
+
 		DomVariableInstance* dom = record->toDomInstance(vm, &nameList);
 		array->add(vm, dom);
 	}
 
 	return array;
+}
+
+void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner* planner) {
+	CdbLocalCacheManager* localCacheManager = this->db->getLocalCacheManager();
+	OidKeyRecordCache* newResultCache = localCacheManager->createOidKeyRecordCache(); __STP(newResultCache);
+
+	const ScanResultMetadata* metadata = this->source->getMetadata(); // base record metadata
+
+
+	GroupByPlanner* gplan = planner->getGroupPlan();
+	ScanColumnHolder* scanColumns = planner->getColumnHolder();
+
+	GroupCacheScanner* scanner = this->groupKeyCache->getScanner(); __STP(scanner);
+
+	while(scanner->hasNext()){
+		const CdbGroupedRecord* grecord = scanner->next(this->cache);
+
+		CdbRecord* record = scanResultColumns(vm, scanColumns, grecord, nullptr);
+	}
+
+	delete this->cache, this->cache = nullptr;
+
+}
+
+CdbRecord* ScanResultExecutor::scanResultColumns(VirtualMachine* vm, ScanColumnHolder* scanColumns, const CdbRecord* record,
+		const ScanResultMetadata* metadata) {
 }
 
 } /* namespace codablecash */

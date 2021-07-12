@@ -38,6 +38,10 @@ public:
 		return cache;
 	}
 
+	OidArrayCache* getArrayCache() const noexcept {
+		return arrayCache;
+	}
+
 private:
 	CdbLocalCacheManager* localCacheManager;
 

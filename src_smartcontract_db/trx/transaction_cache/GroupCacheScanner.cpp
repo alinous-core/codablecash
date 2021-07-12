@@ -13,8 +13,12 @@
 #include "btree/AbstractBtreeKey.h"
 
 #include "schema_table/record/table_record/CdbGroupedRecord.h"
+#include "schema_table/record/table_record/CdbRecord.h"
 
 #include "schema_table/record/table_record_key/CdbRecordKey.h"
+
+#include "base/StackRelease.h"
+
 
 namespace codablecash {
 
@@ -48,11 +52,15 @@ const CdbGroupedRecord* GroupCacheScanner::next(OidKeyRecordCache* orgCache) {
 	const IBlockObject* obj = this->scanner->next();
 	const AbstractBtreeKey* key = this->scanner->nextKey();
 
-	const CdbRecordKey* rec = dynamic_cast<const CdbRecordKey*>(key);
+	const CdbRecordKey* recKey = dynamic_cast<const CdbRecordKey*>(key);
+
+	AbstractCdbValue* recValue = recKey->toCdbValue(); __STP(recValue);
+	CdbRecord* rec = dynamic_cast<CdbRecord*>(recValue);
 
 
+	OidArrayCache* oidArrayCache = this->gcache->getArrayCache();
+	this->nextObj = new CdbGroupedRecord(rec, oidArrayCache, orgCache);
 
-	// TODO:
 	return this->nextObj;
 }
 

@@ -7,6 +7,7 @@
 
 #include "trx/transaction_cache/GroupCache.h"
 #include "trx/transaction_cache/GroupRecordCache.h"
+#include "trx/transaction_cache/GroupCacheScanner.h"
 
 #include "trx/transaction_cache_array/OidArrayCache.h"
 
@@ -22,6 +23,7 @@
 #include "base/StackRelease.h"
 
 #include "engine/CdbLocalCacheManager.h"
+
 
 namespace codablecash {
 
@@ -52,5 +54,11 @@ void GroupCache::groupRecord(VirtualMachine* vm, const CdbRecord* record, const 
 	this->arrayCache->add(index, originalOid);
 }
 
+GroupCacheScanner* GroupCache::getScanner() {
+	GroupCacheScanner* scanner = new GroupCacheScanner(this);
+	scanner->init();
+
+	return scanner;
+}
 
 } /* namespace codablecash */

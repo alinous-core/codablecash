@@ -34,6 +34,10 @@ public:
 
 	GroupCacheScanner* getScanner();
 
+	GroupRecordCache* getCache() const noexcept {
+		return cache;
+	}
+
 private:
 	CdbLocalCacheManager* localCacheManager;
 

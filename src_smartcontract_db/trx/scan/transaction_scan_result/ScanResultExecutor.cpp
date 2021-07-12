@@ -11,6 +11,7 @@
 
 #include "trx/transaction_cache/OidKeyRecordCache.h"
 #include "trx/transaction_cache/GroupCache.h"
+#include "trx/transaction_cache/GroupCacheScanner.h"
 
 #include "engine/CodableDatabase.h"
 #include "engine/CdbLocalCacheManager.h"
@@ -170,7 +171,11 @@ void ScanResultExecutor::putResult(VirtualMachine* vm, SelectScanPlanner* planne
 void ScanResultExecutor::putResultGroupBy(VirtualMachine* vm, SelectScanPlanner* planner) {
 	GroupByPlanner* gplan = planner->getGroupPlan();
 
-	this->groupKeyCache;
+	GroupCacheScanner* scanner = this->groupKeyCache->getScanner(); __STP(scanner);
+
+	while(scanner->hasNext()){
+
+	}
 
 }
 

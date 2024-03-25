@@ -1,0 +1,201 @@
+
+
+AbstractType* typeDeclare() : {
+	AbstractType* dec = nullptr;
+	Token* t1 = nullptr;
+	Token* t2 = nullptr;
+}
+{
+	(
+		dec=boolType()
+		|
+		dec=byteType()
+		|		dec=charType()
+		|
+		dec=shortType()
+		|
+		dec=intType()
+		|
+		dec=longType()
+		|
+		dec=stringType()
+		|
+		dec=voidType()
+		|
+		dec=domType()
+		|
+		dec=objectType()
+	)
+	(
+		t1="[" t2="]"
+		{
+			dec->addDimension();
+		}
+	)*
+	{
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+ObjectType* objectType() : {
+	ObjectType* dec = new ObjectType();
+	PackageNameDeclare* packageName = nullptr;
+	Token* t=nullptr;
+}
+{
+	(LOOKAHEAD(2)
+		 t=< IDENTIFIER > {
+		 	if(packageName == nullptr){
+		 		packageName = new PackageNameDeclare();
+		 		dec->setPackageName(packageName);
+		 	}
+		 	
+		 	dec->setPosition(t);
+		 	packageName->setPosition(t);
+		 	packageName->addSegment(_STR(t));
+		 }
+		 t="." {
+		 	dec->setPosition(t);
+		 }
+	)*
+	 t=< IDENTIFIER > {
+	 	dec->setName(_STR(t));
+	 	dec->setPosition(t);
+	 }
+	 {
+		__ONERROR(dec);
+		return dec;
+	 }
+}
+
+BoolType* boolType() : {
+	BoolType* dec = new BoolType();
+	Token* t=nullptr;
+}
+{
+	t="boolean" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+ByteType* byteType() : {
+	ByteType* dec = new ByteType();
+	Token* t=nullptr;
+}
+{
+	t="byte" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+CharType* charType() : {
+	CharType* dec = new CharType();
+	Token* t=nullptr;
+}
+{
+	t="char" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+ShortType* shortType() : {
+	ShortType* dec = new ShortType();
+	Token* t=nullptr;
+}
+{
+	t="short" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+IntType* intType() : {
+	IntType* dec = new IntType();
+	Token* t=nullptr;
+}
+{
+	t="int" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+LongType* longType() : {
+	LongType* dec = new LongType();
+	Token* t=nullptr;
+}
+{
+	t="long" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+StringType* stringType() : {
+	StringType* dec = new StringType();
+	Token* t=nullptr;
+}
+{
+	t="String" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+VoidType* voidType() : {
+	VoidType* dec = new VoidType();
+	Token* t=nullptr;
+}
+{
+	t="void" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+DomType* domType() : {
+	DomType* dec = new DomType();
+	Token* t=nullptr;
+}
+{
+	t="var" {
+		dec->setPositions(_P(t, t));
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+
+

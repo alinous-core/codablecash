@@ -1,0 +1,3 @@
+SELECT * INTO res FROM test_table
+WHERE
+	test_table.name like '%naka%' ESCAPE '%';

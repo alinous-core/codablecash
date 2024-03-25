@@ -1,0 +1,31 @@
+language: cpp
+compiler:
+    - gcc
+env: BUILD=cmake CPP11=ON
+os:
+  - linux
+sudo: false
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-7
+      - g++-7
+      - cmake
+      - yasm
+      - lcov
+    env: BUILD_SYSTEM=cmake C_COMPILER=gcc CXX_COMPILER=g++
+before_install:
+  - export CC="gcc-7"
+  - export CXX="g++-7"
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libgmp-dev
+  - pip install --user cpp-coveralls
+script: ./sh/travisbuild.sh
+after_success:
+    - coveralls --root . -E ".*/src_ext/*" -E ".*src_test*" -E "target" -E ".*CMakeFiles.*" -E ".*src_gen*"
+notifications:
+  email:
+    recipients:
+      - info@alinous.org

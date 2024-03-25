@@ -1,0 +1,8 @@
+target/
+ext/
+.cccc/
+junit.xml
+.settings/
+.kdev4
+*.bkp
+

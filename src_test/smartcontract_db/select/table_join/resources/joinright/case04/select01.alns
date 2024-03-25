@@ -1,0 +1,5 @@
+SELECT * INTO res FROM test_table RIGHT JOIN emails
+ON
+	test_table.email_id = emails.email_id
+WHERE
+	emails.email_id > 1;

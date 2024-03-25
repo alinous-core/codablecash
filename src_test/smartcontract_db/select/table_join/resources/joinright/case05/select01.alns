@@ -1,0 +1,5 @@
+SELECT * INTO res FROM emails RIGHT JOIN test_table
+ON
+	test_table.email_id = emails.email_id
+WHERE
+	test_table.id = 7;

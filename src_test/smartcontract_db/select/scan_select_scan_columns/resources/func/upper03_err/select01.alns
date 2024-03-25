@@ -1,0 +1,4 @@
+SELECT UPPER() AS col0 INTO res 
+FROM 
+	emails;
+	

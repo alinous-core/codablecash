@@ -1,0 +1,405 @@
+
+/******************************************************************************************
+* Alinous Language Control Statements Starts
+*/
+
+AbstractStatement* ctrlStatement() : {
+	AbstractStatement* stmt = nullptr;
+}
+{
+	(
+		stmt=throwStatement() |
+		stmt=tryStatement() |
+		stmt=ifStatement() |
+		stmt=breakStatement() |
+		stmt=continueStatement() |
+		stmt=returnStatement() |
+		stmt=whileStatement() |
+		stmt=doWhileStatement() |
+		stmt=forStatement()
+	)
+	{}
+	{
+		return stmt;
+	}
+}
+
+TryStatement* tryStatement() : {
+	TryStatement* stmt = new TryStatement();
+	StatementBlock* block = nullptr;
+	Token* t = nullptr;
+	
+	CatchStatement* catchStmt = nullptr;
+	FinallyStatement* finallyStmt = nullptr;
+}
+{
+	t="try" {
+		stmt->setPosition(t);
+	}
+	block=statementBlock() {
+		stmt->setBlock(block);
+		stmt->setPosition(block);
+	}
+	
+	(
+		catchStmt=catchStatement() {
+			stmt->addCatchStatement(catchStmt);
+			stmt->setPosition(catchStmt);
+		}
+	)*
+	
+	[
+		finallyStmt=finallyStatement() {
+			stmt->setFinallyStatement(finallyStmt);
+			stmt->setPosition(finallyStmt);
+		}
+	]
+	
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}
+}
+
+FinallyStatement* finallyStatement() : {
+	FinallyStatement* stmt = new FinallyStatement();
+	StatementBlock* block = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="finally" {
+		stmt->setPosition(t);
+	}
+	block=statementBlock() {
+		stmt->setBlock(block);
+		stmt->setPosition(block);
+	}
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}
+}
+
+CatchStatement* catchStatement() : {
+	CatchStatement* stmt = new CatchStatement();
+	StatementBlock* block = nullptr;
+	Token* t = nullptr;
+	
+	VariableDeclareStatement* variableDeclare = nullptr;
+}
+{
+	t="catch" {
+		stmt->setPosition(t);
+	}
+	
+	t="(" {
+		stmt->setPosition(t);
+	}
+	
+	variableDeclare=__variableDeclareStatement() {
+		stmt->setVariableDeclare(variableDeclare);
+		stmt->setPosition(variableDeclare);
+	}
+	
+	t=")" {
+		stmt->setPosition(t);
+	}
+	block=statementBlock() {
+		stmt->setBlock(block);
+		stmt->setPosition(block);
+	}
+	
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}
+}
+
+ThrowStatement* throwStatement() : {
+	ThrowStatement* stmt = new ThrowStatement();
+	AbstractExpression* exp = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="throw" {
+		stmt->setPosition(t);
+	}
+	exp=expression()
+	{
+		stmt->setExpression(exp);
+		stmt->setPosition(exp);
+	}
+	t=";" {
+		stmt->setPosition(t);
+	}	
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}
+}
+
+ForStatement* forStatement() : {
+	ForStatement* stmt = new ForStatement();
+	AbstractExpression* exp = nullptr;
+	AbstractStatement* st = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="for" {
+		stmt->setPosition(t);
+	}
+	t="(" {
+		stmt->setPosition(t);
+	}
+	
+	st=forInnerStatement() {
+		stmt->setInit(st);
+		stmt->setPosition(st);
+	}
+	t=";" {
+		stmt->setPosition(t);
+	}
+	
+	exp=expression() {
+		stmt->setCondition(exp);
+		stmt->setPosition(exp);
+	}
+	t=";" {
+		stmt->setPosition(t);
+	}
+	
+	st=forInnerStatement() {
+		stmt->setPostLoop(st);
+		stmt->setPosition(st);
+	}	
+	
+	t=")" {
+		stmt->setPosition(t);
+	}
+	st=statement() {
+		stmt->setStatement(st);
+		stmt->setPosition(st);
+	}
+	
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}
+}
+
+AbstractStatement* forInnerStatement() : {
+	AbstractStatement* stmt = nullptr;
+}
+{
+	(LOOKAHEAD(2)
+		stmt=__substitutionStatement()
+		|
+		stmt=__variableDeclareStatement()
+	)
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}
+}
+
+DoWhileStatement* doWhileStatement() : {
+	DoWhileStatement* stmt = new DoWhileStatement();
+	AbstractExpression* exp = nullptr;
+	AbstractStatement* st = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="do" {
+		stmt->setPosition(t);
+	}
+	st=statement() {
+		stmt->setStatement(st);
+		stmt->setPosition(st);
+	}
+	t="while" {
+		stmt->setPosition(t);
+	}
+	t="(" {
+		stmt->setPosition(t);
+	}
+	exp=expression() {
+		stmt->setExpression(exp);
+		stmt->setPosition(exp);
+	}
+	
+	t=")" {
+		stmt->setPosition(t);
+	}
+	
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}
+}
+
+WhileStatement* whileStatement() : {
+	WhileStatement* stmt = new WhileStatement();
+	AbstractExpression* exp = nullptr;
+	AbstractStatement* st = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="while" {
+		stmt->setPosition(t);
+	}
+	t="(" {
+		stmt->setPosition(t);
+	}
+	
+	exp=expression() {
+		stmt->setExpression(exp);
+		stmt->setPosition(exp);
+	}
+	
+	t=")" {
+		stmt->setPosition(t);
+	}
+	st=statement() {
+		stmt->setStatement(st);
+		stmt->setPosition(st);
+	}
+	
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}	
+}
+
+ReturnStatement* returnStatement() : {
+	ReturnStatement* stmt = new ReturnStatement();
+	AbstractExpression* exp = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="return" {
+		stmt->setPosition(t);
+	}
+	[
+		exp=expression() {
+			stmt->setExpression(exp);
+			stmt->setPosition(exp);
+		}
+	]
+	t=";" {
+		stmt->setPosition(t);
+	}
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}
+}
+
+ContinueStatement* continueStatement() : {
+	ContinueStatement* stmt = new ContinueStatement();
+	Token* t = nullptr;
+}
+{
+	t="continue" {
+		stmt->setPosition(t);
+	}
+	t=";" {
+		stmt->setPosition(t);
+	}
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}	
+}
+
+
+BreakStatement* breakStatement() : {
+	BreakStatement* stmt = new BreakStatement();
+	Token* t = nullptr;
+}
+{
+	t="break" {
+		stmt->setPosition(t);
+	}
+	t=";" {
+		stmt->setPosition(t);
+	}
+	{
+		 __ONERROR(stmt);
+		return stmt;
+	}	
+}
+
+IfStatement* ifStatement() : {
+	IfStatement* ifstmt = new IfStatement();
+	AbstractExpression* exp;
+	AbstractStatement* stmt;
+	Token* t = nullptr;
+	
+	IfStatement* elseif = nullptr;
+}
+{
+	t="if" {
+		ifstmt->setPosition(t);
+	}
+	"("
+	exp=expression() {
+		ifstmt->setExpression(exp);
+		ifstmt->setPosition(exp);
+	}
+	
+	")"
+	
+	stmt=statement() {
+		ifstmt->setStatement(stmt);
+		ifstmt->setPosition(stmt);
+	}
+	
+	(LOOKAHEAD(2)
+		elseif=elseifStatement() {
+			ifstmt->addElseIf(elseif);
+			ifstmt->setPosition(elseif);
+		}
+	)*
+	
+	[LOOKAHEAD(2)
+		t="else" { ifstmt->setPosition(t); }
+		stmt=statement() {
+			ifstmt->setElseStatement(stmt);
+			ifstmt->setPosition(stmt);
+		}
+	]
+	
+	{
+		 __ONERROR(ifstmt);
+		return ifstmt;
+	}
+}
+
+IfStatement* elseifStatement() : {
+	IfStatement* ifstmt = new IfStatement();
+	AbstractExpression* exp;
+	AbstractStatement* stmt;
+	Token* t = nullptr;
+}
+{
+	t="else" {ifstmt->setPosition(t);}
+	t="if" {ifstmt->setPosition(t);}
+	t="(" {ifstmt->setPosition(t);}
+	
+	exp=expression() {
+		ifstmt->setExpression(exp);
+		ifstmt->setPosition(exp);
+	}
+		
+	t=")" {ifstmt->setPosition(t);}
+	
+	stmt=statement() {
+		ifstmt->setStatement(stmt);
+		ifstmt->setPosition(stmt);
+	}
+	{
+		 __ONERROR(ifstmt);
+		return ifstmt;
+	}
+}
+

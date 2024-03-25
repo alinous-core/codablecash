@@ -1,0 +1,5 @@
+SELECT * INTO res 
+FROM 
+	emails
+WHERE
+	1 < 2;

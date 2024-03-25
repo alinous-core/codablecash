@@ -1,0 +1,24 @@
+AstroBWT
+
+1. Calulate SHA3-256 of input data
+2. Expand data using Salsa20  cipher  69371  bytes
+3. Calculate BWT of step 2
+4. Calculate SHA3-256 of BWT data
+5. Expand data using Salsa20  cipher  69371  + random number based on step 4
+6. Calculate BWT of data from step 5
+7. Calculate SHA3-256 of BWT data from step 6  
+
+
+main code is POW
+https://github.com/deroproject/astrobwt/blob/master/astrobwt.go
+
+Salsa(Java Code) default of Java is Bigendian
+https://github.com/neilalexander/jnacl/blob/master/src/main/java/com/neilalexander/jnacl/crypto/salsa20.java
+
+BWT
+https://github.com/AlanFermat/Burrows-Wheeler-Transformation/blob/eab376a1f6a840c6ce3037864854efc7a14ed5de/BWTMethod.java#L39
+
+SHA3
+https://github.com/rhash/RHash/blob/master/librhash/sha3.c
+
+

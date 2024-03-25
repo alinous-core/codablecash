@@ -1,0 +1,6 @@
+SELECT * INTO res
+FROM
+	test_table
+WHERE
+	email_id = 12 AND
+	email_id = 12;

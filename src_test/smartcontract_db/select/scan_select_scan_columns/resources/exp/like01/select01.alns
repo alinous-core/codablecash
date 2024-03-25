@@ -1,0 +1,4 @@
+SELECT emails.email LIKE '%@tana%' ESCAPE '%' AS col0 INTO res 
+FROM 
+	emails;
+	

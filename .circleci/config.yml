@@ -1,0 +1,43 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/configuration-reference
+version: 2.1
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/configuration-reference/#jobs
+jobs:
+  linux-gcc:  
+    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/configuration-reference/#executor-job
+    machine:
+     image: ubuntu-2004:current
+    # Add steps to the job
+    # See: https://circleci.com/docs/configuration-reference/#steps
+    steps:
+       - checkout
+       - run:
+          name: enable ipv6
+          command: |
+            cat \<< 'EOF' | sudo tee /etc/docker/daemon.json
+            {
+              "ipv6": true,
+              "fixed-cidr-v6": "2001:db8:1::/64"
+            }
+            EOF
+            sudo service docker restart
+       - run:
+           name: Install Software
+           command: |
+             sudo apt-get -qq update
+             sudo apt-get install -y python3-pip yasm git unzip cmake g++-12 lcov libgmp-dev
+             pip install --user cpp-coveralls
+       - run:
+           name: "build and test"
+           command: ./sh/travisbuild.sh
+       - store_artifacts:
+           path: ./target/html_report/
+# Orchestrate jobs using workflows
+# See: https://circleci.com/docs/configuration-reference/#workflows
+workflows:
+  test-codablecash-workflow:
+    jobs:
+      - linux-gcc
+

@@ -1,0 +1,112 @@
+/*
+ * PoWManager.cpp
+ *
+ *  Created on: 2023/03/22
+ *      Author: iizuka
+ */
+
+#include "pow/PoWManager.h"
+#include "pow/PoWCalculator.h"
+#include "pow/PoWStartCalculateCommandMessage.h"
+#include "pow/PoWGenerateBlockRequestCommandMessage.h"
+
+#include "base/UnicodeString.h"
+
+#include "procesor/MessageProcessor.h"
+
+#include "bc_block/BlockHeaderId.h"
+
+#include "base_thread/SysMutex.h"
+#include "base_thread/StackUnlocker.h"
+
+#include "bc/DebugDefaultLogger.h"
+
+namespace codablecash {
+
+const UnicodeString PoWManager::THREAD_NAME(L"PoW_Main");
+
+PoWManager::PoWManager(ISystemLogger* logger) {
+	this->processor = nullptr;
+	this->calculator = nullptr;
+	this->lastBlockId = nullptr;
+	this->mutexBlockId = new SysMutex();
+	this->generator = nullptr;
+	this->logger = logger;
+}
+
+PoWManager::~PoWManager() {
+	shutdown();
+
+	delete this->lastBlockId;
+	delete this->mutexBlockId;
+
+	this->generator = nullptr;
+}
+
+void PoWManager::start() {
+	this->calculator = new PoWCalculator();
+	this->calculator->setPowManager(this);
+	this->calculator->init(this->logger);
+
+	this->processor = new MessageProcessor(&THREAD_NAME, this->logger);
+	this->processor->setParam(this);
+	this->processor->start();
+}
+
+void PoWManager::shutdown() {
+	if(this->calculator != nullptr){
+		this->calculator->shutdown();
+	}
+	if(this->processor != nullptr){
+		this->processor->shutdown();
+	}
+
+	delete this->processor;
+	this->processor = nullptr;
+	delete this->calculator;
+	this->calculator = nullptr;
+}
+
+void PoWManager::requestNewHeaderId() {
+	PoWStartCalculateCommandMessage* cmd = new PoWStartCalculateCommandMessage();
+	this->processor->addCommandMessage(cmd);
+}
+
+void PoWManager::onNonceCalculated(uint64_t height, const BlockHeaderId *bid, const PoWNonce *nonce) {
+	bool isNonceCalculated = false;
+	{
+		StackUnlocker unlocker(this->mutexBlockId);
+		isNonceCalculated = (this->lastBlockId == nullptr || this->lastBlockId->compareTo(bid) != 0);
+	}
+
+
+	if(isNonceCalculated){
+		fireNonceCalculated(height, bid, nonce);
+
+		{
+			StackUnlocker unlocker(this->mutexBlockId);
+			delete this->lastBlockId;
+			this->lastBlockId = dynamic_cast<BlockHeaderId*>(bid->copyData());
+		}
+	}
+}
+
+void PoWManager::fireNonceCalculated(uint64_t height, const BlockHeaderId *bid,	const PoWNonce *nonce) {
+	PoWGenerateBlockRequestCommandMessage* cmd = new PoWGenerateBlockRequestCommandMessage(height, bid, nonce);
+	this->processor->addCommandMessage(cmd);
+}
+
+
+void PoWManager::suspend() {
+	this->calculator->suspend();
+}
+
+void PoWManager::resume() {
+	this->calculator->resume();
+}
+
+bool PoWManager::isSuspendStatus() const noexcept {
+	return this->calculator->isSuspendStatus();
+}
+
+} /* namespace codablecash */

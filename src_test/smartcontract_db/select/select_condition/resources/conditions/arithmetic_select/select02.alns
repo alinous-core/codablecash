@@ -1,0 +1,6 @@
+SELECT * INTO res 
+FROM 
+	emails
+WHERE
+	email_id = 10 + 1;
+	

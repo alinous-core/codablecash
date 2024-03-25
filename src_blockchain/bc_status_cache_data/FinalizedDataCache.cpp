@@ -1,0 +1,253 @@
+/*
+ * FinalizedDataCache.cpp
+ *
+ *  Created on: 2023/05/08
+ *      Author: iizuka
+ */
+
+#include "bc_status_cache_data/FinalizedDataCache.h"
+#include "bc_status_cache_data/FinalizedUtxoRepository.h"
+#include "bc_status_cache_data/FinalizedVoterRepository.h"
+
+#include "base_io/File.h"
+
+#include "bc_block_body/BlockBody.h"
+#include "bc_block_body/BlockRewordBase.h"
+#include "bc_block_body/CoinbaseTransaction.h"
+#include "bc_block_body/StakeBaseTransaction.h"
+
+#include "bc_block/BlockHeader.h"
+
+#include "bc_trx/AbstractBalanceTransaction.h"
+#include "bc_trx/UtxoId.h"
+#include "bc_trx/AbstractUtxoReference.h"
+#include "bc_trx/AbstractControlTransaction.h"
+#include "bc_trx/AbstractUtxo.h"
+#include "bc_trx/AbstractBlockchainTransaction.h"
+#include "bc_trx/AbstractInterChainCommunicationTansaction.h"
+
+#include "bc_finalizer_trx/RegisterVotePoolTransaction.h"
+#include "bc_finalizer_trx/RegisterTicketTransaction.h"
+#include "bc_finalizer_trx/VoteBlockTransaction.h"
+
+#include "bc_finalizer/VoterEntry.h"
+
+#include "base/StackRelease.h"
+
+#include "bc_status_cache_context/IStatusCacheContext.h"
+
+#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+
+namespace codablecash {
+
+FinalizedDataCache::FinalizedDataCache(const File* baseDir) {
+	this->baseDir = baseDir->get(NAME_FINALIZED_DATA);
+
+	this->utxoRepo = new FinalizedUtxoRepository(baseDir);
+	this->voterRepo = new FinalizedVoterRepository(baseDir);
+}
+
+FinalizedDataCache::~FinalizedDataCache() {
+	close();
+
+	delete this->baseDir;
+}
+
+void FinalizedDataCache::initBlank() {
+	this->baseDir->deleteDir();
+	this->baseDir->mkdirs();
+
+	this->utxoRepo->initBlank();
+	this->voterRepo->initBlank();
+}
+
+void FinalizedDataCache::open() {
+	this->utxoRepo->open();
+	this->voterRepo->open();
+}
+
+void FinalizedDataCache::close() {
+	if(this->utxoRepo != nullptr){
+		this->utxoRepo->close();
+		delete this->utxoRepo, this->utxoRepo = nullptr;
+	}
+	if(this->voterRepo != nullptr){
+		this->voterRepo->close();
+		delete this->voterRepo, this->voterRepo = nullptr;
+	}
+}
+
+void FinalizedDataCache::importBlockData(const BlockHeader *header, const BlockBody *body, IStatusCacheContext* context) {
+	context->beginBlock(header);
+
+	importControlTransactions(header, body, context);
+	importInterChainCommunicationTransactions(header, body);
+	importBalanceTransactions(header, body);
+	importSmartcontractTransactions(header, body);
+	importRewardBaseTransactions(header, body);
+
+	context->endBlock(header);
+
+	// FIXME register lockon actions
+}
+
+void FinalizedDataCache::importRewardBaseTransactions(const BlockHeader *header, const BlockBody *body) {
+	const BlockRewordBase* rewardBase = body->getBlockRewordBase();
+
+	const CoinbaseTransaction* coinbaseTrx = rewardBase->getCoinbaseTransaction();
+	if(coinbaseTrx != nullptr){
+		importTransactionUtxos(coinbaseTrx, header);
+	}
+
+	const ArrayList<StakeBaseTransaction>* stakebases = rewardBase->getStakeBases();
+
+	int maxLoop = stakebases->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const StakeBaseTransaction* trx = stakebases->get(i);
+
+		importTransactionUtxos(trx, header);
+	}
+}
+
+void FinalizedDataCache::importControlTransactions(const BlockHeader *header, const BlockBody *body, IStatusCacheContext* context) {
+	const ArrayList<AbstractControlTransaction>* list = body->getControlTransactions();
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractControlTransaction* trx = list->get(i);
+
+		importTransactionUtxos(trx, header);
+
+		uint8_t type = trx->getType();
+		if(type == AbstractBlockchainTransaction::TRX_TYPE_REGISTER_VOTE_POOL){
+			RegisterVotePoolTransaction* regPoolTrx = dynamic_cast<RegisterVotePoolTransaction*>(trx);
+			importRegisterVotePoolTransaction(header, body, regPoolTrx, context);
+
+		}
+		else if(type == AbstractBlockchainTransaction::TRX_TYPE_REGISTER_TICKET){
+			RegisterTicketTransaction* regTicketTrx = dynamic_cast<RegisterTicketTransaction*>(trx);
+			importRegisterTicketTransaction(header, body, regTicketTrx, context);
+		}
+		else if(type == AbstractBlockchainTransaction::TRX_TYPE_VOTE_BLOCK){
+			VoteBlockTransaction* voteTrx = dynamic_cast<VoteBlockTransaction*>(trx);
+			importVoteBlockTransaction(header, body, voteTrx, context);
+		}
+		else if(type == AbstractBlockchainTransaction::TRX_TYPE_REVOKE_MISSED_TICKET){
+			// do nothing
+		}
+		else if(type == AbstractBlockchainTransaction::TRX_TYPE_REVOKE_MISS_VOTED_TICKET){
+			// do nothing
+		}
+	}
+}
+
+void FinalizedDataCache::importRegisterVotePoolTransaction(	const BlockHeader *header, const BlockBody *body,
+		const RegisterVotePoolTransaction *trx, IStatusCacheContext* context) {
+
+	uint64_t height = header->getHeight();
+	context->registerVoterPool(trx, height);
+}
+
+void FinalizedDataCache::importRegisterTicketTransaction(const BlockHeader *header, const BlockBody *body,
+		const RegisterTicketTransaction *trx, IStatusCacheContext* context) {
+	context->registerTicket(header, trx);
+}
+
+void FinalizedDataCache::importVoteBlockTransaction(const BlockHeader *header,
+		const BlockBody *body, const VoteBlockTransaction *trx, IStatusCacheContext* context) {
+	context->registerVote(header, trx);
+}
+
+void FinalizedDataCache::importBalanceTransactions(const BlockHeader *header, const BlockBody *body) {
+	const ArrayList<AbstractBalanceTransaction>* list = body->getBalanceTransactions();
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBalanceTransaction* trx = list->get(i);
+
+		importTransactionUtxos(trx, header);
+	}
+}
+
+void FinalizedDataCache::importInterChainCommunicationTransactions(const BlockHeader *header, const BlockBody *body) {
+	const ArrayList<AbstractInterChainCommunicationTansaction>* list = body->getInterChainCommunicationTransactions();
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractInterChainCommunicationTansaction* trx = list->get(i);
+
+		importTransactionUtxos(trx, header);
+	}
+}
+
+void FinalizedDataCache::importSmartcontractTransactions(const BlockHeader *header, const BlockBody *body) {
+	const ArrayList<AbstractSmartcontractTransaction>* list = body->getSmartcontractTransactions();
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractSmartcontractTransaction* trx = list->get(i);
+
+		importTransactionUtxos(trx, header);
+	}
+}
+
+void FinalizedDataCache::importTransactionUtxos(const AbstractBlockchainTransaction *trx, const BlockHeader *header) {
+	const TransactionId* trxId = trx->getTransactionId();
+
+	// remove utxo by ref
+	{
+		int maxLoop = trx->getUtxoReferenceSize();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractUtxoReference* ref = trx->getUtxoReference(i);
+
+			uint8_t type = ref->getType();
+			if(type == AbstractUtxoReference::UTXO_REF_TYPE_COINBASE
+					|| type == AbstractUtxoReference::UTXO_REF_TYPE_STAKEBASE){
+				continue;
+			}
+
+			const UtxoId* utxoId = ref->getUtxoId();
+			bool res = this->utxoRepo->remove(utxoId);
+			assert(res == true);
+		}
+	}
+
+	// add utxo
+	{
+		int maxLoop = trx->getUtxoSize();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractUtxo* utxo = trx->getUtxo(i);
+
+#ifdef __DEBUG__
+			{
+				const UtxoId* utxoId = utxo->getId();
+				UtxoData* data = this->utxoRepo->find(utxoId);
+				assert(data == nullptr);
+			}
+#endif
+
+			this->utxoRepo->put(utxo, trxId, header);
+		}
+	}
+}
+
+void FinalizedDataCache::writeBackVoterEntries(IStatusCacheContext *context) {
+	ArrayList<VoterEntry, VoterEntry::VoteCompare>* list = context->getVoterEntries(); __STP(list);
+	list->setDeleteOnExit();
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		VoterEntry* entry = list->get(i);
+
+		if(entry->isUpdated()){
+			// writeback Voter
+			this->voterRepo->putVoterEntry(entry);
+		}
+	}
+}
+
+UtxoData* FinalizedDataCache::findUtxo(const UtxoId *utxoId) const {
+	return this->utxoRepo->find(utxoId);
+}
+
+} /* namespace codablecash */

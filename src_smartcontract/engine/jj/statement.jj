@@ -1,0 +1,188 @@
+
+/******************************************************************************************
+* Alinous Language Statements Starts
+*/
+
+AbstractStatement* statement() : {
+	AbstractStatement* stmt = nullptr;
+}
+{
+	(
+		LOOKAHEAD(3) stmt=statementBlock() |
+		LOOKAHEAD(2) stmt=substitutionStatement() |
+		stmt=variableDeclareStatement() |
+		//stmt=expressionStatement() |
+		stmt=ctrlStatement() |
+		stmt=blankStatement() |
+		stmt=ddlStatement() |
+		stmt=sqlDmlStatement()
+	)
+	{}
+	{
+		return stmt;
+	}
+}
+
+VariableDeclareStatement* variableDeclareStatement() : {
+	VariableDeclareStatement* stmt = nullptr;
+	Token* t = nullptr;
+}
+{
+	stmt=__variableDeclareStatement()
+	t=";" {
+		stmt->setPosition(t);
+	}
+	{
+		__ONERROR(stmt);
+		return stmt;
+	}
+}
+
+
+VariableDeclareStatement* __variableDeclareStatement() : {
+	VariableDeclareStatement* stmt = new VariableDeclareStatement();
+	AbstractType* type = nullptr;
+	VariableIdentifier* valId = nullptr;
+	AbstractExpression* exp = nullptr;
+	Token* t = nullptr;
+}
+{
+	type=typeDeclare() {
+		stmt->setType(type);
+		stmt->setPosition(type);
+	}
+	
+	valId=variableIdentifier() {
+		stmt->setVariableId(valId);
+		stmt->setPosition(valId);
+	}
+	
+	[
+		t="=" {
+			stmt->setPosition(t);
+		}
+		exp=expression() {
+			stmt->setInitExpression(exp);
+			stmt->setPosition(exp);
+		}
+	]
+	
+	{
+		__ONERROR(stmt);
+		return stmt;
+	}	
+}
+
+AbstractStatement* substitutionStatement() : {
+	AbstractStatement* stmt = nullptr;
+	Token* t = nullptr;
+}
+{
+	stmt=__substitutionStatement()
+	t=";" {
+		stmt->setPosition(t);
+	}
+	{
+		__ONERROR(stmt);
+		return stmt;
+	}
+}
+
+AbstractStatement* __substitutionStatement() : {
+	AbstractStatement* stmt = nullptr;
+	
+	AbstractExpression* first = nullptr;
+	AbstractExpression* exp = nullptr;
+	Token* t = nullptr;
+}
+{
+	first=expression()
+	[
+		t="="		
+		exp=expression() {
+			SubstitutionStatement* sstmt = new SubstitutionStatement();
+			stmt = sstmt;
+			sstmt->setVariableId(first);
+			sstmt->setPosition(first);
+			
+			sstmt->setExpression(exp);
+			sstmt->setPosition(exp);
+		}
+	]
+	{
+		if(stmt == nullptr){
+		 	ExpressionStatement* exstmt = new ExpressionStatement();
+			stmt = exstmt;
+			exstmt->setExpression(first);
+			exstmt->setPosition(first);
+		}
+	}
+	{
+		__ONERROR(stmt);
+		return stmt;
+	}
+}
+
+BlankStatement* blankStatement() : {
+	BlankStatement* stmt = new BlankStatement();
+	Token* t = nullptr;
+}
+{
+	t=";" {
+		stmt->setPosition(t);
+		stmt->setPosition(t);
+	}
+	
+	{
+		__ONERROR(stmt);
+		return stmt;
+	}
+}
+
+StatementBlock* statementBlock() : {
+	StatementBlock* block = new StatementBlock();
+	AbstractStatement* stmt = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="{" {
+		block->setPosition(t);
+	}
+	
+	(
+		stmt=statement() {
+			block->addStatement(stmt);
+			block->setPosition(stmt);
+		}
+	)*
+	
+	t="}" {
+		block->setPosition(t);
+	}
+	{
+	    __ONERROR(block);
+		return block;
+	}
+}
+
+/*
+ExpressionStatement* expressionStatement() : {
+	ExpressionStatement* stmt = new ExpressionStatement();
+	Token* t = nullptr;
+	AbstractExpression* exp = nullptr;
+}
+{
+	exp=expression() {
+		stmt->setExpression(exp);
+		stmt->setPosition(exp);
+	}
+	t=";" {
+		stmt->setPosition(t);
+	}
+	{
+		__ONERROR(stmt);
+		return stmt;
+	}
+}
+*/
+

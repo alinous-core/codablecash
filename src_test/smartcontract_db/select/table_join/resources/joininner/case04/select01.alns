@@ -1,0 +1,5 @@
+SELECT * INTO res FROM test_table INNER JOIN emails
+ON
+	(emails.email_id = test_table.email_id) AND test_table.email_id = 11
+WHERE
+	test_table.email_id = 11;

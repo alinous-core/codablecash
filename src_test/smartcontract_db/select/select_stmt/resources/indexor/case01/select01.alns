@@ -1,0 +1,3 @@
+SELECT * INTO res FROM test_table
+WHERE
+	id = 1 OR name = 'tanaka';

@@ -1,0 +1,9 @@
+{
+	int value = 100;
+	SELECT ${value} AS col0 INTO res 
+	FROM 
+		test_table;
+}
+
+
+	

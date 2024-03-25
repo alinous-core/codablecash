@@ -1,0 +1,4 @@
+SELECT 2 + 3 AS col0 INTO res 
+FROM 
+	test_table;
+	

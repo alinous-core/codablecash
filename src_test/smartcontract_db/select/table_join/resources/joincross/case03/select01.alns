@@ -1,0 +1,3 @@
+SELECT * INTO res FROM test_table, emails
+WHERE
+	test_table.email_id = emails.email_id;

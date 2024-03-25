@@ -1,0 +1,10 @@
+{
+	String name = "tanaka";
+	String useName = "false";
+	
+	SELECT * INTO res 
+	FROM 
+		test_table
+	WHERE
+		test_table.name = ${name, useName};
+}

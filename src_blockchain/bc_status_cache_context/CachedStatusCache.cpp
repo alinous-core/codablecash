@@ -1,0 +1,150 @@
+/*
+ * CachedStatusCache.cpp
+ *
+ *  Created on: 2023/04/26
+ *      Author: iizuka
+ */
+
+#include "bc_status_cache_context/CachedStatusCache.h"
+#include "bc_status_cache_context/TransactionContextCache.h"
+#include "bc_status_cache_context/UtxoCacheContext.h"
+#include "bc_status_cache_context/StatusCacheContext.h"
+
+#include "bc_status_cache_context_finalizer/VoterStatusCacheContext.h"
+
+#include <cstdio>
+
+#include "base/UnicodeString.h"
+#include "base/StackRelease.h"
+
+#include "base_io/File.h"
+
+#include "btree/BtreeScanner.h"
+
+#include "filestore_block/IBlockObject.h"
+
+#include "bc_base_trx_index/TransactionIdKey.h"
+#include "bc_base_trx_index/TransactionData.h"
+#include "bc_base_trx_index/TransactionIdData.h"
+
+#include "bc_base_utxo_index/UtxoIdKey.h"
+
+#include "bc_base_utxo_index/UtxoData.h"
+
+
+namespace codablecash {
+
+CachedStatusCache::CachedStatusCache(uint64_t serial, const File* cacheRepoBaseDir, uint64_t height) {
+	this->height = height;
+
+	char serialch[4];
+	Mem::memset(serialch, 0, 4);
+	::sprintf(serialch, "%03ld", serial);
+	UnicodeString baseStr(CACHED_STATUS_PREFIX);
+	UnicodeString postFix(serialch);
+	baseStr.append(&postFix);
+
+	this->baseDir = cacheRepoBaseDir->get(&baseStr);
+	this->baseDir->deleteDir();
+	this->baseDir->mkdirs();
+
+	this->trxCache = nullptr;
+	this->utxoCache = nullptr;
+	this->voterCache = nullptr;
+
+	this->ticketPrice = 0;
+}
+
+CachedStatusCache::~CachedStatusCache() {
+	delete this->trxCache;
+	delete this->utxoCache;
+	delete this->voterCache;
+
+	this->baseDir->deleteDir();
+	delete this->baseDir;
+}
+
+void CachedStatusCache::init() {
+	this->trxCache = new TransactionContextCache(this->baseDir);
+	this->trxCache->init();
+	this->trxCache->open();
+
+	this->utxoCache = new UtxoCacheContext(this->baseDir);
+	this->utxoCache->init();
+	this->utxoCache->open();
+
+	this->voterCache = new VoterStatusCacheContext(this->baseDir);
+	this->voterCache->init();
+}
+
+void CachedStatusCache::importStatusContext(StatusCacheContext *context) {
+	// cache
+	const CachedStatusCache* previousCache = context->getCachedStatusCache();
+	if(previousCache != nullptr){
+		importOtherCache(previousCache);
+	}
+
+	// StatusCacheContext
+	importTransactions(context->getTransactionContextCache());
+	importUxtoCache(context->getUtxoCacheContext());
+	importVoterStatusCache(context->getVoterStatusCacheContext());
+
+	this->ticketPrice = context->getTicketPrice();
+}
+
+void CachedStatusCache::importOtherCache(const CachedStatusCache *previousCache) {
+	importTransactions(previousCache->trxCache);
+	importUxtoCache(previousCache->utxoCache);
+
+	//importVoterStatusCache(previousCache->voterCache);
+}
+
+void CachedStatusCache::importTransactions(TransactionContextCache *cache) {
+	BtreeScanner* scanner = cache->getBtreeScanner(); __STP(scanner);
+	scanner->begin();
+
+	while(scanner->hasNext()){
+		const IBlockObject* obj = scanner->next();
+
+		const TransactionData* data = dynamic_cast<const TransactionData*>(obj);
+
+		const AbstractBlockchainTransaction* trx = data->getTrx();
+		this->trxCache->putTransaction(trx);
+	}
+}
+
+void CachedStatusCache::importUxtoCache(UtxoCacheContext *cache) {
+	BtreeScanner* scanner = cache->getBtreeScanner(); __STP(scanner);
+	scanner->begin();
+
+	while(scanner->hasNext()){
+		const IBlockObject* obj = scanner->next();
+
+		const UtxoData* data = dynamic_cast<const UtxoData*>(obj);
+
+		this->utxoCache->putUtxo(data);
+	}
+}
+
+const VoterEntry* CachedStatusCache::getVoterEntry(const NodeIdentifier *nodeId) const noexcept {
+	return this->voterCache->getVoterEntry(nodeId);
+}
+
+void CachedStatusCache::importVoterStatusCache(VoterStatusCacheContext *cache) {
+	this->voterCache->importMap(cache);
+	this->voterCache->importRepo(cache);
+}
+
+void CachedStatusCache::exportVoterEntry(ArrayList<VoterEntry, VoterEntry::VoteCompare> *list) const noexcept {
+	this->voterCache->listEntries(list);
+}
+
+VotingBlockStatus* CachedStatusCache::getVotingBlockStatus(const BlockHeaderId *blockHeaderId) const {
+	return this->voterCache->getVotingBlockStatus(blockHeaderId);
+}
+
+UtxoData* CachedStatusCache::getData(const UtxoId *utxoId) const {
+	return this->utxoCache->getData(utxoId);
+}
+
+} /* namespace codablecash */

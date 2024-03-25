@@ -1,0 +1,6 @@
+SELECT * INTO res 
+FROM 
+	test_table
+GROUP BY test_table.email_id
+HAVING
+	test_table.email_id = 13;

@@ -1,0 +1,4 @@
+SELECT false OR true AS col0 INTO res 
+FROM 
+	test_table;
+	

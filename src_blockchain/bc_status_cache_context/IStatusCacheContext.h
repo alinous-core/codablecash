@@ -1,0 +1,81 @@
+/*
+ * IStatusCacheContext.h
+ *
+ *  Created on: 2023/04/26
+ *      Author: iizuka
+ */
+
+#ifndef BC_STATUS_CACHE_CONTEXT_ISTATUSCACHECONTEXT_H_
+#define BC_STATUS_CACHE_CONTEXT_ISTATUSCACHECONTEXT_H_
+
+#include "base/ArrayList.h"
+
+#include "bc_finalizer/VoterEntry.h"
+
+namespace alinous {
+class File;
+}
+using namespace alinous;
+
+namespace codablecash {
+
+class BlockHeader;
+class AbstractBalanceTransaction;
+class AbstractControlTransaction;
+class VoterEntry;
+class VotingBlockStatus;
+class BlockHeaderId;
+class CodablecashConfig;
+class CodablecashBlockchain;
+class RegisterVotePoolTransaction;
+class RegisterTicketTransaction;
+class VoteBlockTransaction;
+class AbstractUtxo;
+class AbstractUtxoReference;
+class AbstractBlockchainTransaction;
+class AbstractInterChainCommunicationTansaction;
+class AbstractSmartcontractTransaction;
+class TransactionId;
+
+class IStatusCacheContext {
+public:
+	IStatusCacheContext();
+	virtual ~IStatusCacheContext();
+
+	virtual void close() = 0;
+
+	virtual void importBalanceTransaction(const BlockHeader* header, const AbstractBalanceTransaction* trx) = 0;
+	virtual void importControlTransaction(const BlockHeader* header, const AbstractControlTransaction* trx) = 0;
+	virtual void importInterChainCommunicationTransaction(const BlockHeader* header, const AbstractInterChainCommunicationTansaction* trx) = 0;
+	virtual void importSmartcontractTransaction(const BlockHeader* header, const AbstractSmartcontractTransaction* trx) = 0;
+
+	virtual ArrayList<VoterEntry, VoterEntry::VoteCompare>* getVoterEntries() const = 0;
+
+	virtual VotingBlockStatus* getVotingBlockStatus(const BlockHeaderId *blockHeaderId) = 0;
+	virtual VotingBlockStatus* getVotingBlockStatus(const BlockHeader *header) = 0;
+	virtual const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId) const noexcept = 0;
+	virtual uint16_t getNumZones(uint64_t height) const = 0;
+
+	virtual const CodablecashConfig* getConfig() const noexcept = 0;
+	virtual CodablecashBlockchain* getBlockChain() const noexcept = 0;
+
+	virtual void loadInitialVotersData() = 0;
+
+	virtual void registerVoterPool(const RegisterVotePoolTransaction* trx, uint64_t blockHeight) = 0;
+	virtual void registerTicket(const BlockHeader *header, const RegisterTicketTransaction* trx) = 0;
+	virtual void registerVote(const BlockHeader *header, const VoteBlockTransaction* trx) = 0;
+
+	virtual void beginBlock(const BlockHeader* header) = 0;
+	virtual void endBlock(const BlockHeader* header) = 0;
+
+	virtual uint16_t getZone() const noexcept = 0;
+	virtual uint64_t getTicketPrice() const noexcept = 0;
+
+	virtual AbstractUtxo* getUtxo(const UtxoId* utxoId) const = 0;
+	virtual void removeUtxo(const AbstractUtxoReference *utxoref, const AbstractBlockchainTransaction *trx) = 0;
+
+};
+
+} /* namespace codablecash */
+
+#endif /* BC_STATUS_CACHE_CONTEXT_ISTATUSCACHECONTEXT_H_ */

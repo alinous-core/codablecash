@@ -1,0 +1,6 @@
+UPDATE test_table
+SET
+	name = 'tanaka3'
+WHERE
+	id = 1000;
+	

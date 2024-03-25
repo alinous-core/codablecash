@@ -1,0 +1,7 @@
+SELECT * INTO res
+FROM
+	test_table
+WHERE
+	name = 'sato' AND
+	email_id = 12 AND
+	comment = 'test2';

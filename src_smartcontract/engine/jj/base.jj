@@ -1,0 +1,488 @@
+
+/******************************************************************************************
+* Alinous Language Starts
+*/
+
+CompilationUnit* compilationUnit() :
+{
+	CompilationUnit* unit = new CompilationUnit();
+	PackageDeclare* pkg = nullptr;
+	ImportsDeclare* imports = nullptr;
+	ClassDeclare* clazz = nullptr;
+}
+{
+	[
+		pkg=packageDeclare() {
+			unit->setPackage(pkg);
+		}
+	]
+	
+	imports=importsDeclare() {
+		unit->setImports(imports);
+	}
+    
+	(
+	    clazz=classDeclare() {
+			unit->setPosition(clazz);
+			unit->addClassDeclare(clazz);
+	    }
+	)+
+	<EOF>
+	{
+		return unit;
+	}
+}
+
+ImportsDeclare* importsDeclare() : {
+	ImportsDeclare* importsDeclare = new ImportsDeclare();
+	ImportDeclare* dec = nullptr;
+}
+{
+	(
+		dec=importDeclare() {
+			importsDeclare->addImport(dec);
+			importsDeclare->setPosition(dec);
+		}
+	)*
+	{
+	}
+	{
+	    __ONERROR(importsDeclare);
+		return importsDeclare;
+	}
+}
+
+ImportDeclare* importDeclare() : {
+	ImportDeclare* dec = new ImportDeclare();
+	Token* t = nullptr;
+}
+{
+	t="import" {
+		dec->setPosition(t);
+	}
+	
+	t=< IDENTIFIER > {
+		dec->setPosition(t);
+		dec->appendStr(t->image.c_str());
+	}
+	(
+		t="." {
+			dec->setPosition(t);
+			dec->appendStr(t->image.c_str());
+		}
+		t=< IDENTIFIER > {
+			dec->setPosition(t);
+			dec->appendStr(t->image.c_str());
+		}
+	)*
+	
+	t=";" {
+		dec->setPosition(t);
+	}
+	{
+	    __ONERROR(dec);
+		return dec;
+	}
+}
+
+PackageDeclare* packageDeclare() : {
+	PackageDeclare* pkg = nullptr;
+	PackageNameDeclare* name = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="package" {
+		pkg=new PackageDeclare();
+		pkg->setPosition(t);
+	}
+
+	name=packageNameDeclare() {
+	    pkg->setName(name);
+		pkg->setPosition(name);
+	}
+	
+	t=";" {
+		pkg->setPosition(t);
+	}
+	{
+	    __ONERROR(pkg);
+		return pkg;
+	}
+}
+
+PackageNameDeclare* packageNameDeclare() :
+{
+	PackageNameDeclare* names = nullptr;
+	Token* t = nullptr;
+}
+{
+	t=< IDENTIFIER > {
+	    names = new PackageNameDeclare();
+		names->addSegment(_STR(t));
+		names->setPosition(t);
+	}
+
+	(LOOKAHEAD(2)
+	    "." t=< IDENTIFIER > {
+			names->addSegment(_STR(t));
+			names->setPosition(t);
+	    }
+	)*
+	{
+	}
+	{
+	    __ONERROR(names);
+		return names;
+	}
+
+}
+
+ClassDeclare* classDeclare() :
+{
+	ClassDeclare* clazz = nullptr;
+	Token* cls = nullptr;
+	Token* name = nullptr;
+	ClassDeclareBlock* block = nullptr;
+	Token* t = nullptr;
+	ClassExtends* clsextends = nullptr;
+	ClassImplements*  clsimplements = nullptr;	
+}
+{
+	(
+		cls="class" {
+			clazz = new ClassDeclare();
+		}
+		|
+		cls="interface" {
+			clazz = new ClassDeclare();
+			clazz->setInterface(true);
+		}
+	)
+	
+	name=<IDENTIFIER> {
+		 clazz->setName(_STR(name));
+	}
+	
+	[
+		clsextends=classExtends() {
+			clazz->setExtends(clsextends);
+		}
+	]
+	
+	[
+		clsimplements=classImplements() {
+			clazz->setImplements(clsimplements);
+		}
+	]
+		
+	block=classDeclareBlock() {
+	    clazz->setPositions(cls, block);
+	    clazz->setBlock(block);
+	}
+	{
+	    __ONERROR(clazz);
+		return clazz;
+	}
+}
+
+ClassExtends* classExtends() :
+{
+	ClassExtends* extends = new ClassExtends();
+	ClassName* name = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="extends" {
+		extends->setPosition(t);
+	}
+	name=className() {
+		extends->setPosition(name);
+		extends->setClassName(name);
+	}
+	{
+		__ONERROR(extends);
+		return extends;
+	}
+}
+
+ClassImplements* classImplements() :{
+	ClassImplements*  implements = new ClassImplements();
+	ClassName* name = nullptr;
+	Token* t = nullptr;
+}
+{
+	t="implements" {
+		implements->setPosition(t);
+	}
+	name=className() {
+		implements->setPosition(name);
+		implements->addClassName(name);
+	}
+	(
+		t="," {
+			implements->setPosition(t);
+		}
+		name=className() {
+			implements->setPosition(name);
+			implements->addClassName(name);
+		}	
+	)*
+	{}
+	
+	{
+		__ONERROR(implements);
+		return implements;
+	}
+}
+
+ClassName* className() :
+{
+	ClassName* name = new ClassName();
+	Token* t = nullptr;
+}
+{
+	t=< IDENTIFIER > {
+		name->setPosition(t);
+		name->addStr(t->image.c_str());
+	}
+	(
+		t="." {
+			name->setPosition(t);
+			name->addStr(t->image.c_str());
+		}
+		t=< IDENTIFIER > {
+			name->setPosition(t);
+			name->addStr(t->image.c_str());		
+		}
+	)*
+	{}
+	{
+		__ONERROR(name);
+		return name;
+	}
+}
+
+ClassDeclareBlock* classDeclareBlock() :
+{
+	ClassDeclareBlock* block = nullptr;
+	Token* begin, *end;
+	
+	MethodDeclare* method = nullptr;
+	MemberVariableDeclare* member = nullptr;
+
+	AccessControlDeclare* ctrl = nullptr;
+	bool _static=false;
+	AbstractType* type = nullptr;
+	Token* t=nullptr;
+}
+{
+	begin="{" {
+		block = new ClassDeclareBlock();
+		block->setPosition(begin);
+	}
+
+	(
+		ctrl=accessControlDeclare() {
+	    }
+		
+		(LOOKAHEAD(2)
+			(
+				[
+					t="static" {
+					    _static=true;
+					}
+				]
+		
+				[LOOKAHEAD(2)
+					type=typeDeclare() {
+					}
+				]
+			
+				t=identifierName()
+			)
+			|
+			(
+				t=identifierName() // constructor
+			)	
+		)
+
+		(			method=methodDeclare(ctrl, _static, type, t) {
+				block->addMethod(method);
+			}
+			|
+			member=memberVariableDeclare(ctrl, _static, type, t) {
+				block->addVariable(member);
+				
+			}
+		)
+		{
+		    _static = false;
+		    type = nullptr;
+		}
+	)*
+
+	
+	 end="}"
+	{
+   		block->setPosition(end);
+	}
+	{
+		__ONERROR(block);
+		return block;
+	}
+}
+
+MethodDeclare* methodDeclare(AccessControlDeclare* ctrl, bool _static, AbstractType* type, Token* identifier) : {
+    MethodDeclare* method = new MethodDeclare();
+
+    method->setPosition(ctrl);
+    
+	method->setAccessControl(ctrl);
+	method->setStatic(_static);
+	method->setType(type);
+	method->setName(_STR(identifier));
+    
+	Token* t = nullptr;
+	ArgumentsListDeclare* args = nullptr;
+	StatementBlock* block = nullptr;
+}
+{
+	args=argumentsListDeclare() {
+	  	method->setArguments(args);
+		method->setPosition(args);
+	}
+	
+	(
+		block=statementBlock() {
+			method->setBlock(block);
+			method->setPosition(block);
+		}
+		|
+		t=";" {
+			method->setPosition(t);
+		}
+	)
+	{
+	}
+	{
+	    __ONERROR(method);
+		return method;
+	}
+}
+
+MemberVariableDeclare* memberVariableDeclare(AccessControlDeclare* ctrl, bool _static, AbstractType* type, Token* identifier) : {
+    MemberVariableDeclare* variable = new MemberVariableDeclare();
+	Token* t = nullptr;
+	
+	variable->setPosition(ctrl);
+
+	variable->setAccessControl(ctrl);
+	variable->setStatic(_static);
+	variable->setType(type);
+	variable->setName(_STR(identifier));
+	
+	AbstractExpression* exp = nullptr;
+}
+{
+	[
+		t="=" {
+			variable->setPosition(t);
+		}
+		exp=expression() {
+			variable->setPosition(exp);
+			variable->setExp(exp);
+		}
+	]
+
+	t=";" {
+		variable->setPosition(t);
+	}
+	
+	{
+	    __ONERROR(variable);
+		return variable;
+	}
+}
+
+AccessControlDeclare* accessControlDeclare() : {
+	Token* t = nullptr;
+	AccessControlDeclare* ctrl = new AccessControlDeclare();
+}
+{
+    ( 
+		t="public" {
+			ctrl->setCtrl(AccessControlDeclare::PUBLIC);
+			ctrl->setPositions(_P(t, t));
+		}
+		|
+		t="protected" {
+			ctrl->setCtrl(AccessControlDeclare::PROTECTED);
+			ctrl->setPositions(_P(t, t));
+		}
+		|      
+		t="private" {
+			ctrl->setCtrl(AccessControlDeclare::PRIVATE);
+			ctrl->setPositions(_P(t, t));
+		}
+	)
+	{
+	    __ONERROR(ctrl);
+		return ctrl;
+	}
+}
+
+ArgumentsListDeclare* argumentsListDeclare() : {
+    ArgumentsListDeclare* arguments = new ArgumentsListDeclare();
+	Token* t = nullptr;
+	ArgumentDeclare* arg = nullptr;
+}
+{
+	t="(" {
+		arguments->setPosition(t);
+	}
+
+	[
+		arg=argumentDeclare() {
+		    arguments->addArgument(arg);
+		    arguments->setPosition(arg);
+		}
+		(
+		    "," arg=argumentDeclare() {
+		        arguments->addArgument(arg);
+		        arguments->setPosition(arg);
+		    }		)*
+	]
+
+	t=")" {
+		arguments->setPosition(t);
+	}
+	{
+	    __ONERROR(arguments);
+		return arguments;
+	}
+}
+
+
+ArgumentDeclare* argumentDeclare() : {
+	ArgumentDeclare* arg = new ArgumentDeclare();
+	AbstractType* type = nullptr;
+	Token* t = nullptr;
+}
+{
+    type=typeDeclare() {
+		arg->setType(type);
+		arg->setPosition(type);
+    }
+
+    t=< IDENTIFIER > {
+		arg->setName(_STR(t));
+		arg->setPosition(t);
+    }
+
+	{
+	    __ONERROR(arg);
+		return arg;
+	}
+}
+
+

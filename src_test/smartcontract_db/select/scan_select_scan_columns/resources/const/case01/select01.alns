@@ -1,0 +1,4 @@
+SELECT 1 INTO res 
+FROM 
+	test_table;
+	

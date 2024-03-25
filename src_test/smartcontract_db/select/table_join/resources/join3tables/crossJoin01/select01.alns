@@ -1,0 +1,6 @@
+SELECT * INTO res FROM test_table LEFT JOIN 
+	(emails CROSS JOIN servers )
+ON
+	test_table.email_id = emails.email_id
+WHERE
+	test_table.email_id < 12;

@@ -1,0 +1,10 @@
+INSERT INTO test_table(
+	id,
+	name,
+	email_id
+)
+VALUES(
+	1000,
+	'tanaka2',
+	100
+);

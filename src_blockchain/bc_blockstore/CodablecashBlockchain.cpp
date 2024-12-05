@@ -175,13 +175,13 @@ void CodablecashBlockchain::saveCondig() {
 }
 
 void CodablecashBlockchain::addListner(IBlockchainEventListner *listner) noexcept {
-	StackUnlocker lock(this->listnerLock);
+	StackUnlocker lock(this->listnerLock, __FILE__, __LINE__);
 
 	this->listners.addElement(listner);
 }
 
 void CodablecashBlockchain::fireBlockAdded(MemPoolTransaction* memTrx, const Block *block) {
-	StackUnlocker lock(this->listnerLock);
+	StackUnlocker lock(this->listnerLock, __FILE__, __LINE__);
 
 	int maxLoop = this->listners.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -191,7 +191,7 @@ void CodablecashBlockchain::fireBlockAdded(MemPoolTransaction* memTrx, const Blo
 }
 
 void CodablecashBlockchain::firePostBlockAdded(const Block *block) {
-	StackUnlocker lock(this->listnerLock);
+	StackUnlocker lock(this->listnerLock, __FILE__, __LINE__);
 
 	int maxLoop = this->listners.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -202,7 +202,7 @@ void CodablecashBlockchain::firePostBlockAdded(const Block *block) {
 }
 
 void CodablecashBlockchain::fireBlockHeaderAdded(MemPoolTransaction *memTrx, const BlockHeader *header) {
-	StackUnlocker lock(this->listnerLock);
+	StackUnlocker lock(this->listnerLock, __FILE__, __LINE__);
 
 	int maxLoop = this->listners.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -228,7 +228,7 @@ void CodablecashBlockchain::loadCondig() {
 
 void CodablecashBlockchain::addBlock(MemPoolTransaction* memTrx, const Block *block) {
 	{
-		StackWriteLock __lock(this->rwLock);
+		StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 		uint16_t zone = block->getZone();
 
@@ -241,7 +241,7 @@ void CodablecashBlockchain::addBlock(MemPoolTransaction* memTrx, const Block *bl
 
 void CodablecashBlockchain::addHeader(MemPoolTransaction *memTrx, const BlockHeader *header) {
 	{
-		StackWriteLock __lock(this->rwLock);
+		StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 		uint16_t zone = header->getZone();
 		ZoneStore* store = this->zonesStore->get(zone);

@@ -50,7 +50,10 @@ void MessageProcessor::start() {
 }
 
 void MessageProcessor::shutdown() noexcept {
-	this->acceptCommands = false;
+	{
+		StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
+		this->acceptCommands = false;
+	}
 
 	if(this->thread != nullptr){
 		this->thread->setRunning(false);
@@ -58,14 +61,15 @@ void MessageProcessor::shutdown() noexcept {
 		this->thread->join();
 		delete this->thread, this->thread = nullptr;
 	}
+
+	assert(this->list.isEmpty());
 }
 
 void MessageProcessor::addCommandMessage(ICommandMessage* cmd) noexcept {
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
+
 	__STP(cmd);
-
 	if(this->acceptCommands){
-		StackUnlocker unlocker(this->lock);
-
 		this->list.addElement(__STP_MV(cmd));
 		this->lock->notifyAll();
 	}

@@ -15,7 +15,7 @@ namespace codablecash {
 class LoginPubSubCommand : public AbstractBlockchainLoginCommand {
 public:
 	LoginPubSubCommand(const LoginPubSubCommand& inst);
-	LoginPubSubCommand(uint16_t zone);
+	LoginPubSubCommand(uint16_t zone, const UnicodeString* canonicalName);
 	virtual ~LoginPubSubCommand();
 
 	virtual void fromBinary(ByteBuffer* buff);

@@ -25,6 +25,7 @@ public:
 	virtual ~AbstractNodeCommand();
 
 	virtual AbstractCommandResponse* execute(const PubSubId* pubsubId, IPubsubCommandListner* listner) const;
+	virtual bool validateCommand(CodablecashNodeInstance* inst, bool suspend) const;
 
 	virtual bool usePendingQueue() const noexcept;
 

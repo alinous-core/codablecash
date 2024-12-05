@@ -25,7 +25,7 @@ public:
 	static const constexpr int __READ_POLL_MILLS{200};
 	static const constexpr int MAX_COMMAND_SIZE{20 * 1000 * 1000}; // 20MB
 
-	explicit CommandSubscriberThread(CommandSubscriber* subscriber);
+	explicit CommandSubscriberThread(CommandSubscriber* subscriber, const UnicodeString* name);
 	virtual ~CommandSubscriberThread();
 
 	static void checkSocketConnected(IClientSocket* socket);

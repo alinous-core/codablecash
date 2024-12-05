@@ -31,21 +31,21 @@ BlockBodyStoreManager::~BlockBodyStoreManager() {
 }
 
 void BlockBodyStoreManager::addBlockBody(const BlockBody *body, uint64_t height) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockBodyStoreCacheElement* cache = this->cache->getBodyStoreCacheElement(height, true);
 	cache->addBody(body);
 }
 
 BlockBody* BlockBodyStoreManager::getBlockBody(const BlockMerkleRoot *root, uint64_t height) {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockBodyStoreCacheElement* cache = this->cache->getBodyStoreCacheElement(height, false);
 	return cache != nullptr ? cache->getBlockBody(root) : nullptr;
 }
 
 void BlockBodyStoreManager::removeBlockBody(const BlockMerkleRoot *root,	uint64_t height) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockBodyStoreCacheElement* cache = this->cache->getBodyStoreCacheElement(height, false);
 	if(cache != nullptr){

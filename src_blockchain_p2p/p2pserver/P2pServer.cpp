@@ -57,7 +57,7 @@ void P2pServer::dispose() noexcept {
 	}
 }
 
-void P2pServer::startIpV6Listening(const UnicodeString *host, int port) {
+void P2pServer::startIpV6Listening(const UnicodeString *host, int port, const UnicodeString* nodeName) {
 	this->portSelf = port;
 	this->srvSocket = new IpV6ServerConnection();
 
@@ -65,8 +65,18 @@ void P2pServer::startIpV6Listening(const UnicodeString *host, int port) {
 	this->srvSocket->bind();
 	this->srvSocket->listen();
 
-	this->thread = new P2pConnectionListeningThread(this->srvSocket, this);
-	this->thread->start();
+	{
+		UnicodeString name(L"");
+		if(nodeName != nullptr){
+			name.append(nodeName);
+			name.append(L"_");
+		}
+
+		name.append(L"IP6SRV");
+
+		this->thread = new P2pConnectionListeningThread(this->srvSocket, this, &name);
+		this->thread->start();
+	}
 
 	waitForStarted();
 }
@@ -106,7 +116,7 @@ void P2pServer::waitForStarted() {
 }
 
 void P2pServer::registerPublisher(CommandPublisher *publisher) {
-	StackUnlocker __lock(this->pubsubWaitLock);
+	StackUnlocker __lock(this->pubsubWaitLock, __FILE__, __LINE__);
 
 	const PubSubId* pubsubid = publisher->getPubsubId();
 
@@ -128,7 +138,7 @@ void P2pServer::registerPublisher(CommandPublisher *publisher) {
 }
 
 void P2pServer::newHandShake(CommandSubscriber *subscriber) {
-	StackUnlocker __lock(this->pubsubWaitLock);
+	StackUnlocker __lock(this->pubsubWaitLock, __FILE__, __LINE__);
 
 	const PubSubId* pubsubId = subscriber->getPubsubId();
 	CommandPublisher* p = this->conManager->getPublisher(pubsubId, true);

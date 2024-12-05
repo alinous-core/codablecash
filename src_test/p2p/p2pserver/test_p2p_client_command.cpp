@@ -8,14 +8,12 @@
 #include "test_utils/t_macros.h"
 
 #include "../../blockchain/utils/InstanceDriver.h"
-#include "../../blockchain/utils/DebugCodablecashConfigSetup.h"
 #include "../../blockchain/utils/ClientConnectUtils.h"
 
 #include "../../test_utils/TestPortSelection.h"
 
 #include "base_io/File.h"
 
-#include "bc/CodablecashConfig.h"
 #include "bc/DebugDefaultLogger.h"
 
 #include "bc_block_generator/MiningConfig.h"
@@ -41,6 +39,9 @@
 #include "base_thread/StackUnlocker.h"
 
 #include "base_thread/SysMutex.h"
+#include "bc/CodablecashSystemParam.h"
+
+#include "../../blockchain/utils/DebugCodablecashSystemParamSetup.h"
 using alinous::Os;
 
 using namespace codablecash;
@@ -63,8 +64,8 @@ TEST(TestP2pCommandGroup, case01){
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
+	CodablecashSystemParam config;
+	DebugCodablecashSystemParamSetup::setupConfig01(config);
 	config.setPowBlockTimeMills(5);
 
 	driver.initWallet(1);
@@ -96,7 +97,7 @@ TEST(TestP2pCommandGroup, case01){
 		driver.suspendMiner();
 
 		{
-			StackUnlocker __lock(logger->getMutex());
+			StackUnlocker __lock(logger->getMutex(), __FILE__, __LINE__);
 			printf("susupend miner\n");
 		}
 
@@ -109,7 +110,7 @@ TEST(TestP2pCommandGroup, case01){
 			try{
 				driver.registerTicket(client, stakeAmount, pool);
 				{
-					StackUnlocker __lock(logger->getMutex());
+					StackUnlocker __lock(logger->getMutex(), __FILE__, __LINE__);
 					printf("register ticket %d\n", i);
 				}
 			}
@@ -120,7 +121,7 @@ TEST(TestP2pCommandGroup, case01){
 				StackArrayRelease<const char> __ar(cstr);
 
 				{
-					StackUnlocker __lock(logger->getMutex());
+					StackUnlocker __lock(logger->getMutex(), __FILE__, __LINE__);
 					printf("register ticket error %s\n", cstr);
 				}
 			}
@@ -131,7 +132,7 @@ TEST(TestP2pCommandGroup, case01){
 			int count = ctrl->getMempoolTrxCount();
 
 			{
-				StackUnlocker __lock(logger->getMutex());
+				StackUnlocker __lock(logger->getMutex(), __FILE__, __LINE__);
 				printf("count %d\n", count);
 			}
 
@@ -139,7 +140,7 @@ TEST(TestP2pCommandGroup, case01){
 				Os::usleep(50);
 
 				{
-					StackUnlocker __lock(logger->getMutex());
+					StackUnlocker __lock(logger->getMutex(), __FILE__, __LINE__);
 					printf("count %d\n", count);
 				}
 
@@ -148,7 +149,7 @@ TEST(TestP2pCommandGroup, case01){
 		}
 
 		{
-			StackUnlocker __lock(logger->getMutex());
+			StackUnlocker __lock(logger->getMutex(), __FILE__, __LINE__);
 			printf("count getMempoolTrxCount()\n");
 		}
 	}

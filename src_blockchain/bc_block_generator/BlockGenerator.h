@@ -18,7 +18,7 @@ using namespace alinous;
 
 namespace codablecash {
 
-class CodablecashConfig;
+class CodablecashSystemParam;
 class BlockchainController;
 class MemoryPool;
 class MemPoolTransaction;
@@ -38,7 +38,7 @@ class ReservedVotes;
 
 class BlockGenerator {
 public:
-	BlockGenerator(uint16_t zone, CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger);
+	BlockGenerator(uint16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger);
 	virtual ~BlockGenerator();
 
 	virtual void nonceCalculated(uint64_t lastBlockHeight, const BlockHeaderId *lastBlockId, const PoWNonce *nonce);
@@ -84,7 +84,7 @@ protected:
 
 	uint16_t zone;
 
-	CodablecashConfig* config;
+	CodablecashSystemParam* config;
 	MemoryPool* memoryPool;
 	BlockchainController* ctrl;
 

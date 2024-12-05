@@ -25,7 +25,6 @@
 
 #include "base_io/File.h"
 
-#include "bc/CodablecashConfig.h"
 #include "bc/ISystemLogger.h"
 #include "bc/ExceptionThrower.h"
 
@@ -33,6 +32,7 @@
 
 #include "base_thread/StackUnlocker.h"
 #include "base_thread/SynchronizedLock.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_p2p_cmd_node/AbstractNodeCommand.h"
 
@@ -46,7 +46,7 @@
 
 namespace codablecash {
 
-P2pRequestProcessor::P2pRequestProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, CodablecashConfig* config, ISystemLogger* logger) {
+P2pRequestProcessor::P2pRequestProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, CodablecashSystemParam* config, ISystemLogger* logger) {
 	this->config = config;
 	this->logger = logger;
 
@@ -209,12 +209,16 @@ void P2pRequestProcessor::processData(CodablecashNodeInstance *inst, PendingComm
 	ExceptionThrower<SignatureVerifivcationErrorException>::throwExceptionIfCondition(nodeHandShake == nullptr, L"Node is not connected.", __FILE__, __LINE__);
 
 	AbstractCommandResponse* response = command->executeAsNode(nodeHandShake, inst, true); __STP(response);
+
+	UnicodeString* str = response->toString(); __STP(str);
+	logger->debugLog(ISystemLogger::DEBUG_NODE_TRANSFER_RESPONSE, str, __FILE__, __LINE__);
+
 }
 
 bool P2pRequestProcessor::isPendingQueueEmptyWithResume(SynchronizedLock *lock) const {
 	bool result = false;
 	{
-		StackUnlocker unlocker(lock);
+		StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 		result = this->pendingQueue->isEmpty();
 		if(result){
@@ -226,7 +230,7 @@ bool P2pRequestProcessor::isPendingQueueEmptyWithResume(SynchronizedLock *lock) 
 }
 
 PendingCommandData* P2pRequestProcessor::fetchFirstPendingData(SynchronizedLock *lock) const {
-	StackUnlocker unlocker(lock);
+	StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 	return this->pendingQueue->fetchFirst();
 }

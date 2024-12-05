@@ -31,7 +31,7 @@ class BlockHeaderId;
 class MemPoolTransaction;
 class IStatusCacheContext;
 class StatusCacheContext;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class CachedStatusCacheRepository;
 class MemoryPool;
 class ISystemLogger;
@@ -41,7 +41,7 @@ class VoterEntry;
 
 class BlockchainController {
 public:
-	BlockchainController(ISystemLogger* logger, const CodablecashConfig* config, const File* tmpCacheBaseDir, CodablecashBlockchain* blockchain, BlockchainStatusCache* statusCache, MemoryPool* memoryPool);
+	BlockchainController(ISystemLogger* logger, const CodablecashSystemParam* config, const File* tmpCacheBaseDir, CodablecashBlockchain* blockchain, BlockchainStatusCache* statusCache, MemoryPool* memoryPool);
 	virtual ~BlockchainController();
 
 	bool addBlock(const Block* block);
@@ -94,6 +94,8 @@ public:
 
 	const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId);
 
+	bool registerBlockHeader4Limit(uint16_t zone, const BlockHeader* header, const CodablecashSystemParam* param);
+
 private:
 	IStatusCacheContext* doGetStatusCacheContext(uint16_t zone, const BlockHeaderId* headerId, uint64_t height, StackWriteLock* lock);
 	void initCacehContext(uint16_t zone, StatusCacheContext* context, const BlockHeaderId *headerId, uint64_t height);
@@ -111,7 +113,7 @@ private:
 	CachedStatusCacheRepository* statusCacheRepo;
 
 	ConcurrentGate* rwLock;
-	const CodablecashConfig* config;
+	const CodablecashSystemParam* config;
 };
 
 class IBlockDetectCallback {

@@ -95,6 +95,24 @@ public:
 		this->sorted = false;
 	}
 
+	void addElement(T* ptr, int pos) noexcept {
+		if(__builtin_expect(this->currentSize <= this->numArray, 0)){
+			realloc();
+		}
+
+
+		for(int i = this->numArray; i > pos; --i){
+			T* element = this->root[i - 1];
+			this->root[i] = element;
+		}
+
+		this->root[pos] = ptr;
+
+		this->cursor++;
+		this->numArray++;
+		this->sorted = false;
+	}
+
 	void setElement(T* ptr, int index) noexcept {
 		assert(this->numArray > index);
 

@@ -23,9 +23,12 @@
 #include "bc_p2p_processor/NetworkTransferProcessor.h"
 #include "bc_p2p_processor/P2pRequestProcessor.h"
 
+#include "bc_p2p_cmd_node_consensus/AbstractConsensusNodeCommand.h"
+
 #include "base/RawArrayPrimitive.h"
 
 #include "osenv/funcs.h"
+
 
 using alinous::Os;
 
@@ -44,13 +47,13 @@ P2pZone::~P2pZone() {
 	delete this->mutex;
 }
 
-BlockchainNodeHandshake* P2pZone::add(P2pHandshake *handshake, const NodeIdentifier* nodeId) {
-	StackUnlocker __lock(this->mutex);
+BlockchainNodeHandshake* P2pZone::add(P2pHandshake *handshake, const NodeIdentifier* nodeId, const UnicodeString* canonicalName) {
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	// check
 	checkAlreadyRegistered(handshake->getPubsubid());
 
-	BlockchainNodeHandshake* nodeHandshake = new BlockchainNodeHandshake(handshake, this->zone, nodeId);
+	BlockchainNodeHandshake* nodeHandshake = new BlockchainNodeHandshake(handshake, this->zone, nodeId, canonicalName);
 	this->nodeslist.addElement(nodeHandshake);
 
 	__removeRemovable();
@@ -59,7 +62,7 @@ BlockchainNodeHandshake* P2pZone::add(P2pHandshake *handshake, const NodeIdentif
 }
 
 ClientNodeHandshake* P2pZone::addClient(P2pHandshake *handshake, const NodeIdentifier* nodeId) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	// check
 	checkAlreadyRegistered(handshake->getPubsubid());
@@ -73,7 +76,7 @@ ClientNodeHandshake* P2pZone::addClient(P2pHandshake *handshake, const NodeIdent
 }
 
 void P2pZone::remove(const PubSubId *pubsubId) noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	BlockchainNodeHandshake* removeNode = __getHandshake(pubsubId, &this->nodeslist);
 
@@ -90,7 +93,7 @@ void P2pZone::remove(const PubSubId *pubsubId) noexcept {
 }
 
 bool P2pZone::checkRemovalStatus() {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	__removeRemovable();
 
@@ -145,7 +148,7 @@ ClientNodeHandshake* P2pZone::__getClientHandshake(const PubSubId *pubsubid, Arr
 }
 
 void P2pZone::generateTransferRequest(const NodeIdentifier *excludeNodeId, const AbstractNodeCommand *command, P2pRequestProcessor *processor) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	NetworkTransferProcessor* nodeTransferProcessor = processor->getNodeTransferProcessor();
 
@@ -162,8 +165,25 @@ void P2pZone::generateTransferRequest(const NodeIdentifier *excludeNodeId, const
 	}
 }
 
+void P2pZone::generateHighPriorityTransferRequest(const ArrayList<NodeIdentifier> *excludeNodeIds,
+		const AbstractConsensusNodeCommand *command, P2pRequestProcessor *processor) {
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
+
+	NetworkTransferProcessor* nodeTransferProcessor = processor->getNodeTransferProcessor();
+
+	int maxLoop = this->nodeslist.size();
+	for(int i = 0; i != maxLoop; ++i){
+		BlockchainNodeHandshake* nodeHandshake = this->nodeslist.get(i);
+		const NodeIdentifier* nodeId = nodeHandshake->getNodeId();
+
+		if(!isExcluded(excludeNodeIds, nodeId)){
+			nodeTransferProcessor->reserveTransferHighPriority(nodeId, command);
+		}
+	}
+}
+
 void P2pZone::generateClientNotifyRequest(AbstractClientNotifyCommand *commnad, P2pRequestProcessor *processor) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	NetworkTransferProcessor* nodeTransferProcessor = processor->getNodeTransferProcessor();
 
@@ -204,13 +224,13 @@ void P2pZone::__removeRemovable() noexcept {
 }
 
 int P2pZone::nodeSize() const noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	return this->nodeslist.size();
 }
 
 void P2pZone::exportNodesIdList(ArrayList<NodeIdentifier> *list) noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	int maxLoop = this->nodeslist.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -219,6 +239,22 @@ void P2pZone::exportNodesIdList(ArrayList<NodeIdentifier> *list) noexcept {
 
 		list->addElement(new NodeIdentifier(*nodeId));
 	}
+}
+
+bool P2pZone::isExcluded(const ArrayList<NodeIdentifier> *excludeNodeIds, const NodeIdentifier *nodeId) const noexcept {
+	bool result = false;
+
+	int maxLoop = excludeNodeIds->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const NodeIdentifier* id = excludeNodeIds->get(i);
+
+		if(nodeId->equals(id)){
+			result = true;
+			break;
+		}
+	}
+
+	return result;
 }
 
 } /* namespace codablecash */

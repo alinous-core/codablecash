@@ -19,7 +19,7 @@ FinalizeMissAndBlankblockTestAllocator::~FinalizeMissAndBlankblockTestAllocator(
 
 }
 
-FinalizerPool* FinalizeMissAndBlankblockTestAllocator::newFinalizerPool(const codablecash::CodablecashConfig *config, MemoryPool *memoryPool,
+FinalizerPool* FinalizeMissAndBlankblockTestAllocator::newFinalizerPool(const codablecash::CodablecashSystemParam *config, MemoryPool *memoryPool,
 		BlockchainController *ctrl, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger *logger) {
 	return new FinalizeMissTestPool(config, memoryPool, ctrl, p2pRequestProcessor, p2pManager, logger);
 }

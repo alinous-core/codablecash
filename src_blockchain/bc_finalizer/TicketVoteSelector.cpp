@@ -7,8 +7,6 @@
 
 #include "bc_finalizer/TicketVoteSelector.h"
 
-#include "bc/CodablecashConfig.h"
-
 #include "bc_finalizer/VoteTicket.h"
 
 #include "crypto/Sha256.h"
@@ -16,10 +14,11 @@
 #include "base/StackRelease.h"
 
 #include "base_io/ByteBuffer.h"
+#include "bc/CodablecashSystemParam.h"
 
 namespace codablecash {
 
-TicketVoteSelector::TicketVoteSelector(ArrayList<VoterEntry, VoterEntry::VoteCompare> *list, uint64_t height, const CodablecashConfig* config) {
+TicketVoteSelector::TicketVoteSelector(ArrayList<VoterEntry, VoterEntry::VoteCompare> *list, uint64_t height, const CodablecashSystemParam* config) {
 	this->list = list;
 	this->height = height;
 
@@ -50,9 +49,11 @@ void TicketVoteSelector::select() {
 
 
 void TicketVoteSelector::doSelect() {
+	// high priority
 	int expCount = this->expiredList->size();
 	expCount = expCount >= this->votePerBlock ? this->votePerBlock : expCount;
 
+	// normal priority
 	int candidateCount = this->votePerBlock - expCount;
 	candidateCount = candidateCount > this->candidateList->size() ? this->candidateList->size() : candidateCount;
 

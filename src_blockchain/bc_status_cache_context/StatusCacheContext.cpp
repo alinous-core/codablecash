@@ -10,10 +10,9 @@
 #include "bc_status_cache_context/StatusCacheContext.h"
 #include "bc_status_cache_context/TransactionContextCache.h"
 #include "bc_status_cache_context/UtxoCacheContext.h"
+#include "bc_status_cache_context/NullLockinManager.h"
 
 #include "bc_status_cache_context_finalizer/VoterStatusCacheContext.h"
-
-#include "bc/CodablecashConfig.h"
 
 #include "base/UnicodeString.h"
 #include "base/ArrayList.h"
@@ -44,8 +43,11 @@
 
 #include "base/StackRelease.h"
 
+#include "bc/CodablecashSystemParam.h"
+
 #include "bc_finalizer/TicketVoteSelector.h"
 
+#include "bc_status_cache_context_finalizer/VoterStatusMappedCacheContext.h"
 #include "bc_status_cache_context_finalizer/VotingBlockStatus.h"
 
 #include "bc_status_cache/BlockchainStatusCache.h"
@@ -64,6 +66,12 @@
 
 #include "bc_smartcontract/AbstractSmartcontractTransaction.h"
 
+#include "bc_status_cache_lockin/ILockinManager.h"
+#include "bc_status_cache_lockin/LockInOperationData.h"
+
+#include "bc_status_cache/ZoneStatusCache.h"
+
+#include "bc_status_cache_data/FinalizedDataCache.h"
 namespace codablecash {
 
 uint64_t StatusCacheContext::getSerial() noexcept {
@@ -72,7 +80,7 @@ uint64_t StatusCacheContext::getSerial() noexcept {
 }
 
 
-StatusCacheContext::StatusCacheContext(const CodablecashConfig* config, const File* tmpCacheBaseDir, uint16_t zone
+StatusCacheContext::StatusCacheContext(const CodablecashSystemParam* config, const File* tmpCacheBaseDir, uint16_t zone
 		, ConcurrentGate* rwLock, BlockchainStatusCache* statusCache, CodablecashBlockchain* blockchain, const wchar_t* prefix) {
 	this->config = config;
 	this->zone = zone;
@@ -133,14 +141,17 @@ void StatusCacheContext::init() {
 	this->utxoCache->init();
 	this->utxoCache->open();
 
-	this->voterCache = new VoterStatusCacheContext(this->baseDir);
+	this->voterCache = new VoterStatusMappedCacheContext(this->baseDir);
 	this->voterCache->init();
 
 	this->ticketPrice = this->statusCache->getFinalizedTicketPrice(zone);
 }
 
 void StatusCacheContext::importBlock(const BlockHeader *header, const BlockBody *blockBody) {
-	beginBlock(header);
+	LockinManager* liManager = this->statusCache->getLockInManager(this->zone);
+	NullLockinManager lockinManager(liManager);
+
+	beginBlock(header, &lockinManager);
 
 	importControlTransactions(header, blockBody);
 	importInterChainCommunicationTransactions(header, blockBody);
@@ -148,13 +159,21 @@ void StatusCacheContext::importBlock(const BlockHeader *header, const BlockBody 
 	importSmartcontractTransactions(header, blockBody);
 	importRewordTransactions(header, blockBody);
 
-	endBlock(header);
+	endBlock(header, &lockinManager);
 }
 
-void StatusCacheContext::beginBlock(const BlockHeader *header) {
+void StatusCacheContext::beginBlock(const BlockHeader *header, ILockinManager* lockinManager) {
 	// select voters
 	ArrayList<VoterEntry, VoterEntry::VoteCompare>* list = getVoterEntries(); __STP(list);
 	list->setDeleteOnExit();
+
+	{
+		uint64_t height = header->getHeight();
+		LockInOperationData* lockins = lockinManager->getOperantions(height); __STP(lockins);
+		if(lockins != nullptr){
+			lockins->apply(header, this);
+		}
+	}
 
 #ifdef __DEBUG__
 	{
@@ -183,8 +202,13 @@ void StatusCacheContext::beginBlock(const BlockHeader *header) {
 	}
 }
 
-void StatusCacheContext::endBlock(const BlockHeader *header) {
-	// FIXME update voted status check voted
+void StatusCacheContext::endBlock(const BlockHeader *header, ILockinManager* lockinManager) {
+	// update voted status check voted
+	// This is what lockin operation have to do.
+
+	/**
+	 * status of block height, which tickets of the block height to include in this block
+	 */
 	VotingBlockStatus* status = getVotingBlockStatus(header); __STP(status);
 	if(status != nullptr){
 		uint64_t height = header->getHeight();
@@ -192,9 +216,11 @@ void StatusCacheContext::endBlock(const BlockHeader *header) {
 		int missingLimit = this->config->getVoteMissingLimit(height);
 		int extendCount = this->config->getVoteExtendCapacityCount(height);
 
-		this->voterCache->handleVotedStatus(status, missingLimit, extendCount);
+		// generate lockin inside here
+		this->voterCache->handleVotedStatus(height, status, missingLimit, extendCount, lockinManager, this->config);
 	}
 
+	// generate price lockin inside here
 	calcTicketPrice(header);
 }
 
@@ -495,9 +521,9 @@ void StatusCacheContext::registerVote(const BlockHeader *header, const VoteBlock
 		uint16_t afterN = this->config->getVoteBlockIncludeAfterNBlocks(height);
 
 		uint64_t voteBeforeNBlocks = beforeN + afterN - 1;
-		BlockHeader* votedHeader = headerManager->getNBlocksBefore(lastHeaderId, height - 1, voteBeforeNBlocks); __STP(votedHeader);
+		BlockHeader* votedHeader = headerManager->getNBlocksBefore(lastHeaderId, height - 1, voteBeforeNBlocks); __STP(votedHeader); // correct header
 
-		const BlockHeaderId* correctHeaderId = votedHeader->getId(); // get Correct Header
+		const BlockHeaderId* correctHeaderId = votedHeader->getId(); // get Correct Header Id
 
 		if(correctHeaderId->equals(trx->getVotedHeaderId())){
 			const TicketUtxoReference* ref = trx->getTicketUtxoReference();
@@ -523,6 +549,14 @@ uint16_t StatusCacheContext::getNumZones(uint64_t height) const {
 
 void StatusCacheContext::loadInitialVotersData() {
 	this->voterCache->loadFinalyzedVoters(this->zone, this->statusCache);
+
+	{
+		ZoneStatusCache* cache = this->statusCache->getZoneStatusCache(this->zone);
+		FinalizedDataCache* fcache = cache->getFinalizedDataCache();
+		VoterStatusCacheContext* statusCacheContext = fcache->getVotingStatusCache();
+
+		this->voterCache->importRepo(statusCacheContext);
+	}
 }
 
 VotingBlockStatus* StatusCacheContext::getVotingBlockStatus(const BlockHeaderId *blockHeaderId) {

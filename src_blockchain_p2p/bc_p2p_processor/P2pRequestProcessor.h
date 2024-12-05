@@ -26,7 +26,7 @@ class CodablecashNodeInstance;
 class P2pRequestQueueProcessor;
 class DataHistory;
 class BlochchainP2pManager;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class ISystemLogger;
 class AbstractTransferedData;
 class AbstructNodeQueueCommand;
@@ -39,7 +39,7 @@ class P2pRequestProcessor : public ICommandParameter {
 public:
 	static const constexpr wchar_t* BASE_DIR{L"p2pprocessor"};
 
-	P2pRequestProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, CodablecashConfig* config, ISystemLogger* logger);
+	P2pRequestProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, CodablecashSystemParam* config, ISystemLogger* logger);
 	virtual ~P2pRequestProcessor();
 
 	void createBlank(CodablecashNodeInstance* inst);
@@ -80,6 +80,9 @@ public:
 	void resume(CodablecashNodeInstance* inst);
 
 	void setNodeName(const UnicodeString* name) noexcept;
+	const UnicodeString* getNodeName() const noexcept {
+		return this->nodeName;
+	}
 
 private:
 	void processData(CodablecashNodeInstance* inst, PendingCommandData* data);
@@ -89,7 +92,7 @@ private:
 
 private:
 	File* baseDir;
-	CodablecashConfig* config;
+	CodablecashSystemParam* config;
 	ISystemLogger* logger;
 	BlochchainP2pManager* p2pManager;
 

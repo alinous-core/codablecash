@@ -16,9 +16,13 @@ class MultipleCommandProcessor;
 class P2pRequestProcessor;
 class ISystemLogger;
 
+
+/********************
+ * handle DNS info
+ */
 class NetworkInfoProcessor {
 public:
-	static const constexpr wchar_t* THREAD_NAME{L"NetInfoTrx"};
+	static const constexpr wchar_t* THREAD_NAME{L"NInf"};
 
 	NetworkInfoProcessor(P2pRequestProcessor* processor, int numThreads, ISystemLogger* logger);
 	virtual ~NetworkInfoProcessor();

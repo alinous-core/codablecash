@@ -1,0 +1,139 @@
+/*
+ * AbstractConsensusNodeCommand.cpp
+ *
+ *  Created on: 2024/05/01
+ *      Author: iizuka
+ */
+
+
+#include "bc_p2p_cmd_node_consensus/AbstractConsensusNodeCommand.h"
+#include "bc_p2p_cmd_node_consensus/NodeHostory.h"
+
+#include "base_timestamp/SystemTimestamp.h"
+
+#include "bc/CodablecashSystemParam.h"
+#include "bc/CodablecashNodeInstance.h"
+
+namespace codablecash {
+
+
+AbstractConsensusNodeCommand::AbstractConsensusNodeCommand(const AbstractConsensusNodeCommand &inst)
+		: AbstractNodeCommand(inst) {
+	this->history = new ArrayList<NodeHostory>();
+
+	int maxLoop = inst.history->size();
+	for(int i = 0; i != maxLoop; ++i){
+		NodeHostory* nhis = inst.history->get(i);
+
+		this->history->addElement(new NodeHostory(*nhis));
+	}
+}
+
+AbstractConsensusNodeCommand::AbstractConsensusNodeCommand(uint32_t type) : AbstractNodeCommand(type) {
+	this->history = new ArrayList<NodeHostory>();
+
+}
+
+AbstractConsensusNodeCommand::~AbstractConsensusNodeCommand() {
+	this->history->deleteElements();
+	delete this->history;
+}
+
+bool AbstractConsensusNodeCommand::validateCommand(CodablecashNodeInstance *inst, bool suspend) const {
+	SystemTimestamp firstTm = getFirstTimestamp();
+	SystemTimestamp tm = firstTm;
+
+	int maxLoop = this->history->size();
+	for(int i = 0; i != maxLoop; ++i){
+		NodeHostory* his = this->history->get(i);
+		const SystemTimestamp* htm = his->getTimestamp();
+
+		if(!validateHistory(his, &tm, inst)){
+			return false;
+		}
+
+		tm = *htm;
+	}
+
+	return validateCurrentTime(&tm, inst);
+}
+
+int AbstractConsensusNodeCommand::binarySize() const {
+	int total = AbstractNodeCommand::binarySize();
+
+	int maxLoop = this->history->size();
+	total += sizeof(uint32_t);
+
+	for(int i = 0; i != maxLoop; ++i){
+		NodeHostory* his = this->history->get(i);
+
+		total += his->binarySize();
+	}
+
+
+	return total;
+}
+
+void AbstractConsensusNodeCommand::toBinary(ByteBuffer *buff) const {
+	AbstractNodeCommand::toBinary(buff);
+
+	int maxLoop = this->history->size();
+	buff->putInt(maxLoop);
+
+	for(int i = 0; i != maxLoop; ++i){
+		NodeHostory* his = this->history->get(i);
+
+		his->toBinary(buff);
+	}
+}
+
+void AbstractConsensusNodeCommand::fromBinary(ByteBuffer *buff) {
+	AbstractNodeCommand::fromBinary(buff);
+
+	int maxLoop = buff->getInt();
+
+	for(int i = 0; i != maxLoop; ++i){
+		NodeHostory* his = NodeHostory::fromBinary(buff);
+
+		this->history->addElement(his);
+	}
+
+}
+
+void AbstractConsensusNodeCommand::addHistory(uint16_t zone, const NodeIdentifier *nodeId, int protocol, const UnicodeString *host, uint32_t port) {
+	SystemTimestamp tm;
+	addHistory(zone, nodeId, &tm, protocol, host, port);
+}
+
+void AbstractConsensusNodeCommand::addHistory(uint16_t zone, const NodeIdentifier *nodeId, const SystemTimestamp *timestamp,
+		int protocol, const UnicodeString *host, uint32_t port) {
+	NodeHostory* his = new NodeHostory(zone, nodeId, timestamp, protocol, host, port);
+	this->history->addElement(his);
+}
+
+bool AbstractConsensusNodeCommand::validateHistory(const NodeHostory *his, const SystemTimestamp *lastTm, CodablecashNodeInstance *inst) const noexcept {
+	const CodablecashSystemParam* params = inst->getCodablecashSystemParam();
+	uint32_t consensusTrxAllowedDelayMillis = params->getConsensusTrxAllowedDelayMillis();
+
+	const SystemTimestamp* thisTm = his->getTimestamp();
+	SystemTimestamp mills(0, consensusTrxAllowedDelayMillis * 1000);
+	SystemTimestamp lim = *lastTm + mills;
+
+	return lim.compareTo(thisTm) >= 0;
+}
+
+bool AbstractConsensusNodeCommand::validateCurrentTime(const SystemTimestamp *lastTm, CodablecashNodeInstance *inst) const noexcept {
+	const CodablecashSystemParam* params = inst->getCodablecashSystemParam();
+	uint32_t consensusTrxAllowedDelayMillis = params->getConsensusTrxAllowedDelayMillis();
+	uint16_t maxHops = params->getConsensusTrxMaxHops();
+
+	SystemTimestamp tmnow;
+	SystemTimestamp mills(0, consensusTrxAllowedDelayMillis * 1000);
+	SystemTimestamp lim = *lastTm + mills;
+
+	int hops = this->history->size() + 1;
+
+	return hops <= maxHops && lim.compareTo(&tmnow) >= 0;
+}
+
+} /* namespace codablecash */

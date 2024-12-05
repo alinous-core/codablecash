@@ -22,6 +22,8 @@ public:
 	virtual ~INetworkSeeder();
 
 	virtual ArrayList<P2pNodeRecord>* getSeedNodes() const noexcept = 0;
+	virtual void addRecord(const P2pNodeRecord* record) noexcept = 0;
+
 };
 
 } /* namespace codablecash */

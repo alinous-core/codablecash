@@ -23,8 +23,6 @@
 
 #include "pow/PoWManager.h"
 
-#include "bc/CodablecashConfig.h"
-
 #include "numeric/BigInteger.h"
 
 #include "bc_memorypool/MemPoolTransaction.h"
@@ -60,9 +58,10 @@
 #include "osenv/funcs.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+#include "bc/CodablecashSystemParam.h"
 namespace codablecash {
 
-BlockchainStatusCache::BlockchainStatusCache(const File* baseDir, const CodablecashConfig* config, MemoryPool* memPool, const File* tmpCacheBaseDir, ISystemLogger* logger) {
+BlockchainStatusCache::BlockchainStatusCache(const File* baseDir, const CodablecashSystemParam* config, MemoryPool* memPool, const File* tmpCacheBaseDir, ISystemLogger* logger) {
 	this->config = config;
 	this->baseDir = new File(*baseDir);
 	this->numZones = 0;
@@ -152,13 +151,13 @@ void BlockchainStatusCache::loadConfig() {
 }
 
 void BlockchainStatusCache::setPowManager(PoWManager *pow) noexcept {
-	StackUnlocker __lock(this->memberLock);
+	StackUnlocker __lock(this->memberLock, __FILE__, __LINE__);
 
 	this->powManager = pow;
 }
 
 void BlockchainStatusCache::setFinalizer(FinalizerPool *finalizer) {
-	StackUnlocker __lock(this->memberLock);
+	StackUnlocker __lock(this->memberLock, __FILE__, __LINE__);
 
 	this->finalizer = finalizer;
 }
@@ -182,7 +181,7 @@ void BlockchainStatusCache::postBlockAdded(const Block *block, CodablecashBlockc
 
 	// report mining
 	{
-		StackUnlocker __lock(this->memberLock);
+		StackUnlocker __lock(this->memberLock, __FILE__, __LINE__);
 		if(this->powManager != nullptr){
 			report2PowManager(chain, cache);
 		}
@@ -190,7 +189,7 @@ void BlockchainStatusCache::postBlockAdded(const Block *block, CodablecashBlockc
 
 	// report to finalizing pool
 	{
-		StackUnlocker __lock(this->memberLock);
+		StackUnlocker __lock(this->memberLock, __FILE__, __LINE__);
 		report2Finelizer(zone, chain, cache, block);
 	}
 }
@@ -296,6 +295,7 @@ BigInteger BlockchainStatusCache::calcTargetDiff(uint16_t zone, uint64_t height,
 
 	BlockHeader* header = headerManager->getHeader(headerId, height); __STP(header);
 
+	assert(header != nullptr);
 
 	return calcTargetDiff(headerManager, cache, header, tm);
 }
@@ -468,6 +468,18 @@ UtxoData* BlockchainStatusCache::findUtxo(uint16_t zone, const UtxoId *utxoId) c
 	ZoneStatusCache* cache = this->zoneList.get(zone);
 
 	return cache->findUtxo(utxoId);
+}
+
+bool BlockchainStatusCache::registerBlockHeader4Limit(uint16_t zone, const BlockHeader *header, const CodablecashSystemParam *param) {
+	ZoneStatusCache* cache = this->zoneList.get(zone);
+
+	return cache->registerBlockHeader4Limit(header, param);
+}
+
+LockinManager* BlockchainStatusCache::getLockInManager(uint16_t zone) const noexcept {
+	ZoneStatusCache* cache = this->zoneList.get(zone);
+
+	return cache->getLockinManager();
 }
 
 } /* namespace codablecash */

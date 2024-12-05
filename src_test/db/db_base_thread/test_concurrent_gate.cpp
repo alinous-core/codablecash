@@ -45,7 +45,7 @@ TEST(ConccurentGateTestGroup, run){
 		list.addElement(tester);
 
 		{
-			StackUnlocker __st_lock(GateTester::launchComplete);
+			StackUnlocker __st_lock(GateTester::launchComplete, __FILE__, __LINE__);
 			if(!tester->ready){
 				GateTester::launchComplete->wait();
 			}
@@ -60,7 +60,7 @@ TEST(ConccurentGateTestGroup, run){
 		list.addElement(tester);
 
 		{
-			StackUnlocker __st_lock(GateTester::launchComplete);
+			StackUnlocker __st_lock(GateTester::launchComplete, __FILE__, __LINE__);
 			if(!tester->ready){
 				GateTester::launchComplete->wait();
 			}
@@ -68,7 +68,7 @@ TEST(ConccurentGateTestGroup, run){
 	}
 
 	{
-		StackUnlocker __st_lock(&myLock);
+		StackUnlocker __st_lock(&myLock, __FILE__, __LINE__);
 		myLock.notifyAll();
 	}
 

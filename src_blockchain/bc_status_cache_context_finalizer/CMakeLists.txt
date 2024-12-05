@@ -4,6 +4,7 @@ set(__src
 	AlreadyFinalizedException.cpp
 	VoteCandidate.cpp
 	VoterStatusCacheContext.cpp
+	VoterStatusMappedCacheContext.cpp
 	VotingBlockStatus.cpp
 	VotingBlockStatusDataFactory.cpp
 	VotingBlockStatusRepository.cpp

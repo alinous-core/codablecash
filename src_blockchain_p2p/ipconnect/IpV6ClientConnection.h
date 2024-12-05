@@ -39,6 +39,7 @@ public:
 private:
 	SOCKET_ID sock;
 	ClientConnectionSourceDescriptor* client;
+	int port;
 };
 
 } /* namespace codablecash */

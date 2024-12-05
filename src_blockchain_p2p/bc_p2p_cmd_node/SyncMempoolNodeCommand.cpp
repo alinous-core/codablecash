@@ -112,4 +112,8 @@ void SyncMempoolNodeCommand::setOffset(uint32_t offset) noexcept {
 	this->offset = offset;
 }
 
+bool SyncMempoolNodeCommand::usePendingQueue() const noexcept {
+	return false;
+}
+
 } /* namespace codablecash */

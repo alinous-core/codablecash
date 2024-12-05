@@ -17,10 +17,10 @@ public:
 	FinalizeMissTestAllocator02();
 	virtual ~FinalizeMissTestAllocator02();
 
-	virtual BlockGenerator* newBlockGenerator(uint16_t zone, CodablecashConfig* config, MemoryPool* memoryPool
+	virtual BlockGenerator* newBlockGenerator(uint16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool
 			, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger);
 
-	virtual FinalizerPool* newFinalizerPool(const codablecash::CodablecashConfig *config, MemoryPool *memoryPool,
+	virtual FinalizerPool* newFinalizerPool(const codablecash::CodablecashSystemParam *config, MemoryPool *memoryPool,
 			BlockchainController *ctrl, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger *logger);
 	virtual IInstanceMemberAllocator* copy() const noexcept;
 };

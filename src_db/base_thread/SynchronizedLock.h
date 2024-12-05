@@ -21,7 +21,7 @@ public:
 	SynchronizedLock();
 	virtual ~SynchronizedLock();
 
-	virtual void lock();
+	virtual void lock(const char *srcfile, int line);
 	virtual void unlock();
 	void wait();
 	void notifyAll();

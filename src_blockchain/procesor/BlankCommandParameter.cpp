@@ -22,7 +22,7 @@ BlankCommandParameter::~BlankCommandParameter() {
 }
 
 void BlankCommandParameter::incCount() noexcept {
-	StackUnlocker unlocker(this->mutex);
+	StackUnlocker unlocker(this->mutex, __FILE__, __LINE__);
 	this->count++;
 }
 

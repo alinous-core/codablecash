@@ -14,7 +14,7 @@ namespace codablecash {
 
 class BlankBlockWithCoinbaseGenerator : public BlockGenerator {
 public:
-	BlankBlockWithCoinbaseGenerator(int16_t zone, CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger);
+	BlankBlockWithCoinbaseGenerator(int16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger);
 	virtual ~BlankBlockWithCoinbaseGenerator();
 
 	virtual void nonceCalculated(uint64_t height, const BlockHeaderId *bid, const PoWNonce *nonce);

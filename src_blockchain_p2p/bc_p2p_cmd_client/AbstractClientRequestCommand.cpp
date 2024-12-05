@@ -62,7 +62,7 @@ AbstractCommandResponse* AbstractClientRequestCommand::execute(const PubSubId *p
 	if(requestProcessor != nullptr) {
 		SynchronizedLock* threadLock = requestProcessor->getSynchrinizedLock();
 		{
-			StackUnlocker unlocker(threadLock);
+			StackUnlocker unlocker(threadLock, __FILE__, __LINE__);
 			if(requestProcessor->__isSuspended()){
 				// respond error
 				ErrorPubsubResponse* res = new ErrorPubsubResponse();

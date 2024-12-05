@@ -7,14 +7,13 @@
 #include "test_utils/t_macros.h"
 
 #include "../../test_utils/TestPortSelection.h"
-#include "../utils/DebugCodablecashConfigSetup.h"
 #include "../wallet_util/WalletDriver.h"
 #include "../../p2p/p2pserver/dummy/DummyClientListner.h"
 #include "../utils/ClientConnectUtils.h"
 
 #include "bc/DebugDefaultLogger.h"
-#include "bc/CodablecashConfig.h"
 #include "bc/CodablecashNodeInstance.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_network_instance/CodablecashNetworkNodeConfig.h"
 #include "bc_network_instance/ArrayNetworkSheeder.h"
@@ -52,6 +51,8 @@
 
 #include "command_queue_cmd/NopNodeQueueCommand.h"
 
+#include "pubsub/CommandPublisherSetting.h"
+#include "../utils/DebugCodablecashSystemParamSetup.h"
 
 using namespace codablecash;
 
@@ -64,7 +65,13 @@ TEST_GROUP(TestPendingRequestProcessorGroup) {
 	}
 };
 
+/**
+ * This case success, but has possibility to cause following error.
+ * Blockchain Transaction error. Invalid Transaction was sent. at Exception occurs at /home/iizuka/DATA/git/workspace/codablecash/src_blockchain_p2p/bc_p2p_cmd_node/SendTransactionNodeCommand.cpp line 117
+ * */
 TEST(TestPendingRequestProcessorGroup, case01){
+	CommandPublisherSettingStack __set(5, 300);
+
 	StackTestPortGetter portSel;
 	int port01 = portSel.allocPort();
 	int port02 = portSel.allocPort();
@@ -75,12 +82,14 @@ TEST(TestPendingRequestProcessorGroup, case01){
 	File* dirNode02 = projectFolder.get(L"node02"); __STP(dirNode02);
 
 	DebugDefaultLogger logger;
+	logger.setSection(DebugDefaultLogger::DEBUG_NODE_TRANSFER_RESPONSE);
+	logger.setSection(DebugDefaultLogger::DEBUG_TMP_INFO);
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig02(config);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig02(param);
 
 	CodablecashNetworkNodeConfig nwconfig;
-	nwconfig.setSysConfig(&config);
+	nwconfig.setSysConfig(&param);
 
 	CodablecashNetworkNodeConfig* config01 = new CodablecashNetworkNodeConfig(nwconfig); __STP(config01);
 	CodablecashNetworkNodeConfig* config02 = new CodablecashNetworkNodeConfig(nwconfig); __STP(config02);
@@ -129,7 +138,7 @@ TEST(TestPendingRequestProcessorGroup, case01){
 			const wchar_t* host = L"::1";
 			int port = config01->getPort();
 
-			P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, host, port); __STP(rec);
+			P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, nullptr, host, port); __STP(rec);
 			seeder.addRecord(rec);
 		}
 	}
@@ -160,8 +169,10 @@ TEST(TestPendingRequestProcessorGroup, case01){
 	{
 		config02->setPort(port02);
 	}
-	CodablecashNetworkNode node02(dirNode02, config02, &logger);
+
 	{
+		CodablecashNetworkNode node02(dirNode02, config02, &logger);
+
 		// second
 		node02.initBlank(0); // zone 0
 
@@ -177,8 +188,150 @@ TEST(TestPendingRequestProcessorGroup, case01){
 			client->addListner(&listner);
 
 			AbstractCommandResponse* res = walletDriver->registerVotingNode(client); __STP(res);
+
+			listner.waitUntilCount(1);
 		}
 
+		uint64_t lastHeight = node01.getMaxHeight(0);
+		uint64_t height = node01.getMaxHeight(0);
+
+		while(height - lastHeight < 4){
+			Os::usleep(1000 * 100);
+			height = node01.getMaxHeight(0);
+		}
+		node01.suspendMining();
+
+		node02.syncNetwork();
+	}
+}
+
+/**
+ * handle unprocessed transactions
+ */
+TEST(TestPendingRequestProcessorGroup, case01_02){
+	CommandPublisherSettingStack __set(5, 300);
+
+	StackTestPortGetter portSel;
+	int port01 = portSel.allocPort();
+	int port02 = portSel.allocPort();
+
+	File projectFolder = this->env->testCaseDir();
+	File* dirWallet01 = projectFolder.get(L"wallet01"); __STP(dirWallet01);
+	File* dirNode01 = projectFolder.get(L"node01"); __STP(dirNode01);
+	File* dirNode02 = projectFolder.get(L"node02"); __STP(dirNode02);
+
+	DebugDefaultLogger logger;
+	logger.setSection(DebugDefaultLogger::DEBUG_NODE_TRANSFER_RESPONSE);
+	logger.setSection(DebugDefaultLogger::DEBUG_TMP_INFO);
+
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig02(param);
+
+	CodablecashNetworkNodeConfig nwconfig;
+	nwconfig.setSysConfig(&param);
+
+	CodablecashNetworkNodeConfig* config01 = new CodablecashNetworkNodeConfig(nwconfig); __STP(config01);
+	CodablecashNetworkNodeConfig* config02 = new CodablecashNetworkNodeConfig(nwconfig); __STP(config02);
+
+	WalletDriver* walletDriver = new WalletDriver(0, dirWallet01, L"changeit"); __STP(walletDriver);
+	walletDriver->init(1);
+	{
+		GenesisBalanceConfig gconfig;
+		AddressDescriptor* desc = walletDriver->getAddressDesc(0, 0); __STP(desc);
+		BalanceUnit amount(1000L * 10000L * 10000L);
+		gconfig.addBalance(amount, desc);
+
+		config01->setGenesisConfig(&gconfig);
+		config01->setPort(port01);
+
+		{
+			MiningConfig minerConfig;
+			AddressDescriptor* desc2 = walletDriver->getAddressDesc(0, 1); __STP(desc2);
+			minerConfig.setAddressDescriptor(desc2);
+			config01->setMinerConfig(&minerConfig);
+		}
+
+		NodeIdentifierSource* networkKey =  NodeIdentifierSource::create(); __STP(networkKey);
+		config01->setNetworkKey(networkKey);
+	}
+
+	ArrayNetworkSheeder seeder;
+
+	CodablecashNetworkNode node01(dirNode01, config01, &logger);
+	{
+		// First
+		node01.generateNetwork(0); // zone 0
+
+		// after init
+		node01.startNetwork(&seeder, false);
+		node01.setNodeName(L"01");
+
+		node01.startMiner();
+		node01.startStakePool();
+
+		// setup seeder
+		{
+			uint16_t zone = 0;
+			const NodeIdentifierSource* source = config01->getNetworkKey();
+			NodeIdentifier nodeId = source->toNodeIdentifier();
+			const wchar_t* host = L"::1";
+			int port = config01->getPort();
+
+			P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, nullptr, host, port); __STP(rec);
+			seeder.addRecord(rec);
+		}
+	}
+	//////////////
+	// sync wallet
+	{
+		BlockchainController* ctrl = node01.getInstance()->getController();
+
+		ArrayList<Block>* blocks = ctrl->getBlocksHeightAt(0, 1); __STP(blocks);
+		blocks->setDeleteOnExit();
+
+		int maxBlocks = blocks->size();
+		for(int i = 0; i != maxBlocks; ++i){
+			Block* block = blocks->get(i);
+			BlockBody* body = block->getBody();
+
+			const ArrayList<AbstractBalanceTransaction>* list = body->getBalanceTransactions();
+			int maxLoop = list->size();
+			for(int j = 0; j != maxLoop; ++j){
+				AbstractBalanceTransaction* trx = list->get(j);
+				walletDriver->importTransaction(trx);
+			}
+		}
+	}
+
+
+	///////////////
+	{
+		config02->setPort(port02);
+	}
+
+	{
+		CodablecashNetworkNode node02(dirNode02, config02, &logger);
+
+		// second
+		node02.initBlank(0); // zone 0
+
+		// after init
+		node02.startNetwork(&seeder, true);
+		node02.setNodeName(L"02");
+
+		// send to node01
+		DummyClientListner listner;
+		{
+			UnicodeString strLocal(L"::1");
+			P2pClient* client = ClientConnectUtils::connect(&strLocal, port01, 0, &logger); __STP(client);
+			client->addListner(&listner);
+
+			AbstractCommandResponse* res = walletDriver->registerVotingNode(client); __STP(res);
+
+			listner.waitUntilCount(1);
+		}
+
+		node01.suspendMining();
 		node02.syncNetwork();
 	}
 }
@@ -194,11 +347,11 @@ TEST(TestPendingRequestProcessorGroup, case02_err){
 
 	DebugDefaultLogger logger;
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig02(config);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig02(param);
 
 	CodablecashNetworkNodeConfig nwconfig;
-	nwconfig.setSysConfig(&config);
+	nwconfig.setSysConfig(&param);
 
 	CodablecashNetworkNodeConfig* config01 = new CodablecashNetworkNodeConfig(nwconfig); __STP(config01);
 
@@ -272,11 +425,11 @@ TEST(TestPendingRequestProcessorGroup, queue01){
 
 	DebugDefaultLogger logger;
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig02(config);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig02(param);
 
 	CodablecashNetworkNodeConfig nwconfig;
-	nwconfig.setSysConfig(&config);
+	nwconfig.setSysConfig(&param);
 
 	CodablecashNetworkNodeConfig* config01 = new CodablecashNetworkNodeConfig(nwconfig); __STP(config01);
 

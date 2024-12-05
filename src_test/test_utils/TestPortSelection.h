@@ -42,7 +42,7 @@ private:
 
 class TestPortSelection {
 public:
-	static constexpr int START_PORT = 14000;
+	static constexpr int START_PORT = 20000;
 	static constexpr int PORT_LENGTH = 200;
 
 	TestPortSelection(int start, int length);

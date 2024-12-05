@@ -7,13 +7,10 @@
 #include "test_utils/t_macros.h"
 
 #include "../utils/InstanceDriver.h"
-#include "../utils/DebugCodablecashConfigSetup.h"
-
-#include "bc/CodablecashConfig.h"
-
 #include "bc_block_generator/MiningConfig.h"
 
 #include "bc/CodablecashNodeInstance.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_status_cache/BlockchainController.h"
 
@@ -30,6 +27,7 @@
 
 #include "bc_finalizer_trx/RegisterVotePoolTransaction.h"
 
+#include "../utils/DebugCodablecashSystemParamSetup.h"
 #include "dummy/FinalizeMissAndBlankblockTestAllocator.h"
 
 using namespace codablecash;
@@ -47,13 +45,13 @@ TEST(TestConsumedUtxoGroup, case01){
 	File projectFolder = this->env->testCaseDir();
 	InstanceDriver driver(&projectFolder);
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
-	config.setPowBlockTimeMills(10);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig01(param);
+	param.setPowBlockTimeMills(10);
 
 	driver.initWallet(1);
 
-	driver.initInstance(&config);
+	driver.initInstance(&param);
 
 	MiningConfig mconfig;
 	driver.startMiner(&mconfig);

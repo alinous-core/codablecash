@@ -1,8 +1,12 @@
 
 
 set(__src
+	AbstarctVoteLockinOperation.cpp
 	AbstractLockinOperation.cpp
+	ILockinManager.cpp
 	LockinManager.cpp
+	LockInOperationData.cpp
+	LockInOperationDataFactory.cpp
 	MissvoteLockinOperation.cpp
 	VotedLockinOperation.cpp
 )

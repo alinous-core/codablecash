@@ -9,9 +9,9 @@
 #include "bc_network/NodeIdentifierSource.h"
 #include "bc_network/NodeIdentifier.h"
 
-#include "bc/CodablecashConfig.h"
 #include "bc/DebugDefaultLogger.h"
 #include "bc/CodablecashNodeInstance.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "pubsub/PubSubId.h"
 #include "pubsub/P2pHandshake.h"
@@ -42,7 +42,7 @@ TEST(TestP2pClientConnectionGroup, case01){
 	NodeIdentifierSource* source = NodeIdentifierSource::create(); __STP(source);
 	NodeIdentifier nodeId = source->toNodeIdentifier();
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -59,7 +59,7 @@ TEST(TestP2pClientConnectionGroup, case01){
 	{
 		CodablecashNodeInstance inst(baseDir, &logger, &config);
 		inst.load();
-		inst.startNetwork(port);
+		inst.startNetwork(nullptr, port);
 
 		{
 			PubSubId* psId = PubSubId::createNewId(); __STP(psId);
@@ -97,7 +97,7 @@ TEST(TestP2pClientConnectionGroup, case02_err){
 
 	CHECK(nodeId.compareTo(&nodeId2) != 0);
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -114,7 +114,7 @@ TEST(TestP2pClientConnectionGroup, case02_err){
 	{
 		CodablecashNodeInstance inst(baseDir, &logger, &config);
 		inst.load();
-		inst.startNetwork(port);
+		inst.startNetwork(nullptr, port);
 		{
 			PubSubId* psId = PubSubId::createNewId(); __STP(psId);
 			P2pHandshake *handshake = new P2pHandshake(psId, &logger); __STP(handshake);

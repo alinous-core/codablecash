@@ -22,8 +22,6 @@
 #include "bc_network_instance/CodablecashNetworkNode.h"
 
 #include "bc/CodablecashNodeInstance.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc_p2p/BlochchainP2pManager.h"
 
 #include "bc_network_instance_sync/HeaderSyncWorker.h"
@@ -34,7 +32,9 @@
 
 #include "base_thread/StackUnlocker.h"
 #include "base_thread/SysMutex.h"
+#include "bc/CodablecashSystemParam.h"
 
+#include "bc/ISystemLogger.h"
 
 namespace codablecash {
 
@@ -72,6 +72,7 @@ AbstractZoneSync* AbstractZoneSync::createZone(uint16_t zone,	uint16_t zoneSelf,
 void AbstractZoneSync::doProcess() {
 	initHeadersRepo();
 	importHeaders();
+
 	importResult();
 }
 
@@ -82,23 +83,25 @@ CodablecashNetworkNode* AbstractZoneSync::getCodablecashNetworkNode() const noex
 void AbstractZoneSync::importHeaders() noexcept {
 	CodablecashNetworkNode* node = this->parent->getCodablecashNetworkNode();
 	CodablecashNodeInstance* inst = node->getInstance();
-	CodablecashConfig* config = inst->getCodablecashConfig();
+	CodablecashSystemParam* param = inst->getCodablecashSystemParam();
 
 	BlochchainP2pManager* p2pManager = inst->getBlochchainP2pManager();
 	{
 		ArrayList<NodeIdentifier>* nodelist = p2pManager->getNodeIds(this->zone); __STP(nodelist);
 		nodelist->setDeleteOnExit();
 
-		int num = config->getNumInitialSyncNodes();
+		int num = param->getNumInitialSyncNodes();
 		RamdomNodesSelector sel(nodelist, num);
 
 		int threadindex = 0;
 		while(sel.hasNext()){
 			const NodeIdentifier* nodeId = sel.next();
 
-			UnicodeString str(L"MemPoolSyncWk");
+			UnicodeString str(L"AbstractZoneSyncWk");
 			str.append(threadindex);
 			threadindex++;
+
+			this->logger->debugLog(ISystemLogger::DEBUG_TMP_INFO, &str, __FILE__, __LINE__);
 
 			// add a worker
 			HeaderSyncWorker* worker = new HeaderSyncWorker(this->zone, nodeId, this, this->logger, &str);
@@ -113,6 +116,10 @@ void AbstractZoneSync::importHeaders() noexcept {
 			worker->join();
 		}
 	}
+
+	// AbstractZoneSync::importHeaders()
+	UnicodeString __str(L"AbstractZoneSync::importHeaders() was DONE.");
+	this->logger->debugLog(ISystemLogger::DEBUG_TMP_INFO, &__str, __FILE__, __LINE__);
 }
 
 void AbstractZoneSync::initHeadersRepo() {
@@ -131,7 +138,7 @@ void AbstractZoneSync::initHeadersRepo() {
 }
 
 void AbstractZoneSync::addHeaderData(const SyncHeaderHeightData *headerData) {
-	StackUnlocker __lock(this->headerDataMutex);
+	StackUnlocker __lock(this->headerDataMutex, __FILE__, __LINE__);
 
 	this->headerDataStore->add(headerData);
 }

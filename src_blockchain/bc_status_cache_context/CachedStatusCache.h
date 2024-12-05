@@ -25,7 +25,7 @@ namespace codablecash {
 
 class TransactionContextCache;
 class UtxoCacheContext;
-class VoterStatusCacheContext;
+class VoterStatusMappedCacheContext;
 class StatusCacheContext;
 class VoterEntry;
 class NodeIdentifier;
@@ -44,11 +44,6 @@ public:
 	void init();
 	void importStatusContext(StatusCacheContext *context);
 
-	const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId) const noexcept;
-	void exportVoterEntry(ArrayList<VoterEntry, VoterEntry::VoteCompare>* list) const noexcept;
-
-	VotingBlockStatus* getVotingBlockStatus(const BlockHeaderId *blockHeaderId) const;
-
 	uint64_t getTicketPrice() const noexcept {
 		return ticketPrice;
 	}
@@ -59,7 +54,7 @@ public:
 		return height;
 	}
 
-	const VoterStatusCacheContext* getVoterStatusCacheContext() const noexcept {
+	const VoterStatusMappedCacheContext* getVoterStatusCacheContext() const noexcept {
 		return this->voterCache;
 	}
 
@@ -68,7 +63,7 @@ private:
 
 	void importTransactions(TransactionContextCache* cache);
 	void importUxtoCache(UtxoCacheContext* cache);
-	void importVoterStatusCache(VoterStatusCacheContext* cache);
+	void importVoterStatusCache(VoterStatusMappedCacheContext* cache);
 
 private:
 	File* baseDir;
@@ -79,7 +74,7 @@ private:
 
 	TransactionContextCache* trxCache;
 	UtxoCacheContext* utxoCache;
-	VoterStatusCacheContext* voterCache;
+	VoterStatusMappedCacheContext* voterCache;
 };
 
 } /* namespace codablecash */

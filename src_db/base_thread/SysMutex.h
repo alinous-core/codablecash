@@ -19,7 +19,7 @@ public:
 	SysMutex() noexcept;
 	virtual ~SysMutex() noexcept;
 
-	virtual void lock() noexcept;
+	virtual void lock(const char *srcfile, int line) noexcept;
 	virtual void unlock() noexcept;
 private:
 	pthread_mutex_t mutex;

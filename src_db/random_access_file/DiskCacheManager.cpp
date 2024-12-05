@@ -30,12 +30,12 @@ DiskCacheManager::~DiskCacheManager() noexcept{
 }
 
 void DiskCacheManager::fireCacheHit(RawLinkedList<MMapSegment>::Element* seg) noexcept {
-	StackUnlocker locker(&this->lock);
+	StackUnlocker locker(&this->lock, __FILE__, __LINE__);
 	this->cache.moveElementToTop(seg);
 }
 
 void DiskCacheManager::fireCacheRemoved(RawLinkedList<MMapSegment>::Element* seg) noexcept {
-	StackUnlocker locker(&this->lock);
+	StackUnlocker locker(&this->lock, __FILE__, __LINE__);
 
 	MMapSegment* data = seg->data;
 	this->currentSize -= data->segmentSize();
@@ -44,7 +44,7 @@ void DiskCacheManager::fireCacheRemoved(RawLinkedList<MMapSegment>::Element* seg
 
 RawLinkedList<MMapSegment>::Element* DiskCacheManager::registerCache(MMapSegment* newSeg) noexcept
 {
-	StackUnlocker locker(&this->lock);
+	StackUnlocker locker(&this->lock, __FILE__, __LINE__);
 
 	if(this->maxCache <= this->currentSize){
 		RawLinkedList<MMapSegment>::Element* outSeg = this->cache.getLastElement();

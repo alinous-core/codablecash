@@ -28,13 +28,14 @@ class NodeIdentifier;
 class P2pRequestProcessor;
 class AbstractNodeCommand;
 class AbstractClientNotifyCommand;
+class AbstractConsensusNodeCommand;
 
 class P2pZone {
 public:
 	explicit P2pZone(uint16_t zone);
 	virtual ~P2pZone();
 
-	BlockchainNodeHandshake* add(P2pHandshake *handshake, const NodeIdentifier* nodeId);
+	BlockchainNodeHandshake* add(P2pHandshake *handshake, const NodeIdentifier* nodeId, const UnicodeString* canonicalName);
 	ClientNodeHandshake* addClient(P2pHandshake *handshake, const NodeIdentifier* nodeId);
 	void remove(const PubSubId* pubsubId) noexcept;
 
@@ -42,6 +43,7 @@ public:
 	static ClientNodeHandshake* __getClientHandshake(const PubSubId* pubsubid, ArrayList<ClientNodeHandshake>* list) noexcept;
 
 	void generateTransferRequest(const NodeIdentifier *excludeNodeId, const AbstractNodeCommand *command, P2pRequestProcessor *processor);
+	void generateHighPriorityTransferRequest(const ArrayList<NodeIdentifier>* excludeNodeIds, const AbstractConsensusNodeCommand *command, P2pRequestProcessor *processor);
 
 	void generateClientNotifyRequest(AbstractClientNotifyCommand *commnad, P2pRequestProcessor *processor);
 
@@ -55,6 +57,8 @@ private:
 	void checkAlreadyRegistered(const PubSubId* pubsubId);
 
 	void __removeRemovable() noexcept;
+
+	bool isExcluded(const ArrayList<NodeIdentifier> *excludeNodeIds, const NodeIdentifier* nodeId) const noexcept;
 
 private:
 	uint16_t zone;

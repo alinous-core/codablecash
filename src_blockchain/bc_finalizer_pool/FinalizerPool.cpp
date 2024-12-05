@@ -9,8 +9,8 @@
 #include "procesor/MessageProcessor.h"
 
 #include "base/UnicodeString.h"
+#include "bc/CodablecashSystemParam.h"
 
-#include "bc/CodablecashConfig.h"
 #include "bc_finalizer_pool/DetectVotingTicketCommandMessage.h"
 
 #include "bc_memorypool/MemoryPool.h"
@@ -25,7 +25,7 @@ namespace codablecash {
 
 const UnicodeString FinalizerPool::THREAD_NAME{L"Finalizer"};
 
-FinalizerPool::FinalizerPool(const CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl
+FinalizerPool::FinalizerPool(const CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl
 		, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger* logger) {
 	this->processor = nullptr;
 

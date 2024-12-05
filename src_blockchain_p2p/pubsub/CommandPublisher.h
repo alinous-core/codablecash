@@ -61,6 +61,9 @@ private:
 	IClientSocket* socket;
 	SysMutex* publishLock;
 
+	int poolRetry;
+	int waitSec;
+
 	uint64_t timestamp;
 };
 

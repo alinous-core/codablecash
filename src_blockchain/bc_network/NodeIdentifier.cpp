@@ -91,4 +91,8 @@ int NodeIdentifier::hashCode() const {
 	return hash;
 }
 
+bool NodeIdentifier::equals(const NodeIdentifier *other) const noexcept {
+	return compareTo(other) == 0;
+}
+
 } /* namespace codablecash */

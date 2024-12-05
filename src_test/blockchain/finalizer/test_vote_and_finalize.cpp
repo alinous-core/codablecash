@@ -8,13 +8,10 @@
 #include "test_utils/t_macros.h"
 
 #include "../utils/InstanceDriver.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc_block_generator/MiningConfig.h"
 
 #include "bc_base/BalanceUnit.h"
 
-#include "../utils/DebugCodablecashConfigSetup.h"
 #include "bc/DebugDefaultLogger.h"
 
 #include "bc_trx_balance/BalanceTransferTransaction.h"
@@ -24,6 +21,7 @@
 #include "bc_block/Block.h"
 
 #include "bc/CodablecashNodeInstance.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_block_validator/BlockValidator.h"
 
@@ -31,6 +29,8 @@
 
 #include "../utils/ValidationInstance.h"
 #include "bc/ISystemLogger.h"
+
+#include "../utils/DebugCodablecashSystemParamSetup.h"
 #include "dummy/BlankBlockGeneratorAllocator.h"
 
 using namespace codablecash;
@@ -48,12 +48,12 @@ TEST(TestVoteAndFinalizeTicketGroup, case01){
 	File projectFolder = this->env->testCaseDir();
 	InstanceDriver driver(&projectFolder);
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
-	config.setPowBlockTimeMills(10);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig01(param);
+	param.setPowBlockTimeMills(10);
 
 	driver.initWallet(1);
-	driver.initInstance(&config);
+	driver.initInstance(&param);
 
 	MiningConfig mconfig;
 	driver.startMiner(&mconfig);
@@ -110,7 +110,7 @@ TEST(TestVoteAndFinalizeTicketGroup, case01){
 		CHECK(valid == false);
 	}
 
-	uint64_t wheight = 5;
+	uint64_t wheight = 9;
 	driver.waitUntilFinalizedHeight(wheight);
 	driver.suspendMiner();
 
@@ -118,7 +118,7 @@ TEST(TestVoteAndFinalizeTicketGroup, case01){
 	{
 		DebugDefaultLogger* logger = driver.getLogger();
 		ValidationInstance validator(&projectFolder);
-		validator.initInstance(&config, logger);
+		validator.initInstance(&param, logger);
 
 		BlockchainController* ctrl = driver.getBlockchainController();
 
@@ -147,14 +147,14 @@ TEST(TestVoteAndFinalizeTicketGroup, case02){
 
 	driver.getLogger()->setSection(ISystemLogger::DEBUG_CHAIN_HEAD_DETECT);
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
-	config.setPowBlockTimeMills(10);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig01(param);
+	param.setPowBlockTimeMills(10);
 
 	driver.initWallet(1);
 
 	BlankBlockGeneratorAllocator alloc;
-	driver.initInstance(&config, &alloc);
+	driver.initInstance(&param, &alloc);
 
 	MiningConfig mconfig;
 	driver.startMiner(&mconfig);

@@ -4,16 +4,16 @@
  *  Created on: 2023/04/26
  *      Author: iizuka
  */
+#include "bc/CodablecashSystemParam.h"
+
 #include "test_utils/t_macros.h"
 
 #include "../utils/InstanceDriver.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc_block_generator/MiningConfig.h"
 
 #include "bc_base/BalanceUnit.h"
 
-#include "../utils/DebugCodablecashConfigSetup.h"
+#include "../utils/DebugCodablecashSystemParamSetup.h"
 
 using namespace codablecash;
 
@@ -30,11 +30,11 @@ TEST(TestRegisterVoteTicketGroup, case01){
 	File projectFolder = this->env->testCaseDir();
 	InstanceDriver driver(&projectFolder);
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig01(param);
 
 	driver.initWallet(1);
-	driver.initInstance(&config);
+	driver.initInstance(&param);
 
 	MiningConfig mconfig;
 	driver.startMiner(&mconfig);

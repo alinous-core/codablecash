@@ -51,7 +51,7 @@ public:
 	const AddressDescriptor* getAddressDescriptor() const noexcept {
 		return this->addressDesc;
 	}
-	BalanceUnit getTicketProce() const noexcept {
+	BalanceUnit getTicketPrice() const noexcept {
 		return this->ticketPrice;
 	}
 

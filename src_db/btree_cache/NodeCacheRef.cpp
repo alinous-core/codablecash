@@ -22,15 +22,15 @@ NodeCacheRef::~NodeCacheRef() {
 }
 
 void NodeCacheRef::inc() {
-	this->lock.lock();
+	this->lock.lock(__FILE__, __LINE__);
 	this->count++;
 	this->lock.unlock();
 }
 
 void NodeCacheRef::dec() {
-	this->parentLock->lock();
+	this->parentLock->lock(__FILE__, __LINE__);
 
-	this->lock.lock();
+	this->lock.lock(__FILE__, __LINE__);
 	this->count--;
 
 	if(this->count == 0){
@@ -43,7 +43,7 @@ void NodeCacheRef::dec() {
 }
 
 bool NodeCacheRef::isDeletable() noexcept {
-	this->lock.lock();
+	this->lock.lock(__FILE__, __LINE__);
 
 	bool result = (this->count == 0);
 

@@ -15,6 +15,7 @@
 namespace alinous {
 class SysMutex;
 class Exception;
+class UnicodeString;
 }
 using namespace alinous;
 
@@ -55,7 +56,7 @@ public:
 
 	void fireHandshakeEnds(P2pHandshake* handshake);
 	void fireHandshakeEndsWithExeption(P2pHandshake* handshake, const Exception *e);
-	void fireLoginHandshake(P2pHandshake* handshake, const LoginPubSubCommand* loginCommand);
+	void fireLoginHandshake(P2pHandshake* handshake, const LoginPubSubCommand* loginCommand, const UnicodeString* canonicalName);
 	void fireClientLoginHandshake(P2pHandshake* handshake, const LoginClientCommand* clientLoginCommand);
 
 #ifdef __DEBUG__

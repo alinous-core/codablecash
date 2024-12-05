@@ -18,7 +18,7 @@ BlockHeaderId::BlockHeaderId(const BlockHeaderId &inst) : Abstract32BytesId((con
 
 }
 
-BlockHeaderId::BlockHeaderId() {
+BlockHeaderId::BlockHeaderId() : Abstract32BytesId() {
 }
 
 BlockHeaderId::BlockHeaderId(const char *binary, int length) : Abstract32BytesId(binary, length) {

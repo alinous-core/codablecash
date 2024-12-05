@@ -21,14 +21,14 @@ FinalizeMissTestAllocator::~FinalizeMissTestAllocator() {
 }
 
 BlockGenerator* FinalizeMissTestAllocator::newBlockGenerator(uint16_t zone,
-		CodablecashConfig *config, MemoryPool *memoryPool,
+		CodablecashSystemParam *config, MemoryPool *memoryPool,
 		BlockchainController *ctrl, const MiningConfig *miningConfig,
 		ISystemLogger *logger) {
 	return new BlankBlockWithCoinbaseGenerator(zone, config, memoryPool, ctrl, miningConfig, logger);
 }
 
 FinalizerPool* FinalizeMissTestAllocator::newFinalizerPool(
-		const codablecash::CodablecashConfig *config, MemoryPool *memoryPool,
+		const codablecash::CodablecashSystemParam *config, MemoryPool *memoryPool,
 		BlockchainController *ctrl, P2pRequestProcessor *p2pRequestProcessor,
 		BlochchainP2pManager *p2pManager, ISystemLogger *logger) {
 	return new FinalizeMissTestPool(config, memoryPool, ctrl, p2pRequestProcessor, p2pManager, logger);

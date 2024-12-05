@@ -57,6 +57,10 @@ void P2pClient::close() noexcept {
 }
 
 void P2pClient::close(bool force) noexcept {
+	if(!force){
+		sendEndConnectionCommand();
+	}
+
 	delete this->hostName;
 	this->hostName = nullptr;
 
@@ -67,6 +71,12 @@ void P2pClient::close(bool force) noexcept {
 		this->handshake->dispose();
 		delete this->handshake;
 		this->handshake = nullptr;
+	}
+}
+
+void P2pClient::sendEndConnectionCommand() {
+	if(this->handshake != nullptr){
+		this->handshake->sendEndConnectionCommand();
 	}
 }
 
@@ -145,6 +155,5 @@ bool P2pClient::removeListner(IClientNotifyListner *listner) noexcept {
 
 	return listner == ret;
 }
-
 
 } /* namespace codablecash */

@@ -33,13 +33,13 @@ MMapSegment::~MMapSegment() {
 }
 
 void MMapSegment::addRefCount() noexcept {
-	StackUnlocker unlocker(&this->lock);
+	StackUnlocker unlocker(&this->lock, __FILE__, __LINE__);
 
 	this->refCount++;
 }
 
 void MMapSegment::decRefCount() noexcept {
-	StackUnlocker unlocker(&this->lock);
+	StackUnlocker unlocker(&this->lock, __FILE__, __LINE__);
 
 	this->refCount--;
 	this->lock.notifyAll();
@@ -52,7 +52,7 @@ bool MMapSegment::isUsed() noexcept {
 }
 */
 void MMapSegment::waitForUnused() noexcept {
-	StackUnlocker unlocker(&this->lock);
+	StackUnlocker unlocker(&this->lock, __FILE__, __LINE__);
 
 	while(this->refCount != 0){
 		this->waitCount++;

@@ -7,9 +7,8 @@
 #include "test_utils/t_macros.h"
 
 #include "bc/CodablecashNodeInstance.h"
+#include "bc/CodablecashSystemParam.h"
 #include "bc/DebugDefaultLogger.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc_trx_genesis/GenesisTransaction.h"
 
 #include "bc_status_cache/BlockchainController.h"
@@ -54,7 +53,7 @@ TEST(TestP2pInstanceGroup, case01){
 	NodeIdentifierSource* source = NodeIdentifierSource::create(); __STP(source);
 	NodeIdentifier nodeId = source->toNodeIdentifier();
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -71,7 +70,7 @@ TEST(TestP2pInstanceGroup, case01){
 	{
 		CodablecashNodeInstance inst(baseDir, &logger, &config);
 		inst.load();
-		inst.startNetwork(port);
+		inst.startNetwork(nullptr, port);
 		{
 			PubSubId* psId = PubSubId::createNewId(); __STP(psId);
 			P2pHandshake *handshake = new P2pHandshake(psId, &logger); __STP(handshake);
@@ -80,7 +79,7 @@ TEST(TestP2pInstanceGroup, case01){
 			handshake->connectIpV6(&strLocal, port);
 
 			{
-				LoginPubSubCommand cmd(0);
+				LoginPubSubCommand cmd(0, nullptr);
 				cmd.sign(source);
 				bool res = cmd.verify();
 				CHECK(res == true);
@@ -111,7 +110,7 @@ TEST(TestP2pInstanceGroup, case02_err){
 
 	CHECK(nodeId.compareTo(&nodeId2) != 0);
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -128,7 +127,7 @@ TEST(TestP2pInstanceGroup, case02_err){
 	{
 		CodablecashNodeInstance inst(baseDir, &logger, &config);
 		inst.load();
-		inst.startNetwork(port);
+		inst.startNetwork(nullptr, port);
 		{
 			PubSubId* psId = PubSubId::createNewId(); __STP(psId);
 			P2pHandshake *handshake = new P2pHandshake(psId, &logger); __STP(handshake);
@@ -139,7 +138,7 @@ TEST(TestP2pInstanceGroup, case02_err){
 			handshake->getExecutor();
 
 			{
-				LoginPubSubCommand cmd(0);
+				LoginPubSubCommand cmd(0, nullptr);
 				cmd.sign(source);
 				cmd.setNodeIdentifier(&nodeId2);
 
@@ -171,7 +170,7 @@ TEST(TestP2pInstanceGroup, case03_err){
 	NodeIdentifierSource* source = NodeIdentifierSource::create(); __STP(source);
 	NodeIdentifier nodeId = source->toNodeIdentifier();
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -187,7 +186,7 @@ TEST(TestP2pInstanceGroup, case03_err){
 	{
 		CodablecashNodeInstance inst(baseDir, &logger, &config);
 		inst.load();
-		inst.startNetwork(port);
+		inst.startNetwork(nullptr, port);
 		{
 			PubSubId* psId = PubSubId::createNewId(); __STP(psId);
 			P2pHandshake *handshake = new P2pHandshake(psId, &logger); __STP(handshake);
@@ -196,7 +195,7 @@ TEST(TestP2pInstanceGroup, case03_err){
 			handshake->connectIpV6(&strLocal, 54001);
 
 			{
-				LoginPubSubCommand cmd(0);
+				LoginPubSubCommand cmd(0, nullptr);
 				cmd.sign(source);
 				bool res = cmd.verify();
 				CHECK(res == true);
@@ -207,7 +206,7 @@ TEST(TestP2pInstanceGroup, case03_err){
 			}
 
 			{
-				LoginPubSubCommand cmd(0);
+				LoginPubSubCommand cmd(0, nullptr);
 				cmd.sign(source);
 				bool res = cmd.verify();
 				CHECK(res == true);

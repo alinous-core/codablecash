@@ -21,7 +21,7 @@ public:
 		return new BlankBlockGeneratorAllocator();
 	}
 
-	virtual BlockGenerator* newBlockGenerator(uint16_t zone, CodablecashConfig* config, MemoryPool* memoryPool
+	virtual BlockGenerator* newBlockGenerator(uint16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool
 			, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger);
 
 };

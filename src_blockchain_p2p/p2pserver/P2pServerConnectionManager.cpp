@@ -50,7 +50,7 @@ P2pServerConnectionManager::~P2pServerConnectionManager() {
 
 void P2pServerConnectionManager::dispose() {
 	{
-		StackUnlocker __lock(this->listnersMutex);
+		StackUnlocker __lock(this->listnersMutex, __FILE__, __LINE__);
 		this->conlistsners->reset();
 	}
 
@@ -59,7 +59,7 @@ void P2pServerConnectionManager::dispose() {
 }
 
 void P2pServerConnectionManager::registerPublisher(CommandPublisher *publisher) {
-	StackUnlocker __lock(this->waitlistMutex);
+	StackUnlocker __lock(this->waitlistMutex, __FILE__, __LINE__);
 	removeExpiredWaitingPublisher();
 
 	this->waitlist->addElement(publisher);
@@ -70,7 +70,7 @@ CommandPublisher* P2pServerConnectionManager::getPublisher(const PubSubId *pubsu
 }
 
 CommandPublisher* P2pServerConnectionManager::getPublisher(	const PubSubId *pubsubId, bool remove) {
-	StackUnlocker __lock(this->waitlistMutex);
+	StackUnlocker __lock(this->waitlistMutex, __FILE__, __LINE__);
 	removeExpiredWaitingPublisher();
 
 	CommandPublisher* ret = nullptr;
@@ -94,7 +94,7 @@ CommandPublisher* P2pServerConnectionManager::getPublisher(	const PubSubId *pubs
 }
 
 void P2pServerConnectionManager::addConnectionListener(IPubsubConnectionListener *listner) noexcept {
-	StackUnlocker __lock(this->listnersMutex);
+	StackUnlocker __lock(this->listnersMutex, __FILE__, __LINE__);
 
 	this->conlistsners->addElement(listner);
 }
@@ -129,7 +129,7 @@ void P2pServerConnectionManager::removeExpiredWaitingPublisher() {
 
 void P2pServerConnectionManager::newHandshake(CommandPublisher *publisher, CommandSubscriber *subscriber) {
 	{
-		StackUnlocker __lock(this->hslistMutex);
+		StackUnlocker __lock(this->hslistMutex, __FILE__, __LINE__);
 		P2pHandshake* handshake = new P2pHandshake(publisher, subscriber, this->logger, this, this->executor);
 
 		this->hslist->addElement(handshake);
@@ -139,14 +139,14 @@ void P2pServerConnectionManager::newHandshake(CommandPublisher *publisher, Comma
 }
 
 void P2pServerConnectionManager::registerHandshake(P2pHandshake *handshake) {
-	StackUnlocker __lock(this->hslistMutex);
+	StackUnlocker __lock(this->hslistMutex, __FILE__, __LINE__);
 	__removeDisabledHandshake();
 
 	this->hslist->addElement(handshake);
 }
 
 bool P2pServerConnectionManager::handShakeExists(const PubSubId *pubsubId) const noexcept {
-	StackUnlocker __lock(this->hslistMutex);
+	StackUnlocker __lock(this->hslistMutex, __FILE__, __LINE__);
 
 	bool ret = false;
 
@@ -164,7 +164,7 @@ bool P2pServerConnectionManager::handShakeExists(const PubSubId *pubsubId) const
 }
 
 void P2pServerConnectionManager::removeDisabledHandshake() noexcept {
-	StackUnlocker __lock(this->hslistMutex);
+	StackUnlocker __lock(this->hslistMutex, __FILE__, __LINE__);
 
 	__removeDisabledHandshake();
 }
@@ -193,7 +193,7 @@ void P2pServerConnectionManager::__removeDisabledHandshake() noexcept {
 }
 
 void P2pServerConnectionManager::fireHandshakeEnds(P2pHandshake *handshake) {
-	StackUnlocker __lock(this->listnersMutex);
+	StackUnlocker __lock(this->listnersMutex, __FILE__, __LINE__);
 
 	int maxLoop = this->conlistsners->size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -202,7 +202,7 @@ void P2pServerConnectionManager::fireHandshakeEnds(P2pHandshake *handshake) {
 	}
 }
 void P2pServerConnectionManager::fireHandshakeEndsWithExeption(P2pHandshake *handshake, const Exception *e) {
-	StackUnlocker __lock(this->listnersMutex);
+	StackUnlocker __lock(this->listnersMutex, __FILE__, __LINE__);
 
 	int maxLoop = this->conlistsners->size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -211,18 +211,18 @@ void P2pServerConnectionManager::fireHandshakeEndsWithExeption(P2pHandshake *han
 	}
 }
 
-void P2pServerConnectionManager::fireLoginHandshake(P2pHandshake *handshake,	const LoginPubSubCommand *loginCommand) {
-	StackUnlocker __lock(this->listnersMutex);
+void P2pServerConnectionManager::fireLoginHandshake(P2pHandshake *handshake, const LoginPubSubCommand *loginCommand, const UnicodeString* canonicalName) {
+	StackUnlocker __lock(this->listnersMutex, __FILE__, __LINE__);
 
 	int maxLoop = this->conlistsners->size();
 	for(int i = 0; i != maxLoop; ++i){
 		IPubsubConnectionListener* listner = this->conlistsners->get(i);
-		listner->onLoginHandshake(handshake, loginCommand);
+		listner->onLoginHandshake(handshake, loginCommand, canonicalName);
 	}
 }
 
 void P2pServerConnectionManager::fireClientLoginHandshake(P2pHandshake *handshake, const LoginClientCommand *clientLoginCommand) {
-	StackUnlocker __lock(this->listnersMutex);
+	StackUnlocker __lock(this->listnersMutex, __FILE__, __LINE__);
 
 	int maxLoop = this->conlistsners->size();
 	for(int i = 0; i != maxLoop; ++i){

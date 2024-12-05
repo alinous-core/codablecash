@@ -7,15 +7,13 @@
 
 #include "bc/DebugDefaultLogger.h"
 
-#include "base/UnicodeString.h"
-
 #include "base_thread/SysMutex.h"
-
 #include "base_thread/StackUnlocker.h"
 
 #include "base/Exception.h"
-
 #include "base/StackRelease.h"
+#include "base/UnicodeString.h"
+
 namespace codablecash {
 
 DebugDefaultLogger::DebugDefaultLogger() : sections(0) {
@@ -27,7 +25,7 @@ DebugDefaultLogger::~DebugDefaultLogger() {
 }
 
 void DebugDefaultLogger::logException(const Exception *e) noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	UnicodeString* fileInfo = e->getFileInfo(); __STP(fileInfo);
 	const UnicodeString* message = e->getMessage();
@@ -44,7 +42,7 @@ void DebugDefaultLogger::logException(const Exception *e) noexcept {
 }
 
 void DebugDefaultLogger::log(const UnicodeString *message) noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	const char* str = message->toCString();
 	::printf("%s\n", str);
@@ -58,7 +56,7 @@ void DebugDefaultLogger::setSection(int section) noexcept {
 }
 
 void DebugDefaultLogger::debugLog(int section, const UnicodeString *message, const char* srcfile, int srcline) noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	if(hasSection(section)){
 		const char* str = message->toCString();

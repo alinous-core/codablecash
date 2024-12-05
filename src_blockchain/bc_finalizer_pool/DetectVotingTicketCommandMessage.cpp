@@ -17,8 +17,7 @@
 #include "bc_status_cache_context_finalizer/VoteCandidate.h"
 
 #include "base/StackRelease.h"
-
-#include "bc/CodablecashConfig.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_block/BlockHeader.h"
 #include "bc_block/BlockHeaderId.h"
@@ -35,11 +34,13 @@
 
 #include "bc_p2p_processor/P2pRequestProcessor.h"
 
-#include "bc_p2p_cmd_node/SendTransactionNodeCommand.h"
-
 #include "data_history_data/TransactionTransferData.h"
 
 #include "bc_p2p/BlochchainP2pManager.h"
+
+#include "bc_p2p_cmd_node_consensus/SendTransactionNodeCommand.h"
+
+#include "bc_p2p_cmd_node_consensus/SendVoteTransactionNodeCommand.h"
 namespace codablecash {
 
 DetectVotingTicketCommandMessage::DetectVotingTicketCommandMessage(uint16_t zone, const BlockHeaderId *headerId, uint64_t height) {
@@ -53,8 +54,8 @@ DetectVotingTicketCommandMessage::~DetectVotingTicketCommandMessage() {
 }
 
 void DetectVotingTicketCommandMessage::process(FinalizerPool *pool) {
-	const CodablecashConfig* config = pool->getConfig();
-	int voteBeforeNBlocks = config->getVoteBeforeNBlocks(this->height);
+	const CodablecashSystemParam* params = pool->getConfig();
+	int voteBeforeNBlocks = params->getVoteBeforeNBlocks(this->height);
 
 	if(this->height <= voteBeforeNBlocks){ // genesis block and other early blocks
 		return;
@@ -96,13 +97,13 @@ void DetectVotingTicketCommandMessage::process(FinalizerPool *pool) {
 			assert(status->countUtxo(ut) == 1);
 #endif
 
-			putTransaction(header2vote, candidate, context, memTrx, config, pool);
+			putTransaction(header2vote, candidate, context, memTrx, params, pool);
 		}
 	}
 }
 
 void DetectVotingTicketCommandMessage::putTransaction(const BlockHeader *header2vote, const VoteCandidate *candidate
-		, IStatusCacheContext* context, MemPoolTransaction* memTrx, const CodablecashConfig* config, FinalizerPool *pool) {
+		, IStatusCacheContext* context, MemPoolTransaction* memTrx, const CodablecashSystemParam* config, FinalizerPool *pool) {
 	const NodeIdentifier* voterId = candidate->getNodeIdentifier();
 	const UtxoId* utxoId = candidate->getUtxoId();
 
@@ -147,7 +148,7 @@ void DetectVotingTicketCommandMessage::putTransaction(const BlockHeader *header2
 		BlochchainP2pManager* p2pManager = pool->getBlochchainP2pManager();
 
 		if(p2pRequestProcessor != nullptr && p2pManager != nullptr){
-			SendTransactionNodeCommand command;
+			SendVoteTransactionNodeCommand command;
 			TransactionTransferData data;
 			data.setTransaction(trx);
 			command.setTransactionTransferData(&data);

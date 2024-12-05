@@ -32,7 +32,7 @@ class UtxoCacheContext;
 class AbstractBlockchainTransaction;
 class VoterStatusCacheContext;
 class RegisterVotePoolTransaction;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class AbstractBalanceTransaction;
 class AbstractControlTransaction;
 class VoterEntry;
@@ -51,7 +51,7 @@ public:
 	static const constexpr wchar_t* CONTEXT_CACHE_PREFIX{L"contextcache"};
 	static uint64_t getSerial() noexcept;
 
-	StatusCacheContext(const CodablecashConfig* config, const File* tmpCacheBaseDir, uint16_t zone,
+	StatusCacheContext(const CodablecashSystemParam* config, const File* tmpCacheBaseDir, uint16_t zone,
 			ConcurrentGate* rwLock, BlockchainStatusCache* statusCache, CodablecashBlockchain* blockchain,
 			const wchar_t* prefix=CONTEXT_CACHE_PREFIX);
 	virtual ~StatusCacheContext();
@@ -61,8 +61,8 @@ public:
 
 	void importBlock(const BlockHeader* header, const BlockBody* blockBody);
 
-	virtual void beginBlock(const BlockHeader* header);
-	virtual void endBlock(const BlockHeader* header);
+	virtual void beginBlock(const BlockHeader* header, ILockinManager* lockinManager);
+	virtual void endBlock(const BlockHeader* header, ILockinManager* lockinManager);
 
 	virtual void importBalanceTransaction(const BlockHeader* header, const AbstractBalanceTransaction* trx);
 	virtual void importControlTransaction(const BlockHeader* header, const AbstractControlTransaction* trx);
@@ -79,18 +79,21 @@ public:
 	UtxoCacheContext* getUtxoCacheContext() const noexcept {
 		return this->utxoCache;
 	}
-	VoterStatusCacheContext* getVoterStatusCacheContext() const noexcept {
+	virtual VoterStatusMappedCacheContext* getVoterStatusCacheContext() const noexcept {
 		return this->voterCache;
 	}
 
 	virtual const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId) const noexcept;
 	virtual uint16_t getNumZones(uint64_t height) const;
 
-	virtual const CodablecashConfig* getConfig() const noexcept {
+	virtual const CodablecashSystemParam* getConfig() const noexcept {
 		return this->config;
 	}
 	virtual CodablecashBlockchain* getBlockChain() const noexcept {
 		return this->blockchain;
+	}
+	virtual BlockchainStatusCache* getBlockchainStatusCache() const noexcept {
+		return this->statusCache;
 	}
 
 	virtual void loadInitialVotersData();
@@ -142,9 +145,13 @@ protected:
 
 	TransactionContextCache* trxCache;
 	UtxoCacheContext* utxoCache;
-	VoterStatusCacheContext* voterCache;
+	/**
+	 * this cache must includes cached data.
+	 * by calling loadInitialVotersData();
+	 */
+	VoterStatusMappedCacheContext* voterCache;
 
-	const CodablecashConfig* config;
+	const CodablecashSystemParam* config;
 };
 
 } /* namespace codablecash */

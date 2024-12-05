@@ -29,7 +29,7 @@ public:
 	static const constexpr int TCP_IP_V4{1};
 	static const constexpr int TCP_IP_V6{2};
 
-	static P2pNodeRecord* createIpV6Record(uint16_t zone, const NodeIdentifier* nodeId, const wchar_t* host, int port);
+	static P2pNodeRecord* createIpV6Record(uint16_t zone, const NodeIdentifier* nodeId, const UnicodeString*canonicalName, const wchar_t* host, int port);
 
 	P2pNodeRecord(const P2pNodeRecord& inst);
 	P2pNodeRecord();
@@ -42,6 +42,7 @@ public:
 	virtual IBlockObject* copyData() const noexcept;
 
 	void setNodeId(const NodeIdentifier* nodeId);
+	void setCanonicalName(const UnicodeString* cname);
 	void setAddress(const UnicodeString* host, int port);
 
 	void addConnectedNode(uint16_t zone, const NodeIdentifier* nodeId);
@@ -62,6 +63,9 @@ public:
 	const NodeIdentifier* getNodeIdentifier() const noexcept {
 		return this->nodeId;
 	}
+	const UnicodeString* getCanonicalName() const noexcept {
+		return this->canonicalName;
+	}
 	int getProtocol() const noexcept {
 		return this->protocol;
 	}
@@ -76,12 +80,14 @@ public:
 
 	UnicodeString* toString() const noexcept;
 
+
 private:
 	P2PZoneConnectionInfo* getZoneInfo(uint16_t zone) noexcept;
 
 private:
 	uint16_t zone;
 	NodeIdentifier* nodeId;
+	UnicodeString* canonicalName;
 
 	int protocol;
 	UnicodeString* host;

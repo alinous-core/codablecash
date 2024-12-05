@@ -24,8 +24,8 @@ LocalOidFactory::~LocalOidFactory() {
 }
 
 LocalCdbOid* LocalOidFactory::createLocalOid() noexcept {
-	SysMutex mutex;
-	StackUnlocker unlocker(&mutex);
+	static SysMutex mutex;
+	StackUnlocker unlocker(&mutex, __FILE__, __LINE__);
 
 	return new LocalCdbOid(this->serial++);
 }

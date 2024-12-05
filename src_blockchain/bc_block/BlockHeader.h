@@ -105,6 +105,9 @@ private:
 	uint16_t zone;
 	uint64_t height;
 	SystemTimestamp* timestamp;
+	/**
+	 * supported the accuracy by network transfer protocol
+	 */
 	SystemTimestamp* nonceGeneratedtimestamp;
 	BlockHeaderId* id; // built by buildHeaderId()
 

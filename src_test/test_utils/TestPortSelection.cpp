@@ -51,7 +51,7 @@ TestPortSelection* TestPortSelection::getInstance() {
 }
 
 const TestPort* TestPortSelection::alloc() const noexcept {
-	StackUnlocker lock(this->mutex);
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
 
 	TestPort* ret = nullptr;
 	int maxLoop = this->list.size();
@@ -69,7 +69,7 @@ const TestPort* TestPortSelection::alloc() const noexcept {
 }
 
 void TestPortSelection::release(int port) {
-	StackUnlocker lock(this->mutex);
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
 
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){

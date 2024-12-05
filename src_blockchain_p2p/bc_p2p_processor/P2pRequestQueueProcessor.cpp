@@ -25,6 +25,7 @@
 #include "bc/CodablecashNodeInstance.h"
 
 #include "base_thread/SynchronizedLock.h"
+
 namespace codablecash {
 
 P2pRequestQueueProcessor::P2pRequestQueueProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, NetworkTransferProcessor* processor, CodablecashNodeInstance *inst, ISystemLogger* logger) {
@@ -51,7 +52,15 @@ void P2pRequestQueueProcessor::createBlankDatabase() {
 void P2pRequestQueueProcessor::open(bool suspend) {
 	this->queue->open();
 
-	UnicodeString name(THREAD_NAME);
+	UnicodeString name(L"");
+
+	const UnicodeString* nodeName = this->inst->getNodeName();
+	if(nodeName != nullptr){
+		name.append(nodeName);
+		name.append(L"_");
+	}
+	name.append(THREAD_NAME);
+
 	this->thread = new P2pRequestQueueProcessorThread(this->p2pManager, this, suspend, this->logger, &name);
 	this->thread->setRunning(true);
 	this->thread->start();
@@ -76,13 +85,13 @@ void P2pRequestQueueProcessor::close() {
 }
 
 bool P2pRequestQueueProcessor::isEmpty() const {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	return this->queue->isEmpty();
 }
 
 CommandQueueData* P2pRequestQueueProcessor::fetchFirst() const {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	return this->queue->fetchFirst();
 }
@@ -90,10 +99,10 @@ CommandQueueData* P2pRequestQueueProcessor::fetchFirst() const {
 void P2pRequestQueueProcessor::put(const CommandQueueData *data) {
 	SynchronizedLock* threadLock = this->thread->getSynchronizedLock();
 
-	StackUnlocker unlocker(threadLock);
+	StackUnlocker unlocker(threadLock, __FILE__, __LINE__);
 
 	{
-		StackUnlocker __lock(this->mutex);
+		StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 		this->queue->addCommand(data);
 	}

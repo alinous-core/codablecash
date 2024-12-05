@@ -5,7 +5,9 @@
  *      Author: iizuka
  */
 
-#include "bc_p2p_cmd_node/ReportMinedBlockNodeCommand.h"
+
+
+#include "bc_p2p_cmd_node_consensus/ReportMinedBlockNodeCommand.h"
 
 #include "data_history_data/BlockHeaderTransferData.h"
 
@@ -29,6 +31,7 @@
 
 #include "bc_status_cache/BlockchainController.h"
 
+#include "bc_p2p/BlochchainP2pManager.h"
 namespace codablecash {
 
 ReportMinedBlockNodeCommand::ReportMinedBlockNodeCommand(const ReportMinedBlockNodeCommand &inst) : AbstractNodeCommand(inst) {
@@ -93,32 +96,42 @@ AbstractCommandResponse* ReportMinedBlockNodeCommand::executeAsNode(BlockchainNo
 	BlockchainController* ctrl = inst->getController();
 
 	uint16_t zoneSelf = inst->getZoneSelf();
-	bool alreadyHas = processor->hasHistory(this->data);
+	bool alreadyReceived = processor->hasHistory(this->data);
+	if(!alreadyReceived){
+		// check if has blockchain
+		bool alreadyHasChain = false;
+		{
+			const BlockHeader* header = this->data->getHeader();
+			uint16_t zone = header->getZone();
+			uint64_t height = header->getHeight();
+			const BlockHeaderId* headerId = header->getLastHeaderId();
 
-	// check if has blockchain
-	bool alreadyHasChain = false;
-	{
-		const BlockHeader* header = this->data->getHeader();
-		uint16_t zone = header->getZone();
-		uint64_t height = header->getHeight();
-		const BlockHeaderId* headerId = header->getLastHeaderId();
+			alreadyHasChain = ctrl->hasHeaderId(zoneSelf, height, headerId);
+		}
 
-		alreadyHasChain = ctrl->hasHeaderId(zoneSelf, height, headerId);
-	}
+		if(!alreadyHasChain){
+			// register header for PoS limit
+			{
+				const BlockHeader* header = this->data->getHeader();
+				uint16_t zone = header->getZone();
+				CodablecashSystemParam* param = inst->getCodablecashSystemParam();
 
-	if(!(alreadyHas && alreadyHasChain)){
-		processor->addHistory(this->data);
+				ctrl->registerBlockHeader4Limit(zone, header, param);
+			}
 
-		CentralProcessor* centralProcessor = inst->getCentralProcessor();
+			processor->addHistory(this->data);
 
-		// mined block comes
-		TransferedMinedReportCommandMessage* message = new TransferedMinedReportCommandMessage(); __STP(message);
-		message->setData(this->data);
+			CentralProcessor* centralProcessor = inst->getCentralProcessor();
 
-		const NodeIdentifier* nodeId = nodeHandShake->getNodeId();
-		message->setNodeId(nodeId);
+			// mined block comes
+			TransferedMinedReportCommandMessage* message = new TransferedMinedReportCommandMessage(); __STP(message);
+			message->setData(this->data);
 
-		centralProcessor->addCommandMessage(__STP_MV(message));
+			const NodeIdentifier* nodeId = nodeHandShake->getNodeId(); // source node id
+			message->setNodeId(nodeId);
+
+			centralProcessor->addCommandMessage(__STP_MV(message));
+		}
 	}
 
 	return new OkPubsubResponse();

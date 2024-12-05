@@ -32,7 +32,7 @@ public:
 	explicit P2pServer(ISystemLogger* logger, IPubsubCommandExecutor* executor);
 	virtual ~P2pServer();
 
-	void startIpV6Listening(const UnicodeString* host, int port);
+	void startIpV6Listening(const UnicodeString* host, int port, const UnicodeString* nodeName);
 	void stopListning();
 
 	void close() noexcept;

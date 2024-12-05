@@ -14,7 +14,7 @@ namespace codablecash {
 
 class FinalizeMissTestPool : public FinalizerPool {
 public:
-	FinalizeMissTestPool(const CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl
+	FinalizeMissTestPool(const CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl
 			, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger* logger);
 	virtual ~FinalizeMissTestPool();
 

@@ -13,7 +13,7 @@
 
 namespace codablecash {
 
-FinalizeMissTestPool::FinalizeMissTestPool(const CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl
+FinalizeMissTestPool::FinalizeMissTestPool(const CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl
 		, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger* logger)
 		: FinalizerPool(config, memoryPool, ctrl, p2pRequestProcessor, p2pManager, logger){
 	this->count = 0;
@@ -28,7 +28,7 @@ void FinalizeMissTestPool::requestCheckVoting(uint16_t zone, const BlockHeaderId
 
 	this->count++;
 
-	if(this->count == 4){
+	if(this->count == 5){
 		requestCheckVoting01(zone, headerId, height);
 		return;
 	}

@@ -125,9 +125,9 @@ TEST(P2PServerConnectionTestGroup, ConnectPublisherCommand01){
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
+	try {
+		server->startIpV6Listening(nullptr, port, nullptr);
 
-	{
 		UnicodeString strLocal(L"::1");
 		IpV6ClientConnection* client = new IpV6ClientConnection(); __STP(client);
 		client->connect(&strLocal, port);
@@ -139,6 +139,16 @@ TEST(P2PServerConnectionTestGroup, ConnectPublisherCommand01){
 		cmd.reveiveResponse(client);
 
 		CHECK(!cmd.isOk());
+	}
+	catch(Exception* e){
+		delete e;
+
+		server->stopListning();
+		server->close();
+
+		printf("IPV6 is disabled %d\n");
+		CHECK(false);
+		return;
 	}
 
 	server->stopListning();
@@ -152,8 +162,10 @@ TEST(P2PServerConnectionTestGroup, ConnectSubscriberCommand01){
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
-	{
+
+	try {
+		server->startIpV6Listening(nullptr, port, nullptr);
+
 		UnicodeString strLocal(L"::1");
 
 		PubSubId* psId = PubSubId::createNewId(); __STP(psId);
@@ -177,6 +189,17 @@ TEST(P2PServerConnectionTestGroup, ConnectSubscriberCommand01){
 			CHECK(!cmd.isOk());
 		}
 	}
+	catch(Exception* e){
+		delete e;
+
+		server->stopListning();
+		server->close();
+
+		printf("IPV6 is disabled %d\n");
+		CHECK(false);
+		return;
+	}
+
 	server->stopListning();
 	server->close();
 }
@@ -188,8 +211,9 @@ TEST(P2PServerConnectionTestGroup, ConnectSubscriberCommand02) {
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
-	{
+	try {
+		server->startIpV6Listening(nullptr, port, nullptr);
+
 		UnicodeString strLocal(L"::1");
 		PubSubId* psId = PubSubId::createNewId(); __STP(psId);
 
@@ -208,7 +232,17 @@ TEST(P2PServerConnectionTestGroup, ConnectSubscriberCommand02) {
 		}
 
 		handshake->dispose();
+	} catch(Exception* e){
+		delete e;
+
+		server->stopListning();
+		server->close();
+
+		printf("IPV6 is disabled %d\n");
+		CHECK(false);
+		return;
 	}
+
 	server->stopListning();
 	server->close();
 }
@@ -220,8 +254,10 @@ TEST(P2PServerConnectionTestGroup, P2pConnectionAcceptThread01) {
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
-	{
+
+	try {
+		server->startIpV6Listening(nullptr, port, nullptr);
+
 		UnicodeString strLocal(L"::1");
 		IpV6ClientConnection* client = new IpV6ClientConnection(); __STP(client);
 		client->connect(&strLocal, port);
@@ -229,7 +265,17 @@ TEST(P2PServerConnectionTestGroup, P2pConnectionAcceptThread01) {
 		uint8_t ch = 1;
 		int n = client->write((const char*)&ch, sizeof(ch));
 		CHECK(n == 1);
+	} catch(Exception* e){
+		delete e;
+
+		server->stopListning();
+		server->close();
+
+		printf("IPV6 is disabled %d\n");
+		CHECK(false);
+		return;
 	}
+
 	server->stopListning();
 	server->close();
 }
@@ -241,8 +287,9 @@ TEST(P2PServerConnectionTestGroup, P2pConnectionAcceptThread02) {
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
-	{
+	try {
+		server->startIpV6Listening(nullptr, port, nullptr);
+
 		UnicodeString strLocal(L"::1");
 		IpV6ClientConnection* client = new IpV6ClientConnection(); __STP(client);
 		client->connect(&strLocal, port);
@@ -250,7 +297,17 @@ TEST(P2PServerConnectionTestGroup, P2pConnectionAcceptThread02) {
 		uint32_t ch = 200000;
 		int n = client->write((const char*)&ch, sizeof(ch));
 		CHECK(n == 4);
+	} catch(Exception* e){
+		delete e;
+
+		server->stopListning();
+		server->close();
+
+		printf("IPV6 is disabled %d\n");
+		CHECK(false);
+		return;
 	}
+
 	server->stopListning();
 	server->close();
 }
@@ -265,8 +322,10 @@ TEST(P2PServerConnectionTestGroup, P2pServerConnectionManager01){
 	P2pServerConnectionManager* conManager = server->getConnectionManager();
 	conManager->setExpireSec(0);
 
-	server->startIpV6Listening(nullptr, port);
-	{
+
+	try {
+		server->startIpV6Listening(nullptr, port, nullptr);
+
 		UnicodeString strLocal(L"::1");
 
 		IpV6ClientConnection* client = new IpV6ClientConnection(); __STP(client);
@@ -282,7 +341,17 @@ TEST(P2PServerConnectionTestGroup, P2pServerConnectionManager01){
 		Os::usleep(1500);
 
 		conManager->__testRemoveExpiredWaitingPublisher();
+	} catch(Exception* e){
+		delete e;
+
+		server->stopListning();
+		server->close();
+
+		printf("IPV6 is disabled %d\n");
+		CHECK(false);
+		return;
 	}
+
 	server->stopListning();
 	server->close();
 }

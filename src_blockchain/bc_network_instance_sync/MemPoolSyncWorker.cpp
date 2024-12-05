@@ -13,8 +13,6 @@
 #include "bc_network_instance/CodablecashNetworkNode.h"
 
 #include "bc/CodablecashNodeInstance.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc_p2p_cmd_node/SyncMempoolNodeCommand.h"
 
 #include "bc_p2p/BlochchainP2pManager.h"
@@ -23,6 +21,7 @@
 #include "bc_p2p/BlockchainNodeHandshakeException.h"
 
 #include "base/StackRelease.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc/ExceptionThrower.h"
 
@@ -58,7 +57,7 @@ MemPoolSyncWorker::~MemPoolSyncWorker() {
 void MemPoolSyncWorker::doProcess() {
 	CodablecashNetworkNode* node = this->parent->getCodablecashNetworkNode();
 	CodablecashNodeInstance* inst = node->getInstance();
-	CodablecashConfig* config = inst->getCodablecashConfig();
+	CodablecashSystemParam* param = inst->getCodablecashSystemParam();
 	ISystemLogger* logger = inst->getLogger();
 
 	const NodeIdentifierSource *source = inst->getNetworkKey();

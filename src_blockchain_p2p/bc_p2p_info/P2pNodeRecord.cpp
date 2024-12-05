@@ -25,6 +25,7 @@ namespace codablecash {
 P2pNodeRecord::P2pNodeRecord(const P2pNodeRecord &inst) {
 	this->zone = inst.zone;
 	this->nodeId = inst.nodeId != nullptr ? dynamic_cast<NodeIdentifier*>(inst.nodeId->copyData()) : nullptr;
+	this->canonicalName = inst.canonicalName != nullptr ? new UnicodeString(inst.canonicalName) : nullptr;
 	this->protocol = inst.protocol;
 	this->host = inst.host != nullptr ? new UnicodeString(inst.host) : nullptr;
 	this->port = inst.port;
@@ -45,6 +46,7 @@ P2pNodeRecord::P2pNodeRecord(const P2pNodeRecord &inst) {
 P2pNodeRecord::P2pNodeRecord() {
 	this->zone = 0;
 	this->nodeId = nullptr;
+	this->canonicalName = nullptr;
 	this->protocol = TCP_IP_V6;
 	this->host = nullptr;
 	this->port = 0;
@@ -55,10 +57,11 @@ P2pNodeRecord::P2pNodeRecord() {
 	this->list = new ArrayList<P2PZoneConnectionInfo>();
 }
 
-P2pNodeRecord* P2pNodeRecord::createIpV6Record(uint16_t zone, const NodeIdentifier *nodeId, const wchar_t* host, int port) {
+P2pNodeRecord* P2pNodeRecord::createIpV6Record(uint16_t zone, const NodeIdentifier *nodeId, const UnicodeString* canonicalName, const wchar_t* host, int port) {
 	P2pNodeRecord* inst = new P2pNodeRecord();
 
 	inst->setNodeId(nodeId);
+	inst->setCanonicalName(canonicalName);
 	inst->setZone(zone);
 
 	UnicodeString hostStr(host);
@@ -72,6 +75,7 @@ P2pNodeRecord::~P2pNodeRecord() {
 	delete this->list;
 
 	delete this->nodeId;
+	delete this->canonicalName;
 	delete this->host;
 }
 
@@ -82,6 +86,12 @@ int P2pNodeRecord::binarySize() const {
 	int total = sizeof(this->zone);
 
 	total += this->nodeId->binarySize();
+
+	total += sizeof(uint8_t); // bool
+	if(this->canonicalName != nullptr){
+		total += BinaryUtils::stringSize(this->canonicalName);
+	}
+
 	total += sizeof(int8_t); // protocol
 	total += BinaryUtils::stringSize(this->host);
 	total += sizeof(this->port);
@@ -107,6 +117,13 @@ void P2pNodeRecord::toBinary(ByteBuffer *out) const {
 
 	out->putShort(this->zone);
 	this->nodeId->toBinary(out);
+
+	bool cano = this->canonicalName != nullptr;
+	out->put(cano ? 1 : 0);
+	if(cano){
+		BinaryUtils::putString(out, this->canonicalName);
+	}
+
 	out->put(this->protocol);
 	BinaryUtils::putString(out, this->host);
 	out->putInt(this->port);
@@ -130,6 +147,11 @@ P2pNodeRecord* P2pNodeRecord::fromBinary(ByteBuffer *in) {
 	inst->zone = in->getShort();
 	inst->nodeId = NodeIdentifier::fromBinary(in);
 	BinaryUtils::checkNotNull(inst->nodeId);
+
+	uint8_t cano = in->get();
+	if(cano > 0){
+		inst->canonicalName = BinaryUtils::getString(in);
+	}
 
 	inst->protocol = in->get();
 	inst->host = BinaryUtils::getString(in);
@@ -157,6 +179,11 @@ IBlockObject* P2pNodeRecord::copyData() const noexcept {
 void P2pNodeRecord::setNodeId(const NodeIdentifier *nodeId) {
 	delete this->nodeId;
 	this->nodeId = new NodeIdentifier(*nodeId);
+}
+
+void P2pNodeRecord::setCanonicalName(const UnicodeString *cname) {
+	delete this->canonicalName;
+	this->canonicalName = cname != nullptr ? new UnicodeString(cname) : nullptr;
 }
 
 void P2pNodeRecord::setAddress(const UnicodeString *host, int port) {
@@ -206,6 +233,12 @@ UnicodeString* P2pNodeRecord::toString() const noexcept {
 		str->append(L"[");
 		str->append(&node);
 		str->append(L"]");
+
+		if(this->canonicalName != nullptr){
+			str->append(L"=");
+
+			str->append(L" ");
+		}
 	}
 
 	if(this->protocol == TCP_IP_V4){

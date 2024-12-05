@@ -18,7 +18,7 @@
 namespace alinous {
 
 MMapSegments::MMapSegments(uint64_t fileSize, uint64_t segmentSize) noexcept {
-	StackUnlocker stackLock(&this->lock);
+	StackUnlocker stackLock(&this->lock, __FILE__, __LINE__);
 
 	this->fileSize = fileSize;
 	this->segmentSize = segmentSize;
@@ -39,7 +39,7 @@ MMapSegments::~MMapSegments() noexcept {
 }
 
 void MMapSegments::clearElements(DiskCacheManager* diskManager, FileDescriptor& fd) noexcept {
-	StackUnlocker stackLock(&this->lock);
+	StackUnlocker stackLock(&this->lock, __FILE__, __LINE__);
 	cacheOutSegmentIndex(fd);
 
 	int maxLoop = this->segIndex->size();
@@ -69,7 +69,7 @@ uint64_t MMapSegments::getNumSegments(uint64_t fileSize, uint64_t segmentSize) c
 void MMapSegments::onResized(uint64_t fileSize, FileDescriptor& fd, DiskCacheManager* diskManager) {
 	assert(fileSize >  this->fileSize);
 
-	StackUnlocker stackLock(&this->lock);
+	StackUnlocker stackLock(&this->lock, __FILE__, __LINE__);
 	cacheOutSegmentIndex(fd);
 
 	int lastTopSegment = this->segIndex->size() - 1;
@@ -106,7 +106,7 @@ MMapSegment* MMapSegments::getSegment(uint64_t fpos, DiskCacheManager* cache, Fi
 		throw new FileIOException(__FILE__, __LINE__);
 	}
 
-	StackUnlocker stackLock(&this->lock);
+	StackUnlocker stackLock(&this->lock, __FILE__, __LINE__);
 	cacheOutSegmentIndex(fd);
 
 	int index = (int)(fpos / this->segmentSize);
@@ -149,13 +149,13 @@ MMapSegment* MMapSegments::newSegment(uint64_t fpos, FileDescriptor& fd) {
 }
 
 void MMapSegments::requestCacheOut(MMapSegment* seg) noexcept {
-	StackUnlocker locker(&this->removeListlock);
+	StackUnlocker locker(&this->removeListlock, __FILE__, __LINE__);
 
 	this->removeList->addElement(seg);
 }
 
 void MMapSegments::cacheOutSegmentIndex(FileDescriptor& fd) {
-	StackUnlocker locker(&this->removeListlock);
+	StackUnlocker locker(&this->removeListlock, __FILE__, __LINE__);
 	int maxLoop = this->removeList->size();
 	for(int i = 0; i != maxLoop; ++i){
 		MMapSegment* seg = this->removeList->get(i);
@@ -173,7 +173,7 @@ void MMapSegments::cacheOutSegmentIndex(FileDescriptor& fd) {
 }
 
 void MMapSegments::sync(bool flushDisk, FileDescriptor& fd) {
-	StackUnlocker stackLock(&this->lock);
+	StackUnlocker stackLock(&this->lock, __FILE__, __LINE__);
 	cacheOutSegmentIndex(fd);
 
 	int maxLoop = this->segIndex->size();

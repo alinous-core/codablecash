@@ -94,7 +94,7 @@ void P2pHandshake::dispose() noexcept {
 }
 
 void P2pHandshake::disposeSubscriber() noexcept {
-	StackUnlocker __lock(this->subscriberLock);
+	StackUnlocker __lock(this->subscriberLock, __FILE__, __LINE__);
 
 	CommandSubscriber* sub = nullptr;
 	if(this->subscriber != nullptr){
@@ -109,7 +109,7 @@ void P2pHandshake::disposeSubscriber() noexcept {
 }
 
 void P2pHandshake::disposePublisher() noexcept {
-	StackUnlocker __lock(this->publisherLock);
+	StackUnlocker __lock(this->publisherLock, __FILE__, __LINE__);
 
 	CommandPublisher* pub = nullptr;
 	if(this->publisher != nullptr){
@@ -144,8 +144,10 @@ void P2pHandshake::fireExecuteCommand(const AbstractPubSubCommand *cmd) {
 	}
 	else if(type == AbstractPubSubCommand::TYPE_LOGIN){
 		const LoginPubSubCommand* loginCommand = dynamic_cast<const LoginPubSubCommand*>(cmd);
+
 		if(this->connectionManager != nullptr){
-			this->connectionManager->fireLoginHandshake(this, loginCommand);
+			const UnicodeString* canonicalName = loginCommand->getCanonicalName();
+			this->connectionManager->fireLoginHandshake(this, loginCommand, canonicalName);
 		}
 	}
 	else if(type == AbstractPubSubCommand::TYPE_CLIENT_LOGIN){
@@ -267,7 +269,7 @@ void P2pHandshake::connectPublisher(IClientSocket *con) {
 }
 
 AbstractCommandResponse* P2pHandshake::publishCommand(const AbstractPubSubCommand *cmd) {
-	StackUnlocker __lock(this->publisherLock);
+	StackUnlocker __lock(this->publisherLock, __FILE__, __LINE__);
 
 	if(this->publisher == nullptr || this->disabled){
 		throw new HandshakeConnectionException(L"Publisher is closed.", __FILE__, __LINE__);
@@ -276,28 +278,28 @@ AbstractCommandResponse* P2pHandshake::publishCommand(const AbstractPubSubComman
 }
 
 bool P2pHandshake::is2Delete() const noexcept {
-	StackUnlocker __lock(this->useRefLock);
+	StackUnlocker __lock(this->useRefLock, __FILE__, __LINE__);
 
 	return this->disabled && this->useRef == 0;
 }
 
 void P2pHandshake::setDisabled(bool bl) noexcept {
-	StackUnlocker __lock(this->useRefLock);
+	StackUnlocker __lock(this->useRefLock, __FILE__, __LINE__);
 	this->disabled = true;
 }
 
 void P2pHandshake::addRef() noexcept {
-	StackUnlocker __lock(this->useRefLock);
+	StackUnlocker __lock(this->useRefLock, __FILE__, __LINE__);
 	this->useRef++;
 }
 
 void P2pHandshake::decRef() noexcept {
-	StackUnlocker __lock(this->useRefLock);
+	StackUnlocker __lock(this->useRefLock, __FILE__, __LINE__);
 	this->useRef--;
 }
 
 int P2pHandshake::getRef() const noexcept {
-	StackUnlocker __lock(this->useRefLock);
+	StackUnlocker __lock(this->useRefLock, __FILE__, __LINE__);
 	return this->useRef;
 }
 

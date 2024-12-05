@@ -17,7 +17,7 @@
 namespace codablecash {
 
 DummyThread02::DummyThread02()
-		: P2pConnectionListeningThread(nullptr, nullptr) {
+		: P2pConnectionListeningThread(nullptr, nullptr, nullptr) {
 }
 
 DummyThread02::~DummyThread02() {

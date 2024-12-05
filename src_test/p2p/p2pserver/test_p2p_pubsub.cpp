@@ -91,7 +91,7 @@ TEST(P2pPubsubTestGroup, CommandSubscriberThread01) {
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
+	server->startIpV6Listening(nullptr, port, nullptr);
 	{
 		PubSubId* psId = PubSubId::createNewId(); __STP(psId);
 		P2pHandshake *handshake = new P2pHandshake(psId, &logger); __STP(handshake);
@@ -117,7 +117,7 @@ TEST(P2pPubsubTestGroup, CommandSubscriberThread02) {
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
+	server->startIpV6Listening(nullptr, port, nullptr);
 	{
 		PubSubId* psId = PubSubId::createNewId(); __STP(psId);
 		P2pHandshake *handshake = new P2pHandshake(psId, &logger); __STP(handshake);

@@ -26,7 +26,7 @@ class P2pConnectionAcceptThread;
 
 class P2pConnectionListeningThread : public alinous::AbstractThreadRunner {
 public:
-	P2pConnectionListeningThread(IServerSocket* srvSocket, P2pServer* p2pServer);
+	P2pConnectionListeningThread(IServerSocket* srvSocket, P2pServer* p2pServer, const UnicodeString* name);
 	virtual ~P2pConnectionListeningThread();
 
 	void setContinueFlag(bool bl);

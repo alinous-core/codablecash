@@ -5,6 +5,7 @@ set(__src
 	CachedStatusCacheContext.cpp
 	CachedStatusCacheRepository.cpp
 	IStatusCacheContext.cpp
+	NullLockinManager.cpp
 	RemovedDummyUtxo.cpp
 	StatusCacheContext.cpp
 	TransactionContextCache.cpp

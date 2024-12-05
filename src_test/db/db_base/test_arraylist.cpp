@@ -123,6 +123,29 @@ TEST(ArrayListTestGroup, test08){
 	}
 }
 
+TEST(ArrayListTestGroup, test09){
+	ArrayList<dummyInt> ar(8);
+
+	int maxLoop = 100;
+	for(int i = 0; i != maxLoop; ++i){
+		dummyInt* nobj = new dummyInt(i);
+		ar.addElement(nobj, 0);
+	}
+
+	int pos = ar.indexOfPtr(nullptr);
+	CHECK(pos < 0);
+
+	int size = ar.size();
+	CHECK(ar.size() == maxLoop);
+
+	for(int i = 0; i != size; ++i){
+		dummyInt* ptr = ar.remove(0);
+		CHECK(ptr->value == maxLoop - i - 1);
+
+		delete ptr;
+	}
+}
+
 void releaseInternalObjects(ArrayList<Integer, Integer::ValueCompare>* ptr){
 	int maxLoop = ptr->size();
 	for(int i = 0; i != maxLoop; ++i){

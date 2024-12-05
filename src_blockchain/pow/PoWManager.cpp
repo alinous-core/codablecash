@@ -75,16 +75,24 @@ void PoWManager::requestNewHeaderId() {
 void PoWManager::onNonceCalculated(uint64_t height, const BlockHeaderId *bid, const PoWNonce *nonce) {
 	bool isNonceCalculated = false;
 	{
-		StackUnlocker unlocker(this->mutexBlockId);
+		StackUnlocker unlocker(this->mutexBlockId, __FILE__, __LINE__);
 		isNonceCalculated = (this->lastBlockId == nullptr || this->lastBlockId->compareTo(bid) != 0);
 	}
 
+	UnicodeString dmsg(L"processing onNonceCalculated.");
+	dmsg.append(L"At height ");
+	dmsg.append((int)height);
+
+	dmsg.append(L" isNonceCalculated ");
+	isNonceCalculated ? dmsg.append(L"true") : dmsg.append(L"false");
+
+	this->logger->debugLog(ISystemLogger::DEBUG_POW_CALC_THREAD,&dmsg, __FILE__, __LINE__);
 
 	if(isNonceCalculated){
 		fireNonceCalculated(height, bid, nonce);
 
 		{
-			StackUnlocker unlocker(this->mutexBlockId);
+			StackUnlocker unlocker(this->mutexBlockId, __FILE__, __LINE__);
 			delete this->lastBlockId;
 			this->lastBlockId = dynamic_cast<BlockHeaderId*>(bid->copyData());
 		}

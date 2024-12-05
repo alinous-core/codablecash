@@ -7,14 +7,12 @@
 #include "test_utils/t_macros.h"
 
 #include "../../test_utils/TestPortSelection.h"
-#include "../utils/DebugCodablecashConfigSetup.h"
 #include "../wallet_util/WalletDriver.h"
 #include "../../p2p/p2pserver/dummy/DummyClientListner.h"
 #include "../utils/ClientConnectUtils.h"
 #include "../utils/InstanceDriver.h"
 
 #include "bc/DebugDefaultLogger.h"
-#include "bc/CodablecashConfig.h"
 #include "bc/CodablecashNodeInstance.h"
 
 #include "bc_network/NodeIdentifierSource.h"
@@ -49,11 +47,15 @@
 #include "bc_memorypool/MemoryPool.h"
 
 #include "base_thread/StackUnlocker.h"
+#include "bc/CodablecashSystemParam.h"
 
+#include "pubsub/CommandPublisherSetting.h"
+#include "../utils/DebugCodablecashSystemParamSetup.h"
 
 using alinous::Os;
 
 #include "osenv/funcs.h"
+
 using namespace codablecash;
 
 TEST_GROUP(TestSyncBlockGroup) {
@@ -66,6 +68,8 @@ TEST_GROUP(TestSyncBlockGroup) {
 };
 
 TEST(TestSyncBlockGroup, case01){
+	CommandPublisherSettingStack __set(5, 300);
+
 	StackTestPortGetter portSel;
 	int port01 = portSel.allocPort();
 	int port02 = portSel.allocPort();
@@ -77,11 +81,11 @@ TEST(TestSyncBlockGroup, case01){
 
 	DebugDefaultLogger logger;
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig02(config);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig02(param);
 
 	CodablecashNetworkNodeConfig nwconfig;
-	nwconfig.setSysConfig(&config);
+	nwconfig.setSysConfig(&param);
 
 	CodablecashNetworkNodeConfig* config01 = new CodablecashNetworkNodeConfig(nwconfig); __STP(config01);
 	CodablecashNetworkNodeConfig* config02 = new CodablecashNetworkNodeConfig(nwconfig); __STP(config02);
@@ -137,7 +141,7 @@ TEST(TestSyncBlockGroup, case01){
 			const wchar_t* host = L"::1";
 			int port = config01->getPort();
 
-			P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, host, port); __STP(rec);
+			P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, nullptr, host, port); __STP(rec);
 			seeder.addRecord(rec);
 		}
 	}

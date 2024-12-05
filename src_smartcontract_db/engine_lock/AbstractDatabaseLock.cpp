@@ -40,12 +40,12 @@ ReadLockHandle* AbstractDatabaseLock::readLock() {
 
 	ReadLockHandle* handle = nullptr;
 	{
-		StackUnlocker stackLock(this->hashMutex);
+		StackUnlocker stackLock(this->hashMutex, __FILE__, __LINE__);
 
 		handle = this->readHandles.get(&oid);
 
 		if(handle == nullptr){
-			this->gate->enter();
+			this->gate->enter(__FILE__, __LINE__);
 
 			handle = new ReadLockHandle(&oid, this);
 
@@ -65,12 +65,12 @@ WriteLockHandle* AbstractDatabaseLock::writeLock() {
 	CdbOid oid(threadId);
 	WriteLockHandle* handle = nullptr;
 	{
-		StackUnlocker stackLock(this->hashMutex);
+		StackUnlocker stackLock(this->hashMutex, __FILE__, __LINE__);
 
 		handle = this->writeHandles.get(&oid);
 
 		if(handle == nullptr){
-			this->gate->close();
+			this->gate->close(__FILE__, __LINE__);
 
 			handle = new WriteLockHandle(&oid, this);
 
@@ -104,7 +104,7 @@ void AbstractDatabaseLock::unclockHandle(AbstractLockHandle* handle) noexcept {
 
 void AbstractDatabaseLock::readUnlock(ReadLockHandle* handle) noexcept {
 	{
-		StackUnlocker stackLock(this->hashMutex);
+		StackUnlocker stackLock(this->hashMutex, __FILE__, __LINE__);
 
 		const CdbOid* key = handle->getThreadId();
 		this->readHandles.remove(key);
@@ -117,7 +117,7 @@ void AbstractDatabaseLock::readUnlock(ReadLockHandle* handle) noexcept {
 
 void AbstractDatabaseLock::writeUnlock(WriteLockHandle* handle) noexcept {
 	{
-		StackUnlocker stackLock(this->hashMutex);
+		StackUnlocker stackLock(this->hashMutex, __FILE__, __LINE__);
 
 		const CdbOid* key = handle->getThreadId();
 		this->writeHandles.remove(key);

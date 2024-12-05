@@ -11,7 +11,7 @@
 
 namespace codablecash {
 
-BlankBlockWithCoinbaseGenerator02::BlankBlockWithCoinbaseGenerator02(int16_t zone, CodablecashConfig* config, MemoryPool* memoryPool
+BlankBlockWithCoinbaseGenerator02::BlankBlockWithCoinbaseGenerator02(int16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool
 		, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger)
 		: BlankBlockWithCoinbaseGenerator(zone, config, memoryPool, ctrl, miningConfig, logger){
 

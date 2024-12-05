@@ -24,18 +24,21 @@ class AbstractCommandResponse {
 public:
 	static const constexpr uint32_t TYPE_RES_ECHO{1};
 	static const constexpr uint32_t TYPE_RES_OK{2};
-	static const constexpr uint32_t TYPE_RES_ERROR{3};
-	static const constexpr uint32_t TYPE_RES_SIGNATURE_ERROR{4};
-	static const constexpr uint32_t TYPE_RES_LOGIN_ERROR{5};
+	static const constexpr uint32_t TYPE_RES_WARNING{3};
+	static const constexpr uint32_t TYPE_RES_ERROR{4};
+	static const constexpr uint32_t TYPE_RES_SIGNATURE_ERROR{5};
+	static const constexpr uint32_t TYPE_RES_LOGIN_ERROR{6};
 
 	static const constexpr uint32_t TYPE_RES_PING{10};
 	static const constexpr uint32_t TYPE_RES_DOWNLOAD_DNS_INFO{11};
 
+	static const constexpr uint32_t TYPE_NODE_COMMAND_VALIDATION_ERROR{99};
 	static const constexpr uint32_t TYPE_RES_SYNC_MEMPOOL{100};
 	static const constexpr uint32_t TYPE_RES_SYNC_HEADER{101};
 	static const constexpr uint32_t TYPE_RES_DOWNLOAD_BLOCK{102};
 	static const constexpr uint32_t TYPE_RES_DOWNLOAD_OMITTED_BLOCK_BODY{103};
 	static const constexpr uint32_t TYPE_RES_DOWNLOAD_TRANSACTIONS{104};
+
 
 	explicit AbstractCommandResponse(uint32_t type);
 	virtual ~AbstractCommandResponse();

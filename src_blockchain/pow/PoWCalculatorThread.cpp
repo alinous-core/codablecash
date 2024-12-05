@@ -64,11 +64,13 @@ void PoWCalculatorThread::process() noexcept {
 
 	while(isRunning()){
 		{
-			StackUnlocker unlocker(lock);
+			StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 			if(this->suspended || this->lastBlockId == nullptr){
 				this->status = STAT_WAITING;
-				lock->wait();
+				if(this->running){
+					lock->wait();
+				}
 				this->status = STAT_RUNNING;
 			}
 			else if(!this->suspended){
@@ -82,6 +84,11 @@ void PoWCalculatorThread::process() noexcept {
 
 		// calc one
 		if(!isSuspend() && bid != nullptr){
+			UnicodeString dmsg(L"Calclating....");
+			dmsg.append(L"At height ");
+			dmsg.append((int)height);
+			this->logger->debugLog(ISystemLogger::DEBUG_POW_CALC_THREAD, &dmsg, __FILE__, __LINE__);
+
 			doCalc(height, 10, bid, tdiff, merkleRoot, tm);
 		}
 
@@ -105,22 +112,30 @@ void PoWCalculatorThread::doCalc(uint64_t height, int maxLoop, const BlockHeader
 void PoWCalculatorThread::checkAndReportNonce(uint64_t height, const BlockHeaderId *bid, const BigInteger *tdiff, const PoWNonce *nonce) {
 	bool isCalculated = false;
 	{
-		StackUnlocker unlocker(this->lock);
+		StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
+
 		isCalculated = (this->lastBlockId->compareTo(bid) == 0);
-	}
-
-	if(isCalculated){
-		this->powManager->onNonceCalculated(height, bid, nonce);
-
-		{
-			StackUnlocker unlocker(this->lock);
-
+		if(isCalculated){
 			delete this->lastBlockId;
 			delete this->targetDifficulty;
 
 			this->lastBlockId = nullptr;
 			this->targetDifficulty = nullptr;
+
+			UnicodeString dmsg(L"Reset calc lastBlockId.");
+			dmsg.append(L"At height ");
+			dmsg.append((int)height);
+			this->logger->debugLog(ISystemLogger::DEBUG_POW_CALC_THREAD,&dmsg, __FILE__, __LINE__);
 		}
+	}
+
+	if(isCalculated){
+		UnicodeString dmsg(L"onNonceCalculated.");
+		dmsg.append(L"At height ");
+		dmsg.append((int)height);
+
+		this->logger->debugLog(ISystemLogger::DEBUG_POW_CALC_THREAD,&dmsg, __FILE__, __LINE__);
+		this->powManager->onNonceCalculated(height, bid, nonce);
 	}
 }
 
@@ -131,7 +146,7 @@ PoWNonce* PoWCalculatorThread::calcOne(const BlockHeaderId *blockHeaderId, const
 	PoWNonce* ret = nullptr;
 
 	BigInteger diff = result->getDifficulty();
-	if(diff.compareTo(*tdiff) > 0){
+	if(diff.compareTo(*tdiff) >= 0){
 		ret = __STP_MV(n);
 	}
 
@@ -139,14 +154,14 @@ PoWNonce* PoWCalculatorThread::calcOne(const BlockHeaderId *blockHeaderId, const
 }
 
 void PoWCalculatorThread::request(uint64_t lastBlockHeight, const BlockHeaderId *lastBlockId, const BlockMerkleRoot* merkleRoot, const SystemTimestamp* tm, const BigInteger *targetDifficulty) noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
-	UnicodeString message(L"  [PoW Request] Height: ");
+	UnicodeString message(L"  [PoW Request] Last Height: ");
 	{
 		UnicodeString* strId = lastBlockId->toString(); __STP(strId);
 
 		message.append((int)lastBlockHeight);
-		message.append(L" Block Id: ").append(strId);
+		message.append(L" Last Block Id: ").append(strId);
 	}
 
 	if(this->lastBlockId != nullptr && this->lastBlockId->equals(lastBlockId)){
@@ -173,33 +188,33 @@ void PoWCalculatorThread::request(uint64_t lastBlockHeight, const BlockHeaderId 
 }
 
 void PoWCalculatorThread::setRunning(bool bl) noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	this->running = bl;
 	this->lock->notifyAll();
 }
 
 void PoWCalculatorThread::setSuspended(bool bl) noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	this->suspended = bl;
 	this->lock->notifyAll();
 }
 
 bool PoWCalculatorThread::isSuspend() const noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	return this->suspended;
 }
 
 bool PoWCalculatorThread::isRunning() const noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	return this->running;
 }
 
 bool PoWCalculatorThread::isSuspendStatus() const noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	return this->suspended && this->status == STAT_WAITING;
 }

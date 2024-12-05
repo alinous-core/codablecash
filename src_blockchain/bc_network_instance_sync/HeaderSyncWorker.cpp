@@ -14,7 +14,6 @@
 #include "bc_network/NodeIdentifierSource.h"
 
 #include "bc/CodablecashNodeInstance.h"
-#include "bc/CodablecashConfig.h"
 #include "bc/ExceptionThrower.h"
 
 #include "bc_p2p/BlockchainNodeHandshake.h"
@@ -27,6 +26,7 @@
 #include "bc_p2p_cmd_node/SyncHeaderHeightData.h"
 
 #include "base/StackRelease.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "pubsub_cmd/AbstractCommandResponse.h"
 
@@ -52,7 +52,7 @@ HeaderSyncWorker::~HeaderSyncWorker() {
 void HeaderSyncWorker::doProcess() {
 	CodablecashNetworkNode* node = this->parent->getCodablecashNetworkNode();
 	CodablecashNodeInstance* inst = node->getInstance();
-	CodablecashConfig* config = inst->getCodablecashConfig();
+	CodablecashSystemParam* param = inst->getCodablecashSystemParam();
 
 	BlochchainP2pManager* p2pManager = inst->getBlochchainP2pManager();
 

@@ -39,7 +39,7 @@ static void createZone(uint16_t zone, int maxLoop, P2pNodeDatabase& info){
 		}
 
 
-		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, L"testhost", 10000); __STP(rec);
+		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, nullptr, L"testhost", 10000); __STP(rec);
 		info.addRecord(rec);
 	}
 }
@@ -91,7 +91,7 @@ TEST(TestNetworkInfodbZoneGroup, case02){
 		NodeIdentifierSource* source = NodeIdentifierSource::create(); __STP(source);
 		NodeIdentifier nodeId = source->toNodeIdentifier();
 
-		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId, L"testhost", 10000); __STP(rec);
+		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId, nullptr, L"testhost", 10000); __STP(rec);
 		info.addRecord(rec);
 
 		rec->setZone(1);

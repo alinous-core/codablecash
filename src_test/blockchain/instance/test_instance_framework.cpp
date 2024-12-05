@@ -18,11 +18,10 @@
 
 #include "bc_block/Block.h"
 
-#include "bc/CodablecashConfig.h"
-
 #include "bc_block_generator/MiningConfig.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+#include "bc/CodablecashSystemParam.h"
 
 using namespace codablecash;
 
@@ -49,7 +48,7 @@ TEST(TestInstanceFrameworkGroup, case02){
 	_ST(File, baseDir, projectFolder.get(L"codable_home"))
 	_ST(File, walletBaseDir, projectFolder.get(L"wallet"))
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -105,7 +104,7 @@ TEST(TestInstanceFrameworkGroup, case01){
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"codable_home"))
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 

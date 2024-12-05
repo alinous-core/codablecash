@@ -28,14 +28,18 @@
 
 #include "bc_p2p_cmd_client_notify/ClientNotifyNewTransactionCommand.h"
 
-#include "bc_p2p_cmd_node/SendTransactionNodeCommand.h"
 #include "bc_p2p_cmd_node/SyncMempoolNodeCommand.h"
 #include "bc_p2p_cmd_node/SyncHeaderNodeCommand.h"
 #include "bc_p2p_cmd_node/DownloadBlockNodeCommand.h"
-#include "bc_p2p_cmd_node/ReportMinedBlockNodeCommand.h"
 #include "bc_p2p_cmd_node/DownloadTransactionsNodeCommand.h"
 #include "bc_p2p_cmd_node/NopNodeCommand.h"
 #include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommand.h"
+
+#include "bc_p2p_cmd_node_consensus/ReportMinedBlockNodeCommand.h"
+#include "bc_p2p_cmd_node_consensus/ReportNonceCalculatedNodeCommand.h"
+#include "bc_p2p_cmd_node_consensus/SendTransactionNodeCommand.h"
+#include "bc_p2p_cmd_node_consensus/SendVoteTransactionNodeCommand.h"
+
 
 namespace codablecash {
 
@@ -63,7 +67,7 @@ AbstractPubSubCommand* AbstractPubSubCommand::createFromBinary(ByteBuffer *buff)
 		ret = new EndHandshakeCommand();
 		break;
 	case TYPE_LOGIN:
-		ret = new LoginPubSubCommand(0);
+		ret = new LoginPubSubCommand(0, nullptr);
 		break;
 	case TYPE_CLIENT_LOGIN:
 		ret = new LoginClientCommand(0);
@@ -77,7 +81,6 @@ AbstractPubSubCommand* AbstractPubSubCommand::createFromBinary(ByteBuffer *buff)
 	case TYPE_CLIENT_TRANSACTION_TRANSFER:
 		ret = new SendTransactionClientCommand();
 		break;
-	// TODO case AbstractPubSubCommand::TYPE_NETWORK_NODE_LIVE:
 	// TODO case AbstractPubSubCommand::TYPE_NETWORK_NODE_SHUTDOWN:
 
 	case TYPE_NODE_NOP:
@@ -107,6 +110,14 @@ AbstractPubSubCommand* AbstractPubSubCommand::createFromBinary(ByteBuffer *buff)
 	case TYPE_NODE_DOWNLOAD_TRANSACTIONS:
 		ret = new DownloadTransactionsNodeCommand();
 		break;
+
+	case TYPE_CONSENSUS_REPORT_NONCE_CALCULATED:
+		ret = new ReportNonceCalculatedNodeCommand();
+		break;
+	case TYPE_CONSENSUS_SEND_VOTE_TRANSACTION:
+		ret = new SendVoteTransactionNodeCommand();
+		break;
+
 	default:
 		throw new PubsubCommandException(L"Wrong command type.", __FILE__, __LINE__);
 	}

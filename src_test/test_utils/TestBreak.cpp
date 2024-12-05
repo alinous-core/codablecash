@@ -20,7 +20,7 @@ TestBreak::~TestBreak() {
 }
 
 void TestBreak::resume(int num) {
-	this->lock.lock();
+	this->lock.lock(__FILE__, __LINE__);
 
 	while(location != num){
 		this->lock.wait();
@@ -31,7 +31,7 @@ void TestBreak::resume(int num) {
 }
 
 void TestBreak::breakpoint(int num) {
-	StackUnlocker locker(&this->lock);
+	StackUnlocker locker(&this->lock, __FILE__, __LINE__);
 
 	this->location = num;
 	this->lock.notifyAll();

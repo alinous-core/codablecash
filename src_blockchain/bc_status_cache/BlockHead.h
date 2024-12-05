@@ -56,6 +56,7 @@ private:
 	BlockHeadElement* getTopBlockHeadElement(int posFromTop) const noexcept;
 
 	int compareToByVoted(const BlockHead* other) const noexcept;
+	int compareToByVoting(const BlockHead* other) const noexcept;
 	int compareToByTotalMevScore(const BlockHead* other) const noexcept;
 	int compareToByLastHeight(const BlockHead* other) const noexcept;
 	int compareToByLastTimestamp(const BlockHead* other) const noexcept;

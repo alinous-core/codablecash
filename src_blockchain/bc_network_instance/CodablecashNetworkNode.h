@@ -23,6 +23,8 @@ class ISystemLogger;
 class INetworkSeeder;
 class P2pNodeRecord;
 class NodeIdentifierSource;
+class BlockchainNodeHandshake;
+class NodeIdentifier;
 
 class CodablecashNetworkNode {
 public:
@@ -30,6 +32,8 @@ public:
 	virtual ~CodablecashNetworkNode();
 
 	void shutdown() noexcept;
+
+	void setNetworkConfig(const CodablecashNetworkNodeConfig* nwconfig);
 
 	bool initBlank(uint16_t zoneSelf);
 	bool generateNetwork(uint16_t zoneSelf);
@@ -50,6 +54,10 @@ public:
 
 	void setNodeName(const wchar_t* name) noexcept;
 
+	uint64_t getMaxHeight(uint16_t zone) const;
+
+	BlockchainNodeHandshake* getNodeHandshakeByNodeId(const NodeIdentifier* nodeId) const noexcept;
+
 private:
 	void initDatabase(ArrayList<P2pNodeRecord>* seedList);
 	void maintainNetwork();
@@ -59,6 +67,8 @@ private:
 	CodablecashNetworkNodeConfig* nwconfig;
 	CodablecashNodeInstance* inst;
 	ISystemLogger* logger;
+
+	UnicodeString* nodeName;
 };
 
 } /* namespace codablecash */

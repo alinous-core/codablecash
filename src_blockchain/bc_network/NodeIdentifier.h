@@ -35,6 +35,7 @@ public:
 	virtual IBlockObject* copyData() const noexcept;
 
 	int compareTo(const NodeIdentifier* other) const noexcept;
+	bool equals(const NodeIdentifier* other) const noexcept;
 
 	const BigInteger* getPublicKey() const noexcept {
 		return this->nodeIdentifier;

@@ -17,7 +17,7 @@ using namespace alinous;
 namespace codablecash {
 
 class CodablecashNodeInstance;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class ISystemLogger;
 class Block;
 
@@ -26,7 +26,7 @@ public:
 	explicit ValidationInstance(const File* baseDir);
 	virtual ~ValidationInstance();
 
-	void initInstance(const CodablecashConfig* config, ISystemLogger* logger);
+	void initInstance(const CodablecashSystemParam* config, ISystemLogger* logger);
 	void validateBlock(const Block* block);
 
 private:

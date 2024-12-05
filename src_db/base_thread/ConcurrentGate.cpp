@@ -8,6 +8,8 @@
 #include "base_thread/ConcurrentGate.h"
 #include "base_thread/StackUnlocker.h"
 
+#include "base_thread_lockcheck/LockChecker.h"
+
 namespace alinous {
 
 ConcurrentGate::ConcurrentGate() noexcept {
@@ -19,15 +21,20 @@ ConcurrentGate::ConcurrentGate() noexcept {
 ConcurrentGate::~ConcurrentGate() {
 }
 
-void ConcurrentGate::enter() noexcept {
+void ConcurrentGate::enter(const char *srcfile, int line) noexcept {
+#ifdef __DEBUG__
+	LockChecker* checker = LockChecker::getInstance();
+	checker->checkgate(this, srcfile, line);
+#endif
+
 	{
-		StackUnlocker __st_lock(&this->stateLock);
+		StackUnlocker __st_lock(&this->stateLock, __FILE__, __LINE__);
 		if(this->isOpened){
 			this->counter++;
 		}
 		else{
 			{
-				StackUnlocker __st_lock2(&this->roomLock);
+				StackUnlocker __st_lock2(&this->roomLock, __FILE__, __LINE__);
 				this->roomWaiter++;
 			}
 
@@ -39,7 +46,7 @@ void ConcurrentGate::enter() noexcept {
 						ROOM
 			 ---------------------- */
 			{
-				StackUnlocker __st_lock2(&this->roomLock);
+				StackUnlocker __st_lock2(&this->roomLock, __FILE__, __LINE__);
 
 				this->roomWaiter--;
 				if(this->roomWaiter == 0){
@@ -52,8 +59,13 @@ void ConcurrentGate::enter() noexcept {
 }
 
 void ConcurrentGate::exit() noexcept {
+#ifdef __DEBUG__
+	LockChecker* checker = LockChecker::getInstance();
+	checker->removegate(this);
+#endif
+
 	{
-		StackUnlocker __st_lock(&this->stateLock);
+		StackUnlocker __st_lock(&this->stateLock, __FILE__, __LINE__);
 		this->counter--;
 		if(this->counter == 0){
 			this->stateLock.notifyAll();
@@ -62,15 +74,19 @@ void ConcurrentGate::exit() noexcept {
 }
 
 void ConcurrentGate::open() noexcept {
+#ifdef __DEBUG__
+	LockChecker* checker = LockChecker::getInstance();
+	checker->removegate(this);
+#endif
 	{
-		StackUnlocker __st_lock(&this->stateLock);
+		StackUnlocker __st_lock(&this->stateLock, __FILE__, __LINE__);
 
 		this->isOpened = true;
 		this->stateLock.notifyAll();
 	}
 
 	{
-		StackUnlocker __st_lock(&this->roomLock);
+		StackUnlocker __st_lock(&this->roomLock, __FILE__, __LINE__);
 
 		if(this->roomWaiter > 0){
 			this->roomLock.wait();
@@ -80,11 +96,16 @@ void ConcurrentGate::open() noexcept {
 	this->doorKeeperLock.unlock();
 }
 
-void ConcurrentGate::close() noexcept {
-	this->doorKeeperLock.lock();
+void ConcurrentGate::close(const char *srcfile, int line) noexcept {
+#ifdef __DEBUG__
+	LockChecker* checker = LockChecker::getInstance();
+	checker->checkgate(this, srcfile, line);
+#endif
+
+	this->doorKeeperLock.lock(__FILE__, __LINE__);
 
 	{
-		StackUnlocker __st_lock(&this->stateLock);
+		StackUnlocker __st_lock(&this->stateLock, __FILE__, __LINE__);
 
 		this->isOpened = false; // close the gate
 		while(this->counter > 0){
@@ -95,18 +116,18 @@ void ConcurrentGate::close() noexcept {
 }
 
 
-StackReadLock::StackReadLock(ConcurrentGate* gate) noexcept {
+StackReadLock::StackReadLock(ConcurrentGate* gate, const char *srcfile, int line) noexcept {
 	this->gate = gate;
-	gate->enter();
+	gate->enter(srcfile, line);
 }
 
 StackReadLock::~StackReadLock() {
 	gate->exit();
 }
 
-StackWriteLock::StackWriteLock(ConcurrentGate* gate) noexcept {
+StackWriteLock::StackWriteLock(ConcurrentGate* gate, const char *srcfile, int line) noexcept {
 	this->gate = gate;
-	gate->close();
+	gate->close(srcfile, line);
 }
 
 StackWriteLock::~StackWriteLock() {

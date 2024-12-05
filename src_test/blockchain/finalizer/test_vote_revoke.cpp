@@ -8,16 +8,14 @@
 #include "test_utils/t_macros.h"
 
 #include "../utils/InstanceDriver.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc_block_generator/MiningConfig.h"
 
 #include "bc_base/BalanceUnit.h"
 
-#include "../utils/DebugCodablecashConfigSetup.h"
 #include "bc/DebugDefaultLogger.h"
 
 #include "bc/CodablecashNodeInstance.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_status_cache/BlockchainController.h"
 
@@ -30,6 +28,7 @@
 #include "../utils/ValidationInstance.h"
 #include "bc_block/Block.h"
 
+#include "../utils/DebugCodablecashSystemParamSetup.h"
 #include "dummy/FinalizeMissAndBlankblockTestAllocator.h"
 
 using namespace codablecash;
@@ -55,8 +54,8 @@ TEST(TestVoteRevokeTicketGroup, case01){
 
 	driver.getLogger()->setSection(ISystemLogger::DEBUG_CHAIN_HEAD_DETECT);
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
+	CodablecashSystemParam config;
+	DebugCodablecashSystemParamSetup::setupConfig01(config);
 	config.setPowBlockTimeMills(10);
 
 	driver.initWallet(1);

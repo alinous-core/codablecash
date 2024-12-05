@@ -94,6 +94,10 @@ public:
 		return true;
 	}
 
+	const SystemTimestamp* getTimestamp() const noexcept {
+		return this->timestamp;
+	}
+
 protected:
 	virtual UtxoValidationResult validateUtxos(MemPoolTransaction *memTrx, IStatusCacheContext* context, BalanceUnit fee) const;
 

@@ -18,6 +18,7 @@
 #include "btree/BtreeScanner.h"
 
 #include "base/StackRelease.h"
+#include "base/ArrayList.h"
 
 #include "bc_blockstore_header/BlockHeaderIdKeyFactory.h"
 #include "bc_blockstore_header/BlockHeaderIdKey.h"
@@ -104,6 +105,38 @@ BtreeScanner* VotingBlockStatusRepository::getBtreeScanner() {
 	scanner->begin();
 
 	return scanner;
+}
+
+void VotingBlockStatusRepository::clean(uint64_t height) {
+	ArrayList<BlockHeaderIdKey> list;
+	list.setDeleteOnExit();
+
+	{
+		BtreeScanner* scanner = this->voteStatusStore->getScanner(); __STP(scanner);
+		scanner->begin();
+
+		while(scanner->hasNext()){
+			const AbstractBtreeKey* key = scanner->nextKey();
+			const IBlockObject* obj = scanner->next();
+
+			const VotingBlockStatus* status = dynamic_cast<const VotingBlockStatus*>(obj);
+			uint64_t h = status->getHeight();
+			if(h < height){
+				BlockHeaderIdKey* headerKey = dynamic_cast<BlockHeaderIdKey*>(key->copyData());
+				list.addElement(headerKey);
+			}
+		}
+	}
+
+	{
+		int maxLoop = list.size();
+		for(int i = 0; i != maxLoop; ++i){
+			BlockHeaderIdKey* key = list.get(i);
+			bool bl = this->voteStatusStore->remove(key);
+
+			assert(bl == true);
+		}
+	}
 }
 
 } /* namespace codablecash */

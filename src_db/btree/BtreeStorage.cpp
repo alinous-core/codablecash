@@ -208,7 +208,7 @@ void BtreeStorage::setRootFpos(uint64_t rootFpos){
 }
 
 NodeHandle* BtreeStorage::loadNode(uint64_t fpos) {
-	StackUnlocker __lock(&this->lock);
+	StackUnlocker __lock(&this->lock, __FILE__, __LINE__);
 
 	NodeCacheRef* ref = this->cache->get(fpos);
 	if(ref != nullptr){
@@ -232,7 +232,7 @@ NodeHandle* BtreeStorage::loadNode(uint64_t fpos) {
 }
 
 IBlockObject* BtreeStorage::loadData(uint64_t fpos) {
-	StackUnlocker __lock(&this->lock);
+	StackUnlocker __lock(&this->lock, __FILE__, __LINE__);
 
 	IBlockHandle* handle = this->store->get(fpos);
 	StackRelease<IBlockHandle> __st_handle(handle);
@@ -255,7 +255,7 @@ AbstractTreeNode* BtreeStorage::makeNodeFromBinary(ByteBuffer* buff, BtreeKeyFac
 }
 
 void BtreeStorage::remove(uint64_t fpos) {
-	StackUnlocker __lock(&this->lock);
+	StackUnlocker __lock(&this->lock, __FILE__, __LINE__);
 
 	// clear cache
 	NodeCacheRef* ref = this->cache->get(fpos);

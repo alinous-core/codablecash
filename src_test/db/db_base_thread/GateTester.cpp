@@ -53,10 +53,10 @@ void GateTester::process() noexcept {
 	THREAD_ID id = Os::getCurrentThreadId();
 
 	{
-		StackUnlocker __st_lock(this->startLock);
+		StackUnlocker __st_lock(this->startLock, __FILE__, __LINE__);
 		{
 			{
-				StackUnlocker __st_lock2(GateTester::launchComplete);
+				StackUnlocker __st_lock2(GateTester::launchComplete, __FILE__, __LINE__);
 				GateTester::launchComplete->notifyAll();
 				this->ready = true;
 			}
@@ -79,7 +79,7 @@ void GateTester::process() noexcept {
 
 void GateTester::writer() {
 	for (int i = 0; i < this->loops; i++) {
-		this->gate->close();
+		this->gate->close(__FILE__, __LINE__);
 		GateTester::criticalMarker->enter();
 
 		//printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -94,7 +94,7 @@ void GateTester::writer() {
 
 void GateTester::reader() {
 	for (int i = 0; i < this->loops; i++) {
-		this->gate->enter();
+		this->gate->enter(__FILE__, __LINE__);
 
 		GateTester::criticalMarker->checkCritical();
 

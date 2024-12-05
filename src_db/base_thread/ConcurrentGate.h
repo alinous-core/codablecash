@@ -18,10 +18,10 @@ public:
 	ConcurrentGate() noexcept;
 	virtual ~ConcurrentGate();
 
-	void enter() noexcept;
+	void enter(const char *srcfile, int line) noexcept;
 	void exit() noexcept;
+	void close(const char *srcfile, int line) noexcept;
 	void open() noexcept;
-	void close() noexcept;
 
 private:
 	bool isOpened;
@@ -36,7 +36,7 @@ private:
 class StackReadLock {
 public:
 	StackReadLock(StackReadLock& inst) = delete;
-	explicit StackReadLock(ConcurrentGate* gate) noexcept;
+	explicit StackReadLock(ConcurrentGate* gate, const char *srcfile, int line) noexcept;
 	~StackReadLock();
 private:
 	ConcurrentGate* gate;
@@ -45,7 +45,7 @@ private:
 class StackWriteLock {
 public:
 	StackWriteLock(StackWriteLock& inst) = delete;
-	explicit StackWriteLock(ConcurrentGate* gate) noexcept;
+	explicit StackWriteLock(ConcurrentGate* gate, const char *srcfile, int line) noexcept;
 	~StackWriteLock();
 
 	ConcurrentGate* move() noexcept;

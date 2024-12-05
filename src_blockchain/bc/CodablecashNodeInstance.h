@@ -28,7 +28,7 @@ class BlockchainController;
 class PoWManager;
 class BlockGenerator;
 class MiningConfig;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class CentralProcessor;
 class BlochchainP2pManager;
 class FinalizerPool;
@@ -38,6 +38,7 @@ class P2pRequestProcessor;
 class P2pDnsManager;
 class P2pHandshake;
 class P2pNodeRecord;
+class NodeIdentifier;
 
 class CodablecashNodeInstance : public IPubsubCommandExecutor {
 public:
@@ -49,8 +50,8 @@ public:
 	static const constexpr int IP_V4{4};
 	static const constexpr int IP_V6{6};
 
-	CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashConfig* config, const IInstanceMemberAllocator* allocator);
-	CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashConfig* config);
+	CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* param, const IInstanceMemberAllocator* allocator);
+	CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* param);
 	virtual ~CodablecashNodeInstance();
 
 	bool initBlankInstance(uint16_t zoneSelf, uint16_t numZones);
@@ -63,7 +64,7 @@ public:
 	void resumeBlockGenerator();
 	bool isBlockGeneratorSuspendStatus() const noexcept;
 
-	void startNetwork(int port);
+	void startNetwork(const UnicodeString *host, int port);
 	void startProcessors(const NodeIdentifierSource* networkKey, bool suspend);
 
 	void startBlockFinalizer(const NodeIdentifierSource *nodeSource);
@@ -71,10 +72,10 @@ public:
 	void shutdownNetwork();
 	void shutdown();
 
-	void connectIpV6Node(uint16_t zone, const UnicodeString* host, int port);
-	void connectIpV4Node(uint16_t zone, const UnicodeString* host, int port);
-	void doConnectIpNode(uint16_t zone, const UnicodeString* host, int port, int protocol);
-	void loginNode(uint16_t zone, P2pHandshake *handshake);
+	void connectIpV6Node(uint16_t zone, const UnicodeString* host, int port, const NodeIdentifier* nodeId, const UnicodeString* canonicalName);
+	void connectIpV4Node(uint16_t zone, const UnicodeString* host, int port, const NodeIdentifier* nodeId, const UnicodeString* canonicalName);
+	void doConnectIpNode(uint16_t zone, const UnicodeString* host, int port, int protocol, const NodeIdentifier* nodeId, const UnicodeString* canonicalName);
+	void loginNode(uint16_t zone, P2pHandshake *handshake, const UnicodeString* canonicalName);
 
 	void maintainNetwork();
 
@@ -100,8 +101,8 @@ public:
 	uint16_t getZoneSelf() const noexcept;
 	int getNumZones() const noexcept;
 
-	CodablecashConfig* getCodablecashConfig() const noexcept {
-		return this->config;
+	CodablecashSystemParam* getCodablecashSystemParam() const noexcept {
+		return this->param;
 	}
 	ISystemLogger* getLogger() const noexcept {
 		return this->logger;
@@ -117,10 +118,13 @@ public:
 
 	File* getTempCacheDir() const;
 
-	void setNodeName(const wchar_t* name) noexcept;
+	void setNodeName(const UnicodeString* name) noexcept;
+	const UnicodeString* getNodeName() const noexcept {
+		return this->nodeName;
+	}
 
 private:
-	void __init(const File* baseDir, ISystemLogger* logger, const CodablecashConfig* config);
+	void __init(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* config);
 	void __maintainNetwork(uint16_t zone);
 
 	bool __connectWithP2pNodeRecord(const P2pNodeRecord* record);
@@ -129,7 +133,7 @@ private:
 	IInstanceMemberAllocator* allocator;
 
 	File* baseDir;
-	CodablecashConfig* config;
+	CodablecashSystemParam* param;
 
 	CentralProcessor* centralProcessor;
 

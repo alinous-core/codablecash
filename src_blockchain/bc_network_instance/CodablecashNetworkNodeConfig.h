@@ -8,13 +8,19 @@
 #ifndef BC_NETWORK_INSTANCE_CODABLECASHNETWORKNODECONFIG_H_
 #define BC_NETWORK_INSTANCE_CODABLECASHNETWORKNODECONFIG_H_
 
+namespace alinous {
+class UnicodeString;
+}
+using namespace alinous;
+
 namespace codablecash {
 
-class CodablecashConfig;
+class CodablecashSystemParam;
 class MiningConfig;
 class GenesisBalanceConfig;
 class NodeIdentifierSource;
 class FinalizerConfig;
+class NodeIdentifier;
 
 class CodablecashNetworkNodeConfig {
 public:
@@ -22,10 +28,10 @@ public:
 	CodablecashNetworkNodeConfig();
 	virtual ~CodablecashNetworkNodeConfig();
 
-	const CodablecashConfig* getSysConfig() const noexcept {
+	const CodablecashSystemParam* getSysConfig() const noexcept {
 		return this->sysConfig;
 	}
-	void setSysConfig(const CodablecashConfig* sysConfig) noexcept;
+	void setSysConfig(const CodablecashSystemParam* sysConfig) noexcept;
 
 	const MiningConfig* getMinerConfig() const noexcept {
 		return this->minerConfig;
@@ -52,9 +58,17 @@ public:
 		return this->networkKeys;
 	}
 	void setNetworkKey(const NodeIdentifierSource* keys) noexcept;
+	void setOriginalNwtworkKey() noexcept;
+
+	NodeIdentifier getNodeId() const noexcept;
+
+	void setCanonicalName(const wchar_t* cname) noexcept;
+	const UnicodeString* getCanonicalName() const noexcept {
+		return this->canonicalName;
+	}
 
 private:
-	CodablecashConfig* sysConfig;
+	CodablecashSystemParam* sysConfig;
 	MiningConfig* minerConfig;
 	FinalizerConfig* finalizerConfig;
 
@@ -62,6 +76,8 @@ private:
 
 	int port;
 	NodeIdentifierSource* networkKeys;
+
+	UnicodeString* canonicalName;
 
 };
 

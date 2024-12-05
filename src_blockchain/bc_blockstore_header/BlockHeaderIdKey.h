@@ -9,6 +9,7 @@
 #define BC_BLOCKSTORE_HEADER_BLOCKHEADERIDKEY_H_
 
 #include "btree/AbstractBtreeKey.h"
+#include <cstdint>
 
 using namespace alinous;
 

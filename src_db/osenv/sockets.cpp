@@ -110,7 +110,9 @@ void IPV6::close(IPV6Context* context) {
 }
 
 void alinous::IPV6::close(SOCKET_ID sockId) {
-	::close(sockId);
+	int ret = ::close(sockId);
+
+	assert(ret == 0);
 }
 
 SOCKET_ID IPV6::connect(const UnicodeString* hostname, const UnicodeString* port) {

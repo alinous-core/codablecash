@@ -28,13 +28,15 @@ TEST_GROUP(TestMultiActorFrameworkGroup) {
 TEST(TestMultiActorFrameworkGroup, case01){
 	DebugDefaultLogger logger;
 	BlankCommandParameter param;
-	MultipleCommandProcessor procesor(&param, 3, &logger, L"th");
+	UnicodeString name(L"th");
+	MultipleCommandProcessor procesor(&param, 3, &logger, &name);
 }
 
 TEST(TestMultiActorFrameworkGroup, case02){
 	DebugDefaultLogger logger;
 	BlankCommandParameter param;
-	MultipleCommandProcessor procesor(&param, 3, &logger, L"th");
+	UnicodeString name(L"th");
+	MultipleCommandProcessor procesor(&param, 3, &logger, &name);
 
 	procesor.start();
 
@@ -44,7 +46,8 @@ TEST(TestMultiActorFrameworkGroup, case02){
 TEST(TestMultiActorFrameworkGroup, case03){
 	DebugDefaultLogger logger;
 	BlankCommandParameter param;
-	MultipleCommandProcessor procesor(&param, 3, &logger,  L"th");
+	UnicodeString name(L"th");
+	MultipleCommandProcessor procesor(&param, 3, &logger, &name);
 
 	procesor.start();
 
@@ -62,7 +65,8 @@ TEST(TestMultiActorFrameworkGroup, case03){
 TEST(TestMultiActorFrameworkGroup, case04){
 	DebugDefaultLogger logger;
 	BlankCommandParameter param;
-	MultipleCommandProcessor procesor(&param, 3, &logger,  L"th");
+	UnicodeString name(L"th");
+	MultipleCommandProcessor procesor(&param, 3, &logger, &name);
 
 	procesor.start();
 

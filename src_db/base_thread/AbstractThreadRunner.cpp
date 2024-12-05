@@ -19,7 +19,7 @@ AbstractThreadRunner::AbstractThreadRunner() :pThread(nullptr), name(nullptr) {
 }
 
 AbstractThreadRunner::AbstractThreadRunner(const UnicodeString* name) : pThread(nullptr){
-	this->name = new UnicodeString(name);
+	this->name = name != nullptr ? new UnicodeString(name) : nullptr;
 }
 
 AbstractThreadRunner::~AbstractThreadRunner() {

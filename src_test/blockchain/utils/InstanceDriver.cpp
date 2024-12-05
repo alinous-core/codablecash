@@ -82,7 +82,7 @@ void InstanceDriver::initWallet(int numWallet) {
 	this->walletDriver->init(numWallet);
 }
 
-void InstanceDriver::initInstance(const CodablecashConfig *config) {
+void InstanceDriver::initInstance(const CodablecashSystemParam *config) {
 	{
 		CodablecashNodeInstance inst(this->instDir, this->logger, config);
 		bool bl = inst.initBlankInstance(0, 1);
@@ -99,7 +99,7 @@ void InstanceDriver::initInstance(const CodablecashConfig *config) {
 	}
 }
 
-void InstanceDriver::initInstance(CodablecashConfig *config, const IInstanceMemberAllocator *alloc) {
+void InstanceDriver::initInstance(CodablecashSystemParam *config, const IInstanceMemberAllocator *alloc) {
 	{
 		CodablecashNodeInstance inst(this->instDir, this->logger, config, alloc);
 		bool bl = inst.initBlankInstance(0, 1);
@@ -404,7 +404,7 @@ BlockchainController* InstanceDriver::getBlockchainController() const noexcept {
 }
 
 void InstanceDriver::startV6Listner(int port) {
-	this->inst->startNetwork(port);
+	this->inst->startNetwork(nullptr, port);
 	this->inst->startProcessors(this->source, false);
 }
 

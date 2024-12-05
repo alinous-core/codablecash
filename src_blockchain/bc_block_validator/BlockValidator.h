@@ -11,7 +11,7 @@
 namespace codablecash {
 
 class Block;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class MemoryPool;
 class BlockchainController;
 class MemPoolTransaction;
@@ -24,7 +24,7 @@ class BlockHeaderId;
 
 class BlockValidator {
 public:
-	BlockValidator(const Block* block, CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl);
+	BlockValidator(const Block* block, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl);
 	virtual ~BlockValidator();
 
 	void validate();
@@ -46,7 +46,7 @@ private:
 private:
 	const Block* block;
 
-	CodablecashConfig* config;
+	CodablecashSystemParam* config;
 	MemoryPool* memoryPool;
 	BlockchainController* ctrl;
 };

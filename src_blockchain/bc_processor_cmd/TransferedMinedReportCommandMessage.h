@@ -20,7 +20,7 @@ class BlockchainController;
 class BlochchainP2pManager;
 class NodeIdentifierSource;
 class ISystemLogger;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class MemoryPool;
 class P2pHandshake;
 
@@ -46,7 +46,7 @@ protected:
 private:
 	bool importHeader(BlockchainController* ctrl);
 	bool importBlock(MemoryPool* memPool, BlockchainController* ctrl, BlochchainP2pManager* p2pManager, NodeIdentifierSource* networkKey
-			,ISystemLogger* logger, CodablecashConfig* config);
+			,ISystemLogger* logger, CodablecashSystemParam* config);
 
 private:
 	NodeIdentifier* nodeId;

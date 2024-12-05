@@ -23,7 +23,7 @@ using namespace alinous;
 namespace codablecash {
 
 class CachedStatusCache;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class TransactionContextCache;
 class UtxoCacheContext;
 class VoterStatusCacheContext;
@@ -33,17 +33,13 @@ class CachedStatusCacheContext : public StatusCacheContext {
 public:
 	static const constexpr wchar_t* CACHED_CONTEXT_CACHE_PREFIX{L"cachedcontextcache"};
 
-	explicit CachedStatusCacheContext(const CachedStatusCache* cache, const CodablecashConfig* config, const File* tmpCacheBaseDir,
+	explicit CachedStatusCacheContext(const CachedStatusCache* cache, const CodablecashSystemParam* config, const File* tmpCacheBaseDir,
 			uint16_t zone, ConcurrentGate* rwLock, BlockchainStatusCache* statusCache, CodablecashBlockchain* blockchain);
 	virtual ~CachedStatusCacheContext();
 
 	virtual void close();
 
-	virtual ArrayList<VoterEntry, VoterEntry::VoteCompare>* getVoterEntries() const;
-
-	virtual VotingBlockStatus* getVotingBlockStatus(const BlockHeaderId *blockHeaderId);
-
-	virtual const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId) const noexcept;
+	//virtual ArrayList<VoterEntry, VoterEntry::VoteCompare>* getVoterEntries() const;
 
 	virtual AbstractUtxo* getUtxo(const UtxoId* utxoId) const;
 

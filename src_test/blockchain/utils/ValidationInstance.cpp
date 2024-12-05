@@ -42,22 +42,22 @@ ValidationInstance::~ValidationInstance() {
 	delete this->instDir;
 }
 
-void ValidationInstance::initInstance(const CodablecashConfig *config, ISystemLogger *logger) {
+void ValidationInstance::initInstance(const CodablecashSystemParam *param, ISystemLogger *logger) {
 	{
-		CodablecashNodeInstance inst(this->instDir, logger, config);
+		CodablecashNodeInstance inst(this->instDir, logger, param);
 		bool bl = inst.initBlankInstance(0, 1);
 		if(!bl){
 			throw new MulformattedTransactionBinaryException(__FILE__, __LINE__);
 		}
 	}
 
-	this->inst = new CodablecashNodeInstance(this->instDir, logger, config);
+	this->inst = new CodablecashNodeInstance(this->instDir, logger, param);
 	this->inst->load();
 }
 
 void ValidationInstance::validateBlock(const Block *block) {
 	BlockchainController* ctrl = this->inst->getController();
-	CodablecashConfig* config = this->inst->getCodablecashConfig();
+	CodablecashSystemParam* config = this->inst->getCodablecashSystemParam();
 	MemoryPool* memPool = this->inst->getMemoryPool();
 
 

@@ -15,12 +15,11 @@
 #include "bc_network/NodeIdentifier.h"
 
 #include "bc/CodablecashNodeInstance.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc_p2p/BlochchainP2pManager.h"
 
 #include "base/UnicodeString.h"
 #include "base/StackRelease.h"
+#include "bc/CodablecashSystemParam.h"
 
 
 namespace codablecash {
@@ -40,7 +39,7 @@ MemPoolSync::~MemPoolSync() {
 void MemPoolSync::doProcess() {
 	CodablecashNetworkNode* node = this->parent->getCodablecashNetworkNode();
 	CodablecashNodeInstance* inst = node->getInstance();
-	CodablecashConfig* config = inst->getCodablecashConfig();
+	CodablecashSystemParam* param = inst->getCodablecashSystemParam();
 
 	uint16_t zoneSelf = inst->getZoneSelf();
 
@@ -49,7 +48,7 @@ void MemPoolSync::doProcess() {
 		ArrayList<NodeIdentifier>* nodelist = p2pManager->getNodeIds(zoneSelf); __STP(nodelist);
 		nodelist->setDeleteOnExit();
 
-		int num = config->getNumInitialSyncNodes();
+		int num = param->getNumInitialSyncNodes();
 		RamdomNodesSelector sel(nodelist, num);
 
 		int threadindex = 0;

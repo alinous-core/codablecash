@@ -10,13 +10,12 @@
 #include "bc_p2p_client/P2pClient.h"
 
 #include "../../test_utils/TestPortSelection.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc/DebugDefaultLogger.h"
 
 #include "bc/CodablecashNodeInstance.h"
 
 #include "base/Exception.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_p2p_client/P2pClientConnectionException.h"
 using namespace codablecash;
@@ -37,7 +36,7 @@ TEST(TestP2pClientPingGroup, case01){
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -52,7 +51,7 @@ TEST(TestP2pClientPingGroup, case01){
 	{
 		CodablecashNodeInstance inst(baseDir, &logger, &config);
 		inst.load();
-		inst.startNetwork(port);
+		inst.startNetwork(nullptr, port);
 
 		P2pClient client(0, &logger);
 		UnicodeString strLocal(L"::1");
@@ -70,7 +69,7 @@ TEST(TestP2pClientPingGroup, case02_err){
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -85,7 +84,7 @@ TEST(TestP2pClientPingGroup, case02_err){
 	{
 		CodablecashNodeInstance inst(baseDir, &logger, &config);
 		inst.load();
-		inst.startNetwork(port);
+		inst.startNetwork(nullptr, port);
 
 		P2pClient client(0, &logger);
 		UnicodeString strLocal(L"::1");
@@ -114,7 +113,7 @@ TEST(TestP2pClientPingGroup, case03){
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(500);
 
@@ -129,7 +128,7 @@ TEST(TestP2pClientPingGroup, case03){
 	{
 		CodablecashNodeInstance inst(baseDir, &logger, &config);
 		inst.load();
-		inst.startNetwork(port);
+		inst.startNetwork(nullptr, port);
 
 		P2pClient client(0, &logger);
 		UnicodeString strLocal(L"::1");

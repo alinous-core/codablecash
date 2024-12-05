@@ -5,7 +5,7 @@
  *      Author: iizuka
  */
 
-#include "bc_p2p_cmd_node/SendTransactionNodeCommand.h"
+#include "bc_p2p_cmd_node_consensus/SendTransactionNodeCommand.h"
 #include "bc_p2p_cmd_node/InvalidTransactionException.h"
 
 #include "data_history_data/TransactionTransferData.h"

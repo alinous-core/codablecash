@@ -20,7 +20,10 @@ class ISystemLogger {
 public:
 	static const constexpr int DEBUG_CHAIN_HEAD_DETECT{1};
 	static const constexpr int DEBUG_NODE_TRANSFER_RESPONSE{2};
+	static const constexpr int DEBUG_POW_CALC_THREAD{3};
 
+
+	static const constexpr int DEBUG_TMP_INFO{100};
 
 	ISystemLogger();
 	virtual ~ISystemLogger();

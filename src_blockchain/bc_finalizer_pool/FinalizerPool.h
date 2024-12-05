@@ -21,7 +21,7 @@ namespace codablecash {
 
 class MessageProcessor;
 class BlockHeaderId;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class MemoryPool;
 class BlockchainController;
 class NodeIdentifier;
@@ -34,7 +34,7 @@ class FinalizerPool : public ICommandParameter {
 public:
 	static const UnicodeString THREAD_NAME;
 
-	FinalizerPool(const CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl
+	FinalizerPool(const CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl
 			, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger* logger);
 	virtual ~FinalizerPool();
 
@@ -47,7 +47,7 @@ public:
 		return this->ctrl;
 	}
 
-	const CodablecashConfig* getConfig() const noexcept {
+	const CodablecashSystemParam* getConfig() const noexcept {
 		return this->config;
 	}
 
@@ -73,7 +73,7 @@ protected:
 	ISystemLogger* logger;
 
 	MessageProcessor* processor;
-	const CodablecashConfig* config;
+	const CodablecashSystemParam* config;
 	MemoryPool* memoryPool;
 	BlockchainController* ctrl;
 

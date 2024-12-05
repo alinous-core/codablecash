@@ -114,7 +114,7 @@ void StatusStore::addBinaryValue(const wchar_t *key, const uint8_t *data, int le
 }
 
 void StatusStore::addValue(const UnicodeString* key, AbstractConfigStoreElement* value) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	__nlk_addValue(key, value);
 }
@@ -164,13 +164,13 @@ const AbstractConfigStoreElement* StatusStore::getValue(const wchar_t* key) cons
 }
 
 const AbstractConfigStoreElement* StatusStore::getValue(const UnicodeString* key) const noexcept {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return this->map.get(key);
 }
 
 void StatusStore::load() {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	open();
 

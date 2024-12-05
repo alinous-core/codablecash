@@ -15,6 +15,7 @@
 
 #include "pubsub/HandshakeConnectionException.h"
 #include "pubsub/PubsubCommandException.h"
+#include "pubsub/PubsubNetworkException.h"
 
 #include "pubsub_cmd/AbstractCommandResponse.h"
 #include "pubsub_cmd/AbstractPubSubCommand.h"
@@ -28,6 +29,7 @@
 #include "btreekey/NullKey.h"
 
 #include "btreekey/InfinityKey.h"
+
 using namespace codablecash;
 
 TEST_GROUP(PubsubMiscTestGroup) {
@@ -52,6 +54,7 @@ TEST(PubsubMiscTestGroup, case01){
 TEST(PubsubMiscTestGroup, testex01){
 	testException<HandshakeConnectionException>();
 	testException<PubsubCommandException>();
+	testException<PubsubNetworkException>();
 }
 
 TEST(PubsubMiscTestGroup, createbin01){

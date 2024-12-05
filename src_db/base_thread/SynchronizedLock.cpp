@@ -7,6 +7,8 @@
 
 #include "base_thread/SynchronizedLock.h"
 
+#include "base_thread_lockcheck/LockChecker.h"
+
 #include "debug/debugMacros.h"
 
 namespace alinous {
@@ -18,20 +20,28 @@ SynchronizedLock::SynchronizedLock() : ILock() {
 }
 
 SynchronizedLock::~SynchronizedLock() {
-	lock();
 	delete this->cond, this->cond = nullptr;
-	unlock();
 
 	int ret = ::pthread_mutex_destroy(&mutex);
 	assert(ret == 0);
 }
 
-void SynchronizedLock::lock() {
+void SynchronizedLock::lock(const char *srcfile, int line) {
+#ifdef __DEBUG__
+	LockChecker* checker = LockChecker::getInstance();
+	checker->checklock(this, srcfile, line);
+#endif
+
 	int ret = ::pthread_mutex_lock(&mutex);
 	assert(ret == 0);
 }
 
 void SynchronizedLock::unlock() {
+#ifdef __DEBUG__
+	LockChecker* checker = LockChecker::getInstance();
+	checker->removelock(this);
+#endif
+
 	int ret = ::pthread_mutex_unlock(&mutex);
 	assert(ret == 0);
 }

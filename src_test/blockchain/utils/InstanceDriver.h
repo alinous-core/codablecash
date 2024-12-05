@@ -18,7 +18,7 @@ namespace codablecash {
 
 class WalletDriver;
 class DebugDefaultLogger;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class CodablecashNodeInstance;
 class MiningConfig;
 class NodeIdentifierSource;
@@ -40,8 +40,8 @@ public:
 	virtual ~InstanceDriver();
 
 	void initWallet(int numWallet);
-	void initInstance(const CodablecashConfig* config);
-	void initInstance(CodablecashConfig* config, const IInstanceMemberAllocator* alloc);
+	void initInstance(const CodablecashSystemParam* config);
+	void initInstance(CodablecashSystemParam* config, const IInstanceMemberAllocator* alloc);
 	void initGenesisBalance(int index,	uint64_t defaultBalance);
 
 	void startV6Listner(int port);

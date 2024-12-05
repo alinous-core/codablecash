@@ -2,6 +2,7 @@
 
 set(__src
 	CommandPublisher.cpp
+	CommandPublisherSetting.cpp
 	CommandSubscriber.cpp
 	CommandSubscriberThread.cpp
 	HandshakeConnectionException.cpp
@@ -11,6 +12,7 @@ set(__src
 	P2pHandshake.cpp
 	PubsubCommandException.cpp
 	PubSubId.cpp
+	PubsubNetworkException.cpp
 	PubsubUtils.cpp
 )
 handle_sub(codablecashlib "${__src}" blockchain_p2p pubsub)

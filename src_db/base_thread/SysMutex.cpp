@@ -9,26 +9,43 @@
 
 #include "SysMutex.h"
 
+#include "base_thread_lockcheck/LockChecker.h"
 namespace alinous {
 
 SysMutex::SysMutex() noexcept : ILock() {
-	pthread_mutex_init(&mutex, nullptr);
+	int ret = pthread_mutex_init(&mutex, nullptr);
+	assert(ret == 0);
+
 	this->count = 0;
 }
 
 SysMutex::~SysMutex() noexcept {
-	pthread_mutex_destroy(&mutex);
+	int ret = pthread_mutex_destroy(&mutex);
+	assert(ret == 0);
 }
 
-void SysMutex::lock() noexcept {
-	pthread_mutex_lock(&mutex);
+void SysMutex::lock(const char *srcfile, int line) noexcept {
+#ifdef __DEBUG__
+	LockChecker* checker = LockChecker::getInstance();
+	checker->checklock(this, srcfile, line);
+#endif
+
+	int ret = pthread_mutex_lock(&mutex);
+	assert(ret == 0);
+
 	this->count++;
 }
 
 
 void SysMutex::unlock() noexcept {
+#ifdef __DEBUG__
+	LockChecker* checker = LockChecker::getInstance();
+	checker->removelock(this);
+#endif
+
 	this->count--;
-	pthread_mutex_unlock(&mutex);
+	int ret = pthread_mutex_unlock(&mutex);
+	assert(ret == 0);
 }
 
 

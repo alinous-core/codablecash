@@ -10,9 +10,9 @@
 
 namespace alinous {
 
-StackUnlocker::StackUnlocker(ILock* mutex) noexcept {
+StackUnlocker::StackUnlocker(ILock* mutex, const char *srcfile, int line) noexcept {
 	this->mutex = mutex;
-	mutex->lock();
+	mutex->lock(srcfile, line);
 }
 
 StackUnlocker::~StackUnlocker() noexcept {

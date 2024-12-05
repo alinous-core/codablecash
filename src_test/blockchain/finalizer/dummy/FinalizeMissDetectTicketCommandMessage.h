@@ -20,7 +20,7 @@ public:
 	virtual void process(FinalizerPool* pool);
 
 	virtual void putTransaction(const BlockHeader* header, const VoteCandidate* candidate, IStatusCacheContext* context
-			, MemPoolTransaction* memTrx, const CodablecashConfig* config, FinalizerPool *pool);
+			, MemPoolTransaction* memTrx, const CodablecashSystemParam* config, FinalizerPool *pool);
 };
 
 } /* namespace codablecash */

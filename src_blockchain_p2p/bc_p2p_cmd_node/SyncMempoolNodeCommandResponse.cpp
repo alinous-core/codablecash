@@ -10,8 +10,10 @@
 #include "bc_trx/AbstractBlockchainTransaction.h"
 
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
 
 #include "bc_base/BinaryUtils.h"
+
 
 namespace codablecash {
 
@@ -63,7 +65,18 @@ void SyncMempoolNodeCommandResponse::fromBinary(ByteBuffer *buff) {
 }
 
 UnicodeString* SyncMempoolNodeCommandResponse::toString() const noexcept {
-	UnicodeString* str = new UnicodeString(L"");
+	UnicodeString* str = new UnicodeString(L"[SyncMempoolNodeCommandResponse]");
+
+	int maxLoop = this->list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockchainTransaction* trx = this->list->get(i);
+		const TransactionId* trxId = trx->getTransactionId();
+
+		UnicodeString* idstr = trxId->toString(); __STP(idstr);
+
+		str->append(L" ");
+		str->append(idstr);
+	}
 
 	return str;
 }

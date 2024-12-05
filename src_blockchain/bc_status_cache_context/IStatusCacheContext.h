@@ -25,7 +25,7 @@ class AbstractControlTransaction;
 class VoterEntry;
 class VotingBlockStatus;
 class BlockHeaderId;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class CodablecashBlockchain;
 class RegisterVotePoolTransaction;
 class RegisterTicketTransaction;
@@ -36,6 +36,9 @@ class AbstractBlockchainTransaction;
 class AbstractInterChainCommunicationTansaction;
 class AbstractSmartcontractTransaction;
 class TransactionId;
+class BlockchainStatusCache;
+class ILockinManager;
+class VoterStatusMappedCacheContext;
 
 class IStatusCacheContext {
 public:
@@ -56,8 +59,10 @@ public:
 	virtual const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId) const noexcept = 0;
 	virtual uint16_t getNumZones(uint64_t height) const = 0;
 
-	virtual const CodablecashConfig* getConfig() const noexcept = 0;
+	virtual const CodablecashSystemParam* getConfig() const noexcept = 0;
 	virtual CodablecashBlockchain* getBlockChain() const noexcept = 0;
+	virtual BlockchainStatusCache* getBlockchainStatusCache() const noexcept = 0;
+	virtual VoterStatusMappedCacheContext* getVoterStatusCacheContext() const noexcept = 0;
 
 	virtual void loadInitialVotersData() = 0;
 
@@ -65,8 +70,8 @@ public:
 	virtual void registerTicket(const BlockHeader *header, const RegisterTicketTransaction* trx) = 0;
 	virtual void registerVote(const BlockHeader *header, const VoteBlockTransaction* trx) = 0;
 
-	virtual void beginBlock(const BlockHeader* header) = 0;
-	virtual void endBlock(const BlockHeader* header) = 0;
+	virtual void beginBlock(const BlockHeader* header, ILockinManager* lockinManager) = 0;
+	virtual void endBlock(const BlockHeader* header, ILockinManager* lockinManager) = 0;
 
 	virtual uint16_t getZone() const noexcept = 0;
 	virtual uint64_t getTicketPrice() const noexcept = 0;

@@ -54,10 +54,13 @@ void NetworkNodeSync::sync() {
 		this->tmpSyncDir->mkdirs();
 	}
 
+	// sync mempool at first
 	UnicodeString memSyncThreadName(L"MemPoolSync");
 	MemPoolSync memPoolSync(this, logger, &memSyncThreadName);
 	memPoolSync.start();
 
+
+	// sync blockchain or header
 	uint16_t numZones = inst->getNumZones();
 	this->zoneSelf = inst->getZoneSelf();
 

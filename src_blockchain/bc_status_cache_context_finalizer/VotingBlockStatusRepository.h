@@ -7,6 +7,7 @@
 
 #ifndef BC_STATUS_CACHE_CONTEXT_FINALIZER_VOTINGBLOCKSTATUSREPOSITORY_H_
 #define BC_STATUS_CACHE_CONTEXT_FINALIZER_VOTINGBLOCKSTATUSREPOSITORY_H_
+#include <cstdint>
 
 namespace alinous {
 class File;
@@ -37,6 +38,8 @@ public:
 	VotingBlockStatus* getVotingBlockStatus(const BlockHeaderId* blockHeaderId);
 
 	BtreeScanner* getBtreeScanner();
+
+	void clean(uint64_t height);
 
 private:
 	void __close(Btree** tree) noexcept;

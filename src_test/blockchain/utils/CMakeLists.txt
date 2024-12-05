@@ -1,7 +1,7 @@
 
 set(testsrc
 	ClientConnectUtils.cpp
-	DebugCodablecashConfigSetup.cpp
+	DebugCodablecashSystemParamSetup.cpp
 	InstanceDriver.cpp
 	NodeConnectionSimulator.cpp
 	TransactionWaiter.cpp

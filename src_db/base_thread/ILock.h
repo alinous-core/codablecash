@@ -13,7 +13,7 @@ namespace alinous {
 class ILock {
 public:
 	virtual ~ILock() noexcept;
-	virtual void lock() = 0;
+	virtual void lock(const char *srcfile, int line) = 0;
 	virtual void unlock() = 0;
 };
 

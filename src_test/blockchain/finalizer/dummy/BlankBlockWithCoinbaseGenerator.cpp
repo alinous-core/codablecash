@@ -34,7 +34,7 @@
 
 namespace codablecash {
 
-BlankBlockWithCoinbaseGenerator::BlankBlockWithCoinbaseGenerator(int16_t zone, CodablecashConfig* config
+BlankBlockWithCoinbaseGenerator::BlankBlockWithCoinbaseGenerator(int16_t zone, CodablecashSystemParam* config
 		, MemoryPool* memoryPool, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger)
 		: BlockGenerator(zone, config, memoryPool, ctrl, miningConfig, logger) {
 }
@@ -71,9 +71,7 @@ void BlankBlockWithCoinbaseGenerator::doNonceCalculated(uint64_t lastBlockHeight
 	block.setPoWNonce(nonce);
 
 	{
-		MemPoolTransaction* memTrx = this->memoryPool->begin(); __STP(memTrx);
 		this->ctrl->importCosumedMemTransactions(zoneSelf, memTrx, lastBlockHeight, bid);
-
 
 		const BlockHeader* header = block.getHeader();
 		const BlockHeaderId* lastheaderId = header->getLastHeaderId();

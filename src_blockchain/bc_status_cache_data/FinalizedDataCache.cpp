@@ -34,9 +34,17 @@
 
 #include "base/StackRelease.h"
 
+#include "bc_status_cache/BlockchainStatusCache.h"
+
 #include "bc_status_cache_context/IStatusCacheContext.h"
 
+#include "bc_status_cache_context_finalizer/VoterStatusCacheContext.h"
+#include "bc_status_cache_context_finalizer/VoterStatusMappedCacheContext.h"
+
+#include "bc_status_cache_lockin/LockinManager.h"
+
 #include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+
 
 namespace codablecash {
 
@@ -45,6 +53,7 @@ FinalizedDataCache::FinalizedDataCache(const File* baseDir) {
 
 	this->utxoRepo = new FinalizedUtxoRepository(baseDir);
 	this->voterRepo = new FinalizedVoterRepository(baseDir);
+	this->votingStatusCache = new VoterStatusCacheContext(baseDir);
 }
 
 FinalizedDataCache::~FinalizedDataCache() {
@@ -59,11 +68,13 @@ void FinalizedDataCache::initBlank() {
 
 	this->utxoRepo->initBlank();
 	this->voterRepo->initBlank();
+	this->votingStatusCache->initBlank();
 }
 
 void FinalizedDataCache::open() {
 	this->utxoRepo->open();
 	this->voterRepo->open();
+	this->votingStatusCache->open();
 }
 
 void FinalizedDataCache::close() {
@@ -75,10 +86,21 @@ void FinalizedDataCache::close() {
 		this->voterRepo->close();
 		delete this->voterRepo, this->voterRepo = nullptr;
 	}
+	if(this->votingStatusCache != nullptr){
+		this->votingStatusCache->close();
+		delete this->votingStatusCache, this->votingStatusCache = nullptr;
+	}
 }
 
-void FinalizedDataCache::importBlockData(const BlockHeader *header, const BlockBody *body, IStatusCacheContext* context) {
-	context->beginBlock(header);
+void FinalizedDataCache::importBlockData(uint64_t finalizingHeight, const BlockHeader *header, const BlockBody *body, IStatusCacheContext* context) {
+	BlockchainStatusCache* statusCache = context->getBlockchainStatusCache();
+	uint16_t zone = context->getZone();
+
+	LockinManager* lockinManager = statusCache->getLockInManager(zone);
+	lockinManager->setFinalizingHeight(finalizingHeight);
+
+
+	context->beginBlock(header, lockinManager);
 
 	importControlTransactions(header, body, context);
 	importInterChainCommunicationTransactions(header, body);
@@ -86,9 +108,8 @@ void FinalizedDataCache::importBlockData(const BlockHeader *header, const BlockB
 	importSmartcontractTransactions(header, body);
 	importRewardBaseTransactions(header, body);
 
-	context->endBlock(header);
-
-	// FIXME register lockon actions
+	// register lockin actions on Finalize @endBlock();
+	context->endBlock(header, lockinManager);
 }
 
 void FinalizedDataCache::importRewardBaseTransactions(const BlockHeader *header, const BlockBody *body) {
@@ -244,6 +265,12 @@ void FinalizedDataCache::writeBackVoterEntries(IStatusCacheContext *context) {
 			this->voterRepo->putVoterEntry(entry);
 		}
 	}
+}
+
+void FinalizedDataCache::writeBackVoterStatus(IStatusCacheContext *context) {
+	VoterStatusMappedCacheContext* voterStatusCache = context->getVoterStatusCacheContext();
+
+	this->votingStatusCache->importRepo(voterStatusCache);
 }
 
 UtxoData* FinalizedDataCache::findUtxo(const UtxoId *utxoId) const {

@@ -18,9 +18,12 @@
 
 #include "bc_block/Block.h"
 #include "bc_block/BlockHeaderId.h"
+#include "bc_block/BlockHeader.h"
 
 #include "bc_block_body/BlockBody.h"
 #include "bc_block_body/OmittedBlockBody.h"
+
+#include "pubsub_cmd/ErrorPubsubResponse.h"
 
 
 namespace codablecash {
@@ -111,6 +114,21 @@ AbstractCommandResponse* DownloadOmittedBlockBodyNodeCommand::executeAsNode(Bloc
 			// to omitted block
 			OmittedBlockBody* obody = body->toOmittedBlockBody(); __STP(obody);
 			response->setOmittedBlockBody(obody);
+		}
+		else{
+			// error case
+			ErrorPubsubResponse* errorRes = new ErrorPubsubResponse();
+			UnicodeString message(L"The block, whose header id is ");
+
+			{
+				UnicodeString* strid = this->headerId->toString(); __STP(strid);
+				message.append(strid);
+			}
+
+			message.append(L" does not exists.");
+			errorRes->setMessage(&message);
+
+			return errorRes;
 		}
 	}
 

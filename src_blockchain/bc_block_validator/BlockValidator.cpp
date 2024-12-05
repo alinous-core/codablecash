@@ -17,6 +17,7 @@
 #include "bc_block_body/Stakebase.h"
 
 #include "base/StackRelease.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "pow/PoWNonce.h"
 #include "pow/PoWNonceResult.h"
@@ -24,8 +25,6 @@
 #include "numeric/BigInteger.h"
 
 #include "bc/ExceptionThrower.h"
-#include "bc/CodablecashConfig.h"
-
 #include "bc_block_generator/BlockRewardCalculator.h"
 
 #include "bc_block_validator/BlockValidationException.h"
@@ -73,7 +72,7 @@
 #include "bc_trx/AbstractInterChainCommunicationTansaction.h"
 namespace codablecash {
 
-BlockValidator::BlockValidator(const Block* block, CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl) {
+BlockValidator::BlockValidator(const Block* block, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl) {
 	this->block = block;
 	this->config = config;
 	this->memoryPool = memoryPool;

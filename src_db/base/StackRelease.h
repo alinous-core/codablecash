@@ -26,6 +26,9 @@ public:
 	void cancel() noexcept {
 		this->ptr = nullptr;
 	}
+	void reset(T* ptr) noexcept {
+		this->ptr = ptr;
+	}
 	T* move() noexcept {
 		T* ret = this->ptr;
 		cancel();
@@ -76,6 +79,7 @@ private:
 
 #define __STP(obj) StackRelease<std::remove_pointer<decltype(obj)>::type> __st_##obj##__(obj)
 #define __STP_MV(obj) __st_##obj##__.move()
+#define __STP_RESET(obj, ptr) __st_##obj##__.reset(ptr)
 
 
 } /* namespace alinous */

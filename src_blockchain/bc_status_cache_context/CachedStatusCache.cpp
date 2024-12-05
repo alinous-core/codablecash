@@ -10,7 +10,7 @@
 #include "bc_status_cache_context/UtxoCacheContext.h"
 #include "bc_status_cache_context/StatusCacheContext.h"
 
-#include "bc_status_cache_context_finalizer/VoterStatusCacheContext.h"
+#include "bc_status_cache_context_finalizer/VoterStatusMappedCacheContext.h"
 
 #include <cstdio>
 
@@ -73,7 +73,7 @@ void CachedStatusCache::init() {
 	this->utxoCache->init();
 	this->utxoCache->open();
 
-	this->voterCache = new VoterStatusCacheContext(this->baseDir);
+	this->voterCache = new VoterStatusMappedCacheContext(this->baseDir);
 	this->voterCache->init();
 }
 
@@ -126,21 +126,9 @@ void CachedStatusCache::importUxtoCache(UtxoCacheContext *cache) {
 	}
 }
 
-const VoterEntry* CachedStatusCache::getVoterEntry(const NodeIdentifier *nodeId) const noexcept {
-	return this->voterCache->getVoterEntry(nodeId);
-}
-
-void CachedStatusCache::importVoterStatusCache(VoterStatusCacheContext *cache) {
+void CachedStatusCache::importVoterStatusCache(VoterStatusMappedCacheContext *cache) {
 	this->voterCache->importMap(cache);
 	this->voterCache->importRepo(cache);
-}
-
-void CachedStatusCache::exportVoterEntry(ArrayList<VoterEntry, VoterEntry::VoteCompare> *list) const noexcept {
-	this->voterCache->listEntries(list);
-}
-
-VotingBlockStatus* CachedStatusCache::getVotingBlockStatus(const BlockHeaderId *blockHeaderId) const {
-	return this->voterCache->getVotingBlockStatus(blockHeaderId);
 }
 
 UtxoData* CachedStatusCache::getData(const UtxoId *utxoId) const {

@@ -37,10 +37,9 @@
 #include "bc_p2p/ClientNodeHandshake.h"
 #include "bc_p2p/BlochchainP2pManager.h"
 
-#include "bc_p2p_cmd_node/SendTransactionNodeCommand.h"
-
 #include "bc_p2p_cmd_client_notify/ClientNotifyNewTransactionCommand.h"
 
+#include "bc_p2p_cmd_node_consensus/SendTransactionNodeCommand.h"
 
 namespace codablecash {
 
@@ -121,7 +120,7 @@ AbstractCommandResponse* SendTransactionClientCommand::executeAsClient(ClientNod
 		{
 			const PubSubId* pubsubId = clientHandshake->getPubsubId();
 
-			ClientTransactionAcceptionQueueCommand cmd;
+			ClientTransactionAcceptionQueueCommand cmd; // put into memory pool
 			cmd.setData(this->data);
 
 			processor->putQueue(pubsubId, &cmd);

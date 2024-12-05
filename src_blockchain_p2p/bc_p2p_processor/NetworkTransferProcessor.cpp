@@ -15,6 +15,8 @@
 
 #include "bc/ISystemLogger.h"
 
+#include "base/UnicodeString.h"
+
 namespace codablecash {
 
 NetworkTransferProcessor::NetworkTransferProcessor(P2pRequestProcessor* processor, int numThreads, ISystemLogger* logger) {
@@ -33,7 +35,16 @@ NetworkTransferProcessor::~NetworkTransferProcessor() {
 
 void NetworkTransferProcessor::start() {
 	if(this->executor == nullptr){
-		this->executor = new MultipleCommandProcessor(this->processor, this->numThreads, this->logger, THREAD_NAME);
+		UnicodeString name(L"");
+
+		const UnicodeString* nodeName = this->processor->getNodeName();
+		if(nodeName != nullptr){
+			name.append(nodeName);
+			name.append(L"_");
+		}
+		name.append(THREAD_NAME);
+
+		this->executor = new MultipleCommandProcessor(this->processor, this->numThreads, this->logger, &name);
 		this->executor->start();
 	}
 }
@@ -53,6 +64,15 @@ void NetworkTransferProcessor::reserveTransfer(const NodeIdentifier *nodeId, con
 	this->serial++;
 
 	this->executor->addCommandMessage(messageCommnad, num);
+}
+
+void NetworkTransferProcessor::reserveTransferHighPriority(const NodeIdentifier *nodeId, const AbstractNodeCommand *command) {
+	NetworkTransferNodeCommand* messageCommnad = new NetworkTransferNodeCommand(nodeId, command);
+
+	int num = this->serial % this->executor->size();
+	this->serial++;
+
+	this->executor->addCommandMessageFirst(messageCommnad, num);
 }
 
 void NetworkTransferProcessor::reserveClientNotifyTransfer(const NodeIdentifier *nodeId, const AbstractClientNotifyCommand *command) {

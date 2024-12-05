@@ -39,11 +39,14 @@ public:
 
 	BlockHeader* getHeader(const BlockHeaderId* headerId, uint64_t height);
 
-	BlockHeader* getNBlocksBefore(const BlockHeaderId *headerId, uint64_t height, int voteBeforeNBlocks);
+	BlockHeader* getNBlocksBefore(const BlockHeaderId *headerId, uint64_t height, int beforeNBlocks);
 
 	void finalize(uint64_t height, const BlockHeaderId* headerId, IHeaderRemovalNotifier* notifier);
 
 	bool isEmpty() const noexcept;
+
+private:
+	BlockHeader* __getHeader(const BlockHeaderId* headerId, uint64_t height);
 
 private:
 	ArrayList<BlockHeader>* __getBlocksAtHeight(uint64_t height);

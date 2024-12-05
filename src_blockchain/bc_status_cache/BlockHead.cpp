@@ -122,8 +122,14 @@ int BlockHead::compareTo(const BlockHead *other) const noexcept {
 	// compare by Vote -> VTP -> Mev -> length -> timestamp
 	int diff = 0;
 
-	// check by voting score
+	// check by voted score
 	diff = compareToByVoted(other);
+	if(diff != 0){
+		return diff;
+	}
+
+	// check by voting
+	diff = compareToByVoting(other);
 	if(diff != 0){
 		return diff;
 	}
@@ -153,6 +159,26 @@ int BlockHead::compareToByVoted(const BlockHead *other) const noexcept {
 		BlockHeadElement* otherBlock = other->list.get(i);
 
 		int v = block->getVotedScore();
+		int vo = otherBlock->getVotingSocre();
+
+		diff = v - vo;
+		if(diff != 0){
+			break;
+		}
+	}
+
+	return diff;
+}
+
+int BlockHead::compareToByVoting(const BlockHead *other) const noexcept {
+	int diff = 0;
+
+	int maxLoop = size();
+	for(int i = 0; i != maxLoop; ++i){
+		BlockHeadElement* block = this->list.get(i);
+		BlockHeadElement* otherBlock = other->list.get(i);
+
+		int v = block->getVotingSocre();
 		int vo = otherBlock->getVotingSocre();
 
 		diff = v - vo;

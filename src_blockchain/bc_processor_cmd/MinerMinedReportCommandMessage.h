@@ -14,10 +14,10 @@ namespace codablecash {
 
 class Block;
 
-class MinedReportCommandMessage : public AbstractCentralProcessorCommandMessage {
+class MinerMinedReportCommandMessage : public AbstractCentralProcessorCommandMessage {
 public:
-	explicit MinedReportCommandMessage(const Block* block);
-	virtual ~MinedReportCommandMessage();
+	explicit MinerMinedReportCommandMessage(const Block* block);
+	virtual ~MinerMinedReportCommandMessage();
 
 protected:
 	virtual void process(CentralProcessor* processor);

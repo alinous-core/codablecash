@@ -5,18 +5,18 @@
  *      Author: iizuka
  */
 
-#ifndef BC_CODABLECASHCONFIG_H_
-#define BC_CODABLECASHCONFIG_H_
+#ifndef BC_CODABLECASHSYSTEMPARAM_H_
+#define BC_CODABLECASHSYSTEMPARAM_H_
 
 #include <cstdint>
 
 namespace codablecash {
 
-class CodablecashConfig {
+class CodablecashSystemParam {
 public:
-	CodablecashConfig(const CodablecashConfig& inst);
-	CodablecashConfig();
-	virtual ~CodablecashConfig();
+	CodablecashSystemParam(const CodablecashSystemParam& inst);
+	CodablecashSystemParam();
+	virtual ~CodablecashSystemParam();
 
 	virtual uint16_t getPowHashrateBlocks(uint64_t height) const noexcept;
 	void setPowHashrateBlocks(uint16_t powHashrateBlocks) noexcept {
@@ -42,6 +42,10 @@ public:
 
 	uint16_t getVoteExtendCapacityCount(uint64_t height) const noexcept;
 	void setVoteExtendCapacityCount(uint16_t extendCapacityCount) noexcept;
+
+	uint16_t getVoteLockinIntervalHeight() const noexcept;
+	void setVoteLockinIntervalHeight(uint16_t voteLockinIntervalHeight) noexcept;
+
 
 	uint16_t getTicketMatureIntervalHeight(uint64_t height) const noexcept;
 	void setTicketMatureIntervalHeight(uint16_t tiketMatureIntervalHeight) noexcept;
@@ -97,6 +101,16 @@ public:
 		return this->numInitialSyncNodes;
 	}
 
+	void setConsensusTrxMaxHops(uint16_t consensusTrxMaxHops) noexcept;
+	uint16_t getConsensusTrxMaxHops() const noexcept {
+		return this->consensusTrxMaxHops;
+	}
+
+	void setConsensusTrxAllowedDelayMillis(uint32_t consensusTrxAllowedDelayMillis) noexcept;
+	uint32_t getConsensusTrxAllowedDelayMillis() const noexcept {
+		return this->consensusTrxAllowedDelayMillis;
+	}
+
 private:
 	// pow
 	uint16_t powHashrateBlocks;
@@ -109,14 +123,19 @@ private:
 	uint16_t voteMissingLimit;
 	uint64_t voteExtendCapacityCount;
 
+	uint16_t voteLockinIntervalHeight;
+
+	// voting timing
 	uint16_t voteBeforeNBlocks;
 	uint16_t voteBlockIncludeAfterNBlocks;
 
+	// voting numbers per a block
 	uint8_t votePerBlock;
 
 	uint16_t ticketMatureIntervalHeight;
-	uint64_t ticketExpireHeight;
+	uint64_t ticketExpireHeight; // high priority selection count
 
+	// ticket price
 	uint64_t ticketPriceDefault;
 	uint64_t ticketPriceWindow;
 	uint64_t ticketIdealNumber;
@@ -132,8 +151,14 @@ private:
 
 	// sync
 	uint8_t numInitialSyncNodes;
+
+	// consensus commands
+	uint16_t consensusTrxMaxHops;
+	uint32_t consensusTrxAllowedDelayMillis;
+
+
 };
 
 } /* namespace codablecash */
 
-#endif /* BC_CODABLECASHCONFIG_H_ */
+#endif /* BC_CODABLECASHSYSTEMPARAM_H_ */

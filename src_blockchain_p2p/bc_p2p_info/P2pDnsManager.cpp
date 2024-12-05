@@ -41,19 +41,19 @@ void P2pDnsManager::createBlankDatabase() {
 }
 
 void P2pDnsManager::open() {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	this->database->open();
 }
 
 void P2pDnsManager::close() {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	this->database->close();
 }
 
 void P2pDnsManager::importSeeds(int numZone, const P2pNodeRecord *nodeRecord, ISystemLogger *logger) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	const UnicodeString* host = nodeRecord->getHost();
 	int port = nodeRecord->getPort();
@@ -80,6 +80,8 @@ void P2pDnsManager::doImportSeeds(uint16_t zone, const UnicodeString *host, int 
 
 	client.sign(&command);
 	AbstractCommandResponse* response = client.sendCommnad(&command); __STP(response);
+
+	// client close
 	client.close();
 
 	DownloadDnsInfoCommandResponse* dnsInfoResponse = dynamic_cast<DownloadDnsInfoCommandResponse*>(response);
@@ -96,7 +98,7 @@ void P2pDnsManager::doImportSeeds(uint16_t zone, const UnicodeString *host, int 
 }
 
 ArrayList<P2pNodeRecord>* P2pDnsManager::getZoneRecords(uint16_t zone, int maxNum) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	return this->database->getZoneRecords(zone, maxNum);
 }

@@ -8,6 +8,11 @@
 #ifndef PUBSUB_IPUBSUBCONNECTIONLISTENER_H_
 #define PUBSUB_IPUBSUBCONNECTIONLISTENER_H_
 
+namespace alinous {
+class UnicodeString;
+}
+using namespace alinous;
+
 namespace codablecash {
 
 class P2pHandshake;
@@ -19,7 +24,7 @@ public:
 	IPubsubConnectionListener();
 	virtual ~IPubsubConnectionListener();
 
-	virtual void onLoginHandshake(P2pHandshake *handshake,	const LoginPubSubCommand *loginCommand) = 0;
+	virtual void onLoginHandshake(P2pHandshake *handshake,	const LoginPubSubCommand *loginCommand, const UnicodeString* canonicalName) = 0;
 	virtual void onLoginClinentHandshake(P2pHandshake *handshake,	const LoginClientCommand *clientLoginCommand) = 0;
 	virtual void onHandshakeEnds(P2pHandshake *handshake) = 0;
 };

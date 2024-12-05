@@ -22,11 +22,11 @@ using namespace alinous;
 namespace codablecash {
 
 class VoteTicket;
-class CodablecashConfig;
+class CodablecashSystemParam;
 
 class TicketVoteSelector {
 public:
-	explicit TicketVoteSelector(ArrayList<VoterEntry, VoterEntry::VoteCompare>* list, uint64_t height, const CodablecashConfig* config);
+	explicit TicketVoteSelector(ArrayList<VoterEntry, VoterEntry::VoteCompare>* list, uint64_t height, const CodablecashSystemParam* config);
 	virtual ~TicketVoteSelector();
 
 	void select();
@@ -49,7 +49,7 @@ private:
 	uint64_t height;
 
 	ArrayList<const VoteTicket>* candidateList;
-	ArrayList<const VoteTicket>* expiredList;
+	ArrayList<const VoteTicket>* expiredList; // high priority
 	ArrayList<const VoteTicket>* selected;
 
 	uint16_t tiketMatureIntervalHeight;

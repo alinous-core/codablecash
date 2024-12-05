@@ -22,7 +22,7 @@ class P2pServer;
 
 class P2pConnectionAcceptThread : public alinous::AbstractThreadRunner {
 public:
-	P2pConnectionAcceptThread(IClientSocket* client, P2pServer* p2pServer);
+	P2pConnectionAcceptThread(IClientSocket* client, P2pServer* p2pServer, const UnicodeString* name);
 	virtual ~P2pConnectionAcceptThread();
 
 	virtual void process() noexcept;

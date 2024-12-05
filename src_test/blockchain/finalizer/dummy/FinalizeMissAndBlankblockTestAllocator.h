@@ -16,7 +16,7 @@ class FinalizeMissAndBlankblockTestAllocator : public BlankBlockGeneratorAllocat
 public:
 	FinalizeMissAndBlankblockTestAllocator();
 	virtual ~FinalizeMissAndBlankblockTestAllocator();
-	virtual FinalizerPool* newFinalizerPool(const codablecash::CodablecashConfig *config, MemoryPool *memoryPool,
+	virtual FinalizerPool* newFinalizerPool(const codablecash::CodablecashSystemParam *config, MemoryPool *memoryPool,
 			BlockchainController *ctrl, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger *logger);
 	virtual IInstanceMemberAllocator* copy() const noexcept;
 };

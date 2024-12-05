@@ -39,6 +39,9 @@ public:
 	void addCommandMessage(ICommandMessage* cmd) noexcept;
 	bool __isEmpty() const noexcept;
 	ICommandMessage* __fetch() noexcept;
+	/*bool __isAcceptCommand() {
+		return this->acceptCommands;
+	}*/
 
 	void setParam(ICommandParameter* param) noexcept;
 	ICommandParameter* getParam() const noexcept {

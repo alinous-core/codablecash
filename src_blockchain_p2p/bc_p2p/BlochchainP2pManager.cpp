@@ -37,16 +37,22 @@ BlochchainP2pManager::BlochchainP2pManager() {
 	this->mutex = new SysMutex();
 	this->zones = new ArrayList<P2pZone>();
 	this->end = false;
+
+	this->protocol = 0;
+	this->host = nullptr;
+	this->port = 0;
 }
 
 BlochchainP2pManager::~BlochchainP2pManager() {
 	resetZones();
 	delete this->zones;
+
+	delete this->host;
 	delete this->mutex;
 }
 
 void BlochchainP2pManager::endCommunication() noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	this->end = true;
 }
@@ -54,7 +60,7 @@ void BlochchainP2pManager::endCommunication() noexcept {
 void BlochchainP2pManager::resetZones() noexcept {
 	// move to remove
 	{
-		StackUnlocker __lock(this->mutex);
+		StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 		{
 			ArrayList<PubSubId> list;
@@ -97,7 +103,7 @@ void BlochchainP2pManager::resetZones() noexcept {
 	bool removed = false;
 	while(!removed){
 		{
-			StackUnlocker __lock(this->mutex);
+			StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 			int deletedZoneCount = 0;
 			int maxLoop = this->zones->size();
@@ -117,7 +123,7 @@ void BlochchainP2pManager::resetZones() noexcept {
 
 	// actually delete zones
 	{
-		StackUnlocker __lock(this->mutex);
+		StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 		this->zones->deleteElements();
 		this->zones->reset();
@@ -139,7 +145,7 @@ void BlochchainP2pManager::__removeHandshake(const PubSubId *pubsubId) {
 }
 
 void BlochchainP2pManager::init(int numZones) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	for(int i = 0; i != numZones; ++i){
 		P2pZone* z = new P2pZone(i);
@@ -147,8 +153,8 @@ void BlochchainP2pManager::init(int numZones) {
 	}
 }
 
-void BlochchainP2pManager::onLoginHandshake(P2pHandshake *handshake, const LoginPubSubCommand *loginCommand) {
-	StackUnlocker __lock(this->mutex);
+void BlochchainP2pManager::onLoginHandshake(P2pHandshake *handshake, const LoginPubSubCommand *loginCommand, const UnicodeString* canonicalName) {
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	uint16_t zone = loginCommand->getZone();
 	const NodeIdentifier* nodeId = loginCommand->getNodeId();
@@ -157,29 +163,29 @@ void BlochchainP2pManager::onLoginHandshake(P2pHandshake *handshake, const Login
 
 	P2pZone* z = this->zones->get(zone);
 
-	BlockchainNodeHandshake* blockchainHandshake = z->add(handshake, nodeId);
+	BlockchainNodeHandshake* blockchainHandshake = z->add(handshake, nodeId, canonicalName);
 
 	const PubSubId* pubsubId = handshake->getPubsubid();
 	this->blockchainHandshakeHash.put(pubsubId, blockchainHandshake);
 }
 
-void BlochchainP2pManager::registerHandshake(uint16_t zone, P2pHandshake *handshake, const NodeIdentifier *nodeId) {
+void BlochchainP2pManager::registerHandshake(uint16_t zone, P2pHandshake *handshake, const NodeIdentifier *nodeId, const UnicodeString* canonicalName) {
 	CAUSE_ERROR_BY_THROW(L"BlochchainP2pManager::registerHandshake", new BlockchainZoneException(__FILE__, __LINE__));
 
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	ExceptionThrower<BlockchainZoneException>::throwExceptionIfCondition(zone > this->zones->size(), L"Zone does not exists", __FILE__, __LINE__);
 
 	P2pZone* z = this->zones->get(zone);
 
-	BlockchainNodeHandshake* blockchainHandshake = z->add(handshake, nodeId);
+	BlockchainNodeHandshake* blockchainHandshake = z->add(handshake, nodeId, canonicalName);
 
 	const PubSubId* pubsubId = handshake->getPubsubid();
 	this->blockchainHandshakeHash.put(pubsubId, blockchainHandshake);
 }
 
 void BlochchainP2pManager::onLoginClinentHandshake(P2pHandshake *handshake, const LoginClientCommand *clientLoginCommand) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	uint16_t zone = clientLoginCommand->getZone();
 	const NodeIdentifier* nodeId = clientLoginCommand->getNodeId();
@@ -194,7 +200,7 @@ void BlochchainP2pManager::onLoginClinentHandshake(P2pHandshake *handshake, cons
 }
 
 void BlochchainP2pManager::onHandshakeEnds(P2pHandshake *handshake) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	const PubSubId* pubsubId = handshake->getPubsubid();
 
@@ -209,7 +215,7 @@ void BlochchainP2pManager::onHandshakeEnds(P2pHandshake *handshake) {
 }
 
 BlockchainNodeHandshake* BlochchainP2pManager::getNodeHandshake(const PubSubId *pubsubId) const noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	BlockchainNodeHandshake* ret = this->blockchainHandshakeHash.get(pubsubId);
 	if(ret != nullptr){
@@ -220,12 +226,12 @@ BlockchainNodeHandshake* BlochchainP2pManager::getNodeHandshake(const PubSubId *
 }
 
 ClientNodeHandshake* BlochchainP2pManager::getClientHandshake(const PubSubId *pubsubId) const noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 	return this->clientHandshakeHash.get(pubsubId);
 }
 
 BlockchainNodeHandshake* BlochchainP2pManager::getNodeHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	BlockchainNodeHandshake* ret = nullptr;
 
@@ -246,7 +252,7 @@ BlockchainNodeHandshake* BlochchainP2pManager::getNodeHandshakeByNodeId(const No
 }
 
 ClientNodeHandshake* BlochchainP2pManager::getClientHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	ClientNodeHandshake* ret = nullptr;
 
@@ -268,7 +274,7 @@ ClientNodeHandshake* BlochchainP2pManager::getClientHandshakeByNodeId(const Node
 }
 
 void BlochchainP2pManager::bloadCastWithinZone(uint16_t zoneSelf,	const AbstractNodeCommand *command, P2pRequestProcessor* processor) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	if(!this->end){
 		__bloadCastWithinZone(zoneSelf, nullptr, command, processor);
@@ -276,7 +282,7 @@ void BlochchainP2pManager::bloadCastWithinZone(uint16_t zoneSelf,	const Abstract
 }
 
 void BlochchainP2pManager::bloadCastWithinZone(uint16_t zoneSelf, const NodeIdentifier *excludeNodeId, const AbstractNodeCommand *command, P2pRequestProcessor *processor) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	if(!this->end){
 		__bloadCastWithinZone(zoneSelf, excludeNodeId, command, processor);
@@ -284,7 +290,7 @@ void BlochchainP2pManager::bloadCastWithinZone(uint16_t zoneSelf, const NodeIden
 }
 
 void BlochchainP2pManager::bloadCastToClients(AbstractClientNotifyCommand *commnad, P2pRequestProcessor *processor) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	if(!this->end){
 		int maxLoop = this->zones->size();
@@ -297,7 +303,7 @@ void BlochchainP2pManager::bloadCastToClients(AbstractClientNotifyCommand *commn
 }
 
 void BlochchainP2pManager::bloadCastAllZones(const NodeIdentifier *excludeNodeId, const AbstractNodeCommand *command, P2pRequestProcessor *processor) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	if(!this->end){
 		int maxLoop = this->zones->size();
@@ -317,8 +323,21 @@ void BlochchainP2pManager::__bloadCastWithinZone(uint16_t zone, const NodeIdenti
 	}
 }
 
+void BlochchainP2pManager::bloadCastHighPriorityAllZones(const ArrayList<NodeIdentifier>* excludeNodeIds, const AbstractConsensusNodeCommand *command, P2pRequestProcessor *processor) {
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
+
+	if(!this->end){
+		int maxLoop = this->zones->size();
+		for(int i = 0; i != maxLoop; ++i){
+			P2pZone* p2pzone = this->zones->get(i);
+
+			p2pzone->generateHighPriorityTransferRequest(excludeNodeIds, command, processor);
+		}
+	}
+}
+
 int BlochchainP2pManager::getNumNodes(uint16_t zone) const {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	P2pZone* p2pZone = this->zones->get(zone);
 
@@ -326,7 +345,7 @@ int BlochchainP2pManager::getNumNodes(uint16_t zone) const {
 }
 
 ArrayList<NodeIdentifier>* BlochchainP2pManager::getNodeIds(uint16_t zone) const {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	ArrayList<NodeIdentifier>* list = new ArrayList<NodeIdentifier>(); __STP(list);
 	list->setDeleteOnExit();
@@ -336,6 +355,13 @@ ArrayList<NodeIdentifier>* BlochchainP2pManager::getNodeIds(uint16_t zone) const
 
 	list->setDeleteOnExit(false);
 	return __STP_MV(list);
+}
+
+void BlochchainP2pManager::setHost(const UnicodeString *host) noexcept {
+	delete this->host;
+	this->host = nullptr;
+
+	this->host = host != nullptr ? new UnicodeString(host) : nullptr;
 }
 
 } /* namespace codablecash */

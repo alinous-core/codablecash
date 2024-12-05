@@ -13,6 +13,7 @@
 #include "ipconnect/IClientSocket.h"
 
 #include "base/StackRelease.h"
+#include "base/UnicodeString.h"
 
 #include "p2pserver/P2pConnectionAcceptThread.h"
 
@@ -23,9 +24,11 @@
 
 #include "osenv/funcs.h"
 
+
 namespace codablecash {
 
-P2pConnectionListeningThread::P2pConnectionListeningThread(IServerSocket* srvSocket, P2pServer* p2pServer) {
+P2pConnectionListeningThread::P2pConnectionListeningThread(IServerSocket* srvSocket, P2pServer* p2pServer, const UnicodeString* name)
+		: AbstractThreadRunner(name) {
 	this->srvSocket = srvSocket;
 	this->p2pServer = p2pServer;
 	this->continueFlag = false;
@@ -49,7 +52,15 @@ void P2pConnectionListeningThread::process() noexcept {
 		int ret = this->srvSocket->poolAccept(0, 50000);
 		if(ret > 0){
 			IClientSocket* client = this->srvSocket->accept(); __STP(client);
-			P2pConnectionAcceptThread* thread = new P2pConnectionAcceptThread(__STP_MV(client), this->p2pServer);
+
+			UnicodeString thname(L"");
+			if(this->name != nullptr){
+				thname.append(this->name);
+				thname.append(L"_");
+			}
+			thname.append(L"ACTH");
+
+			P2pConnectionAcceptThread* thread = new P2pConnectionAcceptThread(__STP_MV(client), this->p2pServer, &thname);
 
 			thread->start();
 			addThread(thread);
@@ -62,12 +73,12 @@ void P2pConnectionListeningThread::process() noexcept {
 }
 
 void P2pConnectionListeningThread::addThread(P2pConnectionAcceptThread *thread) noexcept {
-	StackUnlocker __lock(this->listMutex);
+	StackUnlocker __lock(this->listMutex, __FILE__, __LINE__);
 	this->list.addElement(thread);
 }
 
 bool P2pConnectionListeningThread::isThreadsEmpty() const noexcept {
-	StackUnlocker __lock(this->listMutex);
+	StackUnlocker __lock(this->listMutex, __FILE__, __LINE__);
 	return this->list.isEmpty();
 }
 
@@ -80,20 +91,20 @@ void P2pConnectionListeningThread::cleanAll() noexcept {
 }
 
 void P2pConnectionListeningThread::setContinueFlag(bool bl) {
-	StackUnlocker __lock(this->continueFlagMutex);
+	StackUnlocker __lock(this->continueFlagMutex, __FILE__, __LINE__);
 
 	this->continueFlag = bl;
 }
 
 bool P2pConnectionListeningThread::isContinueFlag() {
-	StackUnlocker __lock(this->continueFlagMutex);
+	StackUnlocker __lock(this->continueFlagMutex, __FILE__, __LINE__);
 
 	bool ret = this->continueFlag;
 	return ret;
 }
 
 void P2pConnectionListeningThread::cleanFinishedThreads() noexcept {
-	StackUnlocker __lock(this->listMutex);
+	StackUnlocker __lock(this->listMutex, __FILE__, __LINE__);
 
 	ArrayList<P2pConnectionAcceptThread> removelList;
 

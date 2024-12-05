@@ -21,13 +21,14 @@ class ICommandMessage;
 
 class MultipleCommandProcessor {
 public:
-	MultipleCommandProcessor(ICommandParameter* param, int size, ISystemLogger* logger, const wchar_t* name);
+	MultipleCommandProcessor(ICommandParameter* param, int size, ISystemLogger* logger, UnicodeString* name);
 	virtual ~MultipleCommandProcessor();
 
 	void start();
 	void shutdown() noexcept;
 
 	void addCommandMessage(ICommandMessage* cmd, int i) noexcept;
+	void addCommandMessageFirst(ICommandMessage* cmd, int i) noexcept;
 
 	ICommandParameter* getParam() const noexcept {
 		return this->param;

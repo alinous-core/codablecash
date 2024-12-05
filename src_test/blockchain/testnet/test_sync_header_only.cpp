@@ -7,6 +7,32 @@
 
 #include "test_utils/t_macros.h"
 
+#include "../utils_testnet/MultizoneTestnet.h"
+#include "../utils_testnet/TestnetInstanceWrapper.h"
+#include "../utils_testnet/ArrayDebugSeeder.h"
+
+#include "../../test_utils/TestPortSelection.h"
+#include "../utils/DebugCodablecashSystemParamSetup.h"
+#include "../wallet_util/WalletDriver.h"
+
+#include "pubsub/CommandPublisherSetting.h"
+
+#include "bc/DebugDefaultLogger.h"
+#include "bc/CodablecashSystemParam.h"
+
+#include "bc_network_instance/CodablecashNetworkNodeConfig.h"
+#include "bc_network_instance/GenesisBalanceConfig.h"
+#include "bc_network_instance/FinalizerConfig.h"
+
+#include "bc_base/AddressDescriptor.h"
+
+#include "bc_block_generator/MiningConfig.h"
+
+#include "bc_network/NodeIdentifierSource.h"
+
+
+using namespace codablecash;
+
 TEST_GROUP(TestSyncHeaderOnlyGroup) {
 	TEST_SETUP(){
 		env->setup();
@@ -17,6 +43,66 @@ TEST_GROUP(TestSyncHeaderOnlyGroup) {
 };
 
 TEST(TestSyncHeaderOnlyGroup, case01){
+	CommandPublisherSettingStack __set(5, 300);
 
+	StackTestPortGetter portSel;
+	File projectFolder = this->env->testCaseDir();
+	File* dirWallet01 = projectFolder.get(L"wallet01"); __STP(dirWallet01);
+
+	DebugDefaultLogger logger;
+	logger.setSection(ISystemLogger::DEBUG_NODE_TRANSFER_RESPONSE);
+	// logger.setSection(ISystemLogger::DEBUG_POW_CALC_THREAD);
+
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig02(param);
+
+	CodablecashNetworkNodeConfig nwconfig;
+	nwconfig.setSysConfig(&param);
+
+	MultizoneTestnet testnet(&portSel, &projectFolder, &logger, &param, &nwconfig);
+
+	// wallet
+	WalletDriver* walletDriver = new WalletDriver(0, dirWallet01, L"changeit"); __STP(walletDriver);
+	walletDriver->init(1);
+
+	// genesis address
+	AddressDescriptor* desc = walletDriver->getAddressDesc(0, 0); __STP(desc);
+	GenesisBalanceConfig gconfig;
+	BalanceUnit amount(1000L * 10000L * 10000L);
+	gconfig.addBalance(amount, desc);
+
+
+	{
+		TestnetInstanceWrapper* inst = testnet.createInstance(0, L"first");
+		// genesis
+		inst->setGenesisBlockConfig(&gconfig);
+
+		// mining
+		MiningConfig minerConfig;
+		AddressDescriptor* desc2 = walletDriver->getAddressDesc(0, 1); __STP(desc2);
+		minerConfig.setAddressDescriptor(desc2);
+		inst->setMinerConfig(&minerConfig);
+
+		// finalizer
+		FinalizerConfig fconfig;
+		NodeIdentifierSource* voteSource = NodeIdentifierSource::create(); __STP(voteSource);
+		fconfig.setVoterSource(voteSource);
+		inst->setFinalizerConfig(&fconfig);
+	}
+
+	// seeder
+	ArrayDebugSeeder seeder;
+
+	testnet.startGenesis(0, &seeder);
+	testnet.waitForBlockHeight(0, 0, 4);
+
+	// header
+	{
+
+	}
+
+
+
+	// FIXME header only test
 }
 

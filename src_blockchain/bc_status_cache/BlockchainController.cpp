@@ -27,6 +27,7 @@
 #include "base_io/File.h"
 
 #include "base/StackRelease.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_block/BlockHeaderId.h"
 #include "bc_block/BlockHeader.h"
@@ -45,11 +46,10 @@
 
 #include "bc_block_vote/VotePart.h"
 
-#include "bc/CodablecashConfig.h"
 
 namespace codablecash {
 
-BlockchainController::BlockchainController(ISystemLogger* logger, const CodablecashConfig* config, const File* tmpCacheBaseDir, CodablecashBlockchain* blockchain
+BlockchainController::BlockchainController(ISystemLogger* logger, const CodablecashSystemParam* config, const File* tmpCacheBaseDir, CodablecashBlockchain* blockchain
 		, BlockchainStatusCache* statusCache, MemoryPool* memoryPool) {
 	this->logger = logger;
 	this->config = config;
@@ -95,7 +95,7 @@ bool BlockchainController::addBlock(const Block *block) {
 	{
 		MemPoolTransaction* memTrx = this->memoryPool->begin(); __STP(memTrx);
 		{
-			StackWriteLock __lock(this->rwLock);
+			StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 			{
 				BlockHeader* header = block->getHeader();
@@ -133,7 +133,7 @@ bool BlockchainController::addBlockHeader(const BlockHeader *header) {
 
 	MemPoolTransaction* memTrx = this->memoryPool->begin(); __STP(memTrx);
 	{
-		StackWriteLock __lock(this->rwLock);
+		StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 		{
 			uint16_t zone = header->getZone();
@@ -154,50 +154,50 @@ bool BlockchainController::addBlockHeader(const BlockHeader *header) {
 }
 
 uint64_t BlockchainController::getHeadHeight(uint16_t zone) {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return this->statusCache->getHeadHeight(zone);
 }
 
 uint16_t BlockchainController::getZoneSelf() const noexcept {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return this->blockchain->getZoneSelf();
 }
 
 uint64_t BlockchainController::getFinalizedHeight(uint16_t zone) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return this->statusCache->getFinalizedHeight(zone);
 }
 
 void BlockchainController::importCosumedMemTransactions(uint16_t zone,
 		MemPoolTransaction *memTrx, uint64_t height, const BlockHeaderId *headerId) {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	this->statusCache->importCosumedMemTransactions(zone, memTrx, height, headerId, this->blockchain);
 }
 
 void BlockchainController::stopMining() noexcept {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	this->statusCache->setPowManager(nullptr);
 }
 
 void BlockchainController::stopFinalizing() noexcept {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	this->statusCache->setFinalizer(nullptr);
 }
 
 IStatusCacheContext* BlockchainController::getStatusCacheContext(uint16_t zone, const BlockHeaderId *headerId, uint64_t height) {
-	StackWriteLock lock(this->rwLock);
+	StackWriteLock lock(this->rwLock, __FILE__, __LINE__);
 
 	return doGetStatusCacheContext(zone, headerId, height, &lock);
 }
 
 IStatusCacheContext* BlockchainController::getStatusCacheContext(uint16_t zone) {
-	StackWriteLock lock(this->rwLock);
+	StackWriteLock lock(this->rwLock, __FILE__, __LINE__);
 
 	const BlockHead* head = this->statusCache->getHead(zone);
 	const BlockHeader* header = head->getHeadHeader();
@@ -209,7 +209,7 @@ IStatusCacheContext* BlockchainController::getStatusCacheContext(uint16_t zone) 
 }
 
 IStatusCacheContext* BlockchainController::getBlankStatusCacheContext(uint16_t zone) {
-	StackWriteLock lock(this->rwLock);
+	StackWriteLock lock(this->rwLock, __FILE__, __LINE__);
 
 	StatusCacheContext* context = new StatusCacheContext(this->config, this->tmpCacheBaseDir
 						, zone, lock.move(), this->statusCache, this->blockchain); __STP(context);
@@ -225,6 +225,8 @@ IStatusCacheContext* BlockchainController::doGetStatusCacheContext(uint16_t zone
 			CachedStatusCacheContext* context = new CachedStatusCacheContext(cache, this->config
 					, this->tmpCacheBaseDir, zone, lock->move(), this->statusCache, this->blockchain); __STP(context);
 			context->init();
+
+			context->loadInitialVotersData(); // load Initial Voters Data
 
 			return __STP_MV(context);
 		}
@@ -307,6 +309,8 @@ void BlockchainController::initCacehContext(uint16_t zone, StatusCacheContext *c
 	delete currentHeaderId;
 
 	// load voters
+	// StatusCacheContext -> from finalized cache
+	// CachedStatusCacheContext -> from cached data
 	context->loadInitialVotersData();
 
 	int maxLoop = list.size();
@@ -401,7 +405,7 @@ void BlockchainController::finalizeHeader(uint16_t zone, uint64_t finalizingHeig
 		// lock memory at first
 		MemPoolTransaction* memTrx = memPool->begin(); __STP(memTrx);
 
-		StackWriteLock lock(this->rwLock);
+		StackWriteLock lock(this->rwLock, __FILE__, __LINE__);
 
 		// clean blockchain
 		uint64_t lastFinalizedHeight = this->statusCache->getFinalizedHeight(zone);
@@ -432,7 +436,7 @@ int BlockchainController::getMempoolTrxCount() const noexcept {
 }
 
 void BlockchainController::getSyncHeaderData(uint16_t zone, uint64_t offsetHeight, int limit, IBlockDetectCallback* callback) {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	uint64_t height = offsetHeight;
 	for(int i = 0; i != limit; ++i){
@@ -450,14 +454,12 @@ void BlockchainController::getSyncHeaderData(uint16_t zone, uint64_t offsetHeigh
 }
 
 ArrayList<Block>* BlockchainController::getBlocksHeightAt(uint16_t zone, uint64_t height) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return this->blockchain->getBlocksHeightAt(zone, height);
 }
 
 Block* BlockchainController::getBlocksHeightAt(uint16_t zone, uint64_t height, const BlockHeaderId *headerId) const {
-	StackReadLock __lock(this->rwLock);
-
 	ArrayList<Block>* list = getBlocksHeightAt(zone, height); __STP(list);
 	if(list != nullptr){
 		list->setDeleteOnExit();
@@ -485,7 +487,7 @@ Block* BlockchainController::getBlockById(ArrayList<Block> *list, const BlockHea
 }
 
 bool BlockchainController::hasHeaderId(uint16_t zone, uint64_t height, const BlockHeaderId *headerId) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockHeaderStoreManager* headerManager = this->blockchain->getHeaderManager(zone);
 	BlockHeader* header = headerManager->getHeader(headerId, height); __STP(header);
@@ -494,7 +496,7 @@ bool BlockchainController::hasHeaderId(uint16_t zone, uint64_t height, const Blo
 }
 
 BigInteger BlockchainController::calcTargetDifficulty(uint16_t zone, uint64_t lastHeight, const BlockHeaderId *lastHeaderId, const SystemTimestamp* tm) {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockHeaderStoreManager* headerManager = this->blockchain->getHeaderManager(zone);
 
@@ -502,7 +504,7 @@ BigInteger BlockchainController::calcTargetDifficulty(uint16_t zone, uint64_t la
 }
 
 void BlockchainController::requestMiningBlock(MemPoolTransaction* memTrx) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 	ZoneStatusCache* cache = this->statusCache->getZoneStatusCache(zoneSelf);
@@ -513,8 +515,6 @@ void BlockchainController::requestMiningBlock(MemPoolTransaction* memTrx) {
 }
 
 const VoterEntry* BlockchainController::getVoterEntry(const NodeIdentifier *nodeId) {
-	StackReadLock __lock(this->rwLock);
-
 	uint16_t zone = this->blockchain->getZoneSelf();
 
 	IStatusCacheContext* context = getStatusCacheContext(zone); __STP(context);
@@ -524,7 +524,7 @@ const VoterEntry* BlockchainController::getVoterEntry(const NodeIdentifier *node
 }
 
 BlockHeader* BlockchainController::getTopHeader() const {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 	const BlockHead* head = this->statusCache->getHead(zoneSelf);
@@ -534,7 +534,7 @@ BlockHeader* BlockchainController::getTopHeader() const {
 }
 
 bool BlockchainController::checkAcceptSecondRealBlockOnMining() const {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	bool result = false;
 
@@ -571,7 +571,7 @@ bool BlockchainController::checkAcceptSecondRealBlockOnMining() const {
 }
 
 BlockHeader* BlockchainController::changeMiningTarget() {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 
@@ -579,17 +579,23 @@ BlockHeader* BlockchainController::changeMiningTarget() {
 }
 
 void BlockchainController::setScheduledBlock(const Block *block) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 	this->statusCache->setScheduledBlock(zoneSelf, block);
 }
 
 Block* BlockchainController::fetechScheduledBlock() {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 	return this->statusCache->fetchScheduledBlock(zoneSelf);
+}
+
+bool BlockchainController::registerBlockHeader4Limit(uint16_t zone,	const BlockHeader *header, const CodablecashSystemParam *param) {
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
+
+	return this->statusCache->registerBlockHeader4Limit(zone, header, param);
 }
 
 } /* namespace codablecash */

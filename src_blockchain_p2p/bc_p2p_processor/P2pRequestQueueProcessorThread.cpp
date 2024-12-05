@@ -54,7 +54,7 @@ void P2pRequestQueueProcessorThread::process() noexcept {
 		CommandQueueData* cmd = nullptr;
 
 		{
-			StackUnlocker unlocker(lock);
+			StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 			this->status = STATUS_RUNNING;
 
@@ -63,7 +63,9 @@ void P2pRequestQueueProcessorThread::process() noexcept {
 			}
 			else{ // empty
 				this->status = STATUS_WAITING;
-				lock->wait();
+				if(this->running){
+					lock->wait();
+				}
 				this->status = STATUS_RUNNING;
 			}
 
@@ -92,14 +94,14 @@ void P2pRequestQueueProcessorThread::processCommand(CommandQueueData *cmd) {
 }
 
 void P2pRequestQueueProcessorThread::setRunning(bool bl) noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	this->running = bl;
 	this->lock->notifyAll();
 }
 
 bool P2pRequestQueueProcessorThread::isRunning() const noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	return this->running;
 }
@@ -117,7 +119,7 @@ void P2pRequestQueueProcessorThread::__setSuspend(bool suspend) {
 }
 
 int P2pRequestQueueProcessorThread::getStatus() const noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	return this->status;
 }

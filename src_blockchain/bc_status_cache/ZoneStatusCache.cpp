@@ -37,15 +37,19 @@
 
 #include "bc_status_cache_context/IStatusCacheContext.h"
 
-#include "bc/CodablecashConfig.h"
+#include "bc_status_cache_context_finalizer/VoterStatusCacheContext.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_status_cache_lockin/LockinManager.h"
 
+#include "bc_status_cache_vote/VoteManager.h"
+
+
 namespace codablecash {
 
-ZoneStatusCache::ZoneStatusCache(const File* baseDir, uint16_t zone, bool headerOnly, ISystemLogger* logger, const CodablecashConfig* config) {
+ZoneStatusCache::ZoneStatusCache(const File* baseDir, uint16_t zone, bool headerOnly, ISystemLogger* logger, const CodablecashSystemParam* config) {
 	this->zone = zone;
 	this->headerOnly = headerOnly;
 
@@ -60,6 +64,8 @@ ZoneStatusCache::ZoneStatusCache(const File* baseDir, uint16_t zone, bool header
 
 	this->finalizedCache = new FinalizedDataCache(this->baseDir);
 	this->lockinManager = new LockinManager(this->baseDir);
+
+	this->voteManager = new VoteManager(this->baseDir);
 
 	this->ticketPrice = config->getTicketPriceDefault(1L);
 }
@@ -78,6 +84,8 @@ ZoneStatusCache::ZoneStatusCache(const File *baseDir, ISystemLogger* logger, boo
 
 	this->finalizedCache = new FinalizedDataCache(this->baseDir);
 	this->lockinManager = new LockinManager(this->baseDir);
+	this->voteManager = new VoteManager(this->baseDir);
+
 	this->ticketPrice = 0;
 }
 
@@ -107,6 +115,7 @@ void ZoneStatusCache::initBlank() {
 
 	this->finalizedCache->initBlank();
 	this->lockinManager->initBlank();
+	this->voteManager->initBlank();
 }
 
 void ZoneStatusCache::open() {
@@ -115,6 +124,7 @@ void ZoneStatusCache::open() {
 
 	this->finalizedCache->open();
 	this->lockinManager->open();
+	this->voteManager->open();
 }
 
 void ZoneStatusCache::close() {
@@ -133,6 +143,12 @@ void ZoneStatusCache::close() {
 		this->lockinManager->close();
 		delete this->lockinManager;
 		this->lockinManager = nullptr;
+	}
+
+	if(this->voteManager != nullptr){
+		this->voteManager->close();
+		delete this->voteManager;
+		this->voteManager = nullptr;
 	}
 }
 
@@ -153,13 +169,13 @@ void ZoneStatusCache::loadStatus() {
 	this->ticketPrice = this->statusStore->getLongValue(KEY_FINALIZED_TICKET_PRICE);
 }
 
-void ZoneStatusCache::updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashConfig* config, const File* tmpCacheBaseDir) {
+void ZoneStatusCache::updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashSystemParam* config, const File* tmpCacheBaseDir) {
 	this->headBlockDetector->reset();
 	// Make header lines
 	this->headBlockDetector->buildHeads(this->zone, chain, this->finalizedHeight);
 
 	// evaluate
-	this->headBlockDetector->evaluate(this->zone, memTrx, chain, config, tmpCacheBaseDir, this->headerOnly);
+	this->headBlockDetector->evaluate(this->zone, memTrx, chain, this, config, tmpCacheBaseDir, this->headerOnly);
 	this->headBlockDetector->selectChain();
 }
 
@@ -206,7 +222,7 @@ void ZoneStatusCache::finalizeUpdateCacheData(uint64_t finalizingHeight, const B
 
 			BlockBody* body = bodyManager->getBlockBody(root, height); __STP(body);
 
-			this->finalizedCache->importBlockData(header, body, context);
+			this->finalizedCache->importBlockData(finalizingHeight, header, body, context);
 
 			height++;
 		}
@@ -214,10 +230,26 @@ void ZoneStatusCache::finalizeUpdateCacheData(uint64_t finalizingHeight, const B
 
 	// writeback Voter
 	this->finalizedCache->writeBackVoterEntries(context);
+	this->finalizedCache->writeBackVoterStatus(context);
 
 	this->finalizedHeight = finalizingHeight;
 	this->ticketPrice = context->getTicketPrice();
 	saveStatus();
+
+	// clean
+	{
+		const CodablecashSystemParam* params = context->getConfig();
+		VoterStatusCacheContext* voterCache = this->finalizedCache->getVotingStatusCache();
+
+		uint16_t voteBlockIncludeAfterNBlocks = params->getVoteBlockIncludeAfterNBlocks(this->finalizedHeight);
+		uint16_t voteBeforeNBlocks = params->getVoteBeforeNBlocks(this->finalizedHeight);
+		// uint16_t voteLockinIntervalHeight = params->getVoteLockinIntervalHeight();
+
+		uint64_t cleanHeight = finalizingHeight - voteBlockIncludeAfterNBlocks - voteBeforeNBlocks;
+
+		voterCache->clean(cleanHeight);
+	}
+
 }
 
 void ZoneStatusCache::finalizeHeaderUpdateCacheData(uint64_t finalizingHeight, const BlockHeaderId *headerId, CodablecashBlockchain *blockchain) {
@@ -317,6 +349,10 @@ void ZoneStatusCache::setScheduledBlock(const Block *block) {
 
 Block* ZoneStatusCache::fetchScheduledBlock() {
 	return this->headBlockDetector->fetchScheduledBlock();
+}
+
+bool ZoneStatusCache::registerBlockHeader4Limit(const BlockHeader *header, const CodablecashSystemParam *param) {
+	return this->voteManager->registerBlockHeader(header, param);
 }
 
 } /* namespace codablecash */

@@ -20,21 +20,28 @@
 
 namespace codablecash {
 
-BlockchainNodeHandshake::BlockchainNodeHandshake(P2pHandshake *handshake, int zone, const NodeIdentifier* nodeId) {
+BlockchainNodeHandshake::BlockchainNodeHandshake(P2pHandshake *handshake, int zone, const NodeIdentifier* nodeId, const UnicodeString* canonicalName) {
 	this->nodeId = dynamic_cast<NodeIdentifier*>(nodeId->copyData());
 	this->zone = zone;
 	handshake->addRef();
 	this->handshake = handshake;
 
+	this->canonicalName = canonicalName != nullptr ? new UnicodeString(canonicalName) : nullptr;
+
 	this->mutex = new SysMutex();
 	this->ref = 0;
+
+	this->trxmutex = new SysMutex();
 }
 
 BlockchainNodeHandshake::~BlockchainNodeHandshake() {
 	dispose(true);
 
+	delete this->canonicalName;
+
 	delete this->nodeId;
 	delete this->mutex;
+	delete this->trxmutex;
 }
 
 void BlockchainNodeHandshake::dispose(bool force) noexcept {
@@ -51,28 +58,28 @@ const PubSubId* BlockchainNodeHandshake::getPubsubId() const noexcept {
 }
 
 void BlockchainNodeHandshake::incRef() noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 	this->ref++;
 }
 
 void BlockchainNodeHandshake::decRef() noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 	this->ref--;
 }
 
 bool BlockchainNodeHandshake::isDeletable() const noexcept {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 	return this->ref == 0;
 }
 
 AbstractCommandResponse* BlockchainNodeHandshake::sendCommnad(const AbstractNodeCommand *command) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->trxmutex, __FILE__, __LINE__);
 
 	return this->handshake->publishCommand(command);
 }
 
 AbstractCommandResponse* BlockchainNodeHandshake::sendCommnad(const AbstractClientNotifyCommand *command) {
-	StackUnlocker __lock(this->mutex);
+	StackUnlocker __lock(this->trxmutex, __FILE__, __LINE__);
 
 	return this->handshake->publishCommand(command);
 }

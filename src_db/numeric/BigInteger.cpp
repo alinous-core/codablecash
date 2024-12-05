@@ -391,13 +391,17 @@ BigInteger* BigInteger::fromBinary(const char* buff, int length) {
 }
 
 BigInteger BigInteger::ramdom() noexcept {
+	static uint64_t solt = 1;
+
 	mpz_t s;
 	mpz_init(s);
 
 	gmp_randstate_t state;
 	gmp_randinit_default(state);
 
-	uint64_t tm = Os::getMicroSec();
+	int shift = solt % 3;
+
+	uint64_t tm = (Os::getMicroSec() << shift) + solt++;
 	gmp_randseed_ui(state, tm);
 
 	mpz_urandomb(s, state, 256);

@@ -10,9 +10,8 @@ set(__src
 	DownloadTransactionsNodeCommand.cpp
 	DownloadTransactionsNodeCommandResponse.cpp
 	InvalidTransactionException.cpp
+	NodeCommandValidationErrorResponse.cpp
 	NopNodeCommand.cpp
-	ReportMinedBlockNodeCommand.cpp
-	SendTransactionNodeCommand.cpp
 	SyncHeaderHeightData.cpp
 	SyncHeaderNodeCommand.cpp
 	SyncHeaderNodeCommandResponse.cpp

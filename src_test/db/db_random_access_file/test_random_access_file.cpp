@@ -454,19 +454,22 @@ TEST(RAFTestGroup, readWrite){
 
 		file.write(0, str, 15);
 
-		char buff[14]{};
+		char buff[16]{};
 		file.read(0, buff, 15);
 
 		file.sync(true);
 
 		file.close();
+
+		int cmp = ::strcmp(str, buff);
+		CHECK(cmp == 0)
 	}
 
 	{
 		DiskCacheManager diskCache(16525);
 		RandomAccessFile file(outFile, &diskCache, 256);
 		file.open();
-		char buff[15]{};
+		char buff[16]{};
 		file.read(0, buff, 15);
 
 		file.close();
@@ -494,12 +497,15 @@ TEST(RAFTestGroup, readWrite02){
 
 		file.write(256 * 4 - 6, str, 15);
 
-		char buff[14]{};
-		file.read(0, buff, 15);
+		char buff[16]{};
+		file.read(256 * 4 - 6, buff, 15);
 
 		file.sync(true);
 
 		file.close();
+
+		int cmp = ::strcmp(str, buff);
+		CHECK(cmp == 0)
 	}
 
 	{

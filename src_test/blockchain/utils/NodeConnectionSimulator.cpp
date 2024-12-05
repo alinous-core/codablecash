@@ -79,7 +79,7 @@ void NodeConnectionSimulator::connectIpv6Node(uint16_t zone, const UnicodeString
 }
 
 void NodeConnectionSimulator::loginNode(uint16_t zone, P2pHandshake *handshake) {
-	LoginPubSubCommand cmd(zone);
+	LoginPubSubCommand cmd(zone, nullptr);
 	cmd.sign(source);
 
 	AbstractCommandResponse* response = handshake->publishCommand(&cmd); __STP(response);

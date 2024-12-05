@@ -106,4 +106,8 @@ void SyncHeaderNodeCommand::setStartHeight(uint32_t offset) noexcept {
 	this->startHeight = offset;
 }
 
+bool SyncHeaderNodeCommand::usePendingQueue() const noexcept {
+	return false;
+}
+
 } /* namespace codablecash */

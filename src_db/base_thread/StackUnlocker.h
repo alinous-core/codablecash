@@ -14,7 +14,7 @@ class ILock;
 
 class StackUnlocker {
 public:
-	explicit StackUnlocker(ILock* mutex) noexcept;
+	explicit StackUnlocker(ILock* mutex, const char *srcfile, int line) noexcept;
 	virtual ~StackUnlocker() noexcept;
 private:
 	ILock* mutex;

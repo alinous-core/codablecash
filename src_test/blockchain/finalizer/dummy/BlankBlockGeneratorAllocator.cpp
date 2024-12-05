@@ -19,7 +19,7 @@ BlankBlockGeneratorAllocator::~BlankBlockGeneratorAllocator() {
 }
 
 BlockGenerator* BlankBlockGeneratorAllocator::newBlockGenerator(uint16_t zone,
-		CodablecashConfig *config, MemoryPool *memoryPool,
+		CodablecashSystemParam *config, MemoryPool *memoryPool,
 		BlockchainController *ctrl, const MiningConfig *miningConfig, ISystemLogger* logger) {
 	return new BlankBlockGenerator(zone, config, memoryPool, ctrl, miningConfig, logger);
 }

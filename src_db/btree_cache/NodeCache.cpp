@@ -62,13 +62,13 @@ NodeCache::~NodeCache() {
 
 void NodeCache::clear() noexcept {
 	{
-		StackUnlocker __unlock(&this->nodesLock);
+		StackUnlocker __unlock(&this->nodesLock, __FILE__, __LINE__);
 		clearList(this->nodes);
 		clearMap(this->nodesMap);
 	}
 
 	{
-		StackUnlocker __unlock(&this->datasLock);
+		StackUnlocker __unlock(&this->datasLock, __FILE__, __LINE__);
 		clearList(this->datas);
 		clearMap(this->datasMap);
 	}
@@ -91,7 +91,7 @@ NodeCacheRef* NodeCache::get(uint64_t fpos) noexcept {
 	CachedFpos key(fpos);
 
 	{
-		StackUnlocker __unlock(&this->nodesLock);
+		StackUnlocker __unlock(&this->nodesLock, __FILE__, __LINE__);
 		RawLinkedList<NodeCacheRef>::Element* element = this->nodesMap->get(key);
 		if(element != nullptr){
 			onCacheHit(element, this->nodes, &this->nodesLock);
@@ -100,7 +100,7 @@ NodeCacheRef* NodeCache::get(uint64_t fpos) noexcept {
 	}
 
 	{
-		StackUnlocker __unlock(&this->datasLock);
+		StackUnlocker __unlock(&this->datasLock, __FILE__, __LINE__);
 		RawLinkedList<NodeCacheRef>::Element* element = this->datasMap->get(key);
 		if(element != nullptr){
 			onCacheHit(element, this->datas, &this->datasLock);
@@ -128,7 +128,7 @@ void NodeCache::add(AbstractTreeNode* node) noexcept {
 void NodeCache::internalAddNode(AbstractTreeNode* node, SynchronizedLock* lock,
 		HashMap<CachedFpos, RawLinkedList<NodeCacheRef>::Element>* map,
 		RawLinkedList<NodeCacheRef>* list, int max) noexcept {
-	StackUnlocker __unlock(lock);
+	StackUnlocker __unlock(lock, __FILE__, __LINE__);
 
 	NodeCacheRef* ref = new NodeCacheRef(node, lock);
 	RawLinkedList<NodeCacheRef>::Element* element = list->add(0, ref);
@@ -152,7 +152,7 @@ void NodeCache::remove(NodeCacheRef* ref) noexcept {
 
 void NodeCache::internalRemove(AbstractTreeNode* node, SynchronizedLock* lock, HashMap<CachedFpos, RawLinkedList<NodeCacheRef>::Element>* map,
 		RawLinkedList<NodeCacheRef>* list) noexcept {
-	StackUnlocker __unlock(lock);
+	StackUnlocker __unlock(lock, __FILE__, __LINE__);
 
 	uint64_t fpos = node->getFpos();
 	CachedFpos cfpos(fpos);

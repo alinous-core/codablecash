@@ -73,7 +73,7 @@ bool MemoryPool::exists() const {
 }
 
 void MemoryPool::createBlankPool() {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	this->controlPool->createBlankPool();
 	this->iccPool->createBlankPool();
@@ -82,7 +82,7 @@ void MemoryPool::createBlankPool() {
 }
 
 void MemoryPool::open() {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 	this->controlPool->open();
 	this->iccPool->open();
 	this->balancePool->open();
@@ -90,7 +90,7 @@ void MemoryPool::open() {
 }
 
 void MemoryPool::close() noexcept {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	this->balancePool->close();
 	this->controlPool->close();
@@ -99,7 +99,7 @@ void MemoryPool::close() noexcept {
 }
 
 void MemoryPool::putTransaction(const AbstractBlockchainTransaction *trx) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	__putTransaction(trx);
 }
@@ -130,7 +130,7 @@ void MemoryPool::__putTransaction(const AbstractBlockchainTransaction *trx) {
 }
 
 void MemoryPool::removeTransaction(const TransactionId *trxId) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	AbstractBalanceTransaction* balanceTrx = this->balancePool->getBalanceTransaction(trxId); __STP(balanceTrx);
 	if(balanceTrx != nullptr){
@@ -155,7 +155,7 @@ void MemoryPool::__removeSmartcontractTransaction(const AbstractSmartcontractTra
 }
 
 AbstractBlockchainTransaction* MemoryPool::getTransactionById(const TransactionId *trxId) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	AbstractBlockchainTransaction* trx = __getBalanceTransaction(trxId);
 	if(trx == nullptr){
@@ -172,7 +172,7 @@ AbstractBlockchainTransaction* MemoryPool::getTransactionById(const TransactionI
 }
 
 AbstractBalanceTransaction* MemoryPool::getBalanceTransaction(const TransactionId *trxId) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return __getBalanceTransaction(trxId);
 }
@@ -182,7 +182,7 @@ AbstractBalanceTransaction* MemoryPool::__getBalanceTransaction(const Transactio
 }
 
 AbstractControlTransaction* MemoryPool::getControlTransaction(const TransactionId *trxId) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return __getControlTransaction(trxId);
 }
@@ -192,7 +192,7 @@ AbstractControlTransaction* MemoryPool::__getControlTransaction(const Transactio
 }
 
 AbstractInterChainCommunicationTansaction* MemoryPool::getInterChainCommunicationTansaction(const TransactionId *trxId) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return __getInterChainCommunicationTansaction(trxId);
 }
@@ -202,7 +202,7 @@ AbstractInterChainCommunicationTansaction* MemoryPool::__getInterChainCommunicat
 }
 
 AbstractSmartcontractTransaction* MemoryPool::getSmartcontractTransaction(const TransactionId *trxId) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return __getSmartcontractTransaction(trxId);
 }
@@ -212,13 +212,13 @@ AbstractSmartcontractTransaction* MemoryPool::__getSmartcontractTransaction(cons
 }
 
 TransactionId* MemoryPool::getTransactionIdFromUtxoId(const UtxoId *utxoId) const {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return this->balancePool->getTransactionIdFromUtxoId(utxoId);
 }
 
 ArrayList<TransactionId>* MemoryPool::countVotes(uint64_t targetHeight) const noexcept {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return __countVotes(targetHeight);
 }
@@ -254,7 +254,7 @@ ArrayList<TransactionId>* MemoryPool::__countVotes(uint64_t targetHeight) const 
 }
 
 MemPoolTransaction* MemoryPool::begin() noexcept {
-	this->rwLock->close();
+	this->rwLock->close(__FILE__, __LINE__);
 	MemPoolTransaction* mtrx = new MemPoolTransaction(this, this->rwLock);
 	return mtrx;
 }

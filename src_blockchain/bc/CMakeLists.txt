@@ -1,8 +1,8 @@
 
 
 set(__src
-	CodablecashConfig.cpp
 	CodablecashNodeInstance.cpp
+	CodablecashSystemParam.cpp
 	DebugDefaultLogger.cpp
 	DefaultInstanceMemberAllocator.cpp
 	exceptions.cpp

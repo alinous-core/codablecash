@@ -40,7 +40,7 @@ BlockHeaderStoreManager::~BlockHeaderStoreManager() {
 }
 
 void BlockHeaderStoreManager::addHeader(const BlockHeader *header) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	uint64_t height = header->getHeight();
 	BlockHeaderStoreCacheElement* cache = this->cache->getHeaderStoreCacheElement(height, true);
@@ -49,7 +49,7 @@ void BlockHeaderStoreManager::addHeader(const BlockHeader *header) {
 }
 
 ArrayList<BlockHeader>* BlockHeaderStoreManager::getBlocksAtHeight(uint64_t height) {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	return __getBlocksAtHeight(height);
 }
@@ -65,7 +65,7 @@ bool BlockHeaderStoreManager::isEmpty() const noexcept {
 }
 
 ArrayList<BlockHeader>* BlockHeaderStoreManager::getChildrenOf(const BlockHeaderId *headerId, uint64_t height) {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockHeaderStoreCacheElement* cache = this->cache->getHeaderStoreCacheElement(height, false);
 	return cache != nullptr ? cache->getChildrenOf(headerId, height) : new ArrayList<BlockHeader>();
@@ -73,7 +73,7 @@ ArrayList<BlockHeader>* BlockHeaderStoreManager::getChildrenOf(const BlockHeader
 
 
 void BlockHeaderStoreManager::removeHeader(BlockHeaderId *hash, uint64_t height) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockHeaderStoreCacheElement* cache = this->cache->getHeaderStoreCacheElement(height, false);
 	if(cache == nullptr){
@@ -84,8 +84,12 @@ void BlockHeaderStoreManager::removeHeader(BlockHeaderId *hash, uint64_t height)
 }
 
 BlockHeader* BlockHeaderStoreManager::getHeader(const BlockHeaderId *headerId, uint64_t height) {
-	StackReadLock __lock(this->rwLock);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
+	return __getHeader(headerId, height);
+}
+
+BlockHeader* BlockHeaderStoreManager::__getHeader(const BlockHeaderId* headerId, uint64_t height) {
 	if(height < 1 || headerId->bufferIsNull()){
 		return nullptr;
 	}
@@ -111,10 +115,10 @@ BlockHeader* BlockHeaderStoreManager::getHeader(const BlockHeaderId *headerId, u
 	return ret;
 }
 
-BlockHeader* BlockHeaderStoreManager::getNBlocksBefore(const BlockHeaderId *headerId, uint64_t height, int voteBeforeNBlocks) {
-	StackReadLock __lock(this->rwLock);
+BlockHeader* BlockHeaderStoreManager::getNBlocksBefore(const BlockHeaderId *headerId, uint64_t height, int beforeNBlocks) {
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
-	BlockHeader* currentHeader = getHeader(headerId, height);
+	BlockHeader* currentHeader = __getHeader(headerId, height);
 
 	// check currentHeader is not null
 #ifdef __DEBUG__
@@ -123,16 +127,16 @@ BlockHeader* BlockHeaderStoreManager::getNBlocksBefore(const BlockHeaderId *head
 	ExceptionThrower<BlockHeaderNotFoundException>::throwExceptionIfCondition(currentHeader == nullptr, L"The currentHeader does not found.", __FILE__, __LINE__);
 
 	uint64_t currentHeight = height;
-	for(int i = 0; i != voteBeforeNBlocks; ++i){
+	for(int i = 0; i != beforeNBlocks; ++i){
 		 __STP(currentHeader);
-		currentHeader = getHeader(currentHeader->getLastHeaderId(), currentHeader->getHeight() - 1);
+		currentHeader = __getHeader(currentHeader->getLastHeaderId(), currentHeader->getHeight() - 1);
 	}
 
 	return currentHeader;
 }
 
 void BlockHeaderStoreManager::finalize(uint64_t height,	const BlockHeaderId *headerId, IHeaderRemovalNotifier* notifier) {
-	StackWriteLock __lock(this->rwLock);
+	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockHeaderStoreCacheElement* cache = this->cache->getHeaderStoreCacheElement(height, false);
 	cache->finalize(height, headerId, notifier);

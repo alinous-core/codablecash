@@ -41,7 +41,7 @@ void CommandProcessUnit::process() noexcept {
 		ICommandMessage* cmd = nullptr;
 
 		{
-			StackUnlocker unlocker(lock);
+			StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 			this->status = STATUS_RUNNING;
 
@@ -50,7 +50,9 @@ void CommandProcessUnit::process() noexcept {
 			}
 			else{ // empty
 				this->status = STATUS_WAITING;
-				lock->wait();
+				if(this->running){
+					lock->wait();
+				}
 				this->status = STATUS_RUNNING;
 			}
 
@@ -80,32 +82,39 @@ void CommandProcessUnit::processCommand(ICommandMessage *cmd) {
 }
 
 void CommandProcessUnit::setRunning(bool bl) noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 	this->running = bl;
 	this->lock->notifyAll();
 }
 
 bool CommandProcessUnit::isRunning() const noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	return this->running;
 }
 
 int CommandProcessUnit::getStatus() const noexcept {
-	StackUnlocker unlocker(lock);
+	StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 	return this->status;
 }
 
 bool CommandProcessUnit::checkListIsEmpty() {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	return this->list.isEmpty();
 }
 
 void CommandProcessUnit::addCommandMessage(ICommandMessage *cmd) noexcept {
-	StackUnlocker unlocker(this->lock);
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 	this->list.addElement(cmd);
+	this->lock->notifyAll();
+}
+
+void CommandProcessUnit::insertCommandMessage(ICommandMessage *cmd, int pos) noexcept {
+	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
+
+	this->list.addElement(cmd, pos);
 	this->lock->notifyAll();
 }
 

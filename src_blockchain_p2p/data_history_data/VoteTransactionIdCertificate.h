@@ -42,6 +42,8 @@ public:
 private:
 	VoteBlockTransaction* voteTrx;
 	MerkleCertificate* cert;
+
+	// TODO: add UTXO certificate
 };
 
 } /* namespace codablecash */

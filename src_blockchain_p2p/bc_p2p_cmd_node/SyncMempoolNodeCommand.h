@@ -39,6 +39,8 @@ public:
 	void setNumRequestTrx(uint32_t numRequestTrx) noexcept;
 	void setOffset(uint32_t offset) noexcept;
 
+	virtual bool usePendingQueue() const noexcept;
+
 private:
 	uint8_t trxType;
 	uint32_t numRequestTrx;

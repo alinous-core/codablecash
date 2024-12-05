@@ -27,8 +27,6 @@
 
 #include "bc_block_generator/BlockGenerator.h"
 
-#include "bc/CodablecashConfig.h"
-
 #include "bc_processor/CentralProcessor.h"
 
 #include "bc_p2p_processor/P2pRequestProcessor.h"
@@ -53,27 +51,31 @@
 #include "bc_p2p_info/P2pNodeRecord.h"
 
 #include "base/ArrayList.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_p2p_selector/ConnectNodeSelector.h"
+
+#include "numeric/BigInteger.h"
+
 namespace codablecash {
 
-CodablecashNodeInstance::CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashConfig* config) {
+CodablecashNodeInstance::CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* param) {
 	DefaultInstanceMemberAllocator defalloc;
 	this->allocator = defalloc.copy();
 
-	__init(baseDir, logger, config);
+	__init(baseDir, logger, param);
 }
 
-CodablecashNodeInstance::CodablecashNodeInstance(const File *baseDir,	ISystemLogger *logger, const CodablecashConfig *config,
+CodablecashNodeInstance::CodablecashNodeInstance(const File *baseDir,	ISystemLogger *logger, const CodablecashSystemParam *param,
 		const IInstanceMemberAllocator *allocator) {
 	this->allocator = allocator->copy();
 
-	__init(baseDir, logger, config);
+	__init(baseDir, logger, param);
 
 }
 
-void CodablecashNodeInstance::__init(const File *baseDir, ISystemLogger *logger, const CodablecashConfig *config) {
-	this->config = new CodablecashConfig(*config);
+void CodablecashNodeInstance::__init(const File *baseDir, ISystemLogger *logger, const CodablecashSystemParam *param) {
+	this->param = new CodablecashSystemParam(*param);
 
 	this->centralProcessor = nullptr;
 
@@ -102,7 +104,7 @@ CodablecashNodeInstance::~CodablecashNodeInstance() {
 
 	delete this->p2pServer;
 	delete this->baseDir;
-	delete this->config;
+	delete this->param;
 
 	delete this->allocator;
 	delete this->nodeName;
@@ -120,13 +122,13 @@ bool CodablecashNodeInstance::initBlankInstance(uint16_t zoneSelf, uint16_t numZ
 		MemoryPool pool(memoryPoolBaseDir);
 		pool.createBlankPool();
 
-		BlockchainStatusCache cache(statusCacheBaseDir, this->config, &pool, tmpCacheBaseDir, this->logger);
+		BlockchainStatusCache cache(statusCacheBaseDir, this->param, &pool, tmpCacheBaseDir, this->logger);
 		cache.initBlankCache(zoneSelf, numZones);
 
 		P2pDnsManager p2pDatabase(this->baseDir);
 		p2pDatabase.createBlankDatabase();
 
-		P2pRequestProcessor requestProcessor(this->baseDir, this->p2pManager, this->config, this->logger);
+		P2pRequestProcessor requestProcessor(this->baseDir, this->p2pManager, this->param, this->logger);
 		requestProcessor.createBlank(this);
 	}
 	catch(Exception* e){
@@ -150,13 +152,13 @@ void CodablecashNodeInstance::load() {
 	this->memoryPool = new MemoryPool(memoryPoolBaseDir);
 	this->memoryPool->open();
 
-	this->statusCache = new BlockchainStatusCache(statusCacheBaseDir, this->config, this->memoryPool, tmpCacheBaseDir, this->logger);
+	this->statusCache = new BlockchainStatusCache(statusCacheBaseDir, this->param, this->memoryPool, tmpCacheBaseDir, this->logger);
 	this->statusCache->open();
 
-	this->ctrl = new BlockchainController(this->logger, this->config, tmpCacheBaseDir, this->blockchain, this->statusCache, this->memoryPool);
+	this->ctrl = new BlockchainController(this->logger, this->param, tmpCacheBaseDir, this->blockchain, this->statusCache, this->memoryPool);
 
-	this->centralProcessor = new CentralProcessor(this->config, this->memoryPool, this->ctrl, this->logger);
-	this->centralProcessor->start();
+	this->centralProcessor = new CentralProcessor(this->param, this->memoryPool, this->ctrl, this->logger);
+	this->centralProcessor->start(this->nodeName);
 
 	this->blockchain->setProcessor(this->centralProcessor);
 
@@ -168,7 +170,7 @@ void CodablecashNodeInstance::initCacheStatus() {
 	this->statusCache->initCacheStatus(this->blockchain);
 }
 
-void CodablecashNodeInstance::startNetwork(int port) {
+void CodablecashNodeInstance::startNetwork(const UnicodeString *host, int port) {
 	this->p2pServer = new P2pServer(this->logger, this);
 	this->p2pManager = new BlochchainP2pManager();
 
@@ -176,14 +178,21 @@ void CodablecashNodeInstance::startNetwork(int port) {
 
 	this->p2pServer->addConnectionListener(this->p2pManager);
 
-	this->p2pServer->startIpV6Listening(nullptr, port);
+	this->p2pServer->startIpV6Listening(host, port, this->nodeName);
+	this->p2pManager->setPort(port);
+	this->p2pManager->setProtocol(P2pNodeRecord::TCP_IP_V6);
+	this->p2pManager->setHost(host);
 
 	this->centralProcessor->setBlochchainP2pManager(this->p2pManager);
 }
 
 void CodablecashNodeInstance::startProcessors(const NodeIdentifierSource *networkKey, bool suspend) {
 	if(this->p2pRequestProcessor == nullptr){
-		this->p2pRequestProcessor = new P2pRequestProcessor(this->baseDir, this->p2pManager, this->config, this->logger);
+		this->p2pRequestProcessor = new P2pRequestProcessor(this->baseDir, this->p2pManager, this->param, this->logger);
+		if(this->nodeName != nullptr){
+			this->p2pRequestProcessor->setNodeName(this->nodeName);
+		}
+
 		this->p2pRequestProcessor->open(networkKey, this, suspend);
 
 		this->centralProcessor->setP2pRequestProcessor(this->p2pRequestProcessor);
@@ -218,7 +227,7 @@ void CodablecashNodeInstance::startBlockGenerator(const MiningConfig *config) {
 	uint16_t zone = this->blockchain->getZoneSelf();
 
 	this->powManager = new PoWManager(this->logger);
-	this->blockGenerator = this->allocator->newBlockGenerator(zone, this->config, this->memoryPool, this->ctrl, config, this->logger);
+	this->blockGenerator = this->allocator->newBlockGenerator(zone, this->param, this->memoryPool, this->ctrl, config, this->logger);
 	this->blockGenerator->setCentralProcessor(this->centralProcessor);
 
 	this->powManager->setBlockGenerator(this->blockGenerator);
@@ -229,7 +238,7 @@ void CodablecashNodeInstance::startBlockGenerator(const MiningConfig *config) {
 }
 
 void CodablecashNodeInstance::startBlockFinalizer(const NodeIdentifierSource *nodeSource) {
-	this->finalizer = this->allocator->newFinalizerPool(this->config, this->memoryPool, this->ctrl
+	this->finalizer = this->allocator->newFinalizerPool(this->param, this->memoryPool, this->ctrl
 			, this->p2pRequestProcessor, this->p2pManager, this->logger);
 	this->finalizer->setVoterIdentifier(nodeSource);
 
@@ -307,19 +316,19 @@ bool CodablecashNodeInstance::isBlockGeneratorSuspendStatus() const noexcept {
 	return this->powManager->isSuspendStatus();
 }
 
-void CodablecashNodeInstance::connectIpV6Node(uint16_t zone, const UnicodeString *host, int port) {
+void CodablecashNodeInstance::connectIpV6Node(uint16_t zone, const UnicodeString *host, int port, const NodeIdentifier* nodeId, const UnicodeString* canonicalName) {
 	ERROR_POINT(L"CodablecashNodeInstance::connectIpV6Node");
 
-	doConnectIpNode(zone, host, port, IP_V6);
+	doConnectIpNode(zone, host, port, IP_V6, nodeId, canonicalName);
 }
 
-void CodablecashNodeInstance::connectIpV4Node(uint16_t zone, const UnicodeString *host, int port) {
+void CodablecashNodeInstance::connectIpV4Node(uint16_t zone, const UnicodeString *host, int port, const NodeIdentifier* nodeId, const UnicodeString* canonicalName) {
 	ERROR_POINT(L"CodablecashNodeInstance::connectIpV4Node");
 
-	doConnectIpNode(zone, host, port, IP_V4);
+	doConnectIpNode(zone, host, port, IP_V4, nodeId, canonicalName);
 }
 
-void CodablecashNodeInstance::doConnectIpNode(uint16_t zone, const UnicodeString* host, int port, int protocol){
+void CodablecashNodeInstance::doConnectIpNode(uint16_t zone, const UnicodeString* host, int port, int protocol, const NodeIdentifier* nodeId, const UnicodeString* canonicalName){
 	PubSubId* psId = PubSubId::createNewId(); __STP(psId);
 	P2pHandshake *handshake = new P2pHandshake(psId, this->logger); __STP(handshake);
 	handshake->init(this->p2pServer->getConnectionManager(), this);
@@ -331,17 +340,17 @@ void CodablecashNodeInstance::doConnectIpNode(uint16_t zone, const UnicodeString
 		handshake->connectIpV6(host, port, handshake, false);
 	}
 
-	// login
-	loginNode(zone, handshake);
+	//  login
+	loginNode(zone, handshake, canonicalName);
 
 	// register connection
 	this->p2pServer->registerHandshake(__STP_MV(handshake));
 
 	// register node
 	try{
-		NodeIdentifierSource* source = this->p2pRequestProcessor->getNetworkKey();
-		NodeIdentifier nodeId = source->toNodeIdentifier();
-		this->p2pManager->registerHandshake(zone, handshake, &nodeId);
+		//NodeIdentifierSource* source = this->p2pRequestProcessor->getNetworkKey();
+		//NodeIdentifier nodeId = source->toNodeIdentifier();
+		this->p2pManager->registerHandshake(zone, handshake, nodeId, canonicalName);
 	}
 	catch(Exception* e){
 		handshake->dispose();
@@ -352,11 +361,11 @@ void CodablecashNodeInstance::doConnectIpNode(uint16_t zone, const UnicodeString
 	handshake->startSubscribe();
 }
 
-void CodablecashNodeInstance::loginNode(uint16_t zone, P2pHandshake *handshake) {
+void CodablecashNodeInstance::loginNode(uint16_t zone, P2pHandshake *handshake, const UnicodeString* canonicalName) {
 	// login
 	NodeIdentifierSource* source = this->p2pRequestProcessor->getNetworkKey();
 
-	LoginPubSubCommand cmd(zone);
+	LoginPubSubCommand cmd(zone, canonicalName);
 	cmd.sign(source);
 
 	AbstractCommandResponse* response = handshake->publishCommand(&cmd); __STP(response);
@@ -392,9 +401,9 @@ void CodablecashNodeInstance::maintainNetwork() {
 }
 
 void CodablecashNodeInstance::__maintainNetwork(uint16_t zone) {
-	int numNeedConnection = this->config->getNumConnectionExtShard();
+	int numNeedConnection = this->param->getNumConnectionExtShard();
 	if(zone == getZoneSelf()){
-		numNeedConnection = this->config->getNumConnectionOwnShard();
+		numNeedConnection = this->param->getNumConnectionOwnShard();
 	}
 
 	int currentSize = this->p2pManager->getNumNodes(zone);
@@ -424,11 +433,14 @@ bool CodablecashNodeInstance::__connectWithP2pNodeRecord(const P2pNodeRecord *re
 		int port = record->getPort();
 		uint16_t zone = record->getZone();
 
+		const NodeIdentifier* nodeId = record->getNodeIdentifier();
+		const UnicodeString* canonicalName = record->getCanonicalName();
+
 		if(protocol == P2pNodeRecord::TCP_IP_V4){
-			connectIpV4Node(zone, host, port);
+			connectIpV4Node(zone, host, port, nodeId, canonicalName);
 		}
 		else if(protocol == P2pNodeRecord::TCP_IP_V6){
-			connectIpV6Node(zone, host, port);
+			connectIpV6Node(zone, host, port, nodeId, canonicalName);
 		}
 	}
 	catch(Exception* e){
@@ -448,13 +460,9 @@ File* CodablecashNodeInstance::getTempCacheDir() const {
 	return this->baseDir->get(TMP_CACHE_DIR);
 }
 
-void CodablecashNodeInstance::setNodeName(const wchar_t *name) noexcept {
+void CodablecashNodeInstance::setNodeName(const UnicodeString *name) noexcept {
 	delete this->nodeName;
 	this->nodeName = new UnicodeString(name);
-
-	if(this->p2pRequestProcessor != nullptr){
-		this->p2pRequestProcessor->setNodeName(this->nodeName);
-	}
 }
 
 } /* namespace codablecash */

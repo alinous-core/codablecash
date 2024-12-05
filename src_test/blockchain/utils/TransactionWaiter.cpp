@@ -33,7 +33,7 @@ void TransactionWaiter::onNewTransaction(const PubSubId *pubsubId, const Transac
 	const TransactionId* id = trx->getTransactionId();
 
 	{
-		StackUnlocker __lock(this->lock);
+		StackUnlocker __lock(this->lock, __FILE__, __LINE__);
 
 		if(this->trxId->equals(id)){
 			this->checked = true;
@@ -44,7 +44,7 @@ void TransactionWaiter::onNewTransaction(const PubSubId *pubsubId, const Transac
 }
 
 void TransactionWaiter::wait() {
-	StackUnlocker __lock(this->lock);
+	StackUnlocker __lock(this->lock, __FILE__, __LINE__);
 
 	while(!this->checked){
 		this->lock->wait();

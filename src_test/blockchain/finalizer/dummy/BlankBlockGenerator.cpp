@@ -33,7 +33,7 @@
 
 namespace codablecash {
 
-BlankBlockGenerator::BlankBlockGenerator(int16_t zone, CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger)
+BlankBlockGenerator::BlankBlockGenerator(int16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl, const MiningConfig *miningConfig, ISystemLogger* logger)
 		: BlockGenerator(zone, config, memoryPool, ctrl, miningConfig, logger) {
 
 }

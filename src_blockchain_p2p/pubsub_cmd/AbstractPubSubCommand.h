@@ -38,8 +38,7 @@ public:
 	static const constexpr uint32_t TYPE_CLIENT_TRANSACTION_TRANSFER{12};
 
 	// DNS Commands
-	static const constexpr uint32_t TYPE_NETWORK_NODE_LIVE{100};
-	static const constexpr uint32_t TYPE_NETWORK_NODE_SHUTDOWN{101};
+	static const constexpr uint32_t TYPE_NETWORK_NODE_SHUTDOWN{100};
 
 	// Inter Nodes Commands
 	static const constexpr uint32_t TYPE_NODE_NOP{300};
@@ -50,6 +49,10 @@ public:
 	static const constexpr uint32_t TYPE_NODE_REPORT_MINED_BLOCK{305};
 	static const constexpr uint32_t TYPE_NODE_DOWNLOAD_OMITTED_BLOCK_BODY{306};
 	static const constexpr uint32_t TYPE_NODE_DOWNLOAD_TRANSACTIONS{307};
+
+	// Consensus Commands
+	static const constexpr uint32_t TYPE_CONSENSUS_REPORT_NONCE_CALCULATED{350};
+	static const constexpr uint32_t TYPE_CONSENSUS_SEND_VOTE_TRANSACTION{351};
 
 
 	// Client Notify Commands

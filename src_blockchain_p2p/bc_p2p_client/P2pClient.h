@@ -37,6 +37,8 @@ public:
 	void close() noexcept;
 	void close(bool force) noexcept;
 
+	void sendEndConnectionCommand();
+
 	void connectIpV6(const UnicodeString* hostName, int port);
 
 	void sign(AbstractBlockchainPubsubCommand* cmd) const;

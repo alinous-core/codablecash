@@ -38,7 +38,7 @@ TEST(TestNetworkInfodbGroup, case01){
 		NodeIdentifier nodeId = source->toNodeIdentifier();
 
 		{
-			P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId, L"testhost", 10000); __STP(rec);
+			P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId, nullptr, L"testhost", 10000); __STP(rec);
 			info.addRecord(rec);
 		}
 
@@ -71,11 +71,11 @@ TEST(TestNetworkInfodbGroup, case02){
 	NodeIdentifier nodeId2 = source2->toNodeIdentifier();
 
 	{
-		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId, L"testhost", 10000); __STP(rec);
+		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId, nullptr, L"testhost", 10000); __STP(rec);
 		info.addRecord(rec);
 	}
 	{
-		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId2, L"myhost", 10000); __STP(rec);
+		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId2, nullptr, L"myhost", 10000); __STP(rec);
 		info.addRecord(rec);
 	}
 

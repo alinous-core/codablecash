@@ -26,6 +26,7 @@ BlockHeaderIdKey::~BlockHeaderIdKey() {
 
 int BlockHeaderIdKey::binarySize() const {
 	int size = sizeof(uint32_t);
+
 	size += this->headerId->binarySize();
 
 	return size;
@@ -33,6 +34,7 @@ int BlockHeaderIdKey::binarySize() const {
 
 void BlockHeaderIdKey::toBinary(ByteBuffer *out) const {
 	out->putInt(BlockHeaderIdKeyFactory::BLOCK_HEADER_ID_KEY);
+
 	this->headerId->toBinary(out);
 }
 

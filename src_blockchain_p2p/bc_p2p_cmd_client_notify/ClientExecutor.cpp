@@ -26,19 +26,19 @@ ClientExecutor::~ClientExecutor() {
 }
 
 void ClientExecutor::addListner(IClientNotifyListner *listner) noexcept {
-	StackUnlocker lock(this->mutex);
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
 	this->listners->addElement(listner);
 }
 
 IClientNotifyListner* ClientExecutor::removeListner(IClientNotifyListner *listner) noexcept {
-	StackUnlocker lock(this->mutex);
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
 
 	int index = this->listners->indexOfPtr(listner);
 	return this->listners->remove(index);
 }
 
 AbstractCommandResponse* ClientExecutor::fireOnNewTransaction(const PubSubId *pubsubId, const TransactionTransferData *data) {
-	StackUnlocker lock(this->mutex);
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
 	int maxLoop = this->listners->size();
 	for(int i = 0; i != maxLoop; ++i){
 		IClientNotifyListner* listner = this->listners->get(i);

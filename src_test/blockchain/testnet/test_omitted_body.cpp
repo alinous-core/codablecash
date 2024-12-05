@@ -4,6 +4,8 @@
  *  Created on: 2023/12/04
  *      Author: iizuka
  */
+#include "bc/CodablecashSystemParam.h"
+
 #include "test_utils/t_macros.h"
 
 #include <cstdint>
@@ -11,10 +13,8 @@
 #include "../utils/InstanceDriver.h"
 #include "../../test_utils/TestPortSelection.h"
 #include "../utils/NodeConnectionSimulator.h"
-#include "../utils/DebugCodablecashConfigSetup.h"
 #include "../utils/ValidationInstance.h"
 
-#include "bc/CodablecashConfig.h"
 #include "bc/DebugDefaultLogger.h"
 
 #include "bc_block_generator/MiningConfig.h"
@@ -29,20 +29,23 @@
 
 #include "bc_smartcontract/NopSmartcontractTransaction.h"
 
-#include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommand.h"
-
 #include "bc_block/Block.h"
 #include "bc_block/BlockHeader.h"
-
-#include "pubsub_cmd/AbstractCommandResponse.h"
-
-#include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommandResponse.h"
+#include "bc_block/BlockMerkleRoot.h"
+#include "bc_block/BlockHeaderId.h"
 
 #include "bc_block_body/OmittedBlockBody.h"
-
 #include "bc_block_body/BlockBody.h"
 
-#include "bc_block/BlockMerkleRoot.h"
+#include "pubsub_cmd/AbstractCommandResponse.h"
+#include "pubsub_cmd/ErrorPubsubResponse.h"
+
+#include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommand.h"
+#include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommandResponse.h"
+
+#include "../utils/DebugCodablecashSystemParamSetup.h"
+
+
 using namespace codablecash;
 
 TEST_GROUP(TestOmittedBodyGroup) {
@@ -61,12 +64,12 @@ TEST(TestOmittedBodyGroup, case01){
 	File projectFolder = this->env->testCaseDir();
 	InstanceDriver driver(&projectFolder);
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
-	config.setPowBlockTimeMills(10);
+	CodablecashSystemParam param;
+	DebugCodablecashSystemParamSetup::setupConfig01(param);
+	param.setPowBlockTimeMills(10);
 
 	driver.initWallet(1);
-	driver.initInstance(&config);
+	driver.initInstance(&param);
 
 	driver.startV6Listner(port01);
 
@@ -124,7 +127,7 @@ TEST(TestOmittedBodyGroup, case01){
 	{
 		DebugDefaultLogger* logger = driver.getLogger();
 		ValidationInstance validator(&projectFolder);
-		validator.initInstance(&config, logger);
+		validator.initInstance(&param, logger);
 
 		File* simDir = projectFolder.get(L"sim"); __STP(simDir);
 		UnicodeString host(L"::1");
@@ -174,8 +177,27 @@ TEST(TestOmittedBodyGroup, case01){
 				}
 
 			}
-
 			// misc
+		}
+
+		// error case
+		{
+			DownloadOmittedBlockBodyNodeCommand cmd;
+			cmd.setZone(0);
+			cmd.setHeight(3);
+
+			uint8_t tmp[32];
+			Mem::memset(tmp, 0, 32);
+			BlockHeaderId* headerId = new BlockHeaderId((const char*)tmp, sizeof(tmp)); __STP(headerId);
+			cmd.setHeaderId(headerId);
+
+			{
+				AbstractCommandResponse* r = sim.signAndAbstractNodeCommand(&cmd); __STP(r);
+				UnicodeString* msg  =r->toString(); __STP(msg);
+				ErrorPubsubResponse* errorRes = dynamic_cast<ErrorPubsubResponse*>(r);
+
+				CHECK(r != nullptr);
+			}
 		}
 
 		sim.close();

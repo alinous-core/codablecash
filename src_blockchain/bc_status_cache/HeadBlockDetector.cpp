@@ -26,10 +26,10 @@
 #include "bc_blockstore_body/BlockBodyStoreManager.h"
 
 #include "base/StackRelease.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_memorypool/MemPoolTransaction.h"
 
-#include "bc/CodablecashConfig.h"
 #include "bc/ISystemLogger.h"
 
 #include "bc_trx/AbstractControlTransaction.h"
@@ -284,19 +284,19 @@ void HeadBlockDetector::selectChain() {
 
 }
 
-void HeadBlockDetector::evaluate(uint16_t zone, MemPoolTransaction *memTrx, CodablecashBlockchain *chain, const CodablecashConfig *config,
+void HeadBlockDetector::evaluate(uint16_t zone, MemPoolTransaction *memTrx, CodablecashBlockchain *chain, ZoneStatusCache* zoneStatus, const CodablecashSystemParam *config,
 		const File *tmpCacheBaseDir, bool headerOnly) {
 
 	int maxLoop = this->headsList.size();
 	for(int i = 0; i != maxLoop; ++i){
 		BlockHead* head = this->headsList.get(i);
-		evaluateHead(zone, head, memTrx, chain, config, tmpCacheBaseDir, headerOnly);
+		evaluateHead(zone, head, memTrx, chain, zoneStatus, config, tmpCacheBaseDir, headerOnly);
 	}
 }
 
 void HeadBlockDetector::evaluateHead(uint16_t zone, BlockHead *head,
-		MemPoolTransaction *memTrx, CodablecashBlockchain *chain,
-		const CodablecashConfig *config, const File *tmpCacheBaseDir, bool headerOnly) {
+		MemPoolTransaction *memTrx, CodablecashBlockchain *chain, ZoneStatusCache* zoneStatus,
+		const CodablecashSystemParam *config, const File *tmpCacheBaseDir, bool headerOnly) {
 	MemPoolTransaction* memTransaction = memTrx->newSubTransaction(); __STP(memTransaction);
 
 	const ArrayList<BlockHeadElement>* list = head->getHeaders();
@@ -323,7 +323,7 @@ void HeadBlockDetector::evaluateHead(uint16_t zone, BlockHead *head,
 		HeadBlockDetectorCacheElement* cacheElemet = new HeadBlockDetectorCacheElement(); __STP(cacheElemet);
 
 		// vote
-		handleVotes(config, list, header, i);
+		handleVotes(config, zoneStatus, chain, list, header, i);
 
 		// memory pool
 		if(!headerOnly){
@@ -333,12 +333,13 @@ void HeadBlockDetector::evaluateHead(uint16_t zone, BlockHead *head,
 			handleBody(config, element, bodyManager, memTransaction, cacheElemet);
 		}
 
+		// register cache
 		cacheElemet->importBlockHeadElement(element);
 		this->cache->registerCache(headerId, __STP_MV(cacheElemet));
 	}
 }
 
-void HeadBlockDetector::handleBody(const CodablecashConfig *config, BlockHeadElement* element, BlockBodyStoreManager* bodyManager
+void HeadBlockDetector::handleBody(const CodablecashSystemParam *config, BlockHeadElement* element, BlockBodyStoreManager* bodyManager
 		, MemPoolTransaction* memTransaction, HeadBlockDetectorCacheElement* cacheElemet) {
 	const BlockHeader* header = element->getBlockHeader();
 	uint64_t height = header->getHeight();
@@ -427,7 +428,8 @@ void HeadBlockDetector::handleBody(const CodablecashConfig *config, BlockHeadEle
 	}
 }
 
-void HeadBlockDetector::handleVotes(const CodablecashConfig *config, const ArrayList<BlockHeadElement> *list, const BlockHeader *header, int i) {
+void HeadBlockDetector::handleVotes(const CodablecashSystemParam *config, ZoneStatusCache* zoneStatus, CodablecashBlockchain* chain
+		, const ArrayList<BlockHeadElement> *list, const BlockHeader *header, int i) {
 	uint64_t height = header->getHeight();
 
 	uint16_t voteBeforeNBlocks = config->getVoteBeforeNBlocks(height);
@@ -436,16 +438,34 @@ void HeadBlockDetector::handleVotes(const CodablecashConfig *config, const Array
 
 	int pos = i - diffBlocks;
 	if(pos >= 0){
-		// voted
+		// calc voted score of voted block
 		VotePart* vorts = header->getVotePart();
-		BlockHeadElement* element = list->get(pos);
+		BlockHeadElement* element = list->get(pos); // voted block
 
 		element->importVotes(vorts);
 
 		// voting
 		const BlockHeader* votedHeader = element->getBlockHeader();
 		const BlockHeaderId* votedId = votedHeader->getId();
-		BlockHeadElement* votingElement = list->get(i);
+		BlockHeadElement* votingElement = list->get(i); // self block
+		votingElement->calcVotingScore(votedId);
+		return;
+	}
+
+
+	// can not voted score of voted block
+	// calc only voting of this block
+	if(height > diffBlocks){
+		uint64_t votedHeight = height - diffBlocks;
+
+		uint16_t zone = header->getZone();
+		BlockHeaderStoreManager* headerManager = chain->getHeaderManager(zone);
+
+		const BlockHeaderId* votingHeaderId = header->getId();
+		BlockHeader* votedHeader = headerManager->getNBlocksBefore(votingHeaderId, height, diffBlocks); __STP(votedHeader);
+		const BlockHeaderId* votedId = votedHeader->getId();
+
+		BlockHeadElement* votingElement = list->get(i); // self block
 		votingElement->calcVotingScore(votedId);
 	}
 }

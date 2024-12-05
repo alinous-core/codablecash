@@ -28,6 +28,7 @@ class NodeIdentifier;
 class AbstractNodeCommand;
 class P2pRequestProcessor;
 class AbstractClientNotifyCommand;
+class AbstractConsensusNodeCommand;
 
 class BlochchainP2pManager : public IPubsubConnectionListener {
 public:
@@ -38,11 +39,11 @@ public:
 
 	void resetZones() noexcept;
 
-	virtual void onLoginHandshake(P2pHandshake *handshake, const LoginPubSubCommand *loginCommand);
+	virtual void onLoginHandshake(P2pHandshake *handshake, const LoginPubSubCommand *loginCommand, const UnicodeString* canonicalName);
 	virtual void onLoginClinentHandshake(P2pHandshake *handshake, const LoginClientCommand *clientLoginCommand);
 	virtual void onHandshakeEnds(P2pHandshake *handshake);
 
-	void registerHandshake(uint16_t zone, P2pHandshake *handshake, const NodeIdentifier* nodeId);
+	void registerHandshake(uint16_t zone, P2pHandshake *handshake, const NodeIdentifier* nodeId, const UnicodeString* canonicalName);
 
 	BlockchainNodeHandshake* getNodeHandshake(const PubSubId* pubsubId) const noexcept;
 	ClientNodeHandshake* getClientHandshake(const PubSubId* pubsubId) const noexcept;
@@ -54,6 +55,7 @@ public:
 	void bloadCastWithinZone(uint16_t zoneSelf, const NodeIdentifier* excludeNodeId, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
 
 	void bloadCastAllZones(const NodeIdentifier* excludeNodeId, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
+	void bloadCastHighPriorityAllZones(const ArrayList<NodeIdentifier>* excludeNodeIds, const AbstractConsensusNodeCommand* command, P2pRequestProcessor* processor);
 
 	void bloadCastToClients(AbstractClientNotifyCommand* commnad, P2pRequestProcessor* processor);
 
@@ -61,6 +63,23 @@ public:
 	ArrayList<NodeIdentifier>* getNodeIds(uint16_t zone) const;
 
 	void endCommunication() noexcept;
+
+	int getProtocol() const noexcept {
+		return this->protocol;
+	}
+	void setProtocol(int protocol) noexcept {
+		this->protocol = protocol;
+	}
+	const UnicodeString* getHost() const noexcept {
+		return this->host;
+	}
+	void setHost(const UnicodeString* host) noexcept;
+	void setPort(int port) noexcept {
+		this->port = port;
+	}
+	int getPort() const noexcept {
+		return this->port;
+	}
 
 private:
 	void __removeHandshake(const PubSubId* pubsubId);
@@ -72,6 +91,11 @@ private:
 
 	HashMap<PubSubId, BlockchainNodeHandshake> blockchainHandshakeHash;
 	HashMap<PubSubId, ClientNodeHandshake> clientHandshakeHash;
+
+	// self information defined at P2pNodeRecord
+	int protocol;
+	UnicodeString* host;
+	uint32_t port;
 
 	bool end;
 };

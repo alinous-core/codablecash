@@ -6,6 +6,7 @@
  */
 
 #include "bc_p2p_cmd_node/AbstractNodeCommand.h"
+#include "bc_p2p_cmd_node/NodeCommandValidationErrorResponse.h"
 
 #include "bc_p2p_cmd/SignatureVerifivcationErrorException.h"
 
@@ -25,6 +26,8 @@
 #include "pubsub_cmd/OkPubsubResponse.h"
 
 #include "pubsub/PubsubCommandException.h"
+#include "pubsub/PubsubNetworkException.h"
+
 namespace codablecash {
 
 AbstractNodeCommand::AbstractNodeCommand(const AbstractNodeCommand &inst) : AbstractBlockchainPubsubCommand(inst) {
@@ -41,17 +44,24 @@ AbstractNodeCommand::~AbstractNodeCommand() {
 AbstractCommandResponse* AbstractNodeCommand::execute(const PubSubId *pubsubId,	IPubsubCommandListner *listner) const {
 	IPubsubCommandExecutor* exec = listner->getExecutor();
 
+
 	CodablecashNodeInstance* inst = dynamic_cast<CodablecashNodeInstance*>(exec);
 	if(inst == nullptr){
 		return new OkPubsubResponse();
 	}
 
-	// check if processor is suspended
+	// validate command
 	P2pRequestProcessor* requestProcessor = inst->getP2pRequestProcessor();
+	bool suspend = requestProcessor->__isSuspended();
+	if(!validateCommand(inst, suspend)){
+		return new NodeCommandValidationErrorResponse();
+	}
+
+	// check if processor is suspended
 	SynchronizedLock* threadLock = requestProcessor->getSynchrinizedLock();
 	{
-		StackUnlocker unlocker(threadLock);
-		if(requestProcessor->__isSuspended()){
+		StackUnlocker unlocker(threadLock, __FILE__, __LINE__);
+		if(suspend){
 			if(usePendingQueue()){
 				requestProcessor->__putPendingCommand(this, pubsubId);
 			}
@@ -65,13 +75,17 @@ AbstractCommandResponse* AbstractNodeCommand::execute(const PubSubId *pubsubId,	
 	BlockchainNodeHandshake* nodeHandShake = p2pManager->getNodeHandshake(pubsubId);
 	StackHandshakeReleaser __releaser(nodeHandShake);
 
-	ExceptionThrower<SignatureVerifivcationErrorException>::throwExceptionIfCondition(nodeHandShake == nullptr, L"Node is not connected.", __FILE__, __LINE__);
+	ExceptionThrower<PubsubNetworkException>::throwExceptionIfCondition(nodeHandShake == nullptr, L"Node is not connected.", __FILE__, __LINE__);
 	ExceptionThrower<SignatureVerifivcationErrorException>::throwExceptionIfCondition(!verify(), L"Node signature verification error.", __FILE__, __LINE__);
 
 	return executeAsNode(nodeHandShake, inst, false);
 }
 
 bool AbstractNodeCommand::usePendingQueue() const noexcept {
+	return true;
+}
+
+bool AbstractNodeCommand::validateCommand(CodablecashNodeInstance *inst, bool suspend) const {
 	return true;
 }
 

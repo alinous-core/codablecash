@@ -21,7 +21,7 @@ class AbstractClientNotifyCommand;
 
 class NetworkTransferProcessor {
 public:
-	static const constexpr wchar_t* THREAD_NAME{L"NetNodeTrx"};
+	static const constexpr wchar_t* THREAD_NAME{L"NTrx"};
 
 	NetworkTransferProcessor(P2pRequestProcessor* processor, int numThreads, ISystemLogger* logger);
 	virtual ~NetworkTransferProcessor();
@@ -30,6 +30,7 @@ public:
 	void shutdown();
 
 	void reserveTransfer(const NodeIdentifier* nodeId, const AbstractNodeCommand *command);
+	void reserveTransferHighPriority(const NodeIdentifier* nodeId, const AbstractNodeCommand *command);
 	void reserveClientNotifyTransfer(const NodeIdentifier* nodeId, const AbstractClientNotifyCommand *command);
 
 private:

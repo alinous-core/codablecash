@@ -18,6 +18,7 @@
 
 #include "bc/ISystemLogger.h"
 
+#include "pubsub/PubsubNetworkException.h"
 using namespace alinous;
 
 namespace codablecash {
@@ -52,7 +53,7 @@ void MessageProcessorThread::processLoop() noexcept {
 		ICommandMessage* cmd = nullptr;
 
 		{
-			StackUnlocker unlocker(lock);
+			StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 			this->status = STATUS_RUNNING;
 
@@ -61,7 +62,9 @@ void MessageProcessorThread::processLoop() noexcept {
 			}
 			else{ // empty
 				this->status = STATUS_WAITING;
-				lock->wait();
+				if(this->running){
+					lock->wait();
+				}
 				this->status = STATUS_RUNNING;
 			}
 
@@ -77,7 +80,7 @@ void MessageProcessorThread::processLoop() noexcept {
 
 void MessageProcessorThread::setRunning(bool bl) noexcept {
 	SynchronizedLock* lock = this->processor->getLock();
-	StackUnlocker unlocker(lock);
+	StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 	this->running = bl;
 	lock->notifyAll();
@@ -85,14 +88,14 @@ void MessageProcessorThread::setRunning(bool bl) noexcept {
 
 bool MessageProcessorThread::isRunning() const noexcept {
 	SynchronizedLock* lock = this->processor->getLock();
-	StackUnlocker unlocker(lock);
+	StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 	return this->running;
 }
 
 int MessageProcessorThread::getStatus() const noexcept {
 	SynchronizedLock* lock = this->processor->getLock();
-	StackUnlocker unlocker(lock);
+	StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
 	return this->status;
 }
@@ -114,9 +117,11 @@ void MessageProcessorThread::processCommand(ICommandMessage* cmd) {
 
 bool MessageProcessorThread::checkListIsEmpty() {
 	SynchronizedLock* lock = this->processor->getLock();
-	StackUnlocker unlocker(lock);
+	StackUnlocker unlocker(lock, __FILE__, __LINE__);
 
-	return this->processor->__isEmpty();
+	bool ret = this->processor->__isEmpty();
+
+	return ret;
 }
 
 } /* namespace codablecash */

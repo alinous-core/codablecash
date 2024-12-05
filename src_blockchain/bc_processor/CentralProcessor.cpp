@@ -12,7 +12,6 @@
 
 #include "base/UnicodeString.h"
 
-#include "bc_processor_cmd/MinedReportCommandMessage.h"
 #include "bc_processor_cmd/FinalizingCommandMessage.h"
 #include "bc_processor_cmd/FinalizingHeaderCommandMessage.h"
 
@@ -21,11 +20,13 @@
 
 #include "bc_p2p_processor/P2pRequestProcessor.h"
 
+#include "base/StackRelease.h"
+#include "bc_processor_cmd/MinerMinedReportCommandMessage.h"
 namespace codablecash {
 
-const UnicodeString CentralProcessor::THREAD_NAME(L"Central");
+const UnicodeString CentralProcessor::THREAD_NAME(L"CNTRL");
 
-CentralProcessor::CentralProcessor(CodablecashConfig* config, MemoryPool* memPool, BlockchainController* ctrl, ISystemLogger* logger) {
+CentralProcessor::CentralProcessor(CodablecashSystemParam* config, MemoryPool* memPool, BlockchainController* ctrl, ISystemLogger* logger) {
 	this->processor = nullptr;
 
 	this->config = config;
@@ -51,17 +52,25 @@ CentralProcessor::~CentralProcessor() {
 	delete this->p2pRequestProcessorMutex;
 }
 
-void CentralProcessor::start() {
-	StackUnlocker __lock(this->p2pRequestProcessorMutex);
+void CentralProcessor::start(const UnicodeString* nodeName) {
+	StackUnlocker __lock(this->p2pRequestProcessorMutex, __FILE__, __LINE__);
 
-	this->processor = new MessageProcessor(&THREAD_NAME, this->logger);
+	UnicodeString name(L"");
+	if(nodeName != nullptr){
+		name.append(nodeName);
+		name.append(L"_");
+	}
+
+	name.append(&THREAD_NAME);
+
+	this->processor = new MessageProcessor(&name, this->logger);
 	this->processor->setParam(this);
 	this->processor->start();
 }
 
 void CentralProcessor::shutdown() {
 	{
-		StackUnlocker __lock(this->p2pRequestProcessorMutex);
+		StackUnlocker __lock(this->p2pRequestProcessorMutex, __FILE__, __LINE__);
 		this->end = true;
 	}
 
@@ -73,17 +82,17 @@ void CentralProcessor::shutdown() {
 }
 
 void CentralProcessor::onMinedBlock(const Block *block) {
-	StackUnlocker __lock(this->p2pRequestProcessorMutex);
+	StackUnlocker __lock(this->p2pRequestProcessorMutex, __FILE__, __LINE__);
 
 	if(this->end == false){
-		ICommandMessage* cmd = new MinedReportCommandMessage(block);
+		ICommandMessage* cmd = new MinerMinedReportCommandMessage(block);
 
 		this->processor->addCommandMessage(cmd);
 	}
 }
 
 void CentralProcessor::requestFinalizing(uint16_t zone, uint64_t finalizingHeight, const BlockHeaderId *headerId) noexcept {
-	StackUnlocker __lock(this->p2pRequestProcessorMutex);
+	StackUnlocker __lock(this->p2pRequestProcessorMutex, __FILE__, __LINE__);
 
 	if(this->end == false){
 		FinalizingCommandMessage* cmd = new FinalizingCommandMessage(zone, finalizingHeight, headerId);
@@ -93,7 +102,7 @@ void CentralProcessor::requestFinalizing(uint16_t zone, uint64_t finalizingHeigh
 }
 
 void CentralProcessor::requestFinalizingHeader(uint16_t zone, uint64_t finalizingHeight, const BlockHeaderId *headerId) noexcept {
-	StackUnlocker __lock(this->p2pRequestProcessorMutex);
+	StackUnlocker __lock(this->p2pRequestProcessorMutex, __FILE__, __LINE__);
 
 	if(this->end == false){
 		FinalizingHeaderCommandMessage* cmd = new FinalizingHeaderCommandMessage(zone, finalizingHeight, headerId);
@@ -107,16 +116,18 @@ void CentralProcessor::setBlochchainP2pManager(BlochchainP2pManager *p2pManager)
 }
 
 void CentralProcessor::setP2pRequestProcessor(P2pRequestProcessor *p2pRequestProcessor) noexcept {
-	StackUnlocker __lock(this->p2pRequestProcessorMutex);
+	StackUnlocker __lock(this->p2pRequestProcessorMutex, __FILE__, __LINE__);
 
 	this->p2pRequestProcessor = p2pRequestProcessor;
 }
 
 void CentralProcessor::addCommandMessage(ICommandMessage *cmd) {
-	StackUnlocker __lock(this->p2pRequestProcessorMutex);
+	StackUnlocker __lock(this->p2pRequestProcessorMutex, __FILE__, __LINE__);
+
+	__STP(cmd);
 
 	if(this->processor != nullptr && this->end == false){
-		this->processor->addCommandMessage(cmd);
+		this->processor->addCommandMessage(__STP_MV(cmd));
 	}
 }
 

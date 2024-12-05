@@ -22,14 +22,14 @@ DefaultInstanceMemberAllocator::~DefaultInstanceMemberAllocator() {
 }
 
 BlockGenerator* DefaultInstanceMemberAllocator::newBlockGenerator(
-		uint16_t zone, CodablecashConfig *config, MemoryPool *memoryPool,
+		uint16_t zone, CodablecashSystemParam *config, MemoryPool *memoryPool,
 		BlockchainController *ctrl, const MiningConfig *miningConfig, ISystemLogger* logger) {
 
 	return new BlockGenerator(zone, config, memoryPool, ctrl, miningConfig, logger);
 }
 
 FinalizerPool* DefaultInstanceMemberAllocator::newFinalizerPool(
-		const CodablecashConfig *config, MemoryPool *memoryPool, BlockchainController *ctrl
+		const CodablecashSystemParam *config, MemoryPool *memoryPool, BlockchainController *ctrl
 		, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger* logger) {
 	return new FinalizerPool(config, memoryPool, ctrl, p2pRequestProcessor, p2pManager, logger);
 }

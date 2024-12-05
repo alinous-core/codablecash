@@ -27,7 +27,7 @@ namespace codablecash {
 class ZoneStatusCache;
 class StatusStore;
 class PoWManager;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class BlockHeader;
 class MemPoolTransaction;
 class BlockHeaderId;
@@ -41,6 +41,7 @@ class UtxoId;
 class MemoryPool;
 class ISystemLogger;
 class BlockHeaderStoreManager;
+class LockinManager;
 
 
 class BlockchainStatusCache : public IBlockchainEventListner {
@@ -50,7 +51,7 @@ public:
 	static const constexpr wchar_t* KEY_NUM_ZONES{L"numZones"};
 	static const constexpr wchar_t* KEY_ZONE_SELF{L"zoneSelf"};
 
-	explicit BlockchainStatusCache(const File* baseDir, const CodablecashConfig* config, MemoryPool* memPool, const File* tmpCacheBaseDir, ISystemLogger* logger);
+	explicit BlockchainStatusCache(const File* baseDir, const CodablecashSystemParam* config, MemoryPool* memPool, const File* tmpCacheBaseDir, ISystemLogger* logger);
 	virtual ~BlockchainStatusCache();
 
 	void initBlankCache(uint16_t zoneSelf, uint16_t numZones);
@@ -107,6 +108,10 @@ public:
 	void setScheduledBlock(uint16_t zone, const Block *block);
 	Block* fetchScheduledBlock(uint16_t zone);
 
+	bool registerBlockHeader4Limit(uint16_t zone, const BlockHeader* header, const CodablecashSystemParam* param);
+
+	LockinManager* getLockInManager(uint16_t zone) const noexcept;
+
 private:
 	void saveConfig();
 	void loadConfig();
@@ -114,7 +119,7 @@ private:
 	void markConsumedTransactions(MemPoolTransaction *memTrx, BlockBody* body);
 
 private:
-	const CodablecashConfig* config;
+	const CodablecashSystemParam* config;
 	File* baseDir;
 	File* tmpCacheBaseDir;
 

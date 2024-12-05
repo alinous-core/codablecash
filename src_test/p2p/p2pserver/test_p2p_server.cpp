@@ -41,7 +41,10 @@ TEST(P2PServerTestGroup, case01){
 	DebugDefaultLogger logger;
 	P2pServer* server = new P2pServer(&logger, nullptr); __STP(server);
 
-	server->startIpV6Listening(nullptr, 54001);
+	StackTestPortGetter portSel;
+	int port = portSel.allocPort();
+
+	server->startIpV6Listening(nullptr, port, nullptr);
 
 	server->stopListning();
 
@@ -56,7 +59,7 @@ TEST(P2PServerTestGroup, case02){
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
+	server->startIpV6Listening(nullptr, port, nullptr);
 
 	{
 		PubSubId* psId = PubSubId::createNewId(); __STP(psId);
@@ -81,7 +84,7 @@ TEST(P2PServerTestGroup, case03){
 	StackTestPortGetter portSel;
 	int port = portSel.allocPort();
 
-	server->startIpV6Listening(nullptr, port);
+	server->startIpV6Listening(nullptr, port, nullptr);
 
 	const wchar_t* mysessage = L"Hello world";
 	{
@@ -127,7 +130,7 @@ TEST(P2PServerTestGroup, misc02){
 }
 
 TEST(P2PServerTestGroup, misc03){
-	LoginPubSubCommand cmd(0);
+	LoginPubSubCommand cmd(0, nullptr);
 	LoginPubSubCommand* cmd2 = dynamic_cast<LoginPubSubCommand*>(cmd.copyData()); __STP(cmd2);
 	CHECK(cmd2 != nullptr);
 }

@@ -17,7 +17,7 @@
 #include "base/UnicodeString.h"
 namespace codablecash {
 
-MultipleCommandProcessor::MultipleCommandProcessor(ICommandParameter* param, int size, ISystemLogger* logger, const wchar_t* name) {
+MultipleCommandProcessor::MultipleCommandProcessor(ICommandParameter* param, int size, ISystemLogger* logger, UnicodeString* name) {
 	this->list = new ArrayList<CommandProcessUnit>();
 	this->logger = logger;
 	this->param = param;
@@ -82,6 +82,12 @@ void MultipleCommandProcessor::addCommandMessage(ICommandMessage *cmd, int i) no
 	int pos = i % size();
 	CommandProcessUnit* unit = this->list->get(pos);
 	unit->addCommandMessage(cmd);
+}
+
+void MultipleCommandProcessor::addCommandMessageFirst(ICommandMessage *cmd, int i) noexcept {
+	int pos = i % size();
+	CommandProcessUnit* unit = this->list->get(pos);
+	unit->insertCommandMessage(cmd, 0);
 }
 
 } /* namespace codablecash */

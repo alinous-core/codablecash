@@ -30,7 +30,10 @@
 
 #include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommand.h"
 #include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommandResponse.h"
-#include "bc_p2p_cmd_node/ReportMinedBlockNodeCommand.h"
+#include "bc_p2p_cmd_node/DownloadTransactionsNodeCommand.h"
+#include "bc_p2p_cmd_node/DownloadTransactionsNodeCommandResponse.h"
+
+#include "bc_p2p_cmd_node_consensus/ReportMinedBlockNodeCommand.h"
 
 #include "bc/ExceptionThrower.h"
 #include "bc/ISystemLogger.h"
@@ -43,17 +46,16 @@
 
 #include "bc_trx/AbstractBlockchainTransaction.h"
 
-#include "bc_p2p_cmd_node/DownloadTransactionsNodeCommand.h"
-
 #include "bc_network/NodeIdentifierSource.h"
-
-#include "bc_p2p_cmd_node/DownloadTransactionsNodeCommandResponse.h"
 
 #include "pubsub/P2pHandshake.h"
 
 #include "base_thread/StackUnlocker.h"
 
 #include "base_thread/SysMutex.h"
+
+
+
 namespace codablecash {
 
 TransferedMinedReportCommandMessage::TransferedMinedReportCommandMessage() {
@@ -76,12 +78,16 @@ void TransferedMinedReportCommandMessage::setNodeId(const NodeIdentifier *nodeId
 	this->nodeId = dynamic_cast<NodeIdentifier*>(nodeId->copyData());
 }
 
+/**
+ *
+ * @param processor
+ */
 void TransferedMinedReportCommandMessage::process(CentralProcessor *processor) {
 	P2pRequestProcessor* requestProcessor = processor->getP2pRequestProcessor();
 	BlochchainP2pManager* p2pManager = processor->getBlochchainP2pManager();
 	ISystemLogger* logger = processor->getLogger();
 	MemoryPool* memPool = processor->getMemoryPool();
-	CodablecashConfig* config = processor->getConfig();
+	CodablecashSystemParam* config = processor->getCodablecashSystemParam();
 
 	BlockchainController* ctrl = processor->getCtrl();
 	uint16_t zoneSelf = ctrl->getZoneSelf();
@@ -117,7 +123,7 @@ bool TransferedMinedReportCommandMessage::importHeader(BlockchainController *ctr
 }
 
 bool TransferedMinedReportCommandMessage::importBlock(MemoryPool* memPool, BlockchainController *ctrl, BlochchainP2pManager *p2pManager
-		, NodeIdentifierSource* networkKey ,ISystemLogger* logger, CodablecashConfig* config) {
+		, NodeIdentifierSource* networkKey ,ISystemLogger* logger, CodablecashSystemParam* config) {
 	const BlockHeader* header = this->data->getHeader();
 	uint64_t height = header->getHeight();
 	const BlockHeaderId* headerId = header->getId();
@@ -142,11 +148,13 @@ bool TransferedMinedReportCommandMessage::importBlock(MemoryPool* memPool, Block
 		AbstractCommandResponse* response = handshake->sendCommnad(&command); __STP(response);
 		omittedBodyResponse = dynamic_cast<DownloadOmittedBlockBodyNodeCommandResponse*>(response);
 
+		if(response!= nullptr){
+			UnicodeString* message = response->toString(); __STP(message);
+			logger->debugLog(ISystemLogger::DEBUG_NODE_TRANSFER_RESPONSE, message, __FILE__, __LINE__);
+		}
+
 		ExceptionThrower<BlockchainNodeHandshakeException>::throwExceptionIfCondition(omittedBodyResponse == nullptr, L"Respose error.", __FILE__, __LINE__);
 		__STP_MV(response);
-
-		UnicodeString* message = omittedBodyResponse->toString(); __STP(message);
-		logger->debugLog(ISystemLogger::DEBUG_NODE_TRANSFER_RESPONSE, message, __FILE__, __LINE__);
 	}
 	__STP(omittedBodyResponse);
 
@@ -186,7 +194,7 @@ DownloadTransactionsNodeCommandResponse* TransferedMinedReportCommandMessage::do
 	P2pHandshake* p2pHandshake = handshake->getHandshake();
 
 	SysMutex* mutex = handshake->getSysMutex();
-	StackUnlocker __lock(mutex);
+	StackUnlocker __lock(mutex, __FILE__, __LINE__);
 
 	return __downloadTransactions(command, p2pHandshake, logger);
 }

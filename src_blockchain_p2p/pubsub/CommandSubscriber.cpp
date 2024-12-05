@@ -6,7 +6,6 @@
  */
 
 #include "pubsub/CommandSubscriber.h"
-
 #include "pubsub/CommandSubscriberThread.h"
 #include "pubsub/PubSubId.h"
 
@@ -15,6 +14,7 @@
 #include "base_thread/SysMutex.h"
 #include "base_thread/StackUnlocker.h"
 
+#include "base/UnicodeString.h"
 
 namespace codablecash {
 
@@ -55,7 +55,11 @@ void CommandSubscriber::startSubscribe() {
 	if(!isRunning()){
 		setRunning(true);
 
-		this->thread = new CommandSubscriberThread(this);
+		UnicodeString name(L"");
+
+		name.append(L"ComSub");
+
+		this->thread = new CommandSubscriberThread(this, &name);
 		this->thread->start();
 	}
 }
@@ -71,14 +75,14 @@ void CommandSubscriber::stopSubscribe() noexcept {
 }
 
 bool CommandSubscriber::isRunning() const noexcept {
-	StackUnlocker __lock(this->runningFlagMutex);
+	StackUnlocker __lock(this->runningFlagMutex, __FILE__, __LINE__);
 	bool bl = this->running;
 
 	return bl;
 }
 
 void CommandSubscriber::setRunning(bool bl) noexcept {
-	StackUnlocker __lock(this->runningFlagMutex);
+	StackUnlocker __lock(this->runningFlagMutex, __FILE__, __LINE__);
 
 	this->running = bl;
 }

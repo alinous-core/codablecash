@@ -106,7 +106,7 @@ VotingBlockStatus* VotingBlockStatus::toVotingBlockStatus(const BlockHeader *hea
 		const UtxoId* utxoId = ticket->getUtxoId();
 		const NodeIdentifier* nodeId = ticket->getNodeIdentifier();
 		const AddressDescriptor* adddressDesc = ticket->getAddressDescriptor();
-		BalanceUnit ticketPrice = ticket->getTicketProce();
+		BalanceUnit ticketPrice = ticket->getTicketPrice();
 
 		const AddressDescriptor* voterAdddressDesc = ticket->getVoterAddressDesc();
 		assert(voterAdddressDesc != nullptr);

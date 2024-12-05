@@ -20,12 +20,15 @@
 #include "bc_network_instance/CodablecashNetworkNodeConfig.h"
 #include "bc_network_instance/GenesisBalanceConfig.h"
 #include "bc_network_instance/INetworkSeeder.h"
+#include "bc_network_instance/FinalizerConfig.h"
 
 #include "bc_network_instance_sync/NetworkNodeSync.h"
 
 #include "bc_block/Block.h"
 
 #include "bc_status_cache/BlockchainController.h"
+
+#include "bc_p2p/BlochchainP2pManager.h"
 
 #include "bc_p2p_info/P2pNodeRecord.h"
 #include "bc_p2p_info/P2pDnsManager.h"
@@ -35,9 +38,9 @@
 #include "bc_memorypool/MemoryPool.h"
 #include "bc_memorypool/MemPoolTransaction.h"
 
-#include "bc_network_instance/FinalizerConfig.h"
-
 #include "bc_finalizer_pool/FinalizerPool.h"
+
+
 namespace codablecash {
 
 CodablecashNetworkNode::CodablecashNetworkNode(const File* baseDir, const CodablecashNetworkNodeConfig* nwconfig, ISystemLogger* logger) {
@@ -45,13 +48,14 @@ CodablecashNetworkNode::CodablecashNetworkNode(const File* baseDir, const Codabl
 	this->nwconfig = new CodablecashNetworkNodeConfig(*nwconfig);
 	this->inst = nullptr;
 	this->logger = logger;
+	this->nodeName = nullptr;
 }
 
 CodablecashNetworkNode::~CodablecashNetworkNode() {
 	shutdown();
 	delete this->baseDir;
 	delete this->nwconfig;
-
+	delete this->nodeName;
 }
 
 void CodablecashNetworkNode::shutdown() noexcept {
@@ -60,6 +64,11 @@ void CodablecashNetworkNode::shutdown() noexcept {
 		delete this->inst;
 		this->inst = nullptr;
 	}
+}
+
+void CodablecashNetworkNode::setNetworkConfig(const CodablecashNetworkNodeConfig* nwconfig) {
+	delete this->nwconfig;
+	this->nwconfig = new CodablecashNetworkNodeConfig(*nwconfig);
 }
 
 bool CodablecashNetworkNode::initBlank(uint16_t zoneSelf) {
@@ -78,6 +87,9 @@ bool CodablecashNetworkNode::generateNetwork(uint16_t zoneSelf) {
 
 	if(bl){
 		CodablecashNodeInstance* inst = new CodablecashNodeInstance(this->baseDir, this->logger, this->nwconfig->getSysConfig()); __STP(inst);
+		if(this->nodeName != nullptr){
+			inst->setNodeName(this->nodeName);
+		}
 		inst->load();
 
 		{
@@ -116,6 +128,10 @@ bool CodablecashNetworkNode::generateNetwork(uint16_t zoneSelf) {
 
 void CodablecashNetworkNode::startNetwork(INetworkSeeder* seeder, bool pending) {
 	this->inst = new CodablecashNodeInstance(this->baseDir, this->logger, this->nwconfig->getSysConfig());
+	if(this->nodeName != nullptr){
+		this->inst->setNodeName(this->nodeName);
+	}
+
 	this->inst->load();
 
 	// init header selection
@@ -123,7 +139,8 @@ void CodablecashNetworkNode::startNetwork(INetworkSeeder* seeder, bool pending) 
 
 	// startNetwork
 	int port = this->nwconfig->getPort();
-	this->inst->startNetwork(port);
+
+	this->inst->startNetwork(nullptr, port);
 
 	// start processors
 	{
@@ -214,7 +231,26 @@ const NodeIdentifierSource* CodablecashNetworkNode::getVoterSource() const noexc
 }
 
 void CodablecashNetworkNode::setNodeName(const wchar_t *name) noexcept {
-	this->inst->setNodeName(name);
+	delete this->nodeName;
+	this->nodeName = new UnicodeString(name);
+}
+
+uint64_t CodablecashNetworkNode::getMaxHeight(uint16_t zone) const {
+	BlockchainController* ctrl = this->inst->getController();
+
+	return ctrl->getHeadHeight(zone);
+}
+
+/**
+ * use
+ * StackHandshakeReleaser __releaser(handshake);
+ * @param nodeId
+ * @return
+ */
+BlockchainNodeHandshake* CodablecashNetworkNode::getNodeHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept {
+	BlochchainP2pManager* p2pManager = this->inst->getBlochchainP2pManager();
+
+	return p2pManager->getNodeHandshakeByNodeId(nodeId);
 }
 
 } /* namespace codablecash */

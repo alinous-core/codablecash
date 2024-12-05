@@ -28,7 +28,8 @@
 
 namespace codablecash {
 
-CommandSubscriberThread::CommandSubscriberThread(CommandSubscriber* subscriber) {
+CommandSubscriberThread::CommandSubscriberThread(CommandSubscriber* subscriber, const UnicodeString* name)
+		: AbstractThreadRunner(name) {
 	assert(subscriber != nullptr);
 	this->subscriber = subscriber;
 

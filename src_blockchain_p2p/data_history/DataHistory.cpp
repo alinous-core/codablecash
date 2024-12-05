@@ -24,31 +24,31 @@ DataHistory::~DataHistory() {
 }
 
 void DataHistory::createBlankDatabase() {
-	StackUnlocker __unlock(this->mutex);
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
 
 	this->store->createBlankDatabase();
 }
 
 void DataHistory::open() {
-	StackUnlocker __unlock(this->mutex);
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
 
 	this->store->open();
 }
 
 void DataHistory::close() {
-	StackUnlocker __unlock(this->mutex);
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
 
 	this->store->close();
 }
 
 void DataHistory::add(const TransferedDataId *dataId, const AbstractTransferedData* data) {
-	StackUnlocker __unlock(this->mutex);
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
 
 	this->store->add(dataId, data);
 }
 
 bool DataHistory::hasId(const TransferedDataId *dataId) const {
-	StackUnlocker __unlock(this->mutex);
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
 
 	return this->store->hasId(dataId);
 }

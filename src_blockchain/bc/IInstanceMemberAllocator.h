@@ -11,7 +11,7 @@
 
 namespace codablecash {
 
-class CodablecashConfig;
+class CodablecashSystemParam;
 class MemoryPool;
 class BlockchainController;
 class MiningConfig;
@@ -28,9 +28,9 @@ public:
 
 	virtual IInstanceMemberAllocator* copy() const noexcept = 0;
 
-	virtual BlockGenerator* newBlockGenerator(uint16_t zone, CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl
+	virtual BlockGenerator* newBlockGenerator(uint16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl
 			, const MiningConfig *miningConfig, ISystemLogger* logger) = 0;
-	virtual FinalizerPool* newFinalizerPool(const CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl
+	virtual FinalizerPool* newFinalizerPool(const CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl
 			, P2pRequestProcessor* p2pRequestProcessor, BlochchainP2pManager* p2pManager, ISystemLogger* logger) = 0;
 };
 

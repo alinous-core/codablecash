@@ -10,6 +10,7 @@
 
 #include "procesor_multi/MultipleCommandProcessor.h"
 
+#include "base/UnicodeString.h"
 
 namespace codablecash {
 
@@ -29,7 +30,16 @@ NetworkInfoProcessor::~NetworkInfoProcessor() {
 
 void NetworkInfoProcessor::start() {
 	if(this->executor == nullptr){
-		this->executor = new MultipleCommandProcessor(this->processor, this->numThreads, this->logger, THREAD_NAME);
+		UnicodeString name(L"");
+
+		const UnicodeString* nodeName = this->processor->getNodeName();
+		if(nodeName != nullptr){
+			name.append(nodeName);
+			name.append(L"_");
+		}
+		name.append(THREAD_NAME);
+
+		this->executor = new MultipleCommandProcessor(this->processor, this->numThreads, this->logger, &name);
 		this->executor->start();
 	}
 }

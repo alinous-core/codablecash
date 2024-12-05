@@ -19,7 +19,7 @@ class BlockHeader;
 class BlockHeaderStoreManager;
 class VoteCandidate;
 class IStatusCacheContext;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class MemPoolTransaction;
 
 class DetectVotingTicketCommandMessage : public AbstractFinalizerCommandMessage {
@@ -31,7 +31,7 @@ protected:
 	virtual void process(FinalizerPool* pool);
 
 	virtual void putTransaction(const BlockHeader* header, const VoteCandidate* candidate, IStatusCacheContext* context
-			, MemPoolTransaction* memTrx, const CodablecashConfig* config, FinalizerPool *pool);
+			, MemPoolTransaction* memTrx, const CodablecashSystemParam* config, FinalizerPool *pool);
 	BlockHeader* getNblocksBefore(const BlockHeaderId* headerId, int voteBeforeNBlocks, BlockHeaderStoreManager* headerManager);
 
 protected:

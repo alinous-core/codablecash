@@ -10,6 +10,7 @@
 
 namespace alinous {
 class SysMutex;
+class UnicodeString;
 }
 using namespace alinous;
 
@@ -24,7 +25,7 @@ class AbstractClientNotifyCommand;
 
 class BlockchainNodeHandshake {
 public:
-	explicit BlockchainNodeHandshake(P2pHandshake *handshake, int zone, const NodeIdentifier* nodeId);
+	explicit BlockchainNodeHandshake(P2pHandshake *handshake, int zone, const NodeIdentifier* nodeId, const UnicodeString* canonicalName);
 	virtual ~BlockchainNodeHandshake();
 
 	void dispose(bool force) noexcept;
@@ -51,9 +52,12 @@ protected:
 	int zone;
 	P2pHandshake *handshake;
 	NodeIdentifier* nodeId;
+	UnicodeString* canonicalName;
 
 	SysMutex* mutex;
 	int ref;
+
+	SysMutex* trxmutex;
 
 };
 

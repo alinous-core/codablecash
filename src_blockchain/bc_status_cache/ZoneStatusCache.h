@@ -31,12 +31,13 @@ class IStatusCacheContext;
 class UtxoData;
 class UtxoId;
 class MemPoolTransaction;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class ISystemLogger;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class Block;
 class LockinManager;
 class BlockHeaderStoreManager;
+class VoteManager;
 
 class ZoneStatusCache {
 public:
@@ -48,7 +49,7 @@ public:
 	static const constexpr wchar_t* KEY_FINALIZED_HEIGHT{L"finalizedHeight"};
 	static const constexpr wchar_t* KEY_FINALIZED_TICKET_PRICE{L"finalizedTicketPrice"};
 
-	ZoneStatusCache(const File* baseDir, uint16_t zone, bool headerOnly, ISystemLogger* logger, const CodablecashConfig* config);
+	ZoneStatusCache(const File* baseDir, uint16_t zone, bool headerOnly, ISystemLogger* logger, const CodablecashSystemParam* config);
 	ZoneStatusCache(const File* baseDir, ISystemLogger* logger, bool headerOnly);
 	virtual ~ZoneStatusCache();
 
@@ -57,7 +58,7 @@ public:
 	void open();
 	void close();
 
-	void updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashConfig* config, const File* tmpCacheBaseDir);
+	void updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashSystemParam* config, const File* tmpCacheBaseDir);
 	void finalizeUpdateCacheData(uint64_t finalizingHeight, const BlockHeaderId *headerId, CodablecashBlockchain* blockchain, IStatusCacheContext* context);
 	void finalizeHeaderUpdateCacheData(uint64_t finalizingHeight, const BlockHeaderId *headerId, CodablecashBlockchain* blockchain);
 
@@ -79,10 +80,18 @@ public:
 		return this->finalizedCache;
 	}
 
+	LockinManager *getLockinManager() const noexcept {
+		return this->lockinManager;
+	}
+
 	void setScheduledBlock(const Block* block);
 	Block* fetchScheduledBlock();
 
 	UtxoData* findUtxo(const UtxoId* utxoId) const;
+
+	bool registerBlockHeader4Limit(const BlockHeader* header, const CodablecashSystemParam* param);
+
+
 
 private:
 	void addIdex2String(UnicodeString *str) const noexcept;
@@ -94,6 +103,7 @@ private:
 	uint16_t zone;
 	bool headerOnly;
 	uint64_t finalizedHeight;
+
 	uint64_t ticketPrice;
 
 	File* baseDir;
@@ -102,6 +112,7 @@ private:
 
 	FinalizedDataCache* finalizedCache;
 	LockinManager* lockinManager;
+	VoteManager* voteManager;
 };
 
 } /* namespace codablecash */

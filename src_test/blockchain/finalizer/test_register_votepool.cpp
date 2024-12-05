@@ -6,7 +6,6 @@
  */
 #include "test_utils/t_macros.h"
 
-#include "bc/CodablecashConfig.h"
 #include "bc/DebugDefaultLogger.h"
 #include "bc/CodablecashNodeInstance.h"
 
@@ -26,6 +25,7 @@
 #include "bc_network/NodeIdentifier.h"
 
 #include "base/Exception.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_memorypool/MemoryPool.h"
 
@@ -49,7 +49,7 @@ TEST(TestRegisterVotePoolGroup, case01){
 	_ST(File, baseDir, projectFolder.get(L"codable_home"))
 	_ST(File, walletBaseDir, projectFolder.get(L"wallet"))
 
-	CodablecashConfig config;
+	CodablecashSystemParam config;
 	config.setPowHashrateBlocks(10);
 	config.setPowBlockTimeMills(250);
 

@@ -9,6 +9,8 @@
 #include "pubsub/PubSubId.h"
 #include "pubsub/PubsubCommandException.h"
 #include "pubsub/PubsubUtils.h"
+#include "pubsub/CommandPublisherSetting.h"
+#include "pubsub/PubsubNetworkException.h"
 
 #include "pubsub_cmd/AbstractPubSubCommand.h"
 #include "pubsub_cmd/AbstractCommandResponse.h"
@@ -26,8 +28,9 @@
 #include "base_thread/StackUnlocker.h"
 
 #include "bc/ISystemLogger.h"
-
 #include "bc/ExceptionThrower.h"
+
+
 namespace codablecash {
 
 CommandPublisher::CommandPublisher(IClientSocket* socket, const PubSubId* pubsubId) {
@@ -36,6 +39,12 @@ CommandPublisher::CommandPublisher(IClientSocket* socket, const PubSubId* pubsub
 	this->publishLock = new SysMutex();
 
 	this->timestamp = Os::getTimestampLong();
+
+	// setting
+	CommandPublisherSetting* setting = CommandPublisherSetting::getInstance();
+
+	this->poolRetry = setting->getPoolRetry();
+	this->waitSec = setting->getWaitSec();
 }
 
 CommandPublisher::~CommandPublisher() {
@@ -62,7 +71,7 @@ void CommandPublisher::sendEndConnectionCommand(ISystemLogger* logger) noexcept 
 }
 
 AbstractCommandResponse* CommandPublisher::publishCommand(const AbstractPubSubCommand *cmd) {
-	StackUnlocker __lock(this->publishLock);
+	StackUnlocker __lock(this->publishLock, __FILE__, __LINE__);
 
 	int size = cmd->binarySize();
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(size, true); __STP(buff);
@@ -75,9 +84,9 @@ AbstractCommandResponse* CommandPublisher::publishCommand(const AbstractPubSubCo
 	int numFd = 0;
 	int retry = 0;
 	while(numFd < 1){
-		// FIXME publiser side error
-		ExceptionThrower<PubsubCommandException>::throwExceptionIfCondition(retry > 5, L"Server does not respond.", __FILE__, __LINE__);
-		numFd = this->socket->readPool(1, 0);
+		// publiser side error
+		ExceptionThrower<PubsubCommandException>::throwExceptionIfCondition(retry >= this->poolRetry, L"Server does not respond.", __FILE__, __LINE__);
+		numFd = this->socket->readPool(this->waitSec, 0);
 
 		retry++;
 	}
@@ -93,7 +102,8 @@ ByteBuffer* CommandPublisher::reveiveResponseData() {
 	char tmp[4]{};
 	int n = this->socket->read(tmp, sizeof(tmp));
 	if(n < 4){
-		throw new PubsubCommandException(L"Wrong command response binary.", __FILE__, __LINE__);
+		// end connection
+		throw new PubsubNetworkException(L"Wrong command response binary.", __FILE__, __LINE__);
 	}
 
 	ByteBuffer* b = ByteBuffer::wrapWithEndian((const uint8_t*)tmp, 4, true); __STP(b);
@@ -121,7 +131,12 @@ void CommandPublisher::doPublishCommand(ByteBuffer *buff) {
 }
 
 void CommandPublisher::publishCommand(const uint8_t *buff, int length) {
-	this->socket->write((const char*)buff, length);
+	// check socket conditions
+	ExceptionThrower<PubsubCommandException>::throwExceptionIfCondition(!this->socket->isConnected(), L"", __FILE__, __LINE__);
+
+	int n = this->socket->write((const char*)buff, length);
+
+	ExceptionThrower<PubsubCommandException>::throwExceptionIfCondition(n != length, L"Failed in writing socket data.", __FILE__, __LINE__);
 }
 
 void CommandPublisher::close() noexcept {

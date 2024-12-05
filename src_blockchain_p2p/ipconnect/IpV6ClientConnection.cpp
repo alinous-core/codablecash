@@ -16,11 +16,13 @@ namespace codablecash {
 IpV6ClientConnection::IpV6ClientConnection() {
 	this->sock = 0;
 	this->client = nullptr;
+	this->port = -1;
 }
 
 IpV6ClientConnection::IpV6ClientConnection(int sock) {
 	this->sock = sock;
 	this->client = nullptr;
+	this->port = -1;
 }
 
 IpV6ClientConnection::~IpV6ClientConnection() {
@@ -36,6 +38,7 @@ void IpV6ClientConnection::connect(const UnicodeString* host, int port) {
 	strPort.append(port);
 
 	this->sock = IPV6::connect(host, &strPort);
+	this->port = port;
 }
 
 void IpV6ClientConnection::close() {

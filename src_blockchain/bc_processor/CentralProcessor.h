@@ -21,7 +21,7 @@ using namespace alinous;
 namespace codablecash {
 
 class MessageProcessor;
-class CodablecashConfig;
+class CodablecashSystemParam;
 class BlockchainController;
 class MemoryPool;
 class BlockchainController;
@@ -36,10 +36,10 @@ class CentralProcessor : public ICommandParameter {
 public:
 	static const UnicodeString THREAD_NAME;
 
-	CentralProcessor(CodablecashConfig* config, MemoryPool* memPool, BlockchainController* ctrl, ISystemLogger* logger);
+	CentralProcessor(CodablecashSystemParam* config, MemoryPool* memPool, BlockchainController* ctrl, ISystemLogger* logger);
 	virtual ~CentralProcessor();
 
-	void start();
+	void start(const UnicodeString* nodeName);
 	void shutdown();
 
 	void setBlochchainP2pManager(BlochchainP2pManager* p2pManager) noexcept;
@@ -66,13 +66,13 @@ public:
 	ISystemLogger* getLogger() const noexcept {
 		return this->logger;
 	}
-	CodablecashConfig* getConfig() const noexcept {
+	CodablecashSystemParam* getCodablecashSystemParam() const noexcept {
 		return this->config;
 	}
 
 private:
 	ISystemLogger* logger;
-	CodablecashConfig* config;
+	CodablecashSystemParam* config;
 
 	MessageProcessor* processor;
 

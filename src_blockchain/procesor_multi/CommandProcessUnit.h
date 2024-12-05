@@ -40,6 +40,7 @@ public:
 	int getStatus() const noexcept;
 
 	void addCommandMessage(ICommandMessage* cmd) noexcept;
+	void insertCommandMessage(ICommandMessage* cmd, int pos) noexcept;
 
 private:
 	void processCommand(ICommandMessage* cmd);

@@ -32,6 +32,8 @@ public:
 	void setNumRequestHeight(uint32_t numRequestTrx) noexcept;
 	void setStartHeight(uint32_t offset) noexcept;
 
+	virtual bool usePendingQueue() const noexcept;
+
 private:
 	uint16_t zone;
 	uint32_t numRequestHeight;

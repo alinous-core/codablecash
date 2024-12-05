@@ -33,7 +33,8 @@ LoginPubSubCommand::LoginPubSubCommand(const LoginPubSubCommand &inst)
 
 }
 
-LoginPubSubCommand::LoginPubSubCommand(uint16_t zone) : AbstractBlockchainLoginCommand(AbstractPubSubCommand::TYPE_LOGIN, zone) {
+LoginPubSubCommand::LoginPubSubCommand(uint16_t zone, const UnicodeString* canonicalName)
+	: AbstractBlockchainLoginCommand(AbstractPubSubCommand::TYPE_LOGIN, zone, canonicalName) {
 
 }
 

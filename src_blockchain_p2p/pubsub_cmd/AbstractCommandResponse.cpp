@@ -9,6 +9,7 @@
 
 #include "pubsub_cmd/EchoPubSubCommandResponse.h"
 #include "pubsub_cmd/OkPubsubResponse.h"
+#include "pubsub_cmd/WarningResponse.h"
 #include "pubsub_cmd/ErrorPubsubResponse.h"
 
 #include "bc_p2p_cmd/SignatureErrorResponse.h"
@@ -21,6 +22,8 @@
 #include "bc_p2p_cmd_node/SyncHeaderNodeCommandResponse.h"
 #include "bc_p2p_cmd_node/DownloadBlockNodeCommandResponse.h"
 #include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommandResponse.h"
+#include "bc_p2p_cmd_node/DownloadTransactionsNodeCommandResponse.h"
+#include "bc_p2p_cmd_node/NodeCommandValidationErrorResponse.h"
 
 #include "pubsub/PubsubCommandException.h"
 
@@ -30,7 +33,6 @@
 
 #include "ipconnect/IClientSocket.h"
 
-#include "bc_p2p_cmd_node/DownloadTransactionsNodeCommandResponse.h"
 
 namespace codablecash {
 
@@ -53,6 +55,9 @@ AbstractCommandResponse* AbstractCommandResponse::createFromBinary(ByteBuffer *b
 	case TYPE_RES_OK:
 		ret = new OkPubsubResponse();
 		break;
+	case TYPE_RES_WARNING:
+		ret = new WarningResponse();
+		break;
 	case TYPE_RES_ERROR:
 		ret = new ErrorPubsubResponse();
 		break;
@@ -67,6 +72,9 @@ AbstractCommandResponse* AbstractCommandResponse::createFromBinary(ByteBuffer *b
 		break;
 	case TYPE_RES_DOWNLOAD_DNS_INFO:
 		ret = new DownloadDnsInfoCommandResponse();
+		break;
+	case TYPE_NODE_COMMAND_VALIDATION_ERROR:
+		ret = new NodeCommandValidationErrorResponse();
 		break;
 	case TYPE_RES_SYNC_MEMPOOL:
 		ret = new SyncMempoolNodeCommandResponse();

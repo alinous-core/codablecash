@@ -1,5 +1,6 @@
 
 set(testsrc
+	test_create_ids.cpp
 	test_node_command_queue.cpp
 	test_transfer_history.cpp
 )

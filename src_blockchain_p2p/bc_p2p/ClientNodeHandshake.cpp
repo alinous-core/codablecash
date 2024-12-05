@@ -9,7 +9,7 @@
 
 namespace codablecash {
 
-ClientNodeHandshake::ClientNodeHandshake(P2pHandshake *handshake, int zone, const NodeIdentifier* nodeId) : BlockchainNodeHandshake(handshake, zone, nodeId) {
+ClientNodeHandshake::ClientNodeHandshake(P2pHandshake *handshake, int zone, const NodeIdentifier* nodeId) : BlockchainNodeHandshake(handshake, zone, nodeId, nullptr) {
 
 }
 

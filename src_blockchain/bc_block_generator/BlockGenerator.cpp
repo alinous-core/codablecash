@@ -38,7 +38,6 @@
 #include "bc_status_cache_context/StatusCacheContext.h"
 #include "bc_status_cache_context_finalizer/VotingBlockStatus.h"
 
-#include "bc/CodablecashConfig.h"
 #include "bc/ISystemLogger.h"
 
 #include "osenv/funcs.h"
@@ -68,10 +67,11 @@
 #include "numeric/BigInteger.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+#include "bc/CodablecashSystemParam.h"
 
 namespace codablecash {
 
-BlockGenerator::BlockGenerator(uint16_t zone, CodablecashConfig* config, MemoryPool* memoryPool, BlockchainController* ctrl
+BlockGenerator::BlockGenerator(uint16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl
 		, const MiningConfig *miningConfig, ISystemLogger* logger) {
 	this->logger = logger;
 	this->config = config;
@@ -91,6 +91,10 @@ BlockGenerator::~BlockGenerator() {
 }
 
 void BlockGenerator::nonceCalculated(uint64_t lastBlockHeight, const BlockHeaderId *lastBlockId, const PoWNonce *nonce) {
+	UnicodeString dmsg(L"processing nonceCalculated.");
+	this->logger->debugLog(ISystemLogger::DEBUG_POW_CALC_THREAD, &dmsg, __FILE__, __LINE__);
+
+
 	MemPoolTransaction* memTrx = this->memoryPool->begin(); __STP(memTrx); // mempol locking
 
 	Block* block = this->ctrl->fetechScheduledBlock(); __STP(block);

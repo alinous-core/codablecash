@@ -8,6 +8,8 @@
 #ifndef BC_STATUS_CACHE_DATA_FINALIZEDDATACACHE_H_
 #define BC_STATUS_CACHE_DATA_FINALIZEDDATACACHE_H_
 
+#include <cstdint>
+
 namespace alinous {
 class File;
 }
@@ -26,6 +28,7 @@ class VoteBlockTransaction;
 class IStatusCacheContext;
 class UtxoData;
 class UtxoId;
+class VoterStatusCacheContext;
 
 
 class FinalizedDataCache {
@@ -40,11 +43,16 @@ public:
 	void open();
 	void close();
 
-	void importBlockData(const BlockHeader* header, const BlockBody* body, IStatusCacheContext* context);
+	void importBlockData(uint64_t finalizingHeight, const BlockHeader* header, const BlockBody* body, IStatusCacheContext* context);
 	void writeBackVoterEntries(IStatusCacheContext* context);
+	void writeBackVoterStatus(IStatusCacheContext* context);
 
 	FinalizedVoterRepository* getFinalizedVoterRepository() const noexcept {
 		return this->voterRepo;
+	}
+
+	VoterStatusCacheContext* getVotingStatusCache() const noexcept {
+		return this->votingStatusCache;
 	}
 
 	UtxoData* findUtxo(const UtxoId* utxoId) const;
@@ -68,6 +76,7 @@ private:
 
 	FinalizedUtxoRepository* utxoRepo;
 	FinalizedVoterRepository* voterRepo;
+	VoterStatusCacheContext* votingStatusCache;
 };
 
 } /* namespace codablecash */

@@ -47,7 +47,7 @@ TEST(SysMutexTestGroup, runName){
 TEST(SysMutexTestGroup, SysMutex){
 	SysMutex mutex;
 
-	mutex.lock();
+	mutex.lock(__FILE__, __LINE__);
 
 	mutex.unlock();
 }

@@ -13,6 +13,7 @@
 #include "bc_network/NodeIdentifierSource.h"
 
 #include "base/StackRelease.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "crypto/Sha256.h"
 #include "crypto/SchnorrSignature.h"
@@ -26,8 +27,6 @@
 #include "bc_block/BlockHeader.h"
 
 #include "crypto/Schnorr.h"
-
-#include "bc/CodablecashConfig.h"
 
 #include "bc_status_cache_context/IStatusCacheContext.h"
 
@@ -113,7 +112,7 @@ TrxValidationResult VoteBlockTransaction::__validateFinal(const BlockHeader* hea
 		return TrxValidationResult::INVALID;
 	}
 
-	const CodablecashConfig* config = context->getConfig();
+	const CodablecashSystemParam* config = context->getConfig();
 	uint64_t blockHeight = header->getHeight(); // this block
 	uint16_t zone = header->getZone();
 

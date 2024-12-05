@@ -165,7 +165,7 @@ void VoterEntry::handleMissed(int missingLimit) noexcept {
 	this->missingCount++;
 	if(this->missingCount >= missingLimit){
 		this->capacity = this->capacity / 2;
-		//this->missingCount = 0;
+		this->missingCount = 0;
 	}
 
 	this->updated = true;
@@ -180,7 +180,7 @@ BalanceUnit VoterEntry::getTicketPriceSum() const noexcept {
 	for(int i = 0; i != maxLoop; ++i){
 		VoteTicket* ticket = this->list->get(i);
 
-		total += ticket->getTicketProce();
+		total += ticket->getTicketPrice();
 	}
 
 	return total;

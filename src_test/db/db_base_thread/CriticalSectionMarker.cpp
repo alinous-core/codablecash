@@ -20,7 +20,7 @@ CriticalSectionMarker::~CriticalSectionMarker() {
 
 void CriticalSectionMarker::enter() {
 	{
-		StackUnlocker __st_lock(&this->lock);
+		StackUnlocker __st_lock(&this->lock, __FILE__, __LINE__);
 
 		if(this->critical == true){
 			throw new CriticalSectionMarkerException(__FILE__, __LINE__);
@@ -32,7 +32,7 @@ void CriticalSectionMarker::enter() {
 
 void CriticalSectionMarker::exit() {
 	{
-		StackUnlocker __st_lock(&this->lock);
+		StackUnlocker __st_lock(&this->lock, __FILE__, __LINE__);
 		if(this->critical == false){
 			throw new CriticalSectionMarkerException(__FILE__, __LINE__);
 		}
@@ -43,7 +43,7 @@ void CriticalSectionMarker::exit() {
 
 void CriticalSectionMarker::checkCritical() {
 	{
-		StackUnlocker __st_lock(&this->lock);
+		StackUnlocker __st_lock(&this->lock, __FILE__, __LINE__);
 		if(this->critical == true){
 			throw new CriticalSectionMarkerException(__FILE__, __LINE__);
 		}

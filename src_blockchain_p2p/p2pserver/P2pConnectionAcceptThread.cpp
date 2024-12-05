@@ -21,7 +21,8 @@
 
 namespace codablecash {
 
-P2pConnectionAcceptThread::P2pConnectionAcceptThread(IClientSocket* client, P2pServer* p2pServer) {
+P2pConnectionAcceptThread::P2pConnectionAcceptThread(IClientSocket* client, P2pServer* p2pServer, const UnicodeString* name)
+		: AbstractThreadRunner(name) {
 	this->client = client;
 	this->p2pServer = p2pServer;
 	this->done = false;

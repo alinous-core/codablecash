@@ -20,7 +20,7 @@
 #include "bc_status_cache_context/TransactionContextCache.h"
 #include "bc_status_cache_context/UtxoCacheContext.h"
 #include "bc_status_cache_context/CachedStatusCache.h"
-#include "bc_status_cache_context_finalizer/VoterStatusCacheContext.h"
+#include "bc_status_cache_context_finalizer/VoterStatusMappedCacheContext.h"
 
 #include "bc_trx/AbstractBlockchainTransaction.h"
 #include "bc_trx/AbstractUtxo.h"
@@ -34,9 +34,10 @@
 
 #include "bc_base_utxo_index/UtxoData.h"
 
+
 namespace codablecash {
 
-CachedStatusCacheContext::CachedStatusCacheContext(const CachedStatusCache* cache, const CodablecashConfig* config, const File* tmpCacheBaseDir,
+CachedStatusCacheContext::CachedStatusCacheContext(const CachedStatusCache* cache, const CodablecashSystemParam* config, const File* tmpCacheBaseDir,
 		uint16_t zone, ConcurrentGate* rwLock, BlockchainStatusCache* statusCache, CodablecashBlockchain* blockchain)
 		: StatusCacheContext(config, tmpCacheBaseDir, zone, rwLock, statusCache, blockchain, CACHED_CONTEXT_CACHE_PREFIX){
 	this->cache = cache;
@@ -53,7 +54,7 @@ void CachedStatusCacheContext::close() {
 
 	this->cache = nullptr;
 }
-
+/*
 ArrayList<VoterEntry, VoterEntry::VoteCompare>* CachedStatusCacheContext::getVoterEntries() const {
 	ArrayList<VoterEntry, VoterEntry::VoteCompare>* list = StatusCacheContext::getVoterEntries();
 
@@ -61,33 +62,7 @@ ArrayList<VoterEntry, VoterEntry::VoteCompare>* CachedStatusCacheContext::getVot
 
 	return list;
 }
-
-VotingBlockStatus* CachedStatusCacheContext::getVotingBlockStatus(const BlockHeaderId *blockHeaderId) {
-	VotingBlockStatus* status = StatusCacheContext::getVotingBlockStatus(blockHeaderId);
-
-	if(status == nullptr){
-		status = this->cache->getVotingBlockStatus(blockHeaderId);
-	}
-
-	return status;
-}
-
-const VoterEntry* CachedStatusCacheContext::getVoterEntry(	const NodeIdentifier *nodeId) const noexcept {
-	const VoterEntry* entry = StatusCacheContext::getVoterEntry(nodeId);
-	if(entry != nullptr){
-		return entry;
-	}
-
-	const VoterEntry* cachedEntry = this->cache->getVoterEntry(nodeId);
-	if(cachedEntry != nullptr){
-		VoterEntry* newVoter = dynamic_cast<VoterEntry*>(cachedEntry->copyData());
-		this->voterCache->addNewVoter(newVoter);
-		entry = newVoter;
-	}
-
-	return entry;
-}
-
+*/
 AbstractUtxo* CachedStatusCacheContext::getUtxo(const UtxoId *utxoId) const {
 	// active
 	{
@@ -126,7 +101,7 @@ void CachedStatusCacheContext::putUtxo(const AbstractUtxo *utxo, const AbstractB
 
 void CachedStatusCacheContext::loadInitialVotersData() {
 	// load & update this->voterCache by using this->cache
-	const VoterStatusCacheContext* lastVoterCache = this->cache->getVoterStatusCacheContext();
+	const VoterStatusMappedCacheContext* lastVoterCache = this->cache->getVoterStatusCacheContext();
 	this->voterCache->loadLastCache(lastVoterCache);
 	this->voterCache->importRepo(lastVoterCache);
 }

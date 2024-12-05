@@ -16,8 +16,6 @@
 #include "bc_status_cache_context_finalizer/VoteCandidate.h"
 #include "bc_status_cache_context/IStatusCacheContext.h"
 
-#include "bc/CodablecashConfig.h"
-
 #include "bc_finalizer_trx/VoteBlockTransaction.h"
 
 #include "bc_finalizer_pool/FinalizerPool.h"
@@ -41,6 +39,7 @@
 #include "bc_status_cache_context_finalizer/VotingBlockStatus.h"
 
 #include "base/Exception.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "filestore_block/exceptions.h"
 namespace codablecash {
@@ -55,7 +54,7 @@ FinalizeMissDetectTicketCommandMessage::~FinalizeMissDetectTicketCommandMessage(
 }
 
 void FinalizeMissDetectTicketCommandMessage::process(FinalizerPool *pool) {
-	const CodablecashConfig* config = pool->getConfig();
+	const CodablecashSystemParam* config = pool->getConfig();
 	int voteBeforeNBlocks = config->getVoteBeforeNBlocks(this->height);
 
 	if(this->height <= voteBeforeNBlocks){
@@ -88,7 +87,7 @@ void FinalizeMissDetectTicketCommandMessage::process(FinalizerPool *pool) {
 			if(i == 2){
 				putTransaction(header2vote, candidate, context, memTrx, config, pool);
 			}
-			else if(i == 3){
+			else if(i == 3 || i == 4){
 				continue;
 			}
 			else{
@@ -111,7 +110,7 @@ void FinalizeMissDetectTicketCommandMessage::process(FinalizerPool *pool) {
  * @param pool
  */
 void FinalizeMissDetectTicketCommandMessage::putTransaction(const BlockHeader *header2vote, const VoteCandidate *candidate
-		, IStatusCacheContext* context, MemPoolTransaction* memTrx, const CodablecashConfig* config, FinalizerPool *pool) {
+		, IStatusCacheContext* context, MemPoolTransaction* memTrx, const CodablecashSystemParam* config, FinalizerPool *pool) {
 	const NodeIdentifier* voterId = candidate->getNodeIdentifier();
 	const UtxoId* utxoId = candidate->getUtxoId();
 

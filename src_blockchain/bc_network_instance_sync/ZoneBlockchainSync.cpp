@@ -50,7 +50,7 @@ ZoneBlockchainSync::~ZoneBlockchainSync() {
 }
 
 void ZoneBlockchainSync::importResult() {
-	StackUnlocker __lock(this->headerDataMutex);
+	StackUnlocker __lock(this->headerDataMutex, __FILE__, __LINE__);
 
 	CodablecashNetworkNode* node = this->parent->getCodablecashNetworkNode();
 	CodablecashNodeInstance* inst = node->getInstance();
@@ -70,6 +70,12 @@ void ZoneBlockchainSync::importResult() {
 
 void ZoneBlockchainSync::handleHeader(const BlockHeaderTransferData *data, CodablecashNodeInstance* inst) {
 	ISystemLogger* logger = inst->getLogger();
+
+	{
+		// AbstractZoneSync::importHeaders()
+		UnicodeString __str(L"ZoneBlockchainSync::handleHeader() starts.");
+		this->logger->debugLog(ISystemLogger::DEBUG_TMP_INFO, &__str, __FILE__, __LINE__);
+	}
 
 	const BlockHeader* header = data->getHeader();
 	uint16_t zone = header->getZone();
@@ -100,7 +106,14 @@ void ZoneBlockchainSync::handleHeader(const BlockHeaderTransferData *data, Codab
 		Block* block = dlresponse->getBlock();
 		addBlock(block, inst);
 	}
+
+	{
+		// AbstractZoneSync::importHeaders()
+		UnicodeString __str(L"ZoneBlockchainSync::handleHeader() ends.");
+		this->logger->debugLog(ISystemLogger::DEBUG_TMP_INFO, &__str, __FILE__, __LINE__);
+	}
 }
+
 
 void ZoneBlockchainSync::addBlock(const Block *block, CodablecashNodeInstance *inst) {
 	BlockchainController* ctrl = inst->getController();

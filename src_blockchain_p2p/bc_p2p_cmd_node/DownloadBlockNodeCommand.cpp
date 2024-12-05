@@ -23,6 +23,7 @@
 
 #include "bc_block/BlockHeader.h"
 
+#include "pubsub_cmd/WarningResponse.h"
 namespace codablecash {
 
 DownloadBlockNodeCommand::DownloadBlockNodeCommand(const DownloadBlockNodeCommand& inst) : AbstractNodeCommand(inst) {
@@ -104,6 +105,21 @@ AbstractCommandResponse* DownloadBlockNodeCommand::executeAsNode(BlockchainNodeH
 
 		if(block != nullptr){
 			response->setBlock(block);
+		}
+		else {
+			WarningResponse* wres = new WarningResponse();
+			UnicodeString str(L"Cannot find block header id: ");
+			{
+				UnicodeString* idstr = this->headerId->toString(); __STP(idstr);
+				str.append(idstr);
+			}
+			str.append(L" at height ");
+			{
+				str.append((int)this->height);
+			}
+			wres->setMessage(&str);
+
+			return wres;
 		}
 	}
 

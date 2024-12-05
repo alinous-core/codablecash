@@ -30,7 +30,7 @@ class CodablecashNodeInstance;
 
 class P2pRequestQueueProcessor : public IPubsubCommandListner {
 public:
-	static const constexpr wchar_t* THREAD_NAME{L"QueueProcess"};
+	static const constexpr wchar_t* THREAD_NAME{L"QP"};
 
 	P2pRequestQueueProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, NetworkTransferProcessor* processor, CodablecashNodeInstance *inst, ISystemLogger* logger);
 	virtual ~P2pRequestQueueProcessor();

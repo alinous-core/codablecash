@@ -7,11 +7,9 @@
 #include "test_utils/t_macros.h"
 
 #include "../../test_utils/TestPortSelection.h"
-#include "../../blockchain/utils/DebugCodablecashConfigSetup.h"
 #include "../../blockchain/wallet_util/WalletDriver.h"
 
 #include "bc/DebugDefaultLogger.h"
-#include "bc/CodablecashConfig.h"
 #include "bc/CodablecashNodeInstance.h"
 
 #include "bc_network/NodeIdentifierSource.h"
@@ -31,6 +29,7 @@
 
 #include "base/ArrayList.h"
 #include "base/Exception.h"
+#include "bc/CodablecashSystemParam.h"
 
 #include "bc_block/Block.h"
 
@@ -41,6 +40,7 @@
 #include "bc_p2p/StackHandshakeReleaser.h"
 
 #include "bc/ExceptionThrower.h"
+#include "../../blockchain/utils/DebugCodablecashSystemParamSetup.h"
 
 
 using namespace codablecash;
@@ -68,8 +68,8 @@ TEST(TestP2pNetworkGroup, case01){
 
 	DebugDefaultLogger logger;
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
+	CodablecashSystemParam config;
+	DebugCodablecashSystemParamSetup::setupConfig01(config);
 	CodablecashNetworkNodeConfig nwconfig;
 	nwconfig.setSysConfig(&config);
 
@@ -127,7 +127,8 @@ TEST(TestP2pNetworkGroup, case01){
 		CodablecashNodeInstance* inst = node02.getInstance();
 
 		UnicodeString strLocal(L"::1");
-		inst->connectIpV6Node(0, &strLocal, port01);
+		NodeIdentifier nodeId = config01->getNodeId();
+		inst->connectIpV6Node(0, &strLocal, port01, &nodeId, nullptr);
 	}
 
 	node02.shutdown();
@@ -148,8 +149,8 @@ TEST(TestP2pNetworkGroup, case02_err){
 
 	DebugDefaultLogger logger;
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
+	CodablecashSystemParam config;
+	DebugCodablecashSystemParamSetup::setupConfig01(config);
 	CodablecashNetworkNodeConfig nwconfig;
 	nwconfig.setSysConfig(&config);
 
@@ -207,7 +208,8 @@ TEST(TestP2pNetworkGroup, case02_err){
 		CodablecashNodeInstance* inst = node02.getInstance();
 
 		UnicodeString strLocal(L"::1");
-		inst->connectIpV6Node(0, &strLocal, port01);
+		NodeIdentifier nodeId = config01->getNodeId();
+		inst->connectIpV6Node(0, &strLocal, port01, &nodeId, nullptr);
 
 		P2pHandshakeAuthenticationException* ex = nullptr;
 		try{
@@ -220,7 +222,7 @@ TEST(TestP2pNetworkGroup, case02_err){
 
 			P2pHandshake* handshake = nodeHandshake->getHandshake();
 
-			inst->loginNode(0, handshake);
+			inst->loginNode(0, handshake, nullptr);
 		}catch(P2pHandshakeAuthenticationException* e){
 			ex = e;
 		}
@@ -246,8 +248,8 @@ TEST(TestP2pNetworkGroup, case03_err){
 
 	DebugDefaultLogger logger;
 
-	CodablecashConfig config;
-	DebugCodablecashConfigSetup::setupConfig01(config);
+	CodablecashSystemParam config;
+	DebugCodablecashSystemParamSetup::setupConfig01(config);
 	CodablecashNetworkNodeConfig nwconfig;
 	nwconfig.setSysConfig(&config);
 
@@ -312,7 +314,8 @@ TEST(TestP2pNetworkGroup, case03_err){
 
 		Exception* ex = nullptr;
 		try{
-			inst->connectIpV6Node(0, &strLocal, port01);
+			NodeIdentifier nodeId = config01->getNodeId();
+			inst->connectIpV6Node(0, &strLocal, port01, &nodeId, nullptr);
 		}
 		catch(Exception* e){
 			ex = e;

@@ -32,7 +32,7 @@ LoginClientCommand::LoginClientCommand(const LoginClientCommand &inst)
 }
 
 LoginClientCommand::LoginClientCommand(uint16_t zone)
-		: AbstractBlockchainLoginCommand(AbstractPubSubCommand::TYPE_CLIENT_LOGIN, zone){
+		: AbstractBlockchainLoginCommand(AbstractPubSubCommand::TYPE_CLIENT_LOGIN, zone, nullptr){
 
 }
 

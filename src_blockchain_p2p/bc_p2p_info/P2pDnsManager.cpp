@@ -24,6 +24,8 @@
 #include "bc/ISystemLogger.h"
 
 #include "bc_p2p_cmd_client/DownloadDnsInfoCommandResponse.h"
+
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
 namespace codablecash {
 
 P2pDnsManager::P2pDnsManager(const File* baseDir) {
@@ -101,6 +103,20 @@ ArrayList<P2pNodeRecord>* P2pDnsManager::getZoneRecords(uint16_t zone, int maxNu
 	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	return this->database->getZoneRecords(zone, maxNum);
+}
+
+bool P2pDnsManager::removeRecord(const NodeIdentifier *nodeId) {
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
+
+	return this->database->removeRecord(nodeId);
+}
+
+void P2pDnsManager::updateOrAddRecord(const NodeNetworkInfo *nodeNetInfo, ISystemLogger* logger) {
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
+
+	P2pNodeRecord* p2pNodeRecord = nodeNetInfo->toP2pNodeRecord(); __STP(p2pNodeRecord);
+
+	this->database->updateP2pRecord(p2pNodeRecord);
 }
 
 } /* namespace codablecash */

@@ -23,7 +23,8 @@ const UnicodeString* TestEnv::TEST_SEG() {
 }
 
 
-TestEnv::TestEnv(TestCase* testCase) {
+TestEnv::TestEnv(TestGroup* group, TestCase* testCase) {
+	this->testGroup = group;
 	this->testCase = testCase;
 	this->baseDir = nullptr;
 	this->projectRoot = nullptr;

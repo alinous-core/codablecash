@@ -8,14 +8,20 @@
 #ifndef BC_P2P_CMD_NETWORK_ABSTRACTNODENETWORKNOTIFYCOMMAND_H_
 #define BC_P2P_CMD_NETWORK_ABSTRACTNODENETWORKNOTIFYCOMMAND_H_
 
-#include "bc_p2p_cmd/AbstractBlockchainPubsubCommand.h"
+#include "bc_p2p_cmd_node/AbstractNodeCommand.h"
 
 namespace codablecash {
 
-class AbstractNodeNetworkNotifyCommand : public AbstractBlockchainPubsubCommand {
+class BlockchainNodeHandshake;
+class CodablecashNodeInstance;
+
+class AbstractNodeNetworkNotifyCommand : public AbstractNodeCommand {
 public:
+	AbstractNodeNetworkNotifyCommand(const AbstractNodeNetworkNotifyCommand& inst);
 	explicit AbstractNodeNetworkNotifyCommand(uint32_t type);
 	virtual ~AbstractNodeNetworkNotifyCommand();
+
+	virtual bool usePendingQueue() const noexcept;
 };
 
 } /* namespace codablecash */

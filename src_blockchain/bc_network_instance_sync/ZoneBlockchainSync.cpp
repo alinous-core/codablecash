@@ -74,7 +74,7 @@ void ZoneBlockchainSync::handleHeader(const BlockHeaderTransferData *data, Codab
 	{
 		// AbstractZoneSync::importHeaders()
 		UnicodeString __str(L"ZoneBlockchainSync::handleHeader() starts.");
-		this->logger->debugLog(ISystemLogger::DEBUG_TMP_INFO, &__str, __FILE__, __LINE__);
+		logger->debugLog(ISystemLogger::DEBUG_TMP_INFO, &__str, __FILE__, __LINE__);
 	}
 
 	const BlockHeader* header = data->getHeader();

@@ -36,10 +36,9 @@
 
 #include "bc_p2p/BlochchainP2pManager.h"
 
-#include "bc_p2p_cmd_node_consensus/NodeHostory.h"
-
 #include "bc_network/NodeIdentifier.h"
 #include "bc_network/NodeIdentifierSource.h"
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
 
 
 namespace codablecash {
@@ -176,10 +175,10 @@ AbstractCommandResponse* ReportNonceCalculatedNodeCommand::executeAsNode(Blockch
 		ArrayList<NodeIdentifier> list;
 		list.setDeleteOnExit(true);
 		{
-			const ArrayList<NodeHostory>* history = cmd.getHistory();
+			const ArrayList<NodeNetworkInfo>* history = cmd.getHistory();
 			int maxLoop = history->size();
 			for(int i = 0; i != maxLoop; ++i){
-				NodeHostory* his = history->get(i);
+				NodeNetworkInfo* his = history->get(i);
 				const NodeIdentifier* nodeId = his->getNodeIdentifier();
 
 				NodeIdentifier* newId = dynamic_cast<NodeIdentifier*>(nodeId->copyData());

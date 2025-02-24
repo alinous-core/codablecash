@@ -59,6 +59,7 @@ void NetworkNodeSync::sync() {
 	MemPoolSync memPoolSync(this, logger, &memSyncThreadName);
 	memPoolSync.start();
 
+	memPoolSync.join();
 
 	// sync blockchain or header
 	uint16_t numZones = inst->getNumZones();
@@ -76,7 +77,7 @@ void NetworkNodeSync::sync() {
 
 		zoneSync->join();
 	}
-	memPoolSync.join();
+
 }
 
 } /* namespace codablecash */

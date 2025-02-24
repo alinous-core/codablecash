@@ -20,6 +20,7 @@ namespace alinous {
 TestGroup::TestGroup(const wchar_t* groupName, const char* file, int line) noexcept {
 	this->groupName = new UnicodeString(groupName);
 	this->tests = new HashMap<UnicodeString, TestCase>();
+	this->param = nullptr;
 
 	TestExecutor::get()->addGroup(this->groupName, this);
 }

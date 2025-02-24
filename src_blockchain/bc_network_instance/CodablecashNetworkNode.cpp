@@ -138,9 +138,10 @@ void CodablecashNetworkNode::startNetwork(INetworkSeeder* seeder, bool pending) 
 	this->inst->initCacheStatus();
 
 	// startNetwork
+	const UnicodeString* host = this->nwconfig->getHost();
 	int port = this->nwconfig->getPort();
 
-	this->inst->startNetwork(nullptr, port);
+	this->inst->startNetwork(host, port);
 
 	// start processors
 	{
@@ -251,6 +252,12 @@ BlockchainNodeHandshake* CodablecashNetworkNode::getNodeHandshakeByNodeId(const 
 	BlochchainP2pManager* p2pManager = this->inst->getBlochchainP2pManager();
 
 	return p2pManager->getNodeHandshakeByNodeId(nodeId);
+}
+
+void CodablecashNetworkNode::broadCastShutdownCommand() {
+	const NodeIdentifierSource* source = this->nwconfig->getNetworkKey();
+
+	this->inst->broadCastShutdownCommand(source);
 }
 
 } /* namespace codablecash */

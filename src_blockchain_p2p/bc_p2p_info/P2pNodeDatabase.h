@@ -39,7 +39,7 @@ public:
 
 	void addRecord(const P2pNodeRecord* record);
 	P2pNodeRecord* findRecord(const NodeIdentifier* nodeId);
-	void removeRecord(const NodeIdentifier* nodeId);
+	bool removeRecord(const NodeIdentifier* nodeId);
 
 	void connect(const NodeIdentifier* nodeId, const NodeIdentifier* nodeId2);
 
@@ -48,6 +48,8 @@ public:
 	ArrayList<P2pNodeRecord>* getZoneRecords(uint16_t zone, int maxNum);
 
 	void importUnconnectedNode(const P2pNodeRecord *nodeRecord);
+
+	void updateP2pRecord(const P2pNodeRecord *nodeRecord);
 
 private:
 	void removeCounterPartConnections(const NodeIdentifier* nodeId);

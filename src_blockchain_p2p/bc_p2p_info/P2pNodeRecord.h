@@ -30,6 +30,7 @@ public:
 	static const constexpr int TCP_IP_V6{2};
 
 	static P2pNodeRecord* createIpV6Record(uint16_t zone, const NodeIdentifier* nodeId, const UnicodeString*canonicalName, const wchar_t* host, int port);
+	static P2pNodeRecord* createIpV6Record(uint16_t zone, const NodeIdentifier* nodeId, const UnicodeString*canonicalName, const UnicodeString* host, int port);
 
 	P2pNodeRecord(const P2pNodeRecord& inst);
 	P2pNodeRecord();
@@ -68,6 +69,20 @@ public:
 	}
 	int getProtocol() const noexcept {
 		return this->protocol;
+	}
+
+	uint64_t getCreatedTime() const noexcept {
+		return this->createdTime;
+	}
+	void setCreatedTime(uint64_t tm) noexcept {
+		this->createdTime = tm;
+	}
+
+	uint64_t getLastUpdatedTime() const noexcept {
+		return this->lastUpdatedTime;
+	}
+	void setLastUpdatedTime(uint64_t tm){
+		this->lastUpdatedTime = tm;
 	}
 
 	void updateLastupdatedTime() noexcept;

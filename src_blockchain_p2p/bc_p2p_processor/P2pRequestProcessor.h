@@ -34,12 +34,13 @@ class PubSubId;
 class PendingProcessorCommandsQueue;
 class AbstractNodeCommand;
 class PendingCommandData;
+class P2pDnsManager;
 
 class P2pRequestProcessor : public ICommandParameter {
 public:
 	static const constexpr wchar_t* BASE_DIR{L"p2pprocessor"};
 
-	P2pRequestProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, CodablecashSystemParam* config, ISystemLogger* logger);
+	P2pRequestProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, P2pDnsManager* p2pDnsManager, CodablecashSystemParam* config, ISystemLogger* logger);
 	virtual ~P2pRequestProcessor();
 
 	void createBlank(CodablecashNodeInstance* inst);
@@ -57,6 +58,10 @@ public:
 
 	void putQueue(const PubSubId* pubsubId, const AbstructNodeQueueCommand* command);
 
+	NetworkInfoProcessor* getNetworkInfoProcessor() const noexcept {
+		return this->infoProcessor;
+	}
+
 	NetworkTransferProcessor* getNodeTransferProcessor() const noexcept {
 		return this->transferProcessor;
 	}
@@ -64,9 +69,15 @@ public:
 	BlochchainP2pManager* getBlochchainP2pManager() const noexcept {
 		return this->p2pManager;
 	}
+
+	P2pDnsManager* getP2pDnsManager() const noexcept {
+		return this->p2pDnsManager;
+	}
+
 	ISystemLogger* getLogger() const noexcept {
 		return this->logger;
 	}
+
 	P2pRequestQueueProcessor* getP2pRequestQueueProcessor() const noexcept {
 		return this->queueProcessor;
 	}
@@ -95,6 +106,7 @@ private:
 	CodablecashSystemParam* config;
 	ISystemLogger* logger;
 	BlochchainP2pManager* p2pManager;
+	P2pDnsManager* p2pDnsManager;
 
 	NodeIdentifierSource* networkKey;
 

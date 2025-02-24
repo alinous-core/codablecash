@@ -23,6 +23,8 @@ namespace codablecash {
 class P2pNodeDatabase;
 class P2pNodeRecord;
 class ISystemLogger;
+class NodeIdentifier;
+class NodeNetworkInfo;
 
 class P2pDnsManager {
 public:
@@ -36,6 +38,10 @@ public:
 	void importSeeds(int numZone, const P2pNodeRecord* nodeRecord, ISystemLogger* logger);
 
 	ArrayList<P2pNodeRecord>* getZoneRecords(uint16_t zone, int maxNum);
+
+	bool removeRecord(const NodeIdentifier* nodeId);
+
+	void updateOrAddRecord(const NodeNetworkInfo *nodeNetInfo, ISystemLogger* logger);
 
 private:
 	void doImportSeeds(uint16_t zone, const UnicodeString* host, int port, ISystemLogger *logger);

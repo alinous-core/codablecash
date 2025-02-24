@@ -2,7 +2,6 @@
 
 set(__src
 	AbstractConsensusNodeCommand.cpp
-	NodeHostory.cpp
 	ReportMinedBlockNodeCommand.cpp
 	ReportNonceCalculatedNodeCommand.cpp
 	SendTransactionNodeCommand.cpp

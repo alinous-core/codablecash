@@ -48,6 +48,11 @@ public:
 	}
 	void setFinalizerConfig(const FinalizerConfig* fconfig) noexcept;
 
+	void setHost(const UnicodeString* host);
+	const UnicodeString* getHost() const noexcept {
+		return this->host;
+	}
+
 	void setPort(int port) noexcept {
 		this->port = port;
 	}
@@ -75,6 +80,7 @@ private:
 	GenesisBalanceConfig* genesisConfig;
 
 	int port;
+	UnicodeString* host;
 	NodeIdentifierSource* networkKeys;
 
 	UnicodeString* canonicalName;

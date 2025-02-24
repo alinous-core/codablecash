@@ -38,14 +38,15 @@ UnicodeString* Base64::encode(const uint8_t* data, int len) {
 		}
 	}
 
-    if (i == start + len - 2) {
+    if(i == start + len - 2){
         int d = ((((int) data[i]) & 0x0ff) << 16)
                 | ((((int) data[i + 1]) & 255) << 8);
         buf->append(legalChars[(d >> 18) & 63]);
         buf->append(legalChars[(d >> 12) & 63]);
         buf->append(legalChars[(d >> 6) & 63]);
         buf->append(L"=");
-    } else if (i == start + len - 1) {
+    }
+    else if(i == (start + len - 1) ){
         int d = (((int) data[i]) & 0x0ff) << 16;
         buf->append(legalChars[(d >> 18) & 63]);
         buf->append(legalChars[(d >> 12) & 63]);

@@ -1,7 +1,9 @@
 
 
 set(__src
+	AbstractNetworkInfoCommandMessage.cpp
 	AbstractNetworkTransferCommandMessage.cpp
+	DnsCheckCommandMessage.cpp
 	NetworkInfoProcessor.cpp
 	NetworkTransferClientNotifyCommand.cpp
 	NetworkTransferNodeCommand.cpp

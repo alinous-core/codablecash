@@ -36,27 +36,35 @@
 #include "bc_finalizer_pool/FinalizerPool.h"
 
 #include "bc_p2p_info/P2pDnsManager.h"
+#include "bc_p2p_info/P2pNodeRecord.h"
 
 #include "pubsub/PubSubId.h"
 #include "pubsub/P2pHandshake.h"
 
 #include "bc_p2p_cmd/LoginPubSubCommand.h"
 #include "bc_p2p_cmd/P2pHandshakeAuthenticationException.h"
-
 #include "pubsub_cmd/AbstractCommandResponse.h"
 
 #include "bc_network/NodeIdentifierSource.h"
 #include "bc_network/NodeIdentifier.h"
 
-#include "bc_p2p_info/P2pNodeRecord.h"
 
 #include "base/ArrayList.h"
+
 #include "bc/CodablecashSystemParam.h"
+#include "bc/ExceptionThrower.h"
 
 #include "bc_p2p_selector/ConnectNodeSelector.h"
 
 #include "numeric/BigInteger.h"
 
+#include "bc_blockstore/InvalidZoneException.h"
+
+#include "bc_p2p_cmd_network/NodeShutdownCommand.h"
+
+#include "base_timestamp/SystemTimestamp.h"
+
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
 namespace codablecash {
 
 CodablecashNodeInstance::CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* param) {
@@ -128,7 +136,7 @@ bool CodablecashNodeInstance::initBlankInstance(uint16_t zoneSelf, uint16_t numZ
 		P2pDnsManager p2pDatabase(this->baseDir);
 		p2pDatabase.createBlankDatabase();
 
-		P2pRequestProcessor requestProcessor(this->baseDir, this->p2pManager, this->param, this->logger);
+		P2pRequestProcessor requestProcessor(this->baseDir, this->p2pManager, this->p2pDnsManager, this->param, this->logger);
 		requestProcessor.createBlank(this);
 	}
 	catch(Exception* e){
@@ -188,7 +196,7 @@ void CodablecashNodeInstance::startNetwork(const UnicodeString *host, int port) 
 
 void CodablecashNodeInstance::startProcessors(const NodeIdentifierSource *networkKey, bool suspend) {
 	if(this->p2pRequestProcessor == nullptr){
-		this->p2pRequestProcessor = new P2pRequestProcessor(this->baseDir, this->p2pManager, this->param, this->logger);
+		this->p2pRequestProcessor = new P2pRequestProcessor(this->baseDir, this->p2pManager, this->p2pDnsManager, this->param, this->logger);
 		if(this->nodeName != nullptr){
 			this->p2pRequestProcessor->setNodeName(this->nodeName);
 		}
@@ -365,7 +373,23 @@ void CodablecashNodeInstance::loginNode(uint16_t zone, P2pHandshake *handshake, 
 	// login
 	NodeIdentifierSource* source = this->p2pRequestProcessor->getNetworkKey();
 
-	LoginPubSubCommand cmd(zone, canonicalName);
+	uint16_t zoneSelf = this->blockchain->getZoneSelf();
+	LoginPubSubCommand cmd(zoneSelf, canonicalName);
+
+	{
+		NodeIdentifier nodeId = source->toNodeIdentifier();
+		SystemTimestamp tm;
+
+		int protocol = this->p2pManager->getProtocol();
+		const UnicodeString* host = this->p2pManager->getHost();
+		uint32_t port = this->p2pManager->getPort();
+
+		NodeNetworkInfo info(zoneSelf, &nodeId, &tm, protocol, host, port);
+		info.setCanonicalName(this->nodeName);
+
+		cmd.setNodeNetworkInfo(&info);
+	}
+
 	cmd.sign(source);
 
 	AbstractCommandResponse* response = handshake->publishCommand(&cmd); __STP(response);
@@ -463,6 +487,23 @@ File* CodablecashNodeInstance::getTempCacheDir() const {
 void CodablecashNodeInstance::setNodeName(const UnicodeString *name) noexcept {
 	delete this->nodeName;
 	this->nodeName = new UnicodeString(name);
+}
+
+void CodablecashNodeInstance::validateZone(uint16_t zone) const {
+	uint16_t numZone = this->blockchain->getNumZones();
+
+	ExceptionThrower<InvalidZoneException>::throwExceptionIfCondition(numZone <= zone, L"", __FILE__, __LINE__);
+}
+
+void CodablecashNodeInstance::broadCastShutdownCommand(const NodeIdentifierSource *source) {
+	NodeShutdownCommand command;
+
+	NodeIdentifier nodeId = source->toNodeIdentifier();
+
+	command.signTimestamp(source);
+	command.sign(source);
+
+	this->p2pManager->broadCastAllZones(nullptr, &command, this->p2pRequestProcessor);
 }
 
 } /* namespace codablecash */

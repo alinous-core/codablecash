@@ -40,6 +40,7 @@
 #include "bc_p2p_cmd_node_consensus/SendTransactionNodeCommand.h"
 #include "bc_p2p_cmd_node_consensus/SendVoteTransactionNodeCommand.h"
 
+#include "bc_p2p_cmd_network/NodeShutdownCommand.h"
 
 namespace codablecash {
 
@@ -81,8 +82,9 @@ AbstractPubSubCommand* AbstractPubSubCommand::createFromBinary(ByteBuffer *buff)
 	case TYPE_CLIENT_TRANSACTION_TRANSFER:
 		ret = new SendTransactionClientCommand();
 		break;
-	// TODO case AbstractPubSubCommand::TYPE_NETWORK_NODE_SHUTDOWN:
-
+	case AbstractPubSubCommand::TYPE_NETWORK_NODE_SHUTDOWN:
+		ret = new NodeShutdownCommand();
+		break;
 	case TYPE_NODE_NOP:
 		ret = new NopNodeCommand();
 		break;

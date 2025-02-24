@@ -123,6 +123,10 @@ public:
 		return this->nodeName;
 	}
 
+	void validateZone(uint16_t zone) const;
+
+	void broadCastShutdownCommand(const NodeIdentifierSource *source);
+
 private:
 	void __init(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* config);
 	void __maintainNetwork(uint16_t zone);

@@ -96,6 +96,7 @@ UnicodeString* SyncHeaderNodeCommandResponse::toString() const noexcept {
 
 void SyncHeaderNodeCommandResponse::detect(uint16_t height, const ArrayList<Block> *list) {
 	SyncHeaderHeightData* data = new SyncHeaderHeightData(); __STP(data);
+	data->setHeight(height);
 
 	int maxLoop = list->size();
 	for(int i = 0; i != maxLoop; ++i){

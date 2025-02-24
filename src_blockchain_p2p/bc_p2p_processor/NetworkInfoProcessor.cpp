@@ -7,10 +7,12 @@
 
 #include "bc_p2p_processor/NetworkInfoProcessor.h"
 #include "bc_p2p_processor/P2pRequestProcessor.h"
+#include "bc_p2p_processor/DnsCheckCommandMessage.h"
 
 #include "procesor_multi/MultipleCommandProcessor.h"
 
 #include "base/UnicodeString.h"
+
 
 namespace codablecash {
 
@@ -50,6 +52,16 @@ void NetworkInfoProcessor::shutdown() {
 		delete this->executor;
 		this->executor = nullptr;
 	}
+}
+
+void NetworkInfoProcessor::requestDnsCheck(const NodeNetworkInfo *nodeNetInfo) {
+	DnsCheckCommandMessage* commandMessage = new DnsCheckCommandMessage();
+	commandMessage->setNodeInfo(nodeNetInfo);
+
+	int num = this->serial % this->executor->size();
+	this->serial++;
+
+	this->executor->addCommandMessage(commandMessage, num);
 }
 
 } /* namespace codablecash */

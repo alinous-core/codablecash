@@ -133,14 +133,14 @@ AbstractCommandResponse* SendTransactionClientCommand::executeAsClient(ClientNod
 			command.setTransactionTransferData(this->data);
 			command.sign(inst->getNetworkKey());
 
-			manager->bloadCastWithinZone(zoneSelf, &command, processor);
+			manager->broadCastWithinZone(zoneSelf, &command, processor);
 		}
 		{
 			ClientNotifyNewTransactionCommand command;
 			command.setTransactionTransferData(this->data);
 			command.sign(inst->getNetworkKey());
 
-			manager->bloadCastToClients(&command, processor);
+			manager->broadCastToClients(&command, processor);
 		}
 	}
 

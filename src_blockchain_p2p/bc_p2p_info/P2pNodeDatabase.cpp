@@ -147,7 +147,7 @@ P2pNodeRecord* P2pNodeDatabase::findRecord(const NodeIdentifier *nodeId) {
 	return record != nullptr ? dynamic_cast<P2pNodeRecord*>(__STP_MV(obj)) : nullptr;
 }
 
-void P2pNodeDatabase::removeRecord(const NodeIdentifier *nodeId) {
+bool P2pNodeDatabase::removeRecord(const NodeIdentifier *nodeId) {
 	{
 		P2pNodeRecord* rec = findRecord(nodeId); __STP(rec);
 		if(rec != nullptr){
@@ -158,7 +158,7 @@ void P2pNodeDatabase::removeRecord(const NodeIdentifier *nodeId) {
 	removeCounterPartConnections(nodeId);
 
 	NodeIdentifierKey key(nodeId);
-	this->nodesStore->remove(&key);
+	return this->nodesStore->remove(&key);
 }
 
 void P2pNodeDatabase::removeCounterPartConnections(const NodeIdentifier *nodeId) {
@@ -264,7 +264,7 @@ ArrayList<NodeIdentifier>* P2pNodeDatabase::listNodesInZone(uint16_t zone) const
 	return __STP_MV(list);
 }
 
-ArrayList<P2pNodeRecord>* P2pNodeDatabase::getZoneRecords(uint16_t zone,	int maxNum) {
+ArrayList<P2pNodeRecord>* P2pNodeDatabase::getZoneRecords(uint16_t zone, int maxNum) {
 	ArrayList<P2pNodeRecord>* list = new ArrayList<P2pNodeRecord>(); __STP(list);
 	ArrayList<NodeIdentifier>* nodelist = listNodesInZone(zone); __STP(nodelist);
 
@@ -287,6 +287,24 @@ ArrayList<P2pNodeRecord>* P2pNodeDatabase::getZoneRecords(uint16_t zone,	int max
 
 	list->setDeleteOnExit(false);
 	return __STP_MV(list);
+}
+
+void P2pNodeDatabase::updateP2pRecord(const P2pNodeRecord *nodeRecord) {
+	P2pNodeRecord* rec = dynamic_cast<P2pNodeRecord*>(nodeRecord->copyData()); __STP(rec);
+
+	const NodeIdentifier* nodeId = nodeRecord->getNodeIdentifier();
+	NodeIdentifierKey key(nodeId);
+
+	{
+		IBlockObject* obj = this->nodesStore->findByKey(&key); __STP(obj);
+		P2pNodeRecord* recBase = dynamic_cast<P2pNodeRecord*>(obj);
+		if(obj != nullptr){
+			uint64_t createdTime = recBase->getCreatedTime();
+			rec->setCreatedTime(createdTime);
+		}
+	}
+
+	this->nodesStore->putData(&key, rec);
 }
 
 } /* namespace codablecash */

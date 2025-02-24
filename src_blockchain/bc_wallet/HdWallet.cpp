@@ -93,4 +93,10 @@ void HdWallet::load(const IWalletDataEncoder *encoder) {
 	}
 }
 
+HdWalletSeed* HdWallet::getRootSeed(const IWalletDataEncoder* encoder) const {
+	HdWalletSeed* rootSeed = encoder->decode(this->encodedSeed);
+
+	return rootSeed;
+}
+
 } /* namespace codablecash */

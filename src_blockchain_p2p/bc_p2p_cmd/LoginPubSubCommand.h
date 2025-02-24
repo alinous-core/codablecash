@@ -12,6 +12,8 @@
 
 namespace codablecash {
 
+class NodeNetworkInfo;
+
 class LoginPubSubCommand : public AbstractBlockchainLoginCommand {
 public:
 	LoginPubSubCommand(const LoginPubSubCommand& inst);
@@ -26,8 +28,13 @@ public:
 
 	virtual IBlockObject* copyData() const noexcept;
 
+	void setNodeNetworkInfo(const NodeNetworkInfo* nodeNetInfo);
+
 protected:
 	virtual ByteBuffer* getSignBinary() const;
+
+private:
+	NodeNetworkInfo* nodeNetInfo;
 
 };
 

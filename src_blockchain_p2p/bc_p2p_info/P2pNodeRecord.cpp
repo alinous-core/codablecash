@@ -20,6 +20,8 @@
 #include "bc_p2p_info/P2PZoneConnectionInfo.h"
 
 #include "numeric/BigInteger.h"
+
+
 namespace codablecash {
 
 P2pNodeRecord::P2pNodeRecord(const P2pNodeRecord &inst) {
@@ -52,20 +54,25 @@ P2pNodeRecord::P2pNodeRecord() {
 	this->port = 0;
 
 	this->lastUpdatedTime = Os::getTimestampLong();
-	this->createdTime = Os::getTimestampLong();
+	this->createdTime = this->lastUpdatedTime;
 
 	this->list = new ArrayList<P2PZoneConnectionInfo>();
 }
 
 P2pNodeRecord* P2pNodeRecord::createIpV6Record(uint16_t zone, const NodeIdentifier *nodeId, const UnicodeString* canonicalName, const wchar_t* host, int port) {
+	UnicodeString hostStr(host);
+
+	return createIpV6Record(zone, nodeId, canonicalName, &hostStr, port);
+}
+
+P2pNodeRecord* P2pNodeRecord::createIpV6Record(uint16_t zone, const NodeIdentifier *nodeId, const UnicodeString *canonicalName, const UnicodeString *host, int port) {
 	P2pNodeRecord* inst = new P2pNodeRecord();
 
 	inst->setNodeId(nodeId);
 	inst->setCanonicalName(canonicalName);
 	inst->setZone(zone);
 
-	UnicodeString hostStr(host);
-	inst->setAddress(&hostStr, port);
+	inst->setAddress(host, port);
 
 	return inst;
 }

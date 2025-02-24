@@ -103,3 +103,52 @@ TEST(TestNetworkInfodbGroup, case02){
 
 	info.close();
 }
+
+TEST(TestNetworkInfodbGroup, update01){
+	File projectFolder = this->env->testCaseDir();
+	_ST(File, baseDir, projectFolder.get(L"codable_home"))
+
+	P2pNodeDatabase info(baseDir);
+	info.createBlankDatabase();
+	info.open();
+
+	NodeIdentifierSource* source = NodeIdentifierSource::create(); __STP(source);
+	NodeIdentifier nodeId = source->toNodeIdentifier();
+	NodeIdentifierSource* source2 = NodeIdentifierSource::create(); __STP(source2);
+	NodeIdentifier nodeId2 = source2->toNodeIdentifier();
+
+	uint64_t first, last;
+	{
+		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId, nullptr, L"testhost", 10000); __STP(rec);
+		info.updateP2pRecord(rec);
+
+		first = rec->getLastUpdatedTime();
+	}
+
+	Os::usleep(1000*1000);
+
+	{
+		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(0, &nodeId, nullptr, L"testhost", 10000); __STP(rec);
+		info.updateP2pRecord(rec);
+
+		last = rec->getLastUpdatedTime();
+	}
+
+	CHECK(first < last);
+
+	{
+		P2pNodeRecord* rec = info.findRecord(&nodeId); __STP(rec);
+		CHECK(rec != nullptr);
+
+		uint64_t last2 = rec->getLastUpdatedTime();
+		CHECK(last == last2);
+
+		uint64_t cr = rec->getCreatedTime();
+
+		rec->setLastUpdatedTime(last2);
+	}
+
+
+	info.close();
+}
+

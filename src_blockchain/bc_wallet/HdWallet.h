@@ -36,6 +36,8 @@ public:
 	static HdWallet* loadWallet(const File* dir, const IWalletDataEncoder* encoder);
 
 	void setSeed(const HdWalletSeed *seed, const IWalletDataEncoder* encoder);
+	HdWalletSeed* getRootSeed(const IWalletDataEncoder* encoder) const;
+
 	void newAccount(const HdWalletSeed *rootSeed, uint16_t zone, const IWalletDataEncoder* encoder);
 
 	WalletAccount* getAccount(int i) const noexcept {

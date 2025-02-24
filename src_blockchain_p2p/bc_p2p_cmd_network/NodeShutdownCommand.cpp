@@ -171,12 +171,14 @@ AbstractCommandResponse* NodeShutdownCommand::executeAsNode(BlockchainNodeHandsh
 	if(!suspend && updated && this->hops < 5){
 		const NodeIdentifierSource* source = inst->getNetworkKey();
 
-		NodeShutdownCommand commnad(*this);
-		commnad.incHpos();
-		commnad.sign(source);
+		NodeShutdownCommand command(*this);
+		command.incHpos();
+		command.sign(source);
 
-		// TODO Auto-generated constructor stub
 		BlochchainP2pManager* p2pManager = inst->getBlochchainP2pManager();
+		P2pRequestProcessor* processor = inst->getP2pRequestProcessor();
+
+		p2pManager->broadCastAllZones(this->nodeId, &command, processor);
 
 	}
 

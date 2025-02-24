@@ -31,7 +31,7 @@ void DebugCodablecashSystemParamSetup::setupConfig01(CodablecashSystemParam &par
 	param.setTicketVoterFeeBasisPoint(50);
 
 	param.setVoteBeforeNBlocks(1);
-	param.setVoteBlockIncludeAfterNBlocks(2);
+	param.setVoteBlockIncludeAfterNBlocks(3);
 
 	param.setThreadsNodeTransferProcessor(2);
 	param.setThreadsNetworkInfoTransferProcessor(2);
@@ -58,7 +58,7 @@ void DebugCodablecashSystemParamSetup::setupConfig02(CodablecashSystemParam &par
 	param.setTicketVoterFeeBasisPoint(50);
 
 	param.setVoteBeforeNBlocks(1);
-	param.setVoteBlockIncludeAfterNBlocks(2);
+	param.setVoteBlockIncludeAfterNBlocks(3);
 
 	param.setThreadsNodeTransferProcessor(2);
 	param.setThreadsNetworkInfoTransferProcessor(2);

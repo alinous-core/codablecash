@@ -15,7 +15,7 @@ namespace codablecash {
 class MultipleCommandProcessor;
 class P2pRequestProcessor;
 class ISystemLogger;
-
+class NodeNetworkInfo;
 
 /********************
  * handle DNS info
@@ -29,6 +29,8 @@ public:
 
 	void start();
 	void shutdown();
+
+	void requestDnsCheck(const NodeNetworkInfo* nodeNetInfo);
 
 private:
 	MultipleCommandProcessor* executor;

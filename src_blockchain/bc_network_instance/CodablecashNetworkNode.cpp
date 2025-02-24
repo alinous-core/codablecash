@@ -138,9 +138,10 @@ void CodablecashNetworkNode::startNetwork(INetworkSeeder* seeder, bool pending) 
 	this->inst->initCacheStatus();
 
 	// startNetwork
+	const UnicodeString* host = this->nwconfig->getHost();
 	int port = this->nwconfig->getPort();
 
-	this->inst->startNetwork(nullptr, port);
+	this->inst->startNetwork(host, port);
 
 	// start processors
 	{

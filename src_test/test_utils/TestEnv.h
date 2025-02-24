@@ -14,13 +14,14 @@ extern const char* prog;
 namespace alinous {
 
 class TestGroupActions;
+class TestGroup;
 class TestCase;
 class File;
 class UnicodeString;
 
 class TestEnv {
 public:
-	TestEnv(TestCase* testCase);
+	TestEnv(TestGroup* testGroup, TestCase* testCase);
 	virtual ~TestEnv();
 
 	void init(const char* prog) noexcept;
@@ -32,12 +33,16 @@ public:
 
 	static const UnicodeString* TEST_SEG();
 
+	TestGroup* getTestGroup() const {
+		return this->testGroup;
+	}
+
 	TestCase* getTestCase() const {
-		return testCase;
+		return this->testCase;
 	}
 
 	const File* getProjectRoot() const {
-		return projectRoot;
+		return this->projectRoot;
 	}
 
 private:
@@ -45,6 +50,7 @@ private:
 	File* projectRoot;
 
 protected:
+	TestGroup* testGroup;
 	TestCase* testCase;
 };
 

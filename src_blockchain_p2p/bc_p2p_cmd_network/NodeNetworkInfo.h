@@ -20,6 +20,8 @@ using namespace alinous;
 namespace codablecash {
 
 class NodeIdentifier;
+class IClientSocket;
+class P2pNodeRecord;
 
 class NodeNetworkInfo {
 public:
@@ -31,6 +33,8 @@ public:
 	void toBinary(ByteBuffer* buff) const;
 	static NodeNetworkInfo* fromBinary(ByteBuffer* buff);
 
+	void setCanonicalName(const UnicodeString* str) noexcept;
+
 	void setTimestamp(const SystemTimestamp* tm) noexcept;
 	const SystemTimestamp* getTimestamp() const noexcept {
 		return this->timestamp;
@@ -40,12 +44,21 @@ public:
 		return this->nodeId;
 	}
 
+	const UnicodeString* getHost() const noexcept {
+		return this->host;
+	}
+
+	IClientSocket* getConnection();
+
+	P2pNodeRecord* toP2pNodeRecord() const noexcept;
+
 private:
 	/***
 	 * Refer P2pNodeRecord class
 	 */
 	uint16_t zone;
 	NodeIdentifier* nodeId;
+	UnicodeString* canonicalName;
 	SystemTimestamp* timestamp;
 
 	/**

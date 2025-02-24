@@ -51,7 +51,7 @@ public:
 	ArrayList<Check>* getChecks() const noexcept;
 	void exportJUnitXML(Writer* writer) const;
 
-private:
+protected:
 	TestGroup* group;
 	TestGroupActions* setup;
 

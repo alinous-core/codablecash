@@ -58,6 +58,10 @@ public:
 
 	void putQueue(const PubSubId* pubsubId, const AbstructNodeQueueCommand* command);
 
+	NetworkInfoProcessor* getNetworkInfoProcessor() const noexcept {
+		return this->infoProcessor;
+	}
+
 	NetworkTransferProcessor* getNodeTransferProcessor() const noexcept {
 		return this->transferProcessor;
 	}
@@ -65,9 +69,15 @@ public:
 	BlochchainP2pManager* getBlochchainP2pManager() const noexcept {
 		return this->p2pManager;
 	}
+
+	P2pDnsManager* getP2pDnsManager() const noexcept {
+		return this->p2pDnsManager;
+	}
+
 	ISystemLogger* getLogger() const noexcept {
 		return this->logger;
 	}
+
 	P2pRequestQueueProcessor* getP2pRequestQueueProcessor() const noexcept {
 		return this->queueProcessor;
 	}

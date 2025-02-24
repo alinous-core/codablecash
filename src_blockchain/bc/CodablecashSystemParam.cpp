@@ -67,7 +67,7 @@ CodablecashSystemParam::CodablecashSystemParam() {
 	this->ticketVoterFeeBasisPoint = 50;
 
 	this->voteBeforeNBlocks = 1;
-	this->voteBlockIncludeAfterNBlocks = 2; // must be more than 2
+	this->voteBlockIncludeAfterNBlocks = 3; // must be more than 3
 
 	this->votePerBlock = 5;
 
@@ -193,7 +193,7 @@ uint16_t CodablecashSystemParam::getVoteBlockIncludeAfterNBlocks(uint64_t height
 }
 
 void CodablecashSystemParam::setVoteBlockIncludeAfterNBlocks(uint16_t voteBlockIncludeAfterNBlocks) noexcept {
-	assert(voteBlockIncludeAfterNBlocks >= 2);
+	assert(voteBlockIncludeAfterNBlocks >= 3);
 	this->voteBlockIncludeAfterNBlocks = voteBlockIncludeAfterNBlocks;
 }
 

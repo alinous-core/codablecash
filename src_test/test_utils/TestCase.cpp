@@ -31,7 +31,7 @@ TestCase::TestCase(TestGroup* group, const wchar_t* name, TestGroupActions* setu
 	this->file = new UnicodeString(file);
 	this->line = line;
 	this->checks = new ArrayList<Check>();
-	this->env = new TestEnv(this);
+	this->env = new TestEnv(group, this);
 
 	this->done = false;
 	this->failed = false;

@@ -49,6 +49,8 @@ public:
 
 	void importUnconnectedNode(const P2pNodeRecord *nodeRecord);
 
+	void updateP2pRecord(const P2pNodeRecord *nodeRecord);
+
 private:
 	void removeCounterPartConnections(const NodeIdentifier* nodeId);
 	void removeCounterPartZoneConnections(uint16_t zone, const NodeIdentifier* nodeId, P2PZoneConnectionInfo* zoneInfo);

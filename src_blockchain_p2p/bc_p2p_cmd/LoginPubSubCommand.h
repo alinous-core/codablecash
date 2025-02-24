@@ -28,6 +28,8 @@ public:
 
 	virtual IBlockObject* copyData() const noexcept;
 
+	void setNodeNetworkInfo(const NodeNetworkInfo* nodeNetInfo);
+
 protected:
 	virtual ByteBuffer* getSignBinary() const;
 

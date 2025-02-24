@@ -62,6 +62,9 @@
 
 #include "bc_p2p_cmd_network/NodeShutdownCommand.h"
 
+#include "base_timestamp/SystemTimestamp.h"
+
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
 namespace codablecash {
 
 CodablecashNodeInstance::CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* param) {
@@ -372,6 +375,20 @@ void CodablecashNodeInstance::loginNode(uint16_t zone, P2pHandshake *handshake, 
 
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 	LoginPubSubCommand cmd(zoneSelf, canonicalName);
+
+	{
+		NodeIdentifier nodeId = source->toNodeIdentifier();
+		SystemTimestamp tm;
+
+		int protocol = this->p2pManager->getProtocol();
+		const UnicodeString* host = this->p2pManager->getHost();
+		uint32_t port = this->p2pManager->getPort();
+
+		NodeNetworkInfo info(zoneSelf, &nodeId, &tm, protocol, host, port);
+		info.setCanonicalName(this->nodeName);
+
+		cmd.setNodeNetworkInfo(&info);
+	}
 
 	cmd.sign(source);
 

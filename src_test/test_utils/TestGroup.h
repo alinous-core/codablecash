@@ -35,9 +35,18 @@ public:
 
 	UnicodeString* getName() const noexcept;
 
+	void setParam(void* ptr){
+		this->param = ptr;
+	}
+	void* getParam() const noexcept {
+		return this->param;
+	}
+
 private:
 	UnicodeString* groupName;
 	HashMap<UnicodeString, TestCase>* tests;
+
+	void* param;
 };
 
 } /* namespace alinous */

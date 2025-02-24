@@ -27,6 +27,7 @@ CodablecashNetworkNodeConfig::CodablecashNetworkNodeConfig(const CodablecashNetw
 
 	this->genesisConfig = inst.genesisConfig != nullptr ? new GenesisBalanceConfig(*inst.genesisConfig) : nullptr;
 
+	this->host = inst.host != nullptr ? new UnicodeString(inst.host) : nullptr;
 	this->port = inst.port;
 	this->networkKeys = inst.networkKeys != nullptr ? dynamic_cast<NodeIdentifierSource*>(inst.networkKeys->copyData()) : nullptr;
 
@@ -39,6 +40,7 @@ CodablecashNetworkNodeConfig::CodablecashNetworkNodeConfig() {
 	this->finalizerConfig = nullptr;
 	this->genesisConfig = nullptr;
 
+	this->host = nullptr;
 	this->port = 0;
 	this->networkKeys = NodeIdentifierSource::create();
 	this->canonicalName = nullptr;
@@ -50,6 +52,7 @@ CodablecashNetworkNodeConfig::~CodablecashNetworkNodeConfig() {
 	delete this->finalizerConfig;
 	delete this->genesisConfig;
 	delete this->networkKeys;
+	delete this->host;
 	delete this->canonicalName;
 }
 
@@ -90,6 +93,11 @@ NodeIdentifier CodablecashNetworkNodeConfig::getNodeId() const noexcept {
 void CodablecashNetworkNodeConfig::setCanonicalName(const wchar_t *cname) noexcept {
 	delete this->canonicalName;
 	this->canonicalName = new UnicodeString(cname);
+}
+
+void CodablecashNetworkNodeConfig::setHost(const UnicodeString *host) {
+	delete this->host;
+	this->host = new UnicodeString(host);
 }
 
 } /* namespace codablecash */

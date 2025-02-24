@@ -73,6 +73,10 @@ TEST(TestSyncHeaderOnlyGroup, case01){
 	CodablecashNetworkNodeConfig nwconfig;
 	nwconfig.setSysConfig(&param);
 
+	// host;
+	UnicodeString localhost(L"localhost");
+	nwconfig.setHost(&localhost);
+
 	MultizoneTestnet testnet(&portSel, &projectFolder, &logger, &param, &nwconfig);
 
 	// wallet
@@ -139,8 +143,6 @@ TEST(TestSyncHeaderOnlyGroup, case01){
 	}
 
 	node01.broadCastShutdownCommand();
-
-	// FIXME header only test
 }
 
 TEST(TestSyncHeaderOnlyGroup, InvalidZoneException01){

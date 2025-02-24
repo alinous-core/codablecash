@@ -39,7 +39,7 @@ public:
 
 	void addRecord(const P2pNodeRecord* record);
 	P2pNodeRecord* findRecord(const NodeIdentifier* nodeId);
-	void removeRecord(const NodeIdentifier* nodeId);
+	bool removeRecord(const NodeIdentifier* nodeId);
 
 	void connect(const NodeIdentifier* nodeId, const NodeIdentifier* nodeId2);
 

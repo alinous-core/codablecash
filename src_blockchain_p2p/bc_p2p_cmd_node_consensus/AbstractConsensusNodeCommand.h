@@ -20,7 +20,7 @@ using namespace alinous;
 
 namespace codablecash {
 
-class NodeHostory;
+class NodeNetworkInfo;
 class NodeIdentifier;
 
 class AbstractConsensusNodeCommand : public AbstractNodeCommand {
@@ -41,16 +41,16 @@ public:
 	void addHistory(uint16_t zone, const NodeIdentifier* nodeId, int protocol, const UnicodeString* host, uint32_t port);
 	void addHistory(uint16_t zone, const NodeIdentifier* nodeId, const SystemTimestamp* timestamp, int protocol, const UnicodeString* host, uint32_t port);
 
-	const ArrayList<NodeHostory>* getHistory() const noexcept {
+	const ArrayList<NodeNetworkInfo>* getHistory() const noexcept {
 		return this->history;
 	}
 
 protected:
-	virtual bool validateHistory(const NodeHostory* his, const SystemTimestamp* lastTm, CodablecashNodeInstance *inst) const noexcept;
+	virtual bool validateHistory(const NodeNetworkInfo* his, const SystemTimestamp* lastTm, CodablecashNodeInstance *inst) const noexcept;
 	virtual bool validateCurrentTime(const SystemTimestamp* lastTm, CodablecashNodeInstance *inst) const noexcept;
 
 protected:
-	ArrayList<NodeHostory>* history;
+	ArrayList<NodeNetworkInfo>* history;
 };
 
 } /* namespace codablecash */

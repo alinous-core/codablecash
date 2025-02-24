@@ -61,7 +61,7 @@ void HeaderSyncWorker::doProcess() {
 	uint64_t finalizedHeight = 0;
 	{
 		BlockchainController* ctrl = inst->getController();
-		finalizedHeight = ctrl->getFinalizedHeight(inst->getZoneSelf());
+		finalizedHeight = ctrl->getFinalizedHeight(this->zone);
 
 		finalizedHeight = finalizedHeight + 1;
 	}

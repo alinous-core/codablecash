@@ -147,7 +147,7 @@ P2pNodeRecord* P2pNodeDatabase::findRecord(const NodeIdentifier *nodeId) {
 	return record != nullptr ? dynamic_cast<P2pNodeRecord*>(__STP_MV(obj)) : nullptr;
 }
 
-void P2pNodeDatabase::removeRecord(const NodeIdentifier *nodeId) {
+bool P2pNodeDatabase::removeRecord(const NodeIdentifier *nodeId) {
 	{
 		P2pNodeRecord* rec = findRecord(nodeId); __STP(rec);
 		if(rec != nullptr){
@@ -158,7 +158,7 @@ void P2pNodeDatabase::removeRecord(const NodeIdentifier *nodeId) {
 	removeCounterPartConnections(nodeId);
 
 	NodeIdentifierKey key(nodeId);
-	this->nodesStore->remove(&key);
+	return this->nodesStore->remove(&key);
 }
 
 void P2pNodeDatabase::removeCounterPartConnections(const NodeIdentifier *nodeId) {

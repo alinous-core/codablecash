@@ -157,7 +157,7 @@ void DetectVotingTicketCommandMessage::putTransaction(const BlockHeader *header2
 			command.sign(networkKey);
 
 			uint16_t zone = header2vote->getZone();
-			p2pManager->bloadCastWithinZone(zone, &command, p2pRequestProcessor);
+			p2pManager->broadCastWithinZone(zone, &command, p2pRequestProcessor);
 		}
 	}
 }

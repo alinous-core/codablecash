@@ -145,7 +145,7 @@ AbstractCommandResponse* SendTransactionNodeCommand::executeAsNode(BlockchainNod
 				command.setTransactionTransferData(this->data);
 				command.sign(inst->getNetworkKey());
 
-				manager->bloadCastToClients(&command, processor);
+				manager->broadCastToClients(&command, processor);
 			}
 		}
 	}

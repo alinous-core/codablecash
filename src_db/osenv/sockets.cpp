@@ -5,6 +5,7 @@
  *      Author: iizuka
  */
 
+#include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -233,6 +234,39 @@ SOCKET_ID IPV4::connect(const UnicodeString *hostname, const UnicodeString *port
 	freeaddrinfo(res);
 
 	return sockfd;
+}
+
+bool SocketPipeSigHandler::setSigPipeHander(SigPipeRoutine callback) noexcept {
+    struct sigaction sa;
+    sa.sa_handler = callback;
+    ::sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    int ret = ::sigaction(SIGPIPE, &sa, NULL);
+    return ret == 0;
+}
+
+
+#define PRINT_N(N) {\
+	auto num = N; \
+	char ch[10] = {0,0,0,0,0,0,0,0,0,0}; \
+	char* p = &ch[9]; \
+	while (num != 0) { \
+		*p-- = '0' + num % 10; \
+		num /= 10; \
+	} \
+	++p; \
+	::write(1, p, sizeof(ch) - (p-&ch[0])); \
+}
+
+void SocketPipeSigHandler::defaultPipeHandler(int sig) {
+	write(1, "interrupted: ", 13);
+	PRINT_N(sig)
+    write(1, "\n", 1);
+    write(1, "thread id: ", 11);
+    uint32_t tid = gettid();
+    PRINT_N(tid);
+    write(1, "\n", 1);
 }
 
 } /* namespace alinous */

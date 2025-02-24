@@ -26,20 +26,23 @@
 #include "bc_p2p/BlochchainP2pManager.h"
 
 #include "bc_p2p/StackHandshakeReleaser.h"
+
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
+
 namespace codablecash {
 
 LoginPubSubCommand::LoginPubSubCommand(const LoginPubSubCommand &inst)
 		: AbstractBlockchainLoginCommand(inst) {
-
+	this->nodeNetInfo = inst.nodeNetInfo != nullptr ? new NodeNetworkInfo(*inst.nodeNetInfo) : nullptr;
 }
 
 LoginPubSubCommand::LoginPubSubCommand(uint16_t zone, const UnicodeString* canonicalName)
 	: AbstractBlockchainLoginCommand(AbstractPubSubCommand::TYPE_LOGIN, zone, canonicalName) {
-
+	this->nodeNetInfo = nullptr;
 }
 
 LoginPubSubCommand::~LoginPubSubCommand() {
-
+	delete this->nodeNetInfo;
 }
 
 int LoginPubSubCommand::binarySize() const {

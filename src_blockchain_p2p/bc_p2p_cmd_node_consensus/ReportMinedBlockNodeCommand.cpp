@@ -95,7 +95,6 @@ AbstractCommandResponse* ReportMinedBlockNodeCommand::executeAsNode(BlockchainNo
 	P2pRequestProcessor* processor = inst->getP2pRequestProcessor();
 	BlockchainController* ctrl = inst->getController();
 
-	uint16_t zoneSelf = inst->getZoneSelf();
 	bool alreadyReceived = processor->hasHistory(this->data);
 	if(!alreadyReceived){
 		// check if has blockchain
@@ -106,7 +105,10 @@ AbstractCommandResponse* ReportMinedBlockNodeCommand::executeAsNode(BlockchainNo
 			uint64_t height = header->getHeight();
 			const BlockHeaderId* headerId = header->getLastHeaderId();
 
-			alreadyHasChain = ctrl->hasHeaderId(zoneSelf, height, headerId);
+			inst->validateZone(zone);
+
+			// ReportMinedBlockNodeCommand
+			alreadyHasChain = ctrl->hasHeaderId(zone, height, headerId);
 		}
 
 		if(!alreadyHasChain){

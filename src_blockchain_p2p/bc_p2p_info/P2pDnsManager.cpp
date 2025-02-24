@@ -103,4 +103,8 @@ ArrayList<P2pNodeRecord>* P2pDnsManager::getZoneRecords(uint16_t zone, int maxNu
 	return this->database->getZoneRecords(zone, maxNum);
 }
 
+bool P2pDnsManager::removeRecord(const NodeIdentifier *nodeId) {
+	return this->database->removeRecord(nodeId);
+}
+
 } /* namespace codablecash */

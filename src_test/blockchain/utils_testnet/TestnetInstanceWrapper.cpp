@@ -16,11 +16,13 @@
 #include "bc_network_instance/CodablecashNetworkNode.h"
 
 #include "bc_network/NodeIdentifierSource.h"
+#include "bc_network/NodeIdentifier.h"
 
 #include "bc/CodablecashNodeInstance.h"
 
 #include "bc_status_cache/BlockchainController.h"
 
+#include "bc_p2p_info/P2pNodeRecord.h"
 #include "IDebugSeeder.h"
 
 namespace codablecash {
@@ -91,6 +93,20 @@ void TestnetInstanceWrapper::start(IDebugSeeder* seeder) {
 
 	this->node->startMiner();
 	this->node->startStakePool();
+
+	// register to seed
+	{
+		const NodeIdentifierSource* source = this->nwconfig->getNetworkKey();
+		NodeIdentifier nodeId = source->toNodeIdentifier();
+
+		const wchar_t* host = L"::1";
+		int port = this->nwconfig->getPort();
+
+		const UnicodeString* cname = this->nwconfig->getCanonicalName();
+
+		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, cname, host, port); __STP(rec);
+		seeder->addRecord(rec);
+	}
 }
 
 uint64_t TestnetInstanceWrapper::getHeight() {

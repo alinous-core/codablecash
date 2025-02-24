@@ -35,7 +35,7 @@ public:
 	}
 
 protected:
-	uint16_t zone;
+	uint16_t zone; // zone of the node to login
 	UnicodeString* canonicalName;
 };
 

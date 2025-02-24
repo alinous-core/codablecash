@@ -7,30 +7,29 @@
 
 
 #include "bc_p2p_cmd_node_consensus/AbstractConsensusNodeCommand.h"
-#include "bc_p2p_cmd_node_consensus/NodeHostory.h"
-
 #include "base_timestamp/SystemTimestamp.h"
 
 #include "bc/CodablecashSystemParam.h"
 #include "bc/CodablecashNodeInstance.h"
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
 
 namespace codablecash {
 
 
 AbstractConsensusNodeCommand::AbstractConsensusNodeCommand(const AbstractConsensusNodeCommand &inst)
 		: AbstractNodeCommand(inst) {
-	this->history = new ArrayList<NodeHostory>();
+	this->history = new ArrayList<NodeNetworkInfo>();
 
 	int maxLoop = inst.history->size();
 	for(int i = 0; i != maxLoop; ++i){
-		NodeHostory* nhis = inst.history->get(i);
+		NodeNetworkInfo* nhis = inst.history->get(i);
 
-		this->history->addElement(new NodeHostory(*nhis));
+		this->history->addElement(new NodeNetworkInfo(*nhis));
 	}
 }
 
 AbstractConsensusNodeCommand::AbstractConsensusNodeCommand(uint32_t type) : AbstractNodeCommand(type) {
-	this->history = new ArrayList<NodeHostory>();
+	this->history = new ArrayList<NodeNetworkInfo>();
 
 }
 
@@ -45,7 +44,7 @@ bool AbstractConsensusNodeCommand::validateCommand(CodablecashNodeInstance *inst
 
 	int maxLoop = this->history->size();
 	for(int i = 0; i != maxLoop; ++i){
-		NodeHostory* his = this->history->get(i);
+		NodeNetworkInfo* his = this->history->get(i);
 		const SystemTimestamp* htm = his->getTimestamp();
 
 		if(!validateHistory(his, &tm, inst)){
@@ -65,7 +64,7 @@ int AbstractConsensusNodeCommand::binarySize() const {
 	total += sizeof(uint32_t);
 
 	for(int i = 0; i != maxLoop; ++i){
-		NodeHostory* his = this->history->get(i);
+		NodeNetworkInfo* his = this->history->get(i);
 
 		total += his->binarySize();
 	}
@@ -81,7 +80,7 @@ void AbstractConsensusNodeCommand::toBinary(ByteBuffer *buff) const {
 	buff->putInt(maxLoop);
 
 	for(int i = 0; i != maxLoop; ++i){
-		NodeHostory* his = this->history->get(i);
+		NodeNetworkInfo* his = this->history->get(i);
 
 		his->toBinary(buff);
 	}
@@ -93,7 +92,7 @@ void AbstractConsensusNodeCommand::fromBinary(ByteBuffer *buff) {
 	int maxLoop = buff->getInt();
 
 	for(int i = 0; i != maxLoop; ++i){
-		NodeHostory* his = NodeHostory::fromBinary(buff);
+		NodeNetworkInfo* his = NodeNetworkInfo::fromBinary(buff);
 
 		this->history->addElement(his);
 	}
@@ -107,11 +106,11 @@ void AbstractConsensusNodeCommand::addHistory(uint16_t zone, const NodeIdentifie
 
 void AbstractConsensusNodeCommand::addHistory(uint16_t zone, const NodeIdentifier *nodeId, const SystemTimestamp *timestamp,
 		int protocol, const UnicodeString *host, uint32_t port) {
-	NodeHostory* his = new NodeHostory(zone, nodeId, timestamp, protocol, host, port);
+	NodeNetworkInfo* his = new NodeNetworkInfo(zone, nodeId, timestamp, protocol, host, port);
 	this->history->addElement(his);
 }
 
-bool AbstractConsensusNodeCommand::validateHistory(const NodeHostory *his, const SystemTimestamp *lastTm, CodablecashNodeInstance *inst) const noexcept {
+bool AbstractConsensusNodeCommand::validateHistory(const NodeNetworkInfo *his, const SystemTimestamp *lastTm, CodablecashNodeInstance *inst) const noexcept {
 	const CodablecashSystemParam* params = inst->getCodablecashSystemParam();
 	uint32_t consensusTrxAllowedDelayMillis = params->getConsensusTrxAllowedDelayMillis();
 

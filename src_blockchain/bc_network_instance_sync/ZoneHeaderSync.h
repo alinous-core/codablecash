@@ -12,6 +12,9 @@
 
 namespace codablecash {
 
+class BlockHeaderTransferData;
+class CodablecashNodeInstance;
+
 class ZoneHeaderSync : public AbstractZoneSync {
 public:
 	ZoneHeaderSync(uint16_t zone, NetworkNodeSync* parent, ISystemLogger* logger, const UnicodeString* name);
@@ -19,6 +22,10 @@ public:
 
 protected:
 	virtual void importResult();
+
+private:
+	void handleHeader(const BlockHeaderTransferData* data, CodablecashNodeInstance* inst);
+
 };
 
 } /* namespace codablecash */

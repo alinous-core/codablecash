@@ -43,6 +43,12 @@ void MemPoolSync::doProcess() {
 
 	uint16_t zoneSelf = inst->getZoneSelf();
 
+	// extra zone
+	uint16_t numZones = inst->getNumZones();
+	if(numZones <= zoneSelf){
+		return;
+	}
+
 	BlochchainP2pManager* p2pManager = inst->getBlochchainP2pManager();
 	{
 		ArrayList<NodeIdentifier>* nodelist = p2pManager->getNodeIds(zoneSelf); __STP(nodelist);

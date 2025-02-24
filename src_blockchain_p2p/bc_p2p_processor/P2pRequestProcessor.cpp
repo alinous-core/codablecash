@@ -46,12 +46,13 @@
 
 namespace codablecash {
 
-P2pRequestProcessor::P2pRequestProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, CodablecashSystemParam* config, ISystemLogger* logger) {
+P2pRequestProcessor::P2pRequestProcessor(const File* baseDir, BlochchainP2pManager* p2pManager, P2pDnsManager* p2pDnsManager, CodablecashSystemParam* config, ISystemLogger* logger) {
 	this->config = config;
 	this->logger = logger;
 
 	this->baseDir = baseDir->get(BASE_DIR);
 	this->p2pManager = p2pManager;
+	this->p2pDnsManager = p2pDnsManager;
 
 	this->networkKey = nullptr;
 

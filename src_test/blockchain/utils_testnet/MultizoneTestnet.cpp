@@ -19,6 +19,7 @@
 
 #include "osenv/funcs.h"
 
+
 namespace codablecash {
 
 MultizoneTestnet::MultizoneTestnet(StackTestPortGetter* portSel, const File* projectFolder, ISystemLogger* logger
@@ -80,6 +81,13 @@ void MultizoneTestnet::waitForBlockHeight(uint16_t zone, int index, uint64_t hei
 		Os::usleep(100 * 1000);
 		curHeight = inst->getHeight();
 	}
+}
+
+void MultizoneTestnet::waitForHeaderHeight(uint16_t zoneSelf, uint16_t zone, int index, uint64_t height) {
+	ZoneTestnet* zoneNet = getZone(zoneSelf);
+
+	TestnetInstanceWrapper* inst = zoneNet->getInstance(index);
+
 }
 
 } /* namespace codablecash */

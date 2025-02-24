@@ -110,7 +110,7 @@ void TransferedMinedReportCommandMessage::process(CentralProcessor *processor) {
 
 		command.sign(networkKey);
 
-		p2pManager->bloadCastAllZones(this->nodeId, &command, requestProcessor);
+		p2pManager->broadCastAllZones(this->nodeId, &command, requestProcessor);
 
 		// TODO; client notify
 	}

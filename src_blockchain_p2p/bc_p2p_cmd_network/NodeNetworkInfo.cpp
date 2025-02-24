@@ -5,8 +5,6 @@
  *      Author: iizuka
  */
 
-#include "bc_p2p_cmd_node_consensus/NodeHostory.h"
-
 #include "bc_network/NodeIdentifier.h"
 
 #include "base/UnicodeString.h"
@@ -15,12 +13,13 @@
 #include "base_timestamp/SystemTimestamp.h"
 
 #include "bc_base/BinaryUtils.h"
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
 
 
 namespace codablecash {
 
 
-NodeHostory::NodeHostory(const NodeHostory &inst) {
+NodeNetworkInfo::NodeNetworkInfo(const NodeNetworkInfo &inst) {
 	this->zone = inst.zone;
 	this->nodeId = inst.nodeId != nullptr ? dynamic_cast<NodeIdentifier*>(inst.nodeId->copyData()) : nullptr;
 	this->timestamp = inst.timestamp != nullptr ? dynamic_cast<SystemTimestamp*>(inst.timestamp->copyData()) : nullptr;
@@ -30,7 +29,7 @@ NodeHostory::NodeHostory(const NodeHostory &inst) {
 	this->port = inst.port;
 }
 
-NodeHostory::NodeHostory(uint16_t zone, const NodeIdentifier* nodeId,  const SystemTimestamp *timestamp, int protocol, const UnicodeString* host, uint32_t port) {
+NodeNetworkInfo::NodeNetworkInfo(uint16_t zone, const NodeIdentifier* nodeId,  const SystemTimestamp *timestamp, int protocol, const UnicodeString* host, uint32_t port) {
 	this->zone = zone;
 	this->nodeId = dynamic_cast<NodeIdentifier*>(nodeId->copyData());
 	this->timestamp = new SystemTimestamp(*timestamp);
@@ -40,14 +39,14 @@ NodeHostory::NodeHostory(uint16_t zone, const NodeIdentifier* nodeId,  const Sys
 	this->port = port;
 }
 
-NodeHostory::~NodeHostory() {
+NodeNetworkInfo::~NodeNetworkInfo() {
 	delete this->nodeId;
 	delete this->timestamp;
 
 	delete this->host;
 }
 
-int NodeHostory::binarySize() const {
+int NodeNetworkInfo::binarySize() const {
 	BinaryUtils::checkNotNull(this->nodeId);
 	BinaryUtils::checkNotNull(this->timestamp);
 	BinaryUtils::checkNotNull(this->host);
@@ -63,7 +62,7 @@ int NodeHostory::binarySize() const {
 	return total;
 }
 
-void NodeHostory::toBinary(ByteBuffer *buff) const {
+void NodeNetworkInfo::toBinary(ByteBuffer *buff) const {
 	BinaryUtils::checkNotNull(this->nodeId);
 	BinaryUtils::checkNotNull(this->timestamp);
 	BinaryUtils::checkNotNull(this->host);
@@ -77,7 +76,7 @@ void NodeHostory::toBinary(ByteBuffer *buff) const {
 	buff->putInt(this->port);
 }
 
-NodeHostory* NodeHostory::fromBinary(ByteBuffer *buff) {
+NodeNetworkInfo* NodeNetworkInfo::fromBinary(ByteBuffer *buff) {
 	uint16_t zone = buff->getShort();
 	NodeIdentifier* nodeId = NodeIdentifier::fromBinary(buff); __STP(nodeId);
 	SystemTimestamp* timestamp = SystemTimestamp::fromBinary(buff); __STP(timestamp);
@@ -86,12 +85,12 @@ NodeHostory* NodeHostory::fromBinary(ByteBuffer *buff) {
 	UnicodeString* host = BinaryUtils::getString(buff); __STP(host);
 	uint32_t port = buff->getInt();
 
-	NodeHostory* inst = new NodeHostory(zone, nodeId, timestamp, protocol, host, port);
+	NodeNetworkInfo* inst = new NodeNetworkInfo(zone, nodeId, timestamp, protocol, host, port);
 	inst->setTimestamp(timestamp);
 	return inst;
 }
 
-void NodeHostory::setTimestamp(const SystemTimestamp *tm) noexcept {
+void NodeNetworkInfo::setTimestamp(const SystemTimestamp *tm) noexcept {
 	delete this->timestamp;
 	this->timestamp = dynamic_cast<SystemTimestamp*>(tm->copyData());
 }

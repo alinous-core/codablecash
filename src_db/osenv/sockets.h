@@ -66,6 +66,16 @@ public:
 	static SOCKET_ID connect(const UnicodeString* hostname, const UnicodeString* port);
 };
 
+typedef void (*SigPipeRoutine) (int);
+
+class SocketPipeSigHandler {
+public:
+	static bool setSigPipeHander(SigPipeRoutine callback) noexcept;
+
+	static void defaultPipeHandler(int sig);
+
+};
+
 } /* namespace alinous */
 
 #endif /* OSENV_SOCKETS_H_ */

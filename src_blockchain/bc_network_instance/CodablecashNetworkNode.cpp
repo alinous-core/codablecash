@@ -253,4 +253,10 @@ BlockchainNodeHandshake* CodablecashNetworkNode::getNodeHandshakeByNodeId(const 
 	return p2pManager->getNodeHandshakeByNodeId(nodeId);
 }
 
+void CodablecashNetworkNode::broadCastShutdownCommand() {
+	const NodeIdentifierSource* source = this->nwconfig->getNetworkKey();
+
+	this->inst->broadCastShutdownCommand(source);
+}
+
 } /* namespace codablecash */

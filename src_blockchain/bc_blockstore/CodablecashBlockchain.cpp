@@ -253,12 +253,16 @@ void CodablecashBlockchain::addHeader(MemPoolTransaction *memTrx, const BlockHea
 }
 
 BlockHeaderStoreManager* CodablecashBlockchain::getHeaderManager(uint16_t zone) const noexcept {
+	assert(zone < this->zonesStore->size());
+
 	ZoneStore* store = this->zonesStore->get(zone);
 	BlockHeaderStoreManager* ret = store->getBlockHeaderStoreManager();
 	return ret;
 }
 
 BlockBodyStoreManager* CodablecashBlockchain::getBlockBodyStoreManager(uint16_t zone) const noexcept {
+	assert(zone < this->zonesStore->size());
+
 	ZoneStore* store = this->zonesStore->get(zone);
 
 	return store->getBlockBodyStoreManager();

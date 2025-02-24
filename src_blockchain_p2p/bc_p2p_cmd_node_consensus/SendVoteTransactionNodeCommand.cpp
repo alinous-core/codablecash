@@ -46,7 +46,9 @@
 
 #include "bc_p2p_cmd_client_notify/ClientNotifyNewTransactionCommand.h"
 
-#include "bc_p2p_cmd_node_consensus/NodeHostory.h"
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
+
+
 namespace codablecash {
 
 SendVoteTransactionNodeCommand::SendVoteTransactionNodeCommand(const SendVoteTransactionNodeCommand &inst)
@@ -150,10 +152,10 @@ AbstractCommandResponse* SendVoteTransactionNodeCommand::executeAsNode(Blockchai
 				ArrayList<NodeIdentifier> list;
 				list.setDeleteOnExit(true);
 				{
-					const ArrayList<NodeHostory>* history = command.getHistory();
+					const ArrayList<NodeNetworkInfo>* history = command.getHistory();
 					int maxLoop = history->size();
 					for(int i = 0; i != maxLoop; ++i){
-						NodeHostory* his = history->get(i);
+						NodeNetworkInfo* his = history->get(i);
 						const NodeIdentifier* nodeId = his->getNodeIdentifier();
 
 						NodeIdentifier* newId = dynamic_cast<NodeIdentifier*>(nodeId->copyData());
@@ -169,7 +171,7 @@ AbstractCommandResponse* SendVoteTransactionNodeCommand::executeAsNode(Blockchai
 				command.setTransactionTransferData(this->data);
 				command.sign(inst->getNetworkKey());
 
-				manager->bloadCastToClients(&command, processor);
+				manager->broadCastToClients(&command, processor);
 			}
 		}
 	}

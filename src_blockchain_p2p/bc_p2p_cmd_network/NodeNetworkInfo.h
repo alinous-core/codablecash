@@ -5,8 +5,8 @@
  *      Author: iizuka
  */
 
-#ifndef BC_P2P_CMD_NODE_CONSENSUS_NODEHOSTORY_H_
-#define BC_P2P_CMD_NODE_CONSENSUS_NODEHOSTORY_H_
+#ifndef BC_P2P_CMD_NODE_CONSENSUS_NODENETWORKINFO_H_
+#define BC_P2P_CMD_NODE_CONSENSUS_NODENETWORKINFO_H_
 
 #include <cstdint>
 
@@ -21,15 +21,15 @@ namespace codablecash {
 
 class NodeIdentifier;
 
-class NodeHostory {
+class NodeNetworkInfo {
 public:
-	NodeHostory(const NodeHostory& inst);
-	NodeHostory(uint16_t zone, const NodeIdentifier* nodeId, const SystemTimestamp *timestamp, int protocol, const UnicodeString* host, uint32_t port);
-	virtual ~NodeHostory();
+	NodeNetworkInfo(const NodeNetworkInfo& inst);
+	NodeNetworkInfo(uint16_t zone, const NodeIdentifier* nodeId, const SystemTimestamp *timestamp, int protocol, const UnicodeString* host, uint32_t port);
+	virtual ~NodeNetworkInfo();
 
 	int binarySize() const;
 	void toBinary(ByteBuffer* buff) const;
-	static NodeHostory* fromBinary(ByteBuffer* buff);
+	static NodeNetworkInfo* fromBinary(ByteBuffer* buff);
 
 	void setTimestamp(const SystemTimestamp* tm) noexcept;
 	const SystemTimestamp* getTimestamp() const noexcept {
@@ -61,4 +61,4 @@ private:
 
 } /* namespace codablecash */
 
-#endif /* BC_P2P_CMD_NODE_CONSENSUS_NODEHOSTORY_H_ */
+#endif /* BC_P2P_CMD_NODE_CONSENSUS_NODENETWORKINFO_H_ */

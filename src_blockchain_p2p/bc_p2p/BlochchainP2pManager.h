@@ -45,19 +45,21 @@ public:
 
 	void registerHandshake(uint16_t zone, P2pHandshake *handshake, const NodeIdentifier* nodeId, const UnicodeString* canonicalName);
 
+	void disconnect(const NodeIdentifier *nodeId);
+
 	BlockchainNodeHandshake* getNodeHandshake(const PubSubId* pubsubId) const noexcept;
 	ClientNodeHandshake* getClientHandshake(const PubSubId* pubsubId) const noexcept;
 
 	BlockchainNodeHandshake* getNodeHandshakeByNodeId(const NodeIdentifier* nodeId) const noexcept;
 	ClientNodeHandshake* getClientHandshakeByNodeId(const NodeIdentifier* nodeId) const noexcept;
 
-	void bloadCastWithinZone(uint16_t zoneSelf, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
+	void broadCastWithinZone(uint16_t zoneSelf, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
 	void bloadCastWithinZone(uint16_t zoneSelf, const NodeIdentifier* excludeNodeId, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
 
-	void bloadCastAllZones(const NodeIdentifier* excludeNodeId, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
+	void broadCastAllZones(const NodeIdentifier* excludeNodeId, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
 	void bloadCastHighPriorityAllZones(const ArrayList<NodeIdentifier>* excludeNodeIds, const AbstractConsensusNodeCommand* command, P2pRequestProcessor* processor);
 
-	void bloadCastToClients(AbstractClientNotifyCommand* commnad, P2pRequestProcessor* processor);
+	void broadCastToClients(AbstractClientNotifyCommand* commnad, P2pRequestProcessor* processor);
 
 	int getNumNodes(uint16_t zone) const;
 	ArrayList<NodeIdentifier>* getNodeIds(uint16_t zone) const;
@@ -83,7 +85,7 @@ public:
 
 private:
 	void __removeHandshake(const PubSubId* pubsubId);
-	void __bloadCastWithinZone(uint16_t zone, const NodeIdentifier* excludeNodeId, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
+	void __broadCastWithinZone(uint16_t zone, const NodeIdentifier* excludeNodeId, const AbstractNodeCommand* command, P2pRequestProcessor* processor);
 
 private:
 	SysMutex* mutex;

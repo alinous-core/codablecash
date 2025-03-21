@@ -37,4 +37,20 @@ void ArrayNetworkSheeder::addRecord(const P2pNodeRecord *record) noexcept {
 	this->list->addElement(dynamic_cast<P2pNodeRecord*>(record->copyData()));
 }
 
+int ArrayNetworkSheeder::getNumZones() const noexcept {
+	uint16_t max = 0;
+
+	int maxLoop = this->list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const P2pNodeRecord* record = this->list->get(i);
+
+		uint16_t zone = record->getZone();
+		if(zone > max){
+			max++;
+		}
+	}
+
+	return max + 1;
+}
+
 } /* namespace codablecash */

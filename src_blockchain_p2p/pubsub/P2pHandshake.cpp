@@ -29,6 +29,8 @@
 #include "bc_p2p_cmd/LoginClientCommand.h"
 
 #include "ipconnect/IpV4ClientConnection.h"
+
+#include "bc_p2p_info/P2pNodeRecord.h"
 namespace codablecash {
 
 P2pHandshake::P2pHandshake(CommandPublisher *publisher,	CommandSubscriber *subscriber, ISystemLogger* logger
@@ -175,6 +177,15 @@ void P2pHandshake::fireOnExeptionOnSubscriber(const Exception *e) {
 
 	disposePublisher();
 	this->disabled = true;
+}
+
+void P2pHandshake::connect(int protocol, const UnicodeString *host, int port, IPubsubCommandListner *listner, bool startThread) {
+	if(protocol == P2pNodeRecord::TCP_IP_V4){
+		connectIpV4(host, port, listner, startThread);
+	}
+	else if(protocol == P2pNodeRecord::TCP_IP_V6){
+		connectIpV6(host, port, listner, startThread);
+	}
 }
 
 

@@ -72,6 +72,12 @@ void MultizoneTestnet::startGenesis(uint16_t zone, IDebugSeeder* seeder) {
 	zoneNet->startGenesis(seeder);
 }
 
+void MultizoneTestnet::startInstancesFrom(uint16_t zone, int fromIndex, IDebugSeeder *seeder) {
+	ZoneTestnet* zoneNet = getZone(zone);
+
+	zoneNet->startFrom(seeder, fromIndex);
+}
+
 void MultizoneTestnet::waitForBlockHeight(uint16_t zone, int index, uint64_t height) {
 	ZoneTestnet* zoneNet = getZone(zone);
 	TestnetInstanceWrapper* inst = zoneNet->getInstance(index);

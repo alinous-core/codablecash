@@ -44,7 +44,7 @@ TEST(TestWalletGroup, case02){
 
 	UnicodeString pass(L"changeit");
 	PasswordEncoder enc(&pass);
-	HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc); __STP(wallet);
+	HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc, 10); __STP(wallet);
 
 	IWalletDataEncoder* enc2 = enc.copy(); __STP(enc2);
 

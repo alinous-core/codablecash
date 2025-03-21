@@ -21,6 +21,8 @@ public:
 
 	virtual void addRecord(const P2pNodeRecord* record) noexcept;
 
+	virtual int getNumZones() const noexcept;
+
 private:
 	ArrayList<P2pNodeRecord>* list;
 };

@@ -119,7 +119,7 @@ void TicketUtxo::setNodeIndentifier(const NodeIdentifier *nodeId) noexcept {
 	this->nodeId = new NodeIdentifier(*nodeId);
 }
 
-void TicketUtxo::setAddressDescriptor(	const AddressDescriptor *addressDesc) noexcept {
+void TicketUtxo::setAddressDescriptor(const AddressDescriptor *addressDesc) noexcept {
 	delete this->addressDesc;
 	this->addressDesc = dynamic_cast<AddressDescriptor*>(addressDesc->copyData());
 }

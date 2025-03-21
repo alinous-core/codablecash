@@ -33,6 +33,8 @@ AbstractClientNotifyCommand::~AbstractClientNotifyCommand() {
 AbstractCommandResponse* AbstractClientNotifyCommand::execute(const PubSubId *pubsubId, IPubsubCommandListner *listner) const {
 	ExceptionThrower<SignatureVerifivcationErrorException>::throwExceptionIfCondition(!verify(), L"Client command error.", __FILE__, __LINE__);
 
+	listner->fireExecuteCommand(this);
+
 	IPubsubCommandExecutor* exec = listner->getExecutor();
 	ClientExecutor* clientExec = dynamic_cast<ClientExecutor*>(exec);
 

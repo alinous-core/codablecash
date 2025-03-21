@@ -79,7 +79,7 @@ void WalletAccount::setEncryptedSeed(HdWalletSeed *encrypted) noexcept {
 }
 
 WalletAccount* WalletAccount::newAccount(const File* baseDir, const HdWalletSeed *rootSeed, int accountIndex, uint16_t zone
-		, const IWalletDataEncoder* encoder) {
+		, const IWalletDataEncoder* encoder, int maxAddress) {
 	UnicodeString seg(L"");
 	seg.append(accountIndex);
 	File* accountBase = baseDir->get(&seg); __STP(accountBase);
@@ -92,7 +92,7 @@ WalletAccount* WalletAccount::newAccount(const File* baseDir, const HdWalletSeed
 	HdWalletSeed* encryptedSeed = seed->encodedSeed(encoder);
 	account->setEncryptedSeed(encryptedSeed);
 
-	account->initAddressStores(encoder);
+	account->initAddressStores(encoder, maxAddress);
 
 	account->initTransactionRepository();
 
@@ -120,16 +120,15 @@ void WalletAccount::initTransactionRepository() {
 }
 
 
-void WalletAccount::initAddressStores(const IWalletDataEncoder *encoder) {
+void WalletAccount::initAddressStores(const IWalletDataEncoder *encoder, int maxAddress) {
 	HdWalletSeed* accountRootSeed = encoder->decode(this->encryptedSeed); __STP(accountRootSeed);
 
-	initReceivingAddressStore(accountRootSeed, encoder);
-	initChangeAddressStore(accountRootSeed, encoder);
+	initReceivingAddressStore(accountRootSeed, maxAddress, encoder);
+	initChangeAddressStore(accountRootSeed, encoder, maxAddress);
 }
 
-void WalletAccount::initReceivingAddressStore(const HdWalletSeed *rootAccountSeed,
-		const IWalletDataEncoder *encoder) {
-	this->receivingAddresses = new ReceivingAddressStore(this->zone, this->accountBaseDir);
+void WalletAccount::initReceivingAddressStore(const HdWalletSeed *rootAccountSeed, int maxAddressCount, const IWalletDataEncoder *encoder) {
+	this->receivingAddresses = new ReceivingAddressStore(this->zone, maxAddressCount, this->accountBaseDir);
 
 	HdWalletSeed* s = rootAccountSeed->indexedSeed(1); __STP(s);
 	HdWalletSeed* encrypted = encoder->encode(s);
@@ -140,8 +139,8 @@ void WalletAccount::initReceivingAddressStore(const HdWalletSeed *rootAccountSee
 }
 
 void WalletAccount::initChangeAddressStore(const HdWalletSeed *rootAccountSeed,
-		const IWalletDataEncoder *encoder) {
-	this->changeAddresses = new ChangeAddressStore(this->zone, 10, this->accountBaseDir);
+		const IWalletDataEncoder *encoder, int numAddressInThisGroup) {
+	this->changeAddresses = new ChangeAddressStore(this->zone, numAddressInThisGroup, this->accountBaseDir);
 
 	HdWalletSeed* s = rootAccountSeed->indexedSeed(2); __STP(s);
 	HdWalletSeed* encrypted = encoder->encode(s);
@@ -281,7 +280,7 @@ void WalletAccount::load(const IWalletDataEncoder *encoder) {
 		this->encryptedSeed = new HdWalletSeed((const char*)buff->array(), buff->limit());
 	}
 
-	this->receivingAddresses = new ReceivingAddressStore(0, this->accountBaseDir);
+	this->receivingAddresses = new ReceivingAddressStore(0, 512, this->accountBaseDir);
 	this->changeAddresses = new ChangeAddressStore(0, 0, this->accountBaseDir);
 
 	this->receivingAddresses->load(encoder);

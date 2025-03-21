@@ -38,6 +38,7 @@ public:
 
 
 	void startGenesis(uint16_t zone, IDebugSeeder* seeder);
+	void startInstancesFrom(uint16_t zone, int fromIndex, IDebugSeeder* seeder);
 
 	void waitForBlockHeight(uint16_t zone, int index, uint64_t height);
 	void waitForHeaderHeight(uint16_t zoneSelf, uint16_t zone, int index, uint64_t height);

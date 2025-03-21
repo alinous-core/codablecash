@@ -193,7 +193,7 @@ TEST(TestBalanceTrxGroup, case02){
 
 	{
 		HdWalletSeed* seed = HdWalletSeed::newSeed(); __STP(seed);
-		HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc); __STP(wallet);
+		HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc, 10); __STP(wallet);
 		WalletAccount* account = wallet->getAccount(0);
 		BalanceUnit amount(100000000L);
 		GenesisTransaction* trx = account->createGenesisTransaction(amount, 0); __STP(trx);
@@ -241,7 +241,7 @@ TEST(TestBalanceTrxGroup, case01){
 
 	{
 		HdWalletSeed* seed = HdWalletSeed::newSeed(); __STP(seed);
-		HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc); __STP(wallet);
+		HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc, 10); __STP(wallet);
 		WalletAccount* account = wallet->getAccount(0);
 		BalanceUnit amount(100000000L);
 		GenesisTransaction* trx = account->createGenesisTransaction(amount, 5); __STP(trx);

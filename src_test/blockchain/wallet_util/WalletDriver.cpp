@@ -97,7 +97,7 @@ GenesisTransaction* WalletDriver::createGenesisTransaction(int index,	uint64_t d
 
 HdWallet* WalletDriver::newWallet(const File *baseDir) {
 	HdWalletSeed* seed = HdWalletSeed::newSeed(); __STP(seed);
-	HdWallet* wallet = HdWallet::create(this->baseDir, seed, this->zone, this->enc);
+	HdWallet* wallet = HdWallet::create(this->baseDir, seed, this->zone, this->enc, 256);
 
 	return wallet;
 }

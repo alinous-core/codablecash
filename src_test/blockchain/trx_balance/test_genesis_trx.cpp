@@ -43,7 +43,7 @@ TEST(TestGenesisTrxGroup, case03){
 	PasswordEncoder enc(&pass);
 
 	{
-		HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc); __STP(wallet);
+		HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc, 10); __STP(wallet);
 		WalletAccount* account = wallet->getAccount(0);
 
 		BalanceUnit amount(1000L);
@@ -70,7 +70,7 @@ TEST(TestGenesisTrxGroup, case02){
 
 	UnicodeString pass(L"changeit");
 	PasswordEncoder enc(&pass);
-	HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc); __STP(wallet);
+	HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc, 10); __STP(wallet);
 	WalletAccount* account = wallet->getAccount(0);
 
 	BalanceUnit amount(1000L);
@@ -92,7 +92,7 @@ TEST(TestGenesisTrxGroup, case01){
 
 	UnicodeString pass(L"changeit");
 	PasswordEncoder enc(&pass);
-	HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc); __STP(wallet);
+	HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc, 10); __STP(wallet);
 	WalletAccount* account = wallet->getAccount(0);
 
 	AddressDescriptor* addressDesc = account->getReceivingAddressDescriptor(0); __STP(addressDesc);

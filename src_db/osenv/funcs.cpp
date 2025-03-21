@@ -380,4 +380,10 @@ bool Os::rename(const UnicodeString* src, const UnicodeString* dest) noexcept {
 	return ret == 0;
 }
 
+int Os::random() noexcept {
+	::srand(::time(0));
+
+	return ::rand();
+}
+
 }

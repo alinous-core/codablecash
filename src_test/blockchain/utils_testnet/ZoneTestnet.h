@@ -31,6 +31,7 @@ public:
 	TestnetInstanceWrapper* createTestnetInstanceWrapper(const wchar_t* name, int port, const CodablecashNetworkNodeConfig* baseNwconfig, ISystemLogger* logger);
 
 	void startGenesis(IDebugSeeder* seeder);
+	void startFrom(IDebugSeeder* seeder, int fromIndex);
 
 	TestnetInstanceWrapper* getInstance(int index) const noexcept;
 

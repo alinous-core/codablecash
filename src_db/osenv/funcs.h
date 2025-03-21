@@ -102,6 +102,10 @@ public:
 	};
 	static uint64_t seekFile(const FileDescriptor* fd, int64_t offset, SeekOrigin origin) noexcept;
 
+	/**************************************************************************
+	 * File functions
+	 */
+	static int random() noexcept;
 };
 
 }

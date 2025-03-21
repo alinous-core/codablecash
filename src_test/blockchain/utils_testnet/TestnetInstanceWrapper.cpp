@@ -88,8 +88,8 @@ void TestnetInstanceWrapper::initBlank() {
 	this->node->initBlank(this->zone);
 }
 
-void TestnetInstanceWrapper::start(IDebugSeeder* seeder) {
-	this->node->startNetwork(seeder, false);
+void TestnetInstanceWrapper::start(IDebugSeeder* seeder, bool pending) {
+	this->node->startNetwork(seeder, pending);
 
 	this->node->startMiner();
 	this->node->startStakePool();
@@ -107,6 +107,10 @@ void TestnetInstanceWrapper::start(IDebugSeeder* seeder) {
 		P2pNodeRecord* rec = P2pNodeRecord::createIpV6Record(zone, &nodeId, cname, host, port); __STP(rec);
 		seeder->addRecord(rec);
 	}
+}
+
+void TestnetInstanceWrapper::syncNetwork() {
+	this->node->syncNetwork();
 }
 
 uint64_t TestnetInstanceWrapper::getHeight() {

@@ -50,12 +50,12 @@ public:
 	explicit WalletAccount(const File* accountBaseDir);
 	virtual ~WalletAccount();
 
-	static WalletAccount* newAccount(const File* baseDir, const HdWalletSeed *rootSeed, int accountIndex, uint16_t zone, const IWalletDataEncoder* encoder);
+	static WalletAccount* newAccount(const File* baseDir, const HdWalletSeed *rootSeed, int accountIndex, uint16_t zone, const IWalletDataEncoder* encoder, int maxAddress);
 	static WalletAccount* loadAccount(const File* baseDir, int accountIndex, const IWalletDataEncoder* encoder);
 
 	void setEncryptedSeed(HdWalletSeed* encrypted) noexcept;
 
-	void initAddressStores(const IWalletDataEncoder* encoder);
+	void initAddressStores(const IWalletDataEncoder* encoder, int maxAddress);
 	void initTransactionRepository();
 
 	AddressDescriptor* getReceivingAddressDescriptor(int i) const noexcept;
@@ -108,8 +108,8 @@ public:
 private:
 	int findAddressDiscriptor(const AbstractAddressStore* store, const AddressDescriptor* addressDesc);
 
-	void initReceivingAddressStore(const HdWalletSeed* rootAccountSeed, const IWalletDataEncoder* encoder);
-	void initChangeAddressStore(const HdWalletSeed* rootAccountSeed, const IWalletDataEncoder* encoder);
+	void initReceivingAddressStore(const HdWalletSeed* rootAccountSeed, int maxAddressCount, const IWalletDataEncoder* encoder);
+	void initChangeAddressStore(const HdWalletSeed* rootAccountSeed, const IWalletDataEncoder* encoder, int numAddressInThisGroup);
 
 private:
 	File* accountBaseDir;

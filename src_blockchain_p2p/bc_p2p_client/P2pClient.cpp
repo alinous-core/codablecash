@@ -28,6 +28,8 @@
 #include "bc/ISystemLogger.h"
 
 #include "bc_p2p_cmd_client_notify/ClientExecutor.h"
+
+#include "bc_p2p_info/P2pNodeRecord.h"
 namespace codablecash {
 
 P2pClient::P2pClient(uint16_t zone, ISystemLogger* logger) {
@@ -78,6 +80,31 @@ void P2pClient::sendEndConnectionCommand() {
 	if(this->handshake != nullptr){
 		this->handshake->sendEndConnectionCommand();
 	}
+}
+
+void P2pClient::connect(int protocol, const UnicodeString *hostName, int port) {
+	if(protocol == P2pNodeRecord::TCP_IP_V4){
+		connectIpV4(hostName, port);
+	}
+	else if(protocol == P2pNodeRecord::TCP_IP_V6){
+		connectIpV6(hostName, port);
+	}
+}
+
+void P2pClient::connectIpV4(const UnicodeString *hostName, int port) {
+	close();
+	__connectIpV4(hostName, port);
+
+	this->psId = PubSubId::createNewId();
+	this->handshake = new P2pHandshake(this->psId, this->logger);
+
+	this->handshake->connectIpV4(hostName, port, this, true);
+
+	__connectLogin(hostName, port);
+}
+
+void P2pClient::__connectIpV4(const UnicodeString *hostName, int port) {
+
 }
 
 void P2pClient::connectIpV6(const UnicodeString* hostName, int port) {

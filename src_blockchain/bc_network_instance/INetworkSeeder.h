@@ -9,6 +9,7 @@
 #define BC_NETWORK_INSTANCE_INETWORKSEEDER_H_
 
 #include "base/ArrayList.h"
+#include <cstdint>
 
 using namespace alinous;
 
@@ -23,6 +24,8 @@ public:
 
 	virtual ArrayList<P2pNodeRecord>* getSeedNodes() const noexcept = 0;
 	virtual void addRecord(const P2pNodeRecord* record) noexcept = 0;
+
+	virtual int getNumZones() const noexcept = 0;
 
 };
 

@@ -47,7 +47,20 @@ void ZoneTestnet::startGenesis(IDebugSeeder* seeder) {
 	TestnetInstanceWrapper* instWrapper = this->instances.get(0);
 
 	instWrapper->initGenesis();
-	instWrapper->start(seeder);
+	instWrapper->start(seeder, false);
+}
+
+void ZoneTestnet::startFrom(IDebugSeeder *seeder, int fromIndex) {
+	int maxLoop = this->instances.size();
+
+	for(int i = fromIndex; i != maxLoop; ++i){
+		TestnetInstanceWrapper* instWrapper = this->instances.get(i);
+
+		instWrapper->initBlank();
+		instWrapper->start(seeder, true);
+
+		instWrapper->syncNetwork();
+	}
 }
 
 TestnetInstanceWrapper* ZoneTestnet::getInstance(int index) const noexcept {

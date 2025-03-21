@@ -41,6 +41,7 @@ public:
 	/**
 	 * client side connection
 	 */
+	void connect(int protocol, const UnicodeString* host, int port, IPubsubCommandListner *listner, bool startThread);
 	void connectIpV6(const UnicodeString* host, int port, IPubsubCommandListner *listner, bool startThread);
 	void connectIpV6(const UnicodeString* host, int port);
 	void connectIpV4(const UnicodeString* host, int port, IPubsubCommandListner *listner, bool startThread);

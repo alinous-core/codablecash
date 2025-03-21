@@ -23,32 +23,44 @@ class WalletNetworkManager;
 class IWalletDataEncoder;
 class HdWalletSeed;
 class INetworkSeeder;
+class AddressDescriptor;
+class ISystemLogger;
+class StakingSeedManager;
+class NetworkClientCommandProcessor;
 
 class NetworkWallet {
 public:
-	explicit NetworkWallet(const File* baseDir);
+	NetworkWallet(const File* baseDir, ISystemLogger* logger);
 	virtual ~NetworkWallet();
 
-	static NetworkWallet* createNewWallet(const File* dir, const UnicodeString* pass, uint16_t zone);
-	static NetworkWallet* resotreWallet(const File* dir, const UnicodeString* pass, uint16_t zone, const HdWalletSeed* rootSeed);
+	static NetworkWallet* createNewWallet(const File* dir, const UnicodeString* pass, uint16_t zone, int defaultMaxAddress, ISystemLogger* logger);
+	static NetworkWallet* resotreWallet(const File* dir, const UnicodeString* pass, uint16_t zone, const HdWalletSeed* rootSeed, int defaultMaxAddress, ISystemLogger* logger);
 
 
-	HdWalletSeed* getRootSeed() const;
+	HdWalletSeed* getRootSeed(const IWalletDataEncoder* encoder) const;
 
 	void setNetworkSeeder(INetworkSeeder *seeder) noexcept;
+	void initNetwork();
+
+	AddressDescriptor* getAddressDescriptor(int accountIndex, int addressIndex) const;
 
 private:
-	void doCreateWallet(const IWalletDataEncoder* encoder, const HdWalletSeed* seed, uint16_t zone);
+	void doCreateWallet(const IWalletDataEncoder* encoder, const HdWalletSeed* seed, uint16_t zone, int defaultMaxAddress);
 
 private:
 	File* baseDir;
-
-	IWalletDataEncoder* encoder;
+	ISystemLogger* logger;
 
 	HdWallet* hdWallet;
 
 	// net
 	WalletNetworkManager* networkManager;
+
+	// Staking Seed Manager
+	StakingSeedManager* stakingSeedManager;
+
+	// command processor
+	NetworkClientCommandProcessor* clientCommandProcessor;
 };
 
 } /* namespace codablecash */

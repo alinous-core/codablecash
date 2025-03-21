@@ -39,6 +39,8 @@ public:
 
 	void sendEndConnectionCommand();
 
+	void connect(int protocol, const UnicodeString* hostName, int port);
+	void connectIpV4(const UnicodeString* hostName, int port);
 	void connectIpV6(const UnicodeString* hostName, int port);
 
 	void sign(AbstractBlockchainPubsubCommand* cmd) const;
@@ -60,6 +62,7 @@ public:
 private:
 #endif
 	void __connectIpV6(const UnicodeString* hostName, int port);
+	void __connectIpV4(const UnicodeString* hostName, int port);
 	void __connectLogin(const UnicodeString* hostName, int port);
 
 	NodeIdentifierSource* getNodeIdentifierSource() const noexcept {

@@ -7,9 +7,12 @@
 
 #include "bc_wallet_net/NetworkWallet.h"
 #include "bc_wallet_net/WalletNetworkManager.h"
+#include "bc_wallet_net/StakingSeedManager.h"
+#include "bc_wallet_net/NetworkClientCommandProcessor.h"
 
 #include "bc_wallet/HdWallet.h"
 #include "bc_wallet/HdWalletSeed.h"
+#include "bc_wallet/WalletAccount.h"
 
 #include "base/StackRelease.h"
 #include "base/UnicodeString.h"
@@ -18,13 +21,18 @@
 
 #include "bc_wallet_encoder/PasswordEncoder.h"
 
+
 namespace codablecash {
 
-NetworkWallet::NetworkWallet(const File* baseDir) {
+NetworkWallet::NetworkWallet(const File* baseDir, ISystemLogger* logger) {
 	this->baseDir = new File(*baseDir);
+	this->logger = logger;
 	this->hdWallet = nullptr;
 	this->networkManager = nullptr;
-	this->encoder = nullptr;
+
+	this->stakingSeedManager = new StakingSeedManager(baseDir);
+
+	this->clientCommandProcessor = new NetworkClientCommandProcessor(this);
 }
 
 NetworkWallet::~NetworkWallet() {
@@ -32,49 +40,63 @@ NetworkWallet::~NetworkWallet() {
 	delete this->baseDir;
 
 	delete this->networkManager;
-	delete this->encoder;
+	delete this->stakingSeedManager;
+	delete this->clientCommandProcessor;
+
+	this->logger = nullptr;
 }
 
-NetworkWallet* NetworkWallet::createNewWallet(const File *dir, const UnicodeString *pass, uint16_t zone) {
-	NetworkWallet* wallet = new NetworkWallet(dir); __STP(wallet);
+NetworkWallet* NetworkWallet::createNewWallet(const File *dir, const UnicodeString *pass, uint16_t zone, int defaultMaxAddress, ISystemLogger* logger) {
+	NetworkWallet* wallet = new NetworkWallet(dir, logger); __STP(wallet);
 
 	HdWalletSeed* seed = HdWalletSeed::newSeed(); __STP(seed);
 	PasswordEncoder enc(pass);
 
-	wallet->doCreateWallet(&enc, seed, zone);
+	wallet->doCreateWallet(&enc, seed, zone, defaultMaxAddress);
 
 	return __STP_MV(wallet);
 }
 
-void NetworkWallet::doCreateWallet(const IWalletDataEncoder *encoder, const HdWalletSeed *seed, uint16_t zone) {
-	delete this->encoder;
-	this->encoder = encoder->copy();
 
+
+void NetworkWallet::doCreateWallet(const IWalletDataEncoder *encoder, const HdWalletSeed *seed, uint16_t zone, int defaultMaxAddress) {
 	File* hdbase = this->baseDir->get(L"hd"); __STP(hdbase);
 
-	this->hdWallet = HdWallet::create(hdbase, seed, zone, this->encoder);
+	this->hdWallet = HdWallet::create(hdbase, seed, zone, encoder, defaultMaxAddress);
 
 }
 
-HdWalletSeed* NetworkWallet::getRootSeed() const {
-	return this->hdWallet->getRootSeed(this->encoder);
+HdWalletSeed* NetworkWallet::getRootSeed(const IWalletDataEncoder* encoder) const {
+	return this->hdWallet->getRootSeed(encoder);
 }
 
-NetworkWallet* NetworkWallet::resotreWallet(const File *dir, const UnicodeString *pass, uint16_t zone, const HdWalletSeed* rootSeed) {
-	NetworkWallet* wallet = new NetworkWallet(dir); __STP(wallet);
+NetworkWallet* NetworkWallet::resotreWallet(const File *dir, const UnicodeString *pass, uint16_t zone, const HdWalletSeed* rootSeed, int defaultMaxAddress, ISystemLogger* logger) {
+	NetworkWallet* wallet = new NetworkWallet(dir, logger); __STP(wallet);
 
 	PasswordEncoder enc(pass);
-	wallet->doCreateWallet(&enc, rootSeed, zone);
+	wallet->doCreateWallet(&enc, rootSeed, zone, defaultMaxAddress);
 
 	return __STP_MV(wallet);
 }
 
 void NetworkWallet::setNetworkSeeder(INetworkSeeder *seeder) noexcept {
 	if(this->networkManager == nullptr){
-		this->networkManager = new WalletNetworkManager();
+		uint16_t zone = this->hdWallet->getDefaultZone();
+		this->networkManager = new WalletNetworkManager(zone, this->logger, this->clientCommandProcessor);
 	}
 
 	this->networkManager->setSeeder(seeder);
+}
+
+AddressDescriptor* NetworkWallet::getAddressDescriptor(int accountIndex, int addressIndex) const {
+	WalletAccount* account = this->hdWallet->getAccount(accountIndex);
+
+	return account->getReceivingAddressDescriptor(addressIndex);
+}
+
+void NetworkWallet::initNetwork() {
+	this->networkManager->maintainNetwork();
+
 }
 
 } /* namespace codablecash */

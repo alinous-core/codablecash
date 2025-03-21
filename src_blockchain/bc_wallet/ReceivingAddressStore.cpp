@@ -12,9 +12,9 @@
 
 namespace codablecash {
 
-ReceivingAddressStore::ReceivingAddressStore(uint16_t zone, const File* baseDir)
+ReceivingAddressStore::ReceivingAddressStore(uint16_t zone, int maxAddress, const File* baseDir)
 		: AbstractAddressStore(zone, baseDir, ReceivingAddressStore::STORE_NAME) {
-	this->maxAddress = 100;
+	this->maxAddress = maxAddress;
 }
 
 ReceivingAddressStore::~ReceivingAddressStore() {

@@ -39,7 +39,8 @@ public:
 	void initGenesis();
 	void initBlank();
 
-	void start(IDebugSeeder* seeder);
+	void start(IDebugSeeder* seeder, bool pending);
+	void syncNetwork();
 
 	uint64_t getHeight();
 

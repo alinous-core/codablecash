@@ -27,6 +27,8 @@ HdWallet::HdWallet(const File* baseDir) {
 	this->encodedSeed = nullptr;
 
 	this->store = new StatusStore(baseDir, HdWallet::STORE_NAME);
+
+	this->defaultZone = 0;
 }
 
 HdWallet::~HdWallet() {
@@ -40,11 +42,12 @@ HdWallet::~HdWallet() {
 	delete this->baseDir;
 }
 
-HdWallet* HdWallet::create(const File *dir, const HdWalletSeed *seed, uint16_t defaultZone, const IWalletDataEncoder* encoder) {
+HdWallet* HdWallet::create(const File *dir, const HdWalletSeed *seed, uint16_t defaultZone, const IWalletDataEncoder* encoder, int defaultMaxAddress) {
 	HdWallet* wallet = new HdWallet(dir);
 	wallet->setSeed(seed, encoder);
+	wallet->setDefaultZone(defaultZone);
 
-	wallet->newAccount(seed, defaultZone, encoder);
+	wallet->newAccount(seed, defaultZone, encoder, defaultMaxAddress);
 	wallet->save();
 
 	return wallet;
@@ -63,9 +66,9 @@ void HdWallet::setSeed(const HdWalletSeed *seed, const IWalletDataEncoder* encod
 	this->encodedSeed = seed->encodedSeed(encoder);
 }
 
-void HdWallet::newAccount(const HdWalletSeed *rootSeed, uint16_t zone, const IWalletDataEncoder* encoder) {
+void HdWallet::newAccount(const HdWalletSeed *rootSeed, uint16_t zone, const IWalletDataEncoder* encoder, int maxAddress) {
 	int accountIndex = this->accounts->size();
-	WalletAccount* account = WalletAccount::newAccount(this->baseDir, rootSeed, accountIndex, zone, encoder);
+	WalletAccount* account = WalletAccount::newAccount(this->baseDir, rootSeed, accountIndex, zone, encoder, maxAddress);
 
 	this->accounts->addElement(account);
 	save();
@@ -77,6 +80,7 @@ void HdWallet::save() {
 		this->store->addBinaryValue(KEY_ENCODED_SEED, buff->array(), buff->limit());
 	}
 	this->store->addShortValue(KEY_NUM_ACCOUNTS, this->accounts->size());
+	this->store->addShortValue(KEY_DEFAULT_ZONE, this->defaultZone);
 }
 
 void HdWallet::load(const IWalletDataEncoder *encoder) {
@@ -91,6 +95,8 @@ void HdWallet::load(const IWalletDataEncoder *encoder) {
 		WalletAccount* account = WalletAccount::loadAccount(this->baseDir, i, encoder);
 		this->accounts->addElement(account);
 	}
+
+	this->defaultZone = this->store->getShortValue(KEY_DEFAULT_ZONE);
 }
 
 HdWalletSeed* HdWallet::getRootSeed(const IWalletDataEncoder* encoder) const {

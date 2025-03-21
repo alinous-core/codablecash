@@ -17,7 +17,7 @@ public:
 	static const constexpr wchar_t* STORE_NAME{L"ReceivingAddressStore"};
 	static const constexpr wchar_t* KEY_MAX_ADDRESS{L"maxAddress"};
 
-	explicit ReceivingAddressStore(uint16_t zone, const File* baseDir);
+	explicit ReceivingAddressStore(uint16_t zone, int maxAddress, const File* baseDir);
 	virtual ~ReceivingAddressStore();
 
 	void init(const IWalletDataEncoder *encoder);

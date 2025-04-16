@@ -7,7 +7,13 @@
 
 #include "bc_wallet/ChangeAddressStore.h"
 
+#include "bc_wallet_filter/BloomFilter512.h"
+
 #include "bc_base_conf_store/StatusStore.h"
+
+#include "base/StackRelease.h"
+
+#include "bc_base/AddressDescriptor.h"
 
 namespace codablecash {
 
@@ -30,7 +36,7 @@ AddressDescriptor* ChangeAddressStore::getNextChangeAddress(const IWalletDataEnc
 		this->currentIndex = 0;
 	}
 
-	if(this->currentIndex >= this->adressSerial){
+	if(this->currentIndex >= this->adressSerial && this->list->size() < this->numAddressInThisGroup){
 		AddressAndPrivateKey* pair = createNewAddressAndPrivateKey(encoder, this->adressSerial++);
 		this->list->addElement(pair);
 		save();
@@ -59,8 +65,13 @@ void ChangeAddressStore::load(const IWalletDataEncoder *encoder) {
 	}
 }
 
-void ChangeAddressStore::loadAllChangeAddresses(const IWalletDataEncoder *encoder) {
+void ChangeAddressStore::exportAddress2Filger(BloomFilter512 *filter, const IWalletDataEncoder *encoder) {
+	int maxLoop = this->numAddressInThisGroup;
+	for(int i = 0; i != maxLoop; ++i){
+		AddressDescriptor* desc = getNextChangeAddress(encoder); __STP(desc);
 
+		filter->add(desc);
+	}
 }
 
 } /* namespace codablecash */

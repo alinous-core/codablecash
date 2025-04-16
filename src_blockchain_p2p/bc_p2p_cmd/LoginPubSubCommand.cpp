@@ -102,7 +102,7 @@ AbstractCommandResponse* LoginPubSubCommand::execute(const PubSubId* pubsubId, I
 		}
 	}
 
-	listner->fireExecuteCommand(this);
+	listner->fireExecuteCommand(pubsubId, this);
 
 	// check & register dns
 	if(this->nodeNetInfo){

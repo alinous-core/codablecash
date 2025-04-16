@@ -9,6 +9,7 @@
 #define BC_WALLET_NET_WALLETCONNECTIONMANAGER_H_
 
 #include "base/HashMap.h"
+#include "base/ArrayList.h"
 
 namespace alinous {
 class SysMutex;
@@ -24,6 +25,8 @@ class P2pNodeRecord;
 class ISystemLogger;
 class NodeIdentifierSource;
 class NetworkClientCommandProcessor;
+class NodeIdentifier;
+class BloomFilter512;
 
 class WalletConnectionManager {
 public:
@@ -36,10 +39,13 @@ public:
 	void dispose();
 
 	int getNumConnection() const noexcept;
-	bool connect(int protocol, const UnicodeString* host, uint32_t port, ISystemLogger* logger);
+	bool connect(int protocol, const UnicodeString* host, uint32_t port, const NodeIdentifier* nodeId, uint16_t zone, ISystemLogger* logger, const ArrayList<BloomFilter512>* filters);
+
+	bool hasNodeId(const NodeIdentifier* nodeId) const noexcept;
 
 private:
 	void __disconnect(const PubSubId* pubsubId);
+	void addClientHandshake(ClientNodeHandshake* handshake);
 
 private:
 	HashMap<PubSubId, ClientNodeHandshake> clientHandshakeHash;

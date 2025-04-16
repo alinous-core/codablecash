@@ -53,7 +53,7 @@ void EchoPubSubCommand::setMessage(UnicodeString* str) noexcept {
 }
 
 AbstractCommandResponse* EchoPubSubCommand::execute(const PubSubId* pubsubId, IPubsubCommandListner *listner) const {
-	listner->fireExecuteCommand(this);
+	listner->fireExecuteCommand(pubsubId, this);
 
 	EchoPubSubCommandResponse* res = new EchoPubSubCommandResponse();
 	res->setMessage(new UnicodeString(*this->message));

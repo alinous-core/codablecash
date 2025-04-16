@@ -9,6 +9,8 @@
 #define BC_WALLET_NET_WALLETNETWORKMANAGER_H_
 #include <cstdint>
 
+#include "base/ArrayList.h"
+
 namespace alinous {
 class UnicodeString;
 }
@@ -23,6 +25,7 @@ class P2pNodeRecord;
 class WalletNetworkNodeCandidates;
 class WalletConnectionManager;
 class NetworkClientCommandProcessor;
+class BloomFilter512;
 
 class WalletNetworkManager {
 public:
@@ -33,7 +36,7 @@ public:
 
 	void setSeeder(INetworkSeeder* seeder) noexcept;
 
-	void maintainNetwork();
+	void maintainNetwork(const ArrayList<BloomFilter512>* filters);
 
 private:
 	void importSeeds(int numZones, const P2pNodeRecord* seedRec);

@@ -49,6 +49,10 @@
 #include "bc_base_trx_index/TransactionData.h"
 
 #include "filestore_block/IBlockObject.h"
+
+#include "bc_wallet_filter/BloomFilter512.h"
+
+
 namespace codablecash {
 
 WalletAccount::WalletAccount(const File* accountBaseDir) : AbstractWalletAccount(0, 0) {
@@ -60,6 +64,7 @@ WalletAccount::WalletAccount(const File* accountBaseDir) : AbstractWalletAccount
 	this->trxRepo = nullptr;
 
 	this->store = new StatusStore(accountBaseDir, WalletAccount::STORE_NAME);
+	this->bloomFilter = nullptr;
 }
 
 WalletAccount::~WalletAccount() {
@@ -71,6 +76,7 @@ WalletAccount::~WalletAccount() {
 	delete this->changeAddresses;
 	delete this->encryptedSeed;
 	delete this->trxRepo;
+	delete this->bloomFilter;
 }
 
 void WalletAccount::setEncryptedSeed(HdWalletSeed *encrypted) noexcept {
@@ -302,6 +308,23 @@ ArrayList<AbstractBlockchainTransaction>* WalletAccount::getTransactions() const
 	}
 
 	return list;
+}
+
+const BloomFilter512* WalletAccount::getBloomFilter(const IWalletDataEncoder* encoder) {
+	if(this->bloomFilter == nullptr){
+		createBloomFilter(encoder);
+	}
+
+	return this->bloomFilter;
+}
+
+void WalletAccount::createBloomFilter(const IWalletDataEncoder* encoder) {
+	delete this->bloomFilter;
+
+	this->bloomFilter = new BloomFilter512();
+
+	this->receivingAddresses->exportAddress2Filger(this->bloomFilter);
+	this->changeAddresses->exportAddress2Filger(this->bloomFilter, encoder);
 }
 
 } /* namespace codablecash */

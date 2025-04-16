@@ -27,7 +27,7 @@ public:
 
 	void importBlockHeadElement(const BlockHeadElement* element);
 
-	void export2BlockHeadElement(BlockHeadElement* element, MemPoolTransaction* memTransaction) const noexcept;
+	void export2BlockHeadElement(BlockHeadElement* element, MemPoolTransaction* memTransaction, bool headerOnly) const noexcept;
 
 private:
 	ArrayList<TransactionId> list;

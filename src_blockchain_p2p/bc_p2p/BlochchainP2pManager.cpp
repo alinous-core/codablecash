@@ -229,6 +229,14 @@ void BlochchainP2pManager::onLoginClinentHandshake(P2pHandshake *handshake, cons
 	P2pZone* z = this->zones->get(zone);
 	ClientNodeHandshake* clientHandshake = z->addClient(handshake, nodeId);
 
+	const ArrayList<BloomFilter512>* list = clientLoginCommand->getFilterList();
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const BloomFilter512* f = list->get(i);
+
+		clientHandshake->addBloomFilter(f);
+	}
+
 	const PubSubId* pubsubId = handshake->getPubsubid();
 	this->clientHandshakeHash.put(pubsubId, clientHandshake);
 }

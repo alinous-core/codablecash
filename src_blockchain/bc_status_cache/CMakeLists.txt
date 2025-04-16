@@ -12,6 +12,7 @@ set(__src
 	HeadBlockDetector.cpp
 	HeadBlockDetectorCache.cpp
 	HeadBlockDetectorCacheElement.cpp
+	IBlockchainStoreProvider.cpp
 	ZoneStatusCache.cpp
 )
 handle_sub(codablecashlib "${__src}" blockchain bc_status_cache)

@@ -33,6 +33,10 @@ public:
 
 	virtual TransferedDataId* getTransferedDataId() const = 0;
 
+	uint8_t getType() const noexcept {
+		return this->type;
+	}
+
 protected:
 	uint8_t type;
 };

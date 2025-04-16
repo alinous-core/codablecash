@@ -446,9 +446,9 @@ TEST(TestPendingRequestProcessorGroup, queue01){
 	P2pRequestQueueProcessor* queue = processor->getP2pRequestQueueProcessor();
 
 	// blank methods
-	queue->fireExecuteCommand(nullptr);
-	queue->fireOnExeptionOnSubscriber(nullptr);
-	queue->fireOnSubscribeEnds();
+	queue->fireExecuteCommand(nullptr, nullptr);
+	queue->fireOnExeptionOnSubscriber(nullptr, nullptr);
+	queue->fireOnSubscribeEnds(nullptr);
 
 	// pending NG
 	{

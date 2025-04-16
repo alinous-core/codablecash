@@ -10,6 +10,7 @@
 
 #include "base/ArrayList.h"
 #include "bc_status_cache/BlockHead.h"
+#include "bc_status_cache/IBlockchainStoreProvider.h"
 
 namespace alinous {
 class File;
@@ -45,11 +46,10 @@ public:
 
 	void reset() noexcept;
 
-	void buildHeads(uint16_t zone, CodablecashBlockchain *chain, uint64_t finalizedHeight);
-	void evaluate(uint16_t zone, MemPoolTransaction* memTrx, CodablecashBlockchain *chain, ZoneStatusCache* zoneStatus
+	void buildHeads(uint16_t zone, IBlockchainStoreProvider *chain, uint64_t finalizedHeight);
+	void evaluate(uint16_t zone, MemPoolTransaction* memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam* config, const File* tmpCacheBaseDir, bool headerOnly);
+	void evaluateHead(uint16_t zone, BlockHead* head, MemPoolTransaction* memTrx, IBlockchainStoreProvider *chain
 			, const CodablecashSystemParam* config, const File* tmpCacheBaseDir, bool headerOnly);
-	void evaluateHead(uint16_t zone, BlockHead* head, MemPoolTransaction* memTrx, CodablecashBlockchain *chain
-			, ZoneStatusCache* zoneStatus, const CodablecashSystemParam* config, const File* tmpCacheBaseDir, bool headerOnly);
 	void selectChain();
 
 	const BlockHead* getHead() const noexcept;
@@ -66,7 +66,7 @@ private:
 
 	BlockHeaderId* getFinalizedHeaderId(BlockHeaderStoreManager* headerStore, uint64_t finalizedHeight) const;
 
-	void handleVotes(const CodablecashSystemParam *config, ZoneStatusCache* zoneStatus, CodablecashBlockchain* chain
+	void handleVotes(const CodablecashSystemParam *config, IBlockchainStoreProvider* chain
 			, const ArrayList<BlockHeadElement>* list, const BlockHeader* header, int i);
 	void handleBody(const CodablecashSystemParam *config, BlockHeadElement* element, BlockBodyStoreManager* bodyManager, MemPoolTransaction* memTransaction, HeadBlockDetectorCacheElement* cacheElemet);
 

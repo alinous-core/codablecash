@@ -53,13 +53,13 @@ NodeConnectionSimulator::~NodeConnectionSimulator() {
 	delete this->source;
 }
 
-void NodeConnectionSimulator::fireExecuteCommand(const AbstractPubSubCommand *cmd) {
+void NodeConnectionSimulator::fireExecuteCommand(const PubSubId* pubsubId, const AbstractPubSubCommand *cmd) {
 }
 
-void NodeConnectionSimulator::fireOnExeptionOnSubscriber(const Exception *e) {
+void NodeConnectionSimulator::fireOnExeptionOnSubscriber(const PubSubId* pubsubId, const Exception *e) {
 }
 
-void NodeConnectionSimulator::fireOnSubscribeEnds() {
+void NodeConnectionSimulator::fireOnSubscribeEnds(const PubSubId* pubsubId) {
 }
 
 IPubsubCommandExecutor* NodeConnectionSimulator::getExecutor() const noexcept {

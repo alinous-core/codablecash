@@ -51,16 +51,19 @@ public:
 		this->rootSeed = nullptr;
 		this->seeder = new ArrayDebugSeeder();
 		this->logger = new DebugDefaultLogger();
+		this->config = nullptr;
 	}
 	~TesGrouptParams(){
 		delete this->rootSeed;
 		delete this->seeder;
 		delete this->logger;
+		delete this->config;
 	}
 
 	HdWalletSeed* rootSeed;
 	IDebugSeeder* seeder;
 	DebugDefaultLogger* logger;
+	CodablecashSystemParam *config;
 };
 
 TEST_GROUP(TestNetWalletGroup) {
@@ -83,8 +86,14 @@ TEST_GROUP(TestNetWalletGroup) {
 		UnicodeString pass(L"changeit");
 		PasswordEncoder enc(&pass);
 
-		NetworkWallet* wallet = NetworkWallet::createNewWallet(baseDir, &pass, 0, 10, logger); __STP(wallet);
+
+
+		CodablecashSystemParam param;
+		DebugCodablecashSystemParamSetup::setupConfig02(param);
+
+		NetworkWallet* wallet = NetworkWallet::createNewWallet(baseDir, &pass, 0, 10, logger, &param); __STP(wallet);
 		this->params->rootSeed = wallet->getRootSeed(&enc);
+		this->params->config = new CodablecashSystemParam(param);
 
 		this->testnet = TestnetSetupper01::setup2NodeZone0(wallet, 1000L * 10000L * 10000L, params->seeder, this->portSel, &projectFolder, params->logger);
 	}
@@ -107,6 +116,7 @@ TEST(TestNetWalletGroup, case01){
 	TesGrouptParams* params = (TesGrouptParams*)(this->env->getTestGroup()->getParam());
 	const HdWalletSeed* rootSeed = params->rootSeed;
 	INetworkSeeder* seeder = params->seeder;
+	const CodablecashSystemParam* config = params->config;
 
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"wallet"))
@@ -114,11 +124,16 @@ TEST(TestNetWalletGroup, case01){
 	DebugDefaultLogger* logger = params->logger;
 
 	UnicodeString pass(L"changeit");
-	NetworkWallet* wallet = NetworkWallet::resotreWallet(baseDir, &pass, 0, rootSeed, 10, logger); __STP(wallet);
-	wallet->setNetworkSeeder(seeder);
+	NetworkWallet* wallet = NetworkWallet::resotreWallet(baseDir, &pass, 0, rootSeed, 10, logger, config); __STP(wallet);
 
+	PasswordEncoder enc(&pass);
+	wallet->initNetwork(seeder, &enc);
 
-	wallet->initNetwork();
+	// sync
+	wallet->startNetwork();
+
+	// register pool
+
 
 	// FIXME TestNetWalletGroup
 }

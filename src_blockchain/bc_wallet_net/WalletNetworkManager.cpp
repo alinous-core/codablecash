@@ -44,6 +44,8 @@ WalletNetworkManager::WalletNetworkManager(uint16_t defaultZone, ISystemLogger* 
 
 WalletNetworkManager::~WalletNetworkManager() {
 	delete this->nodesCandidates;
+	delete this->connectionManager;
+
 	this->seeder = nullptr;
 }
 
@@ -51,7 +53,7 @@ void WalletNetworkManager::setSeeder(INetworkSeeder *seeder) noexcept {
 	this->seeder = seeder;
 }
 
-void WalletNetworkManager::maintainNetwork() {
+void WalletNetworkManager::maintainNetwork(const ArrayList<BloomFilter512>* filters) {
 	// make candodates list
 	{
 		ArrayList<P2pNodeRecord>* list = this->seeder->getSeedNodes(); __STP(list);
@@ -81,9 +83,12 @@ void WalletNetworkManager::maintainNetwork() {
 		int protocol = rec->getProtocol();
 		const UnicodeString* host = rec->getHost();
 		int port = rec->getPort();
+		const NodeIdentifier* nodeId = rec->getNodeIdentifier();
+		uint16_t zone = rec->getZone();
 
-
-		this->connectionManager->connect(protocol, host, port, this->logger);
+		if(!this->connectionManager->hasNodeId(nodeId)){
+			this->connectionManager->connect(protocol, host, port, nodeId, zone, this->logger, filters);
+		}
 
 		conNum = this->connectionManager->getNumConnection();
 	}

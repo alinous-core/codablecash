@@ -27,40 +27,54 @@ class AddressDescriptor;
 class ISystemLogger;
 class StakingSeedManager;
 class NetworkClientCommandProcessor;
+class NetworkWalletData;
+class CodablecashSystemParam;
 
 class NetworkWallet {
 public:
-	NetworkWallet(const File* baseDir, ISystemLogger* logger);
+	NetworkWallet(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam *config);
 	virtual ~NetworkWallet();
 
-	static NetworkWallet* createNewWallet(const File* dir, const UnicodeString* pass, uint16_t zone, int defaultMaxAddress, ISystemLogger* logger);
-	static NetworkWallet* resotreWallet(const File* dir, const UnicodeString* pass, uint16_t zone, const HdWalletSeed* rootSeed, int defaultMaxAddress, ISystemLogger* logger);
+	void init();
 
+	static NetworkWallet* createNewWallet(const File* dir, const UnicodeString* pass, uint16_t zone, int defaultMaxAddress, ISystemLogger* logger, const CodablecashSystemParam *config);
+	static NetworkWallet* resotreWallet(const File* dir, const UnicodeString* pass, uint16_t zone, const HdWalletSeed* rootSeed, int defaultMaxAddress, ISystemLogger* logger, const CodablecashSystemParam *config);
 
 	HdWalletSeed* getRootSeed(const IWalletDataEncoder* encoder) const;
 
-	void setNetworkSeeder(INetworkSeeder *seeder) noexcept;
-	void initNetwork();
+	void initNetwork(INetworkSeeder *seeder, const IWalletDataEncoder* encoder);
+	void startNetwork();
+	void syncBlockchain();
+
+	void createData();
+
 
 	AddressDescriptor* getAddressDescriptor(int accountIndex, int addressIndex) const;
 
+	const File* getBaseDir() const noexcept {
+		return this->baseDir;
+	}
+
 private:
+	void setNetworkSeeder(INetworkSeeder *seeder) noexcept;
 	void doCreateWallet(const IWalletDataEncoder* encoder, const HdWalletSeed* seed, uint16_t zone, int defaultMaxAddress);
 
 private:
 	File* baseDir;
 	ISystemLogger* logger;
+	CodablecashSystemParam *config;
 
-	HdWallet* hdWallet;
+	// wallet
+	NetworkWalletData* walletData;
+
+	// command processor
+	NetworkClientCommandProcessor* clientCommandProcessor;
 
 	// net
 	WalletNetworkManager* networkManager;
 
 	// Staking Seed Manager
 	StakingSeedManager* stakingSeedManager;
-
-	// command processor
-	NetworkClientCommandProcessor* clientCommandProcessor;
 };
 
 } /* namespace codablecash */

@@ -92,7 +92,7 @@ Block* HeadBlockDetector::fetchScheduledBlock() {
 	return ret;
 }
 
-void HeadBlockDetector::buildHeads(uint16_t zone, CodablecashBlockchain *chain, uint64_t finalizedHeight) {
+void HeadBlockDetector::buildHeads(uint16_t zone, IBlockchainStoreProvider *chain, uint64_t finalizedHeight) {
 	BlockHeaderStoreManager* headerStore = chain->getHeaderManager(zone);
 
 	uint64_t startHeight = finalizedHeight > 0 ? finalizedHeight : 1;
@@ -284,20 +284,22 @@ void HeadBlockDetector::selectChain() {
 
 }
 
-void HeadBlockDetector::evaluate(uint16_t zone, MemPoolTransaction *memTrx, CodablecashBlockchain *chain, ZoneStatusCache* zoneStatus, const CodablecashSystemParam *config,
-		const File *tmpCacheBaseDir, bool headerOnly) {
+void HeadBlockDetector::evaluate(uint16_t zone, MemPoolTransaction *memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam *config, const File *tmpCacheBaseDir, bool headerOnly) {
 
 	int maxLoop = this->headsList.size();
 	for(int i = 0; i != maxLoop; ++i){
 		BlockHead* head = this->headsList.get(i);
-		evaluateHead(zone, head, memTrx, chain, zoneStatus, config, tmpCacheBaseDir, headerOnly);
+		evaluateHead(zone, head, memTrx, chain, config, tmpCacheBaseDir, headerOnly);
 	}
 }
 
 void HeadBlockDetector::evaluateHead(uint16_t zone, BlockHead *head,
-		MemPoolTransaction *memTrx, CodablecashBlockchain *chain, ZoneStatusCache* zoneStatus,
-		const CodablecashSystemParam *config, const File *tmpCacheBaseDir, bool headerOnly) {
-	MemPoolTransaction* memTransaction = memTrx->newSubTransaction(); __STP(memTransaction);
+		MemPoolTransaction *memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam *config, const File *tmpCacheBaseDir, bool headerOnly) {
+	MemPoolTransaction* memTransaction = nullptr;
+	if(!headerOnly){
+		memTransaction = memTrx->newSubTransaction();
+	}
+	__STP(memTransaction);
 
 	const ArrayList<BlockHeadElement>* list = head->getHeaders();
 	int maxLoop = list->size();
@@ -315,7 +317,7 @@ void HeadBlockDetector::evaluateHead(uint16_t zone, BlockHead *head,
 		{
 			const HeadBlockDetectorCacheElement* cacheElement = this->cache->getCache(headerId);
 			if(cacheElement != nullptr){
-				cacheElement->export2BlockHeadElement(element, memTransaction);
+				cacheElement->export2BlockHeadElement(element, memTransaction, headerOnly);
 				continue;
 			}
 		}
@@ -323,7 +325,7 @@ void HeadBlockDetector::evaluateHead(uint16_t zone, BlockHead *head,
 		HeadBlockDetectorCacheElement* cacheElemet = new HeadBlockDetectorCacheElement(); __STP(cacheElemet);
 
 		// vote
-		handleVotes(config, zoneStatus, chain, list, header, i);
+		handleVotes(config, chain, list, header, i);
 
 		// memory pool
 		if(!headerOnly){
@@ -428,7 +430,7 @@ void HeadBlockDetector::handleBody(const CodablecashSystemParam *config, BlockHe
 	}
 }
 
-void HeadBlockDetector::handleVotes(const CodablecashSystemParam *config, ZoneStatusCache* zoneStatus, CodablecashBlockchain* chain
+void HeadBlockDetector::handleVotes(const CodablecashSystemParam *config, IBlockchainStoreProvider* chain
 		, const ArrayList<BlockHeadElement> *list, const BlockHeader *header, int i) {
 	uint64_t height = header->getHeight();
 

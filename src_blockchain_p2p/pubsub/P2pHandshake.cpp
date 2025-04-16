@@ -132,7 +132,7 @@ void P2pHandshake::sendEndConnectionCommand() {
 	}
 }
 
-void P2pHandshake::fireExecuteCommand(const AbstractPubSubCommand *cmd) {
+void P2pHandshake::fireExecuteCommand(const PubSubId* pubsubId, const AbstractPubSubCommand *cmd) {
 	int type = cmd->getType();
 
 	if(type == AbstractPubSubCommand::TYPE_END_HANDSHAKE){
@@ -160,7 +160,7 @@ void P2pHandshake::fireExecuteCommand(const AbstractPubSubCommand *cmd) {
 	}
 }
 
-void P2pHandshake::fireOnSubscribeEnds() {
+void P2pHandshake::fireOnSubscribeEnds(const PubSubId* pubsubId) {
 	if(this->connectionManager != nullptr){
 		this->connectionManager->fireHandshakeEnds(this);
 	}
@@ -169,7 +169,7 @@ void P2pHandshake::fireOnSubscribeEnds() {
 	this->disabled = true;
 }
 
-void P2pHandshake::fireOnExeptionOnSubscriber(const Exception *e) {
+void P2pHandshake::fireOnExeptionOnSubscriber(const PubSubId* pubsubId, const Exception *e) {
 	// callback on P2P handshake ends
 	if(this->connectionManager != nullptr){
 		this->connectionManager->fireHandshakeEndsWithExeption(this, e);

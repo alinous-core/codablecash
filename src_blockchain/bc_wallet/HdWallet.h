@@ -22,6 +22,7 @@ class HdWalletSeed;
 class WalletAccount;
 class IWalletDataEncoder;
 class StatusStore;
+class BloomFilter512;
 
 class HdWallet {
 public:
@@ -54,6 +55,8 @@ public:
 
 	void save();
 	void load(const IWalletDataEncoder* encoder);
+
+	ArrayList<BloomFilter512>* getBloomFilters(const IWalletDataEncoder* encoder) const noexcept;
 
 
 private:

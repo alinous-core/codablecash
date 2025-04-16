@@ -1,8 +1,8 @@
 
 
 set(__src
-	NetworkClientCommandProcessor.cpp
 	NetworkWallet.cpp
+	NetworkWalletData.cpp
 	StakingSeedManager.cpp
 	WalletConnectionManager.cpp
 	WalletNetworkManager.cpp

@@ -7,10 +7,15 @@
 
 #include "bc_wallet_net/WalletConnectionManager.h"
 
+#include "bc_wallet_net_processor/NetworkClientCommandProcessor.h"
+
 #include "bc_network/NodeIdentifierSource.h"
 
 #include "pubsub/PubSubId.h"
 #include "pubsub/P2pHandshake.h"
+
+#include "pubsub_cmd/AbstractCommandResponse.h"
+#include "pubsub_cmd/OkPubsubResponse.h"
 
 #include "bc_p2p/ClientNodeHandshake.h"
 
@@ -26,7 +31,12 @@
 
 #include "bc_p2p_cmd/LoginClientCommand.h"
 
-#include "bc_wallet_net/NetworkClientCommandProcessor.h"
+#include "bc/ExceptionThrower.h"
+
+#include "bc_p2p_client/P2pClientConnectionException.h"
+
+#include "bc_network/NodeIdentifier.h"
+
 namespace codablecash {
 
 WalletConnectionManager::WalletConnectionManager(uint16_t defaultZone, NetworkClientCommandProcessor* clientCommandProcessor) {
@@ -94,11 +104,21 @@ void WalletConnectionManager::clearDeleteList() {
 	int pos = 0;
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
-		ClientNodeHandshake* handshake = this->list.get(pos);
+		ClientNodeHandshake* clientHandshake = this->list.get(pos);
 
-		if(handshake->isDeletable()){
+		if(clientHandshake->isDeletable()){
 			this->list.remove(pos);
-			handshake->dispose(true);
+
+			// get inner handshake
+			P2pHandshake* handshake = clientHandshake->getHandshake();
+
+			// delete wrapper client handshake
+			clientHandshake->dispose(true);
+			delete clientHandshake;
+
+			// delete inner
+			assert(handshake->is2Delete());
+			handshake->dispose();
 			delete handshake;
 		}
 		else{
@@ -121,7 +141,35 @@ bool WalletConnectionManager::isClearedAll() const noexcept {
 	return this->list.isEmpty();
 }
 
-bool WalletConnectionManager::connect(int protocol, const UnicodeString *host, uint32_t port, ISystemLogger* logger) {
+void WalletConnectionManager::addClientHandshake(ClientNodeHandshake* handshake) {
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
+
+	const PubSubId* pubsubId = handshake->getPubsubId();
+	this->clientHandshakeHash.put(pubsubId, handshake);
+}
+
+bool WalletConnectionManager::hasNodeId(const NodeIdentifier *nodeId) const noexcept {
+	bool ret = false;
+
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
+
+	Iterator<PubSubId>* it = this->clientHandshakeHash.keySet()->iterator(); __STP(it);
+
+	while(it->hasNext()){
+		const PubSubId* key = it->next();
+		ClientNodeHandshake* clientHandshake = this->clientHandshakeHash.get(key);
+
+		const NodeIdentifier* id = clientHandshake->getNodeId();
+		if(nodeId->equals(id)){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+bool WalletConnectionManager::connect(int protocol, const UnicodeString *host, uint32_t port, const NodeIdentifier* nodeId, uint16_t zone, ISystemLogger* logger, const ArrayList<BloomFilter512>* filters) {
 	int ret = false;
 	try{
 		PubSubId* psId = PubSubId::createNewId(); __STP(psId);
@@ -132,13 +180,25 @@ bool WalletConnectionManager::connect(int protocol, const UnicodeString *host, u
 		// login
 		{
 			LoginClientCommand cmd(this->defaultZone);
+			// filter
+			{
+				int maxLoop = filters->size();
+				for(int i = 0; i != maxLoop; ++i){
+					BloomFilter512* f = filters->get(i);
+					cmd.addBloomFilter(f);
+				}
+			}
 			cmd.sign(this->source);
+
+
 			AbstractCommandResponse* response = handshake->publishCommand(&cmd); __STP(response);
+			OkPubsubResponse* okResponce = dynamic_cast<OkPubsubResponse*>(response);
 
-
+			ExceptionThrower<P2pClientConnectionException>::throwExceptionIfCondition(okResponce == nullptr, L"Failed in login.", __FILE__, __LINE__);
 		}
-		// FIXME connect
 
+		ClientNodeHandshake* clientHandshake = new ClientNodeHandshake(__STP_MV(handshake), zone, nodeId); __STP(clientHandshake);
+		addClientHandshake(__STP_MV(clientHandshake));
 
 		ret = true;
 	}

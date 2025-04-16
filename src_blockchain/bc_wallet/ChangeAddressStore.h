@@ -12,6 +12,9 @@
 
 namespace codablecash {
 
+class BloomFilter512;
+
+
 class ChangeAddressStore : public AbstractAddressStore {
 public:
 	static const constexpr wchar_t* STORE_NAME{L"ChangeAddressStore"};
@@ -25,10 +28,11 @@ public:
 	void init(const IWalletDataEncoder *encoder);
 
 	AddressDescriptor* getNextChangeAddress(const IWalletDataEncoder *encoder) noexcept;
-	void loadAllChangeAddresses(const IWalletDataEncoder *encoder);
 
 	virtual void save();
 	virtual void load(const IWalletDataEncoder *encoder);
+
+	void exportAddress2Filger(BloomFilter512* filter, const IWalletDataEncoder *encoder);
 
 private:
 	int currentIndex;

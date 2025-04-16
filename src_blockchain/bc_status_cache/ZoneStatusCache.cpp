@@ -175,7 +175,7 @@ void ZoneStatusCache::updateBlockStatus(MemPoolTransaction* memTrx, CodablecashB
 	this->headBlockDetector->buildHeads(this->zone, chain, this->finalizedHeight);
 
 	// evaluate
-	this->headBlockDetector->evaluate(this->zone, memTrx, chain, this, config, tmpCacheBaseDir, this->headerOnly);
+	this->headBlockDetector->evaluate(this->zone, memTrx, chain, config, tmpCacheBaseDir, this->headerOnly);
 	this->headBlockDetector->selectChain();
 }
 

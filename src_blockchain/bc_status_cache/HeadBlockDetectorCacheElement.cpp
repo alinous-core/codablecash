@@ -35,11 +35,13 @@ void HeadBlockDetectorCacheElement::importBlockHeadElement(const BlockHeadElemen
 	this->votingScore = element->getVotingSocre();
 }
 
-void HeadBlockDetectorCacheElement::export2BlockHeadElement(BlockHeadElement *element, MemPoolTransaction* memTransaction) const noexcept {
-	int maxLoop = this->list.size();
-	for(int i = 0; i != maxLoop; ++i){
-		TransactionId* trxId = this->list.get(i);
-		memTransaction->consume(trxId);
+void HeadBlockDetectorCacheElement::export2BlockHeadElement(BlockHeadElement *element, MemPoolTransaction* memTransaction, bool headerOnly) const noexcept {
+	if(!headerOnly){
+		int maxLoop = this->list.size();
+		for(int i = 0; i != maxLoop; ++i){
+			TransactionId* trxId = this->list.get(i);
+			memTransaction->consume(trxId);
+		}
 	}
 
 	element->setVotedScore(this->voterScore);

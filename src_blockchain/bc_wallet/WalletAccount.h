@@ -40,6 +40,7 @@ class RegisterVotePoolTransaction;
 class RegisterTicketTransaction;
 class NodeIdentifier;
 class NodeIdentifierSource;
+class BloomFilter512;
 
 class WalletAccount : public AbstractWalletAccount {
 public:
@@ -105,7 +106,11 @@ public:
 
 	ArrayList<AbstractBlockchainTransaction>* getTransactions() const;
 
+	const BloomFilter512* getBloomFilter(const IWalletDataEncoder* encoder);
+
 private:
+	void createBloomFilter(const IWalletDataEncoder* encoder);
+
 	int findAddressDiscriptor(const AbstractAddressStore* store, const AddressDescriptor* addressDesc);
 
 	void initReceivingAddressStore(const HdWalletSeed* rootAccountSeed, int maxAddressCount, const IWalletDataEncoder* encoder);
@@ -122,6 +127,8 @@ private:
 	WalletAccountTrxRepository* trxRepo;
 
 	StatusStore* store;
+
+	BloomFilter512* bloomFilter;
 };
 
 } /* namespace codablecash */

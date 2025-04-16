@@ -155,18 +155,18 @@ bool P2pClient::ping() {
 	return type == AbstractCommandResponse::TYPE_RES_PING;
 }
 
-void P2pClient::fireExecuteCommand(const AbstractPubSubCommand *cmd) {
+void P2pClient::fireExecuteCommand(const PubSubId* pubsubId, const AbstractPubSubCommand *cmd) {
 	// do nothing
 }
 
-void P2pClient::fireOnExeptionOnSubscriber(const Exception *e) {
+void P2pClient::fireOnExeptionOnSubscriber(const PubSubId* pubsubId, const Exception *e) {
 	this->logger->logException(e);
 
-	this->handshake->fireOnExeptionOnSubscriber(e);
+	this->handshake->fireOnExeptionOnSubscriber(pubsubId, e);
 }
 
-void P2pClient::fireOnSubscribeEnds() {
-	this->handshake->fireOnSubscribeEnds();
+void P2pClient::fireOnSubscribeEnds(const PubSubId* pubsubId) {
+	this->handshake->fireOnSubscribeEnds(pubsubId);
 }
 
 IPubsubCommandExecutor* P2pClient::getExecutor() const noexcept {

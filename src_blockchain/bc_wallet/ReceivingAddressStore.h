@@ -12,6 +12,8 @@
 
 namespace codablecash {
 
+class BloomFilter512;
+
 class ReceivingAddressStore : public AbstractAddressStore {
 public:
 	static const constexpr wchar_t* STORE_NAME{L"ReceivingAddressStore"};
@@ -24,6 +26,8 @@ public:
 
 	virtual void save();
 	virtual void load(const IWalletDataEncoder *encoder);
+
+	void exportAddress2Filger(BloomFilter512* filter);
 
 private:
 	int maxAddress;

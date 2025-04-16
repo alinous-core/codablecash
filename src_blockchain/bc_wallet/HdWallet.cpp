@@ -11,13 +11,14 @@
 
 #include "bc_wallet_encoder/IWalletDataEncoder.h"
 
+#include "bc_wallet_filter/BloomFilter512.h"
+
 #include "base_io/File.h"
 #include "base_io/ByteBuffer.h"
 
 #include "bc_base_conf_store/StatusStore.h"
 
 #include "base/StackRelease.h"
-
 
 namespace codablecash {
 
@@ -103,6 +104,20 @@ HdWalletSeed* HdWallet::getRootSeed(const IWalletDataEncoder* encoder) const {
 	HdWalletSeed* rootSeed = encoder->decode(this->encodedSeed);
 
 	return rootSeed;
+}
+
+ArrayList<BloomFilter512>* HdWallet::getBloomFilters(const IWalletDataEncoder* encoder) const noexcept {
+	ArrayList<BloomFilter512>* list = new ArrayList<BloomFilter512>();
+
+	int maxLoop = this->accounts->size();
+	for(int i = 0; i != maxLoop; ++i){
+		WalletAccount* account = this->accounts->get(i);
+		const BloomFilter512* f = account->getBloomFilter(encoder);
+
+		list->addElement(dynamic_cast<BloomFilter512*>(f->copyData()));
+	}
+
+	return list;
 }
 
 } /* namespace codablecash */

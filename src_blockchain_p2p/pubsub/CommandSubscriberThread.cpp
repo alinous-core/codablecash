@@ -65,7 +65,8 @@ void CommandSubscriberThread::process() noexcept {
 				logger->logException(e);
 
 				IPubsubCommandListner* listner = this->subscriber->getListner();
-				listner->fireOnExeptionOnSubscriber(e);
+				const PubSubId* pubsubId = this->subscriber->getPubsubId();
+				listner->fireOnExeptionOnSubscriber(pubsubId, e);
 
 				delete e;
 
@@ -77,7 +78,8 @@ void CommandSubscriberThread::process() noexcept {
 
 	IPubsubCommandListner* listner = this->subscriber->getListner();
 	if(listner != nullptr){
-		listner->fireOnSubscribeEnds();
+		const PubSubId* pubsubId = this->subscriber->getPubsubId();
+		listner->fireOnSubscribeEnds(pubsubId);
 	}
 
 	this->subscriber->setRunning(false);

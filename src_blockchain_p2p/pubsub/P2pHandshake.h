@@ -54,9 +54,9 @@ public:
 	/**
 	 * listner command
 	 */
-	virtual void fireExecuteCommand(const AbstractPubSubCommand* cmd);
-	virtual void fireOnExeptionOnSubscriber(const Exception* e);
-	virtual void fireOnSubscribeEnds();
+	virtual void fireExecuteCommand(const PubSubId* pubsubId, const AbstractPubSubCommand* cmd);
+	virtual void fireOnExeptionOnSubscriber(const PubSubId* pubsubId, const Exception* e);
+	virtual void fireOnSubscribeEnds(const PubSubId* pubsubId);
 	virtual IPubsubCommandExecutor* getExecutor() const noexcept;
 
 	bool is2Delete() const noexcept;

@@ -41,7 +41,7 @@ void EndHandshakeCommand::toBinary(ByteBuffer *buff) const {
 }
 
 AbstractCommandResponse* EndHandshakeCommand::execute(const PubSubId* pubsubId, IPubsubCommandListner *listner) const {
-	listner->fireExecuteCommand(this);
+	listner->fireExecuteCommand(pubsubId, this);
 
 	return new OkPubsubResponse();
 }

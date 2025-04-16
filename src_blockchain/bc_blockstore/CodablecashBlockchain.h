@@ -12,6 +12,7 @@
 
 #include <cstdint>
 
+#include "bc_status_cache/IBlockchainStoreProvider.h"
 
 namespace alinous {
 class File;
@@ -36,7 +37,7 @@ class CentralProcessor;
 class BlockHeaderId;
 class MemPoolTransaction;
 
-class CodablecashBlockchain {
+class CodablecashBlockchain : public IBlockchainStoreProvider {
 public:
 	static constexpr int DEFAULT_SECTION_LIMIT{10000};
 
@@ -73,8 +74,8 @@ public:
 
 	void addListner(IBlockchainEventListner* listner) noexcept;
 
-	BlockHeaderStoreManager* getHeaderManager(uint16_t zone) const noexcept;
-	BlockBodyStoreManager* getBlockBodyStoreManager(uint16_t zone) const noexcept;
+	virtual BlockHeaderStoreManager* getHeaderManager(uint16_t zone) const noexcept;
+	virtual BlockBodyStoreManager* getBlockBodyStoreManager(uint16_t zone) const noexcept;
 
 	uint16_t getZoneSelf() const noexcept {
 		return this->zoneSelf;

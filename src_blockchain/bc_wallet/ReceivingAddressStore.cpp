@@ -6,8 +6,11 @@
  */
 
 #include "bc_wallet/ReceivingAddressStore.h"
+#include "bc_wallet/AddressAndPrivateKey.h"
 
 #include "bc_base_conf_store/StatusStore.h"
+
+#include "bc_wallet_filter/BloomFilter512.h"
 
 
 namespace codablecash {
@@ -48,6 +51,15 @@ void ReceivingAddressStore::load(const IWalletDataEncoder *encoder) {
 		AddressAndPrivateKey* pair = createNewAddressAndPrivateKey(encoder, i);
 
 		this->list->addElement(pair);
+	}
+}
+
+void ReceivingAddressStore::exportAddress2Filger(BloomFilter512 *filter) {
+	int maxLoop = this->list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AddressAndPrivateKey* addressKey = this->list->get(i);
+		const BalanceAddress* balanceAddress = addressKey->getAddress();
+		filter->add(balanceAddress);
 	}
 }
 

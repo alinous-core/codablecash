@@ -24,34 +24,69 @@
 
 #include "bc_p2p_cmd/LoginErrorResponse.h"
 
+#include "bc_wallet_filter/BloomFilter512.h"
 
+#include "bc_base/BinaryUtils.h"
 namespace codablecash {
 
 LoginClientCommand::LoginClientCommand(const LoginClientCommand &inst)
 		: AbstractBlockchainLoginCommand(inst) {
+	this->filterList = new ArrayList<BloomFilter512>();
+
+	int maxLoop = inst.filterList->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const BloomFilter512* f = inst.filterList->get(i);
+		addBloomFilter(f);
+	}
 }
 
 LoginClientCommand::LoginClientCommand(uint16_t zone)
 		: AbstractBlockchainLoginCommand(AbstractPubSubCommand::TYPE_CLIENT_LOGIN, zone, nullptr){
-
+	this->filterList = new ArrayList<BloomFilter512>();
 }
 
 LoginClientCommand::~LoginClientCommand() {
-
+	this->filterList->deleteElements();
+	delete this->filterList;
 }
 
 int LoginClientCommand::binarySize() const {
 	int total = AbstractBlockchainLoginCommand::binarySize();
+
+	total += sizeof(uint16_t);
+
+	int maxLoop = this->filterList->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const BloomFilter512* f = this->filterList->get(i);
+
+		total += f->binarySize();
+	}
 
 	return total;
 }
 
 void LoginClientCommand::toBinary(ByteBuffer *buff) const {
 	AbstractBlockchainLoginCommand::toBinary(buff);
+
+	int maxLoop = this->filterList->size();
+	buff->putShort(maxLoop);
+
+	for(int i = 0; i != maxLoop; ++i){
+		const BloomFilter512* f = this->filterList->get(i);
+		f->toBinary(buff);
+	}
 }
 
 void LoginClientCommand::fromBinary(ByteBuffer *buff) {
 	AbstractBlockchainLoginCommand::fromBinary(buff);
+
+	int maxLoop = buff->getShort();
+	BinaryUtils::checkUShortRange(maxLoop, 0, 32);
+
+	for(int i = 0; i != maxLoop; ++i){
+		BloomFilter512* f = BloomFilter512::createFromBinary(buff);
+		this->filterList->addElement(f);
+	}
 }
 
 
@@ -81,7 +116,7 @@ AbstractCommandResponse* LoginClientCommand::execute(const PubSubId* pubsubId, I
 		return res;
 	}
 
-	listner->fireExecuteCommand(this);
+	listner->fireExecuteCommand(pubsubId, this);
 
 	OkPubsubResponse* res = new OkPubsubResponse();
 	return res;
@@ -95,12 +130,29 @@ ByteBuffer* LoginClientCommand::getSignBinary() const {
 	int cap = sizeof(this->zone);
 	cap += this->nodeId->binarySize();
 
+	int maxLoop = this->filterList->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const BloomFilter512* f = this->filterList->get(i);
+		cap += f->binarySize();
+	}
+
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(cap, true);
 	buff->putShort(this->zone);
 	this->nodeId->toBinary(buff);
 
+
+	for(int i = 0; i != maxLoop; ++i){
+		const BloomFilter512* f = this->filterList->get(i);
+		f->toBinary(buff);
+	}
+
 	buff->position(0);
 	return buff;
+}
+
+void LoginClientCommand::addBloomFilter(const BloomFilter512 *f) {
+	BloomFilter512* filter = dynamic_cast<BloomFilter512*>(f->copyData());
+	this->filterList->addElement(filter);
 }
 
 } /* namespace codablecash */

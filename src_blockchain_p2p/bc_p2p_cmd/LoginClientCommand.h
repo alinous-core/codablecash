@@ -10,7 +10,12 @@
 
 #include "bc_p2p_cmd/AbstractBlockchainLoginCommand.h"
 
+#include "base/ArrayList.h"
+
+
 namespace codablecash {
+
+class BloomFilter512;
 
 class LoginClientCommand : public AbstractBlockchainLoginCommand {
 public:
@@ -26,8 +31,17 @@ public:
 
 	virtual IBlockObject* copyData() const noexcept;
 
+	void addBloomFilter(const BloomFilter512* f);
+	const ArrayList<BloomFilter512>* getFilterList() const noexcept {
+		return this->filterList;
+	}
+
 protected:
 	virtual ByteBuffer* getSignBinary() const;
+
+protected:
+	ArrayList<BloomFilter512>* filterList;
+
 };
 
 } /* namespace codablecash */

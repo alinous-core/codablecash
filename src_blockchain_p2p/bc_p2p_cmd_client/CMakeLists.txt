@@ -2,6 +2,11 @@
 
 set(__src
 	AbstractClientRequestCommand.cpp
+	ClientBlockHeaderTransferData.cpp
+	ClientBlockHeaderTransferDataValidator.cpp
+	ClientSyncHeaderCommand.cpp
+	ClientSyncHeaderCommandResponse.cpp
+	ClientSyncHeaderHeightData.cpp
 	DownloadDnsInfoCommand.cpp
 	DownloadDnsInfoCommandResponse.cpp
 	PingNodeCommand.cpp

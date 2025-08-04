@@ -5,8 +5,8 @@
  *      Author: iizuka
  */
 
-#ifndef BC_WALLET_FILTER_BLOOMFILTER512_H_
-#define BC_WALLET_FILTER_BLOOMFILTER512_H_
+#ifndef BC_WALLET_FILTER_BLOOMFILTER1024_H_
+#define BC_WALLET_FILTER_BLOOMFILTER1024_H_
 
 #include "bc_wallet_filter/BloomFilter.h"
 
@@ -17,26 +17,31 @@ namespace codablecash {
 
 class BalanceAddress;
 class AddressDescriptor;
+class BloomHash1024;
 
-class BloomFilter512 : public BloomFilter, public IBlockObject {
+class BloomFilter1024 : public BloomFilter, public IBlockObject {
 public:
-	BloomFilter512(const BloomFilter512& inst);
-	BloomFilter512();
-	virtual ~BloomFilter512();
+	BloomFilter1024(const BloomFilter1024& inst);
+	BloomFilter1024();
+	virtual ~BloomFilter1024();
 
 	void add(const BalanceAddress* address);
 	void add(const AddressDescriptor* addressDesc);
 
 	bool checkBytes(const BalanceAddress* address);
 	bool checkBytes(const AddressDescriptor* addressDesc);
+	bool checkBytes(const BloomHash1024* hash);
+
+	BloomHash1024* getHash(const AddressDescriptor* addressDesc) const;
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out) const;
-	static BloomFilter512* createFromBinary(ByteBuffer* in);
+	static BloomFilter1024* createFromBinary(ByteBuffer* in);
 
 	virtual IBlockObject* copyData() const noexcept;
+
 };
 
 } /* namespace codablecash */
 
-#endif /* BC_WALLET_FILTER_BLOOMFILTER512_H_ */
+#endif /* BC_WALLET_FILTER_BLOOMFILTER1024_H_ */

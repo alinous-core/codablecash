@@ -71,7 +71,6 @@ BlockchainStatusCache::BlockchainStatusCache(const File* baseDir, const Codablec
 	this->finalizer = nullptr;
 	this->memberLock = new SysMutex();
 	this->memPool = memPool;
-	this->tmpCacheBaseDir = new File(*tmpCacheBaseDir);
 	this->lastVoted = 0;
 	this->logger = logger;
 }
@@ -84,7 +83,6 @@ BlockchainStatusCache::~BlockchainStatusCache() {
 	delete this->memberLock;
 
 	this->memPool = nullptr;
-	delete this->tmpCacheBaseDir;
 }
 
 void BlockchainStatusCache::initBlankCache(uint16_t zoneSelf, uint16_t numZones) {
@@ -134,7 +132,7 @@ void BlockchainStatusCache::initCacheStatus(CodablecashBlockchain *blockchain) {
 		if(!headerStore->isEmpty()){
 			MemPoolTransaction* memTrx = this->memPool->begin(); __STP(memTrx);
 
-			cache->updateBlockStatus(memTrx, blockchain, this->config, this->tmpCacheBaseDir);
+			cache->updateBlockStatus(memTrx, blockchain, this->config);
 		}
 	}
 }
@@ -166,7 +164,7 @@ void BlockchainStatusCache::onBlockAdded(MemPoolTransaction* memTrx, const Block
 	uint16_t zone = block->getZone();
 
 	ZoneStatusCache* cache = this->zoneList.get(zone);
-	cache->updateBlockStatus(memTrx, chain, this->config, this->tmpCacheBaseDir);
+	cache->updateBlockStatus(memTrx, chain, this->config);
 }
 
 void BlockchainStatusCache::postBlockAdded(const Block *block, CodablecashBlockchain *chain) {
@@ -179,7 +177,7 @@ void BlockchainStatusCache::postBlockAdded(const Block *block, CodablecashBlockc
 		reportFinalizing(zone, block, chain);
 	}
 
-	// report mining
+	// report mining(PoW)
 	{
 		StackUnlocker __lock(this->memberLock, __FILE__, __LINE__);
 		if(this->powManager != nullptr){
@@ -187,7 +185,7 @@ void BlockchainStatusCache::postBlockAdded(const Block *block, CodablecashBlockc
 		}
 	}
 
-	// report to finalizing pool
+	// report to finalizing pool(PoS)
 	{
 		StackUnlocker __lock(this->memberLock, __FILE__, __LINE__);
 		report2Finelizer(zone, chain, cache, block);
@@ -198,7 +196,7 @@ void BlockchainStatusCache::onBlockHeaderAdded(MemPoolTransaction *memTrx, const
 	uint16_t zone = header->getZone();
 
 	ZoneStatusCache* cache = this->zoneList.get(zone);
-	cache->updateBlockStatus(memTrx, chain, this->config, this->tmpCacheBaseDir);
+	cache->updateBlockStatus(memTrx, chain, this->config);
 
 	int votePerBlock = this->config->getVotePerBlock();
 	if(header->isFinalizing(votePerBlock)){
@@ -301,7 +299,7 @@ BigInteger BlockchainStatusCache::calcTargetDiff(uint16_t zone, uint64_t height,
 }
 
 BigInteger BlockchainStatusCache::calcTargetDiff(BlockHeaderStoreManager* headerManager, ZoneStatusCache *cache, const BlockHeader* header, const SystemTimestamp* end) {
-	BlockHeaderId* headerId = header->getId();
+	const BlockHeaderId* headerId = header->getId();
 
 	uint64_t height = header->getHeight() + 1;
 	uint16_t powHashrateBlocks = this->config->getPowHashrateBlocks(height);
@@ -327,7 +325,7 @@ uint64_t BlockchainStatusCache::getHeadHeight(uint16_t zone) {
 	ZoneStatusCache* cache = this->zoneList.get(zone);
 
 	const BlockHead* head = cache->getHead();
-	return head->getHeadHeight();
+	return head != nullptr ? head->getHeadHeight() : 0;
 }
 
 uint64_t BlockchainStatusCache::getFinalizedHeight(uint16_t zone) {
@@ -452,7 +450,7 @@ void BlockchainStatusCache::updateFinalizedCacheData(uint16_t zone, uint64_t fin
 
 	cache->finalizeUpdateCacheData(finalizingHeight, headerId, blockchain, context);
 
-	cache->updateBlockStatus(memtrx, blockchain, this->config, this->tmpCacheBaseDir);
+	cache->updateBlockStatus(memtrx, blockchain, this->config);
 }
 
 void BlockchainStatusCache::updateFinalizedHeaderCacheData(uint16_t zone, uint64_t finalizingHeight, const BlockHeaderId *headerId
@@ -461,7 +459,7 @@ void BlockchainStatusCache::updateFinalizedHeaderCacheData(uint16_t zone, uint64
 
 	cache->finalizeHeaderUpdateCacheData(finalizingHeight, headerId, blockchain);
 
-	cache->updateBlockStatus(memTrx, blockchain, this->config, this->tmpCacheBaseDir);
+	cache->updateBlockStatus(memTrx, blockchain, this->config);
 }
 
 UtxoData* BlockchainStatusCache::findUtxo(uint16_t zone, const UtxoId *utxoId) const {

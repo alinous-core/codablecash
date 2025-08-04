@@ -12,6 +12,7 @@
 #include "bc_base/AddressDescriptor.h"
 
 #include "bc_wallet_net/NetworkWallet.h"
+#include "bc_wallet_net/WalletConfig.h"
 
 #include "bc_wallet/HdWalletSeed.h"
 
@@ -41,6 +42,8 @@
 
 #include "bc_wallet_encoder/PasswordEncoder.h"
 
+#include "bc_wallet_net/NetworkTransactionHandler.h"
+
 #include "setup/TestnetSetupper01.h"
 
 using namespace codablecash;
@@ -52,18 +55,21 @@ public:
 		this->seeder = new ArrayDebugSeeder();
 		this->logger = new DebugDefaultLogger();
 		this->config = nullptr;
+		this->source = NodeIdentifierSource::create();
 	}
 	~TesGrouptParams(){
 		delete this->rootSeed;
 		delete this->seeder;
 		delete this->logger;
 		delete this->config;
+		delete this->source;
 	}
 
 	HdWalletSeed* rootSeed;
 	IDebugSeeder* seeder;
 	DebugDefaultLogger* logger;
 	CodablecashSystemParam *config;
+	NodeIdentifierSource *source;
 };
 
 TEST_GROUP(TestNetWalletGroup) {
@@ -77,6 +83,8 @@ TEST_GROUP(TestNetWalletGroup) {
 		this->params->logger->setSection(ISystemLogger::DEBUG_NODE_TRANSFER_RESPONSE);
 
 		DebugDefaultLogger* logger = this->params->logger;
+		logger->setSection(ISystemLogger::DEBUG_CHAIN_HEAD_DETECT);
+
 
 		this->env->getTestGroup()->setParam(this->params);
 
@@ -91,7 +99,8 @@ TEST_GROUP(TestNetWalletGroup) {
 		CodablecashSystemParam param;
 		DebugCodablecashSystemParamSetup::setupConfig02(param);
 
-		NetworkWallet* wallet = NetworkWallet::createNewWallet(baseDir, &pass, 0, 10, logger, &param); __STP(wallet);
+		WalletConfig walletConfig;
+		NetworkWallet* wallet = NetworkWallet::createNewWallet(baseDir, &pass, 0, 10, logger, &param, &walletConfig); __STP(wallet);
 		this->params->rootSeed = wallet->getRootSeed(&enc);
 		this->params->config = new CodablecashSystemParam(param);
 
@@ -117,22 +126,34 @@ TEST(TestNetWalletGroup, case01){
 	const HdWalletSeed* rootSeed = params->rootSeed;
 	INetworkSeeder* seeder = params->seeder;
 	const CodablecashSystemParam* config = params->config;
+	const NodeIdentifierSource* source = params->source;
 
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"wallet"))
 
 	DebugDefaultLogger* logger = params->logger;
 
+	WalletConfig walletConfig;
 	UnicodeString pass(L"changeit");
-	NetworkWallet* wallet = NetworkWallet::resotreWallet(baseDir, &pass, 0, rootSeed, 10, logger, config); __STP(wallet);
+	NetworkWallet* wallet = NetworkWallet::resotreWallet(baseDir, &pass, 0, rootSeed, 10, logger, config, &walletConfig); __STP(wallet);
 
 	PasswordEncoder enc(&pass);
+	wallet->setStakingSourceId(source, &enc);
 	wallet->initNetwork(seeder, &enc);
 
 	// sync
-	wallet->startNetwork();
+	wallet->syncBlockchain();
+	wallet->resumeNetwork();
+
 
 	// register pool
+	NetworkTransactionHandler* handler = wallet->getNetworkTransactionHandler(0); __STP(handler);
+	{
+		BalanceUnit fee(1L);
+		handler->sendRegisterVotePoolTransaction(fee, &enc);
+	}
+
+
 
 
 	// FIXME TestNetWalletGroup

@@ -159,4 +159,13 @@ void NetworkClientCommandProcessor::addClientCommand(const AbstractClientCommand
 	}
 }
 
+void NetworkClientCommandProcessor::shurdownProcessors() noexcept {
+	// remove all execute listners
+	this->clientExec->clearAllListners();
+
+	// wait for queue commands to be empty
+	this->queueProcessor->close();
+
+}
+
 } /* namespace codablecash */

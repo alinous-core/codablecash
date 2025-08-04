@@ -47,11 +47,11 @@
 #include "btree/BtreeScanner.h"
 
 #include "bc_base_trx_index/TransactionData.h"
+#include "bc_wallet_filter/BloomFilter1024.h"
 
 #include "filestore_block/IBlockObject.h"
 
-#include "bc_wallet_filter/BloomFilter512.h"
-
+#include "bc_wallet_trx_base/HdWalletAccountTrxBuilderContext.h"
 
 namespace codablecash {
 
@@ -193,24 +193,49 @@ GenesisTransaction* WalletAccount::createGenesisTransaction(const BalanceUnit am
 }
 
 BalanceTransferTransaction* WalletAccount::createBalanceTransferTransaction(
-				const AddressDescriptor *dest, const BalanceUnit amount
-				, const BalanceUnit feeRate, bool feeIncluded, const IWalletDataEncoder* encoder) {
+				const AddressDescriptor *dest, const BalanceUnit amount, const BalanceUnit feeRate, bool feeIncluded, const IWalletDataEncoder* encoder) {
+	HdWalletAccountTrxBuilderContext context(this, encoder);
+
+	return createBalanceTransferTransaction(dest, amount, feeRate, feeIncluded, encoder, &context);
+}
+
+BalanceTransferTransaction* WalletAccount::createBalanceTransferTransaction(
+		const AddressDescriptor *dest, const BalanceUnit amount, const BalanceUnit feeRate, bool feeIncluded, const IWalletDataEncoder *encoder,
+		ITransactionBuilderContext *context) {
 	BalanceTransactionWalletHandler handler(this);
-	return handler.createTransaction(dest, amount, feeRate, feeIncluded, encoder);
+
+	return handler.createTransaction(dest, amount, feeRate, feeIncluded, encoder, context);
 }
 
 RegisterVotePoolTransaction* WalletAccount::createRegisterVotePoolTransaction(
-		const NodeIdentifierSource *source, const BalanceUnit feeRate, const AddressDescriptor* addressDesc,
-		const IWalletDataEncoder *encoder) {
+		const NodeIdentifierSource *source, const BalanceUnit& feeRate, const AddressDescriptor* addressDesc, const IWalletDataEncoder *encoder) {
+	HdWalletAccountTrxBuilderContext context(this, encoder);
+
+	return createRegisterVotePoolTransaction(source, feeRate, addressDesc, encoder, &context);
+}
+
+
+RegisterVotePoolTransaction* WalletAccount::createRegisterVotePoolTransaction(
+		const NodeIdentifierSource *source, const BalanceUnit &feeRate, const AddressDescriptor *addressDesc, const IWalletDataEncoder *encoder,
+		ITransactionBuilderContext *context) {
 	RegisterVotePoolTransactionWalletHandler handler(this);
-	return handler.createTransaction(source, feeRate, addressDesc, encoder);
+	return handler.createTransaction(source, feeRate, addressDesc, encoder, context);
 }
 
 RegisterTicketTransaction* WalletAccount::createRegisterTicketTransaction(
-		const NodeIdentifier *nodeId, const BalanceUnit stakeAmount, const BalanceUnit feeRate, const AddressDescriptor *addressDesc,
+		const NodeIdentifier *nodeId, const BalanceUnit& stakeAmount, const BalanceUnit& feeRate, const AddressDescriptor *addressDesc,
 		const IWalletDataEncoder *encoder) {
+	HdWalletAccountTrxBuilderContext context(this, encoder);
+
+	return createRegisterTicketTransaction(nodeId, stakeAmount, feeRate, addressDesc, encoder, &context);
+}
+
+RegisterTicketTransaction* WalletAccount::createRegisterTicketTransaction(
+		const NodeIdentifier *nodeId, const BalanceUnit &stakeAmount, const BalanceUnit &feeRate, const AddressDescriptor *addressDesc, const IWalletDataEncoder *encoder,
+		ITransactionBuilderContext *context) {
 	RegisterTicketTransactionWalletHandler handler(this);
-	return handler.createTransaction(nodeId, stakeAmount, feeRate, addressDesc, encoder);
+
+	return handler.createTransaction(nodeId, stakeAmount, feeRate, addressDesc, encoder, context);
 }
 
 void WalletAccount::importTransaction(const AbstractBlockchainTransaction *trx) {
@@ -310,7 +335,7 @@ ArrayList<AbstractBlockchainTransaction>* WalletAccount::getTransactions() const
 	return list;
 }
 
-const BloomFilter512* WalletAccount::getBloomFilter(const IWalletDataEncoder* encoder) {
+const BloomFilter1024* WalletAccount::getBloomFilter(const IWalletDataEncoder* encoder) {
 	if(this->bloomFilter == nullptr){
 		createBloomFilter(encoder);
 	}
@@ -321,10 +346,14 @@ const BloomFilter512* WalletAccount::getBloomFilter(const IWalletDataEncoder* en
 void WalletAccount::createBloomFilter(const IWalletDataEncoder* encoder) {
 	delete this->bloomFilter;
 
-	this->bloomFilter = new BloomFilter512();
+	this->bloomFilter = new BloomFilter1024();
 
 	this->receivingAddresses->exportAddress2Filger(this->bloomFilter);
-	this->changeAddresses->exportAddress2Filger(this->bloomFilter, encoder);
+	this->changeAddresses->exportAddress2Filter(this->bloomFilter, encoder);
+}
+
+bool WalletAccount::checkAddress(const AddressDescriptor *desc) const {
+	return this->receivingAddresses->hasAddress(desc) || this->changeAddresses->hasAddress(desc);
 }
 
 } /* namespace codablecash */

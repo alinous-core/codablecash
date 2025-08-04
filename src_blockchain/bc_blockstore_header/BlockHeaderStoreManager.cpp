@@ -72,7 +72,7 @@ ArrayList<BlockHeader>* BlockHeaderStoreManager::getChildrenOf(const BlockHeader
 }
 
 
-void BlockHeaderStoreManager::removeHeader(BlockHeaderId *hash, uint64_t height) {
+void BlockHeaderStoreManager::removeHeader(const BlockHeaderId *hash, uint64_t height) {
 	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
 
 	BlockHeaderStoreCacheElement* cache = this->cache->getHeaderStoreCacheElement(height, false);

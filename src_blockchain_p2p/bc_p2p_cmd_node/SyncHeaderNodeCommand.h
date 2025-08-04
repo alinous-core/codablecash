@@ -29,7 +29,7 @@ public:
 	virtual AbstractCommandResponse* executeAsNode(BlockchainNodeHandshake* nodeHandShake, CodablecashNodeInstance* inst, bool suspend) const;
 
 	void setZone(uint16_t zone) noexcept;
-	void setNumRequestHeight(uint32_t numRequestTrx) noexcept;
+	void setNumRequestHeight(uint32_t numRequestHeight) noexcept;
 	void setStartHeight(uint32_t offset) noexcept;
 
 	virtual bool usePendingQueue() const noexcept;

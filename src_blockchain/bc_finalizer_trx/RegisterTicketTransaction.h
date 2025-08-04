@@ -23,7 +23,7 @@ public:
 	virtual ~RegisterTicketTransaction();
 
 	void setNodeId(const NodeIdentifier* nodeId) noexcept;
-	void setAddressDescriptor(const AddressDescriptor* addressDesc) noexcept;
+	void setAddressDescriptor(const AddressDescriptor* ticketReturnaddressDesc) noexcept;
 	void setAmounst(BalanceUnit amount) noexcept;
 
 	virtual bool validateOnAccept(MemPoolTransaction *memTrx, IStatusCacheContext* context) const;

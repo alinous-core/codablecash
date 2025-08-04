@@ -25,6 +25,7 @@
 #include "bc_p2p_cmd_client/DownloadDnsInfoCommand.h"
 #include "bc_p2p_cmd_client/PingNodeCommand.h"
 #include "bc_p2p_cmd_client/SendTransactionClientCommand.h"
+#include "bc_p2p_cmd_client/ClientSyncHeaderCommand.h"
 
 #include "bc_p2p_cmd_client_notify/ClientNotifyNewTransactionCommand.h"
 
@@ -41,6 +42,7 @@
 #include "bc_p2p_cmd_node_consensus/SendVoteTransactionNodeCommand.h"
 
 #include "bc_p2p_cmd_network/NodeShutdownCommand.h"
+
 
 namespace codablecash {
 
@@ -81,6 +83,9 @@ AbstractPubSubCommand* AbstractPubSubCommand::createFromBinary(ByteBuffer *buff)
 		break;
 	case TYPE_CLIENT_TRANSACTION_TRANSFER:
 		ret = new SendTransactionClientCommand();
+		break;
+	case TYPE_CLIENT_SYNC_HEADER:
+		ret = new ClientSyncHeaderCommand();
 		break;
 	case AbstractPubSubCommand::TYPE_NETWORK_NODE_SHUTDOWN:
 		ret = new NodeShutdownCommand();

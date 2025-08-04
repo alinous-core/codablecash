@@ -78,7 +78,7 @@ MultizoneTestnet* TestnetSetupper01::setup2NodeZone0(NetworkWallet *wallet, uint
 		testnet->startInstancesFrom(0, 1, seeder);
 	}
 
-	testnet->waitForBlockHeight(0, 0, 4);
+	testnet->waitForBlockHeight(0, 1, 4);
 
 	return testnet;
 }

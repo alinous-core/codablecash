@@ -87,6 +87,10 @@ bool BloomFilter::checkBytes(const char *b, int length) {
 	uint64_t v2 = _v2 % l;
 	uint64_t v3 = _v3 % l;
 
+	return checkBytes(v1, v2, v3);
+}
+
+bool BloomFilter::checkBytes(uint64_t v1, uint64_t v2, uint64_t v3) {
 	bool b1 = hasBit(v1);
 	bool b2 = hasBit(v2);
 	bool b3 = hasBit(v3);

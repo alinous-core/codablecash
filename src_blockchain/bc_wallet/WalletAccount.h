@@ -14,6 +14,8 @@
 
 #include "base/ArrayList.h"
 
+#include "bc_trx/IAddressChecker.h"
+
 namespace alinous {
 class File;
 }
@@ -40,9 +42,10 @@ class RegisterVotePoolTransaction;
 class RegisterTicketTransaction;
 class NodeIdentifier;
 class NodeIdentifierSource;
-class BloomFilter512;
+class BloomFilter1024;
+class ITransactionBuilderContext;
 
-class WalletAccount : public AbstractWalletAccount {
+class WalletAccount : public AbstractWalletAccount, public IAddressChecker {
 public:
 	static const constexpr wchar_t* STORE_NAME{L"WalletAccount"};
 	static const constexpr wchar_t* KEY_ENCRYPTED_SEED{L"encryptedSeed"};
@@ -76,12 +79,18 @@ public:
 	GenesisTransaction* createGenesisTransaction(const BalanceUnit amount, int pos);
 	BalanceTransferTransaction* createBalanceTransferTransaction(const AddressDescriptor* dest, const BalanceUnit amount
 			, const BalanceUnit feeRate, bool feeIncluded, const IWalletDataEncoder* encoder);
+	BalanceTransferTransaction* createBalanceTransferTransaction(const AddressDescriptor* dest, const BalanceUnit amount
+			, const BalanceUnit feeRate, bool feeIncluded, const IWalletDataEncoder* encoder, ITransactionBuilderContext* context);
 
 	RegisterVotePoolTransaction* createRegisterVotePoolTransaction(const NodeIdentifierSource *source
-			, const BalanceUnit feeRate, const AddressDescriptor* addressDesc, const IWalletDataEncoder* encoder);
-	RegisterTicketTransaction* createRegisterTicketTransaction(const NodeIdentifier* nodeId, const BalanceUnit stakeAmount
-			, const BalanceUnit feeRate
-			, const AddressDescriptor *addressDesc, const IWalletDataEncoder* encoder);
+			, const BalanceUnit& feeRate, const AddressDescriptor* addressDesc, const IWalletDataEncoder* encoder);
+	RegisterVotePoolTransaction* createRegisterVotePoolTransaction(const NodeIdentifierSource *source
+			, const BalanceUnit& feeRate, const AddressDescriptor* addressDesc, const IWalletDataEncoder* encoder, ITransactionBuilderContext* context);
+
+	RegisterTicketTransaction* createRegisterTicketTransaction(const NodeIdentifier* nodeId, const BalanceUnit& stakeAmount
+			, const BalanceUnit& feeRate, const AddressDescriptor *addressDesc, const IWalletDataEncoder* encoder);
+	RegisterTicketTransaction* createRegisterTicketTransaction(const NodeIdentifier* nodeId, const BalanceUnit& stakeAmount
+			, const BalanceUnit& feeRate, const AddressDescriptor *addressDesc, const IWalletDataEncoder* encoder, ITransactionBuilderContext* context);
 
 	void importTransaction(const AbstractBlockchainTransaction* trx);
 	AbstractBlockchainTransaction* findTransaction(const TransactionId* trxId);
@@ -106,7 +115,9 @@ public:
 
 	ArrayList<AbstractBlockchainTransaction>* getTransactions() const;
 
-	const BloomFilter512* getBloomFilter(const IWalletDataEncoder* encoder);
+	const BloomFilter1024* getBloomFilter(const IWalletDataEncoder* encoder);
+
+	virtual bool checkAddress(const AddressDescriptor* desc) const;
 
 private:
 	void createBloomFilter(const IWalletDataEncoder* encoder);
@@ -128,7 +139,7 @@ private:
 
 	StatusStore* store;
 
-	BloomFilter512* bloomFilter;
+	BloomFilter1024* bloomFilter;
 };
 
 } /* namespace codablecash */

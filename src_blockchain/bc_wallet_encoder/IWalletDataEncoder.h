@@ -11,6 +11,8 @@
 namespace codablecash {
 
 class HdWalletSeed;
+class StakingEncriptedSeed;
+class NodeIdentifierSource;
 
 class IWalletDataEncoder {
 public:
@@ -19,6 +21,9 @@ public:
 
 	virtual HdWalletSeed* encode(const HdWalletSeed* seed) const noexcept = 0;
 	virtual HdWalletSeed* decode(const HdWalletSeed* encodedSeed) const noexcept = 0;
+
+	virtual StakingEncriptedSeed* encodeStakingSource(const NodeIdentifierSource *source) const noexcept = 0;
+	virtual NodeIdentifierSource* decodeStakingSource(const StakingEncriptedSeed* encrypted) const noexcept = 0;
 
 	virtual IWalletDataEncoder* copy() const noexcept = 0;
 };

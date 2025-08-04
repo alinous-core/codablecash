@@ -30,7 +30,7 @@ public:
 
 	void addReference(const BalanceUtxoReference* ref) noexcept;
 
-	MuSig sign(IMuSigSignerProvidor* providor, IUtxoFinder* finder, const char *data, int length);
+	MuSig sign(IMuSigSignerProvidor* providor, IUtxoFinder* finder, const char *data, int length) const;
 
 	int binarySize() const;
 	void toBinary(ByteBuffer* out) const;

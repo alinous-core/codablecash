@@ -23,6 +23,8 @@ class StakeBaseTransaction;
 class CoinbaseTransaction;
 class AbstractBlockRewordTransaction;
 class MerkleTree;
+class ITransactionVisitor;
+class Block;
 
 class BlockRewordBase {
 public:
@@ -45,6 +47,9 @@ public:
 	const ArrayList<StakeBaseTransaction>* getStakeBases() const noexcept {
 		return this->stakeBases;
 	}
+
+	void visitTransactions(ITransactionVisitor* visitor, const Block* block) const;
+
 private:
 	CoinbaseTransaction* coinbase;
 	ArrayList<StakeBaseTransaction>* stakeBases;

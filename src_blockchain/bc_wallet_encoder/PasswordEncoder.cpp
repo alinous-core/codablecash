@@ -17,6 +17,10 @@
 
 #include "crypto/Sha256.h"
 
+#include "bc_network/NodeIdentifierSource.h"
+
+#include "bc_wallet_net/StakingEncriptedSeed.h"
+
 namespace codablecash {
 
 PasswordEncoder::PasswordEncoder(const UnicodeString* password) {
@@ -40,31 +44,66 @@ HdWalletSeed* PasswordEncoder::encode(const HdWalletSeed *seed) const noexcept {
 	int size = seed->size();
 	const char* data = seed->toArray();
 
+	Aes256CbcResult* result = encode((const uint8_t*)data, size); __STP(result);
+
+	return new HdWalletSeed((const char*)result->data, result->length);
+}
+
+HdWalletSeed* PasswordEncoder::decode(const HdWalletSeed *encodedSeed) const noexcept {
+	ByteBuffer* buff = decode((const uint8_t*)encodedSeed->toArray(), encodedSeed->size()); __STP(buff);
+
+	return new HdWalletSeed((const char*)buff->array(), buff->limit());
+}
+
+StakingEncriptedSeed* PasswordEncoder::encodeStakingSource(const NodeIdentifierSource *source) const noexcept {
+	int size = source->binarySize();
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(size, true); __STP(buff);
+
+	source->toBinary(buff);
+
+	buff->position(0);
+	Aes256CbcResult* result = encode(buff->array(), buff->capacity()); __STP(result);
+
+	return new StakingEncriptedSeed(result->data, result->length);
+}
+
+NodeIdentifierSource* PasswordEncoder::decodeStakingSource(const StakingEncriptedSeed *encrypted) const noexcept {
+	ByteBuffer* encbuff = encrypted->getByteBuffer();
+	encbuff->position(0);
+
+	ByteBuffer* buff = decode(encbuff->array(), encbuff->capacity()); __STP(buff);
+
+	buff->position(0);
+	NodeIdentifierSource* source = NodeIdentifierSource::createFromBinary(buff);
+
+	return source;
+}
+
+IWalletDataEncoder* PasswordEncoder::copy() const noexcept {
+	return new PasswordEncoder(this->password);
+}
+
+Aes256CbcResult* PasswordEncoder::encode(const uint8_t *data, int size) const noexcept {
 	UnicodeString* str = Base64::encode((const uint8_t*)data, size); __STP(str);
 
 	Aes256Cbc aes;
 	aes.setKey(this->keybuff->array());
 	Aes256CbcResult* result = aes.encryptoPlainText(str); __STP(result);
 
-
-	return new HdWalletSeed((const char*)result->data, result->length);
+	return __STP_MV(result);
 }
 
-HdWalletSeed* PasswordEncoder::decode(const HdWalletSeed *encodedSeed) const noexcept {
+ByteBuffer* PasswordEncoder::decode(const uint8_t *data, int size) const noexcept {
 	Aes256Cbc aes;
 	aes.setKey(this->keybuff->array());
 
-	const char* decoded_cstr = aes.decrypt((const uint8_t*)encodedSeed->toArray(), encodedSeed->size());
+	const char* decoded_cstr = aes.decrypt(data, size);
 	StackArrayRelease<const char> __st_base64(decoded_cstr);
 
 	int length = ::strlen(decoded_cstr);
 	ByteBuffer* buff = Base64::decode(decoded_cstr, length); __STP(buff);
 
-	return new HdWalletSeed((const char*)buff->array(), buff->limit());
-}
-
-IWalletDataEncoder* PasswordEncoder::copy() const noexcept {
-	return new PasswordEncoder(this->password);
+	return __STP_MV(buff);
 }
 
 } /* namespace codablecash */

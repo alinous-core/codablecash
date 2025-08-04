@@ -35,7 +35,7 @@ public:
 	ArrayList<BlockHeader>* getBlocksAtHeight(uint64_t height);
 	ArrayList<BlockHeader>* getChildrenOf(const BlockHeaderId *headerId, uint64_t height);
 
-	void removeHeader(BlockHeaderId* hash, uint64_t height);
+	void removeHeader(const BlockHeaderId* hash, uint64_t height);
 
 	BlockHeader* getHeader(const BlockHeaderId* headerId, uint64_t height);
 

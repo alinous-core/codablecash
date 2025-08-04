@@ -268,11 +268,11 @@ void VoteBlockTransaction::setVoterId(const NodeIdentifier *voterId) noexcept {
 	this->voterId = new NodeIdentifier(*voterId);
 }
 
-void VoteBlockTransaction::setTicketUtxoId(const UtxoId *utxoId, const BalanceUnit amount) noexcept {
+void VoteBlockTransaction::setTicketUtxoId(const UtxoId *utxoId, const BalanceUnit amount, const AddressDescriptor* desc) noexcept {
 	delete this->ticketUtxoRef;
 
 	this->ticketUtxoRef = new TicketUtxoReference();
-	this->ticketUtxoRef->setUtxoId(utxoId);
+	this->ticketUtxoRef->setUtxoId(utxoId, desc);
 
 	delete this->votedUtxo;
 	this->votedUtxo = new TicketVotedUtxo();

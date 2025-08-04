@@ -39,6 +39,8 @@ public:
 	static const constexpr uint32_t TYPE_RES_DOWNLOAD_OMITTED_BLOCK_BODY{103};
 	static const constexpr uint32_t TYPE_RES_DOWNLOAD_TRANSACTIONS{104};
 
+	static const constexpr uint32_t TYPE_RES_CLIENT_SYNC_HEADER{110};
+
 
 	explicit AbstractCommandResponse(uint32_t type);
 	virtual ~AbstractCommandResponse();

@@ -14,6 +14,7 @@ class File;
 class UnicodeString;
 class DiskCacheManager;
 class Btree;
+class BtreeScanner;
 }
 using namespace alinous;
 
@@ -44,6 +45,7 @@ public:
 	BalanceUnit getTotalAmount() const noexcept;
 	ArrayList<BalanceUtxo>* getBalanceUtxos(const AddressDescriptor* desc);
 
+	BtreeScanner* getScanner() const;
 
 private:
 	const File* accountBaseDir;

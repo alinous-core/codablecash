@@ -13,6 +13,10 @@
 
 #include "base/StackRelease.h"
 
+#include "bc_wallet_net/NetworkWallet.h"
+
+#include "bc_wallet_net_data/NetworkWalletData.h"
+
 namespace codablecash {
 
 ClientNewTransactionCommand::ClientNewTransactionCommand(const ClientNewTransactionCommand &inst)
@@ -66,7 +70,8 @@ void ClientNewTransactionCommand::setData(const TransactionTransferData *d) {
 }
 
 void ClientNewTransactionCommand::process(NetworkWallet *wallet) const {
-	// TODO ClientNewTransactionCommand
+	NetworkWalletData* walletData = wallet->getWalletData();
+	walletData->addTransactionDataToMempool(this->data);
 }
 
 } /* namespace codablecash */

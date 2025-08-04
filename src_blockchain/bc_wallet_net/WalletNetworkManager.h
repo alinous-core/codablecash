@@ -25,7 +25,10 @@ class P2pNodeRecord;
 class WalletNetworkNodeCandidates;
 class WalletConnectionManager;
 class NetworkClientCommandProcessor;
-class BloomFilter512;
+class BloomFilter1024;
+class NodeIdentifier;
+class NodeIdentifierSource;
+class ClientNodeHandshake;
 
 class WalletNetworkManager {
 public:
@@ -36,7 +39,12 @@ public:
 
 	void setSeeder(INetworkSeeder* seeder) noexcept;
 
-	void maintainNetwork(const ArrayList<BloomFilter512>* filters);
+	void maintainNetwork(const ArrayList<BloomFilter1024>* filters);
+
+	ArrayList<NodeIdentifier>* getNodeIdList() const noexcept;
+	const NodeIdentifierSource* getNodeIdentifierSource() const noexcept;
+
+	ClientNodeHandshake* getClientHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept;
 
 private:
 	void importSeeds(int numZones, const P2pNodeRecord* seedRec);

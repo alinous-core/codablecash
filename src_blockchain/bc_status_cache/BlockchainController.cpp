@@ -322,7 +322,7 @@ void BlockchainController::initCacehContext(uint16_t zone, StatusCacheContext *c
 		BlockBody* blockBody = bodyManager->getBlockBody(root, currentHeight); __STP(blockBody);
 		assert(blockBody != nullptr);
 
-		context->importBlock(header, blockBody);
+		context->importBlock(header, blockBody, this->logger);
 	}
 }
 
@@ -509,7 +509,7 @@ void BlockchainController::requestMiningBlock(MemPoolTransaction* memTrx) {
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 	ZoneStatusCache* cache = this->statusCache->getZoneStatusCache(zoneSelf);
 
-	cache->updateBlockStatus(memTrx, this->blockchain, this->config, this->tmpCacheBaseDir);
+	cache->updateBlockStatus(memTrx, this->blockchain, this->config);
 
 	this->statusCache->report2PowManager(this->blockchain, cache);
 }

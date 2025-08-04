@@ -35,6 +35,8 @@ class RevokeMissVotedTicket;
 class RevokeMissedTicket;
 class AbstractInterChainCommunicationTansaction;
 class AbstractSmartcontractTransaction;
+class ITransactionVisitor;
+class Block;
 
 class BlockBody : public alinous::IBlockObject {
 public:
@@ -102,6 +104,8 @@ public:
 	UnicodeString* toStatString() const noexcept;
 
 	OmittedBlockBody* toOmittedBlockBody() const;
+
+	void visitTransactions(ITransactionVisitor* visitor, const Block* block) const;
 
 #ifdef __DEBUG__
 	bool checkTransaction(const AbstractBlockchainTransaction* trx);

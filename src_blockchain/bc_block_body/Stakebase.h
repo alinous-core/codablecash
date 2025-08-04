@@ -35,6 +35,8 @@ public:
 		return this->amount;
 	}
 
+	virtual bool checkFilter(const ArrayList<BloomFilter1024> *filtersList) const;
+
 private:
 	BalanceUnit* amount;
 

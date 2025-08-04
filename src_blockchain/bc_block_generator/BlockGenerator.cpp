@@ -205,7 +205,7 @@ void BlockGenerator::importControlTransactions2Block(MemPoolTransaction* memTrx,
 
 			if(result == TrxValidationResult::OK){
 				block->addControlTransaction(trx);
-				context->importControlTransaction(header, trx);
+				context->importControlTransaction(header, trx, this->logger);
 			}
 			continue;
 		}
@@ -213,7 +213,7 @@ void BlockGenerator::importControlTransactions2Block(MemPoolTransaction* memTrx,
 		TrxValidationResult result = trx->validateFinal(header, memTrx, context);
 		if(result == TrxValidationResult::OK){
 			block->addControlTransaction(trx);
-			context->importControlTransaction(header, trx);
+			context->importControlTransaction(header, trx, this->logger);
 		}
 	}
 }
@@ -230,7 +230,7 @@ void BlockGenerator::importInterChainCommunicationTransactions2Block(MemPoolTran
 
 		if(result == TrxValidationResult::OK){
 			block->addInterChainCommunicationTransaction(trx);
-			context->importInterChainCommunicationTransaction(header, trx);
+			context->importInterChainCommunicationTransaction(header, trx, this->logger);
 		}
 	}
 }
@@ -246,7 +246,7 @@ void BlockGenerator::importSmartcontractTransactions2Block(	MemPoolTransaction *
 		TrxValidationResult result = trx->validateFinal(header, memTrx, context);
 		if(result == TrxValidationResult::OK){
 			block->addSmartcontractTransaction(trx);
-			context->importSmartcontractTransaction(header, trx);
+			context->importSmartcontractTransaction(header, trx, this->logger);
 		}
 	}
 }
@@ -279,7 +279,7 @@ void BlockGenerator::buildRewordBase(MemPoolTransaction *memTrx, IStatusCacheCon
 
 		// correct header Id
 		BlockHeader* votedHeader = headerManger->getNBlocksBefore(headerIdOnVoting, votedHeight, voteBeforeNBlocks); __STP(votedHeader);
-		BlockHeaderId* votedHeaderId = votedHeader->getId();
+		const BlockHeaderId* votedHeaderId = votedHeader->getId();
 
 		const VotePart* vpart = header->getVotePart();
 		const VotedHeaderIdGroup* group = vpart->getVotedGroup(votedHeaderId);
@@ -318,7 +318,7 @@ void BlockGenerator::removkeUnvotedTickets(MemPoolTransaction *memTrx, IStatusCa
 	int voteBeforeNBlocks = this->config->getVoteBeforeNBlocks(votedHeight);
 
 	BlockHeader* votedHeader = headerManger->getNBlocksBefore(headerIdOnVoting, votedHeight, voteBeforeNBlocks); __STP(votedHeader);
-	BlockHeaderId* votedHeaderId = votedHeader->getId();
+	const BlockHeaderId* votedHeaderId = votedHeader->getId();
 
 	const VotePart* vpart = header->getVotePart();
 	const VotedHeaderIdGroup* group = vpart->getVotedGroup(votedHeaderId);
@@ -354,6 +354,14 @@ void BlockGenerator::revokeUnvokedcandidate(MemPoolTransaction *memTrx, IStatusC
 	addRevokeMissedTicket(memTrx, context, block, candidate);
 }
 
+/**
+ * Voted wrong block
+ * @param memTrx
+ * @param context
+ * @param block
+ * @param candidate
+ * @param trx
+ */
 void BlockGenerator::addRevokeMissVotedTicket(MemPoolTransaction *memTrx, IStatusCacheContext *context,	Block *block, VoteCandidate *candidate, const VoteBlockTransaction* trx) {
 	RevokeMissVotedTicket* revokeTrx = new RevokeMissVotedTicket(); __STP(revokeTrx);
 
@@ -361,7 +369,9 @@ void BlockGenerator::addRevokeMissVotedTicket(MemPoolTransaction *memTrx, IStatu
 		TicketVotedUtxoReference ref;
 		const TicketVotedUtxo* votedUtxo = trx->getTicketVotedUtxo();
 		const UtxoId* utxoId = votedUtxo->getId();
-		ref.setUtxoId(utxoId);
+
+		const AddressDescriptor* desc = candidate->getAddressDescriptor();
+		ref.setUtxoId(utxoId, desc);
 
 		revokeTrx->setTicketVotedUtxoReference(&ref);
 
@@ -399,7 +409,9 @@ void BlockGenerator::addRevokeMissedTicket(MemPoolTransaction *memTrx, IStatusCa
 	{
 		const UtxoId* utxoId = candidate->getUtxoId();
 		TicketUtxoReference ref;
-		ref.setUtxoId(utxoId);
+
+		const AddressDescriptor* desc = candidate->getAddressDescriptor();
+		ref.setUtxoId(utxoId, desc);
 
 		revokeTrx->setTicketUtxoReference(&ref);
 	}
@@ -441,7 +453,7 @@ void BlockGenerator::importBalanceTransactions2Block(MemPoolTransaction *memTrx,
 
 		if(result == TrxValidationResult::OK){
 			block->addBalanceTransaction(trx);
-			context->importBalanceTransaction(header, trx);
+			context->importBalanceTransaction(header, trx, this->logger);
 		}
 	}
 }

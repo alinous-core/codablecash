@@ -9,6 +9,9 @@
 
 #include "data_history_data/TransactionTransferData.h"
 #include "data_history_data/BlockHeaderTransferData.h"
+#include "data_history_data/BlockTransactionTransferData.h"
+
+#include "bc_p2p_cmd_client/ClientBlockHeaderTransferData.h"
 
 
 namespace codablecash {
@@ -36,6 +39,12 @@ AbstractTransferedData* AbstractTransferedData::createFromBinary(ByteBuffer *in)
 		break;
 	case DATA_BLOCKHEADER:
 		ret = new BlockHeaderTransferData();
+		break;
+	case DATA_CLIENT_BLOCKHEADER:
+		ret = new ClientBlockHeaderTransferData();
+		break;
+	case DATA_BLOCK_TRANSACTION:
+		ret = new BlockTransactionTransferData();
 		break;
 	default:
 		return nullptr;

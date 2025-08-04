@@ -57,6 +57,10 @@ public:
 
 	BtreeScanner* getScanner() const;
 
+	WalletAccountUtxoRepository* getUtxoRepo() const noexcept {
+		return this->utxoRepo;
+	}
+
 private:
 	void initSelf();
 	void openSelf();

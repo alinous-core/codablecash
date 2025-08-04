@@ -48,7 +48,7 @@ TEST(TestPoWManagerGroup, case01){
 	BlockHeader header;
 	header.setHeight(2);
 	header.buildHeaderId();
-	BlockHeaderId* id = header.getId();
+	const BlockHeaderId* id = header.getId();
 
 	BigInteger targetDiff(10000000L);
 
@@ -90,7 +90,7 @@ TEST(TestPoWManagerGroup, case02){
 	BlockHeader header;
 	header.setHeight(2);
 	header.buildHeaderId();
-	BlockHeaderId* id = header.getId();
+	const BlockHeaderId* id = header.getId();
 
 	BigInteger targetDiff(10000000L);
 
@@ -134,7 +134,7 @@ TEST(TestPoWManagerGroup, case03){
 	BlockHeader header;
 	header.setHeight(2);
 	header.buildHeaderId();
-	BlockHeaderId* id = header.getId();
+	const BlockHeaderId* id = header.getId();
 
 	BigInteger targetDiff(10000000L);
 

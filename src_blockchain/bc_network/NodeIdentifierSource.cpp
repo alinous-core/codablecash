@@ -36,7 +36,6 @@ NodeIdentifier NodeIdentifierSource::toNodeIdentifier() const noexcept {
 
 int NodeIdentifierSource::binarySize() const {
 	int total = this->pair->binarySize();
-	total += sizeof(uint32_t);
 
 	return total;
 }

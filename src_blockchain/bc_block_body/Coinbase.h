@@ -30,6 +30,8 @@ public:
 
 	virtual IBlockObject* copyData() const noexcept;
 
+	virtual bool checkFilter(const ArrayList<BloomFilter1024> *filtersList) const;
+
 	void setAmount(const BalanceUnit* amount) noexcept;
 	const BalanceUnit* getAmount() const noexcept {
 		return this->amount;

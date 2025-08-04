@@ -19,6 +19,7 @@ namespace codablecash {
 class BlockHeader;
 class VoteTransactionIdCertificate;
 class Block;
+class BlockTransactionTransferData;
 
 class BlockHeaderTransferData : public AbstractTransferedData, public IVoteTransactionIdCertificateBuilder {
 public:
@@ -48,9 +49,17 @@ public:
 
 	const VoteTransactionIdCertificate* getVoteTransactionIdCertificate(const TransactionId *voteTrxId) const;
 
+	void addTransactionTransferData(const BlockTransactionTransferData* data) noexcept;
+
+	const ArrayList<BlockTransactionTransferData>* getTransactionList() const noexcept {
+		return this->trxList;
+	}
+
 private:
 	BlockHeader* header;
 	ArrayList<VoteTransactionIdCertificate>* certList;
+
+	ArrayList<BlockTransactionTransferData>* trxList;
 };
 
 } /* namespace codablecash */

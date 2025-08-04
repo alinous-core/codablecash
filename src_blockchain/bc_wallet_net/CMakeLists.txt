@@ -1,9 +1,11 @@
 
 
 set(__src
+	NetworkTransactionHandler.cpp
 	NetworkWallet.cpp
-	NetworkWalletData.cpp
+	StakingEncriptedSeed.cpp
 	StakingSeedManager.cpp
+	WalletConfig.cpp
 	WalletConnectionManager.cpp
 	WalletNetworkManager.cpp
 	WalletNetworkNodeCandidates.cpp

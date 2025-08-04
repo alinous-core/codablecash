@@ -10,7 +10,7 @@
 
 #include "bc_base_conf_store/StatusStore.h"
 
-#include "bc_wallet_filter/BloomFilter512.h"
+#include "bc_wallet_filter/BloomFilter1024.h"
 
 
 namespace codablecash {
@@ -54,7 +54,7 @@ void ReceivingAddressStore::load(const IWalletDataEncoder *encoder) {
 	}
 }
 
-void ReceivingAddressStore::exportAddress2Filger(BloomFilter512 *filter) {
+void ReceivingAddressStore::exportAddress2Filger(BloomFilter1024 *filter) {
 	int maxLoop = this->list->size();
 	for(int i = 0; i != maxLoop; ++i){
 		AddressAndPrivateKey* addressKey = this->list->get(i);

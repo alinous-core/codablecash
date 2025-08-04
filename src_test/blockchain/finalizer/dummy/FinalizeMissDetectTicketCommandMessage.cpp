@@ -149,7 +149,7 @@ void FinalizeMissDetectTicketCommandMessage::putTransaction(const BlockHeader *h
 
 	// set time stamp of vote transaction
 	VoteBlockTransaction* trx = new VoteBlockTransaction(); __STP(trx);
-	trx->setTicketUtxoId(utxoId, candidate->getTicletPrice());
+	trx->setTicketUtxoId(utxoId, candidate->getTicletPrice(), candidate->getAddressDescriptor());
 	trx->setVoteBlockId(wrongHeaderId); // wrong id
 	trx->setVoteBlockHeight(height2Vote);
 	trx->setVoterId(voterId);

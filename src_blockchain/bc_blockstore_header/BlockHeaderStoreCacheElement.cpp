@@ -132,7 +132,7 @@ ArrayList<BlockHeader>* BlockHeaderStoreCacheElement::getChildrenOf(const BlockH
 	return headers;
 }
 
-void BlockHeaderStoreCacheElement::removeBlock(BlockHeaderId *hash, uint64_t height) {
+void BlockHeaderStoreCacheElement::removeBlock(const BlockHeaderId *hash, uint64_t height) {
 	BlockHeaderList* list = this->heightIndex->getHeadersAtHeight(height); __STP(list);
 	if(list == nullptr){
 		return;
@@ -145,7 +145,7 @@ void BlockHeaderStoreCacheElement::removeBlock(BlockHeaderId *hash, uint64_t hei
 		uint64_t fpos = list->get(i);
 
 		BlockHeader* header = this->store->loadHeader(fpos); __STP(header);
-		BlockHeaderId* id = header->getId();
+		const BlockHeaderId* id = header->getId();
 
 		if(id->equals(hash)){
 			fpos2remove = fpos;

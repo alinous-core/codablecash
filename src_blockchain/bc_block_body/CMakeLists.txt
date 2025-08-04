@@ -6,6 +6,7 @@ set(__src
 	BlockRewordBase.cpp
 	Coinbase.cpp
 	CoinbaseTransaction.cpp
+	ITransactionVisitor.cpp
 	OmittedBlockBody.cpp
 	Stakebase.cpp
 	StakeBaseTransaction.cpp

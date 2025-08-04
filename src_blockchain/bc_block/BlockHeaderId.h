@@ -24,12 +24,6 @@ public:
 	static BlockHeaderId* fromBinary(ByteBuffer* in);
 
 	virtual IBlockObject* copyData() const noexcept;
-
-	int hashCode() const;
-	class ValueCompare {
-	public:
-		int operator () (const BlockHeaderId* const a, const BlockHeaderId* const b) const;
-	};
 };
 
 } /* namespace codablecash */

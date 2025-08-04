@@ -7,6 +7,8 @@ set(__src
 	AbstractInterChainCommunicationTansaction.cpp
 	AbstractUtxo.cpp
 	AbstractUtxoReference.cpp
+	IAddressChecker.cpp
+	IUtxoRefChecker.cpp
 	NopInterChainCommunicationTransaction.cpp
 	TransactionId.cpp
 	UtxoId.cpp

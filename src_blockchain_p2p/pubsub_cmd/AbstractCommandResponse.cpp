@@ -25,6 +25,8 @@
 #include "bc_p2p_cmd_node/DownloadTransactionsNodeCommandResponse.h"
 #include "bc_p2p_cmd_node/NodeCommandValidationErrorResponse.h"
 
+#include "bc_p2p_cmd_client/ClientSyncHeaderCommandResponse.h"
+
 #include "pubsub/PubsubCommandException.h"
 
 #include "base_io/ByteBuffer.h"
@@ -90,6 +92,9 @@ AbstractCommandResponse* AbstractCommandResponse::createFromBinary(ByteBuffer *b
 		break;
 	case TYPE_RES_DOWNLOAD_TRANSACTIONS:
 		ret = new DownloadTransactionsNodeCommandResponse();
+		break;
+	case TYPE_RES_CLIENT_SYNC_HEADER:
+		ret = new ClientSyncHeaderCommandResponse();
 		break;
 	default:
 		throw new PubsubCommandException(L"Wrong command response type.", __FILE__, __LINE__);

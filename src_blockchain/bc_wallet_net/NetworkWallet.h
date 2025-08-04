@@ -29,30 +29,50 @@ class StakingSeedManager;
 class NetworkClientCommandProcessor;
 class NetworkWalletData;
 class CodablecashSystemParam;
+class WalletConfig;
+class NodeIdentifierSource;
+class NetworkTransactionHandler;
+
 
 class NetworkWallet {
 public:
-	NetworkWallet(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam *config);
+	NetworkWallet(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam *config, const WalletConfig* walletConfig);
 	virtual ~NetworkWallet();
 
 	void init();
 
-	static NetworkWallet* createNewWallet(const File* dir, const UnicodeString* pass, uint16_t zone, int defaultMaxAddress, ISystemLogger* logger, const CodablecashSystemParam *config);
-	static NetworkWallet* resotreWallet(const File* dir, const UnicodeString* pass, uint16_t zone, const HdWalletSeed* rootSeed, int defaultMaxAddress, ISystemLogger* logger, const CodablecashSystemParam *config);
+	void closeData() noexcept;
 
-	HdWalletSeed* getRootSeed(const IWalletDataEncoder* encoder) const;
-
-	void initNetwork(INetworkSeeder *seeder, const IWalletDataEncoder* encoder);
-	void startNetwork();
-	void syncBlockchain();
+	static NetworkWallet* createNewWallet(const File* dir, const UnicodeString* pass, uint16_t zone, int defaultMaxAddress, ISystemLogger* logger
+			, const CodablecashSystemParam *config, const WalletConfig* walletConfig);
+	static NetworkWallet* resotreWallet(const File* dir, const UnicodeString* pass, uint16_t zone, const HdWalletSeed* rootSeed, int defaultMaxAddress, ISystemLogger* logger
+			, const CodablecashSystemParam *config, const WalletConfig* walletConfig);
 
 	void createData();
+	HdWalletSeed* getRootSeed(const IWalletDataEncoder* encoder) const;
 
+	void setStakingSourceId(const NodeIdentifierSource* source, const IWalletDataEncoder* encoder);
+	NodeIdentifierSource* getStakingSourceId(const IWalletDataEncoder* encoder) const noexcept;
+
+	void initNetwork(INetworkSeeder *seeder, const IWalletDataEncoder* encoder);
+	void syncBlockchain();
+	void resumeNetwork();
+
+	void shutdownNetwork();
 
 	AddressDescriptor* getAddressDescriptor(int accountIndex, int addressIndex) const;
-
 	const File* getBaseDir() const noexcept {
 		return this->baseDir;
+	}
+	NetworkWalletData* getWalletData() const noexcept {
+		return this->walletData;
+	}
+
+	// transaction handling
+	NetworkTransactionHandler* getNetworkTransactionHandler(int accountIndex) noexcept;
+
+	WalletNetworkManager* getWalletNetworkManager() const noexcept {
+		return this->networkManager;
 	}
 
 private:
@@ -63,6 +83,7 @@ private:
 	File* baseDir;
 	ISystemLogger* logger;
 	CodablecashSystemParam *config;
+	WalletConfig* walletConfig;
 
 	// wallet
 	NetworkWalletData* walletData;

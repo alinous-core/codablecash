@@ -20,6 +20,7 @@ namespace codablecash {
 
 class SyncHeaderHeightData;
 class HeightHeaderSyncDataList;
+class ClientSyncHeaderHeightData;
 
 class SyncHeaderRepo {
 public:
@@ -34,6 +35,7 @@ public:
 	void close();
 
 	void add(const SyncHeaderHeightData *headerData);
+	void add(const ClientSyncHeaderHeightData *headerData);
 
 	HeightHeaderSyncDataList* getFirst() const;
 	ULongKey* getFirstKey() const;

@@ -32,6 +32,8 @@
 #include "bc_trx/TransactionId.h"
 
 #include "data_history_data/BlockHeaderTransferDataValidator.h"
+#include "data_history_data/BlockTransactionTransferData.h"
+
 namespace codablecash {
 
 BlockHeaderTransferData::BlockHeaderTransferData(const BlockHeaderTransferData &inst) : AbstractTransferedData(inst) {
@@ -45,16 +47,28 @@ BlockHeaderTransferData::BlockHeaderTransferData(const BlockHeaderTransferData &
 
 		addCert(cert);
 	}
+
+	this->trxList = new ArrayList<BlockTransactionTransferData>();
+	maxLoop = inst.trxList->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const BlockTransactionTransferData* data = inst.trxList->get(i);
+
+		this->trxList->addElement(dynamic_cast<BlockTransactionTransferData*>(data->copyData()));
+	}
 }
 
 BlockHeaderTransferData::BlockHeaderTransferData() : AbstractTransferedData(DATA_BLOCKHEADER) {
 	this->header = nullptr;
 	this->certList = new ArrayList<VoteTransactionIdCertificate>();
+	this->trxList = new ArrayList<BlockTransactionTransferData>();
 }
 
 BlockHeaderTransferData::~BlockHeaderTransferData() {
 	this->certList->deleteElements();
 	delete this->certList;
+
+	this->trxList->deleteElements();
+	delete this->trxList;
 
 	delete this->header;
 }
@@ -66,13 +80,26 @@ int BlockHeaderTransferData::binarySize() const {
 
 	total += this->header->binarySize();
 
-	int maxLoop = this->certList->size();
-	total += sizeof(uint8_t);
+	{
+		int maxLoop = this->certList->size();
+		total += sizeof(uint8_t);
 
-	for(int i = 0; i != maxLoop; ++i){
-		VoteTransactionIdCertificate* cert = this->certList->get(i);
+		for(int i = 0; i != maxLoop; ++i){
+			VoteTransactionIdCertificate* cert = this->certList->get(i);
 
-		total += cert->binarySize();
+			total += cert->binarySize();
+		}
+	}
+
+	{
+		int maxLoop = this->trxList->size();
+		total += sizeof(uint16_t);
+
+		for(int i = 0; i != maxLoop; ++i){
+			BlockTransactionTransferData* data = this->trxList->get(i);
+
+			total += data->binarySize();
+		}
 	}
 
 	return total;
@@ -85,13 +112,26 @@ void BlockHeaderTransferData::toBinary(ByteBuffer *out) const {
 
 	this->header->toBinary(out);
 
-	int maxLoop = this->certList->size();
-	out->put(maxLoop);
+	{
+		int maxLoop = this->certList->size();
+		out->put(maxLoop);
 
-	for(int i = 0; i != maxLoop; ++i){
-		VoteTransactionIdCertificate* cert = this->certList->get(i);
+		for(int i = 0; i != maxLoop; ++i){
+			VoteTransactionIdCertificate* cert = this->certList->get(i);
 
-		cert->toBinary(out);
+			cert->toBinary(out);
+		}
+	}
+
+	{
+		int maxLoop = this->trxList->size();
+		out->putShort(maxLoop);
+
+		for(int i = 0; i != maxLoop; ++i){
+			BlockTransactionTransferData* data = this->trxList->get(i);
+
+			data->toBinary(out);
+		}
 	}
 }
 
@@ -99,11 +139,26 @@ void BlockHeaderTransferData::fromBinary(ByteBuffer *in) {
 	this->header = BlockHeader::createFromBinary(in);
 	BinaryUtils::checkNotNull(this->header);
 
-	int maxLoop = in->get();
-	for(int i = 0; i != maxLoop; ++i){
-		VoteTransactionIdCertificate* cert = VoteTransactionIdCertificate::createFromBinary(in);
+	{
+		int maxLoop = in->get();
+		for(int i = 0; i != maxLoop; ++i){
+			VoteTransactionIdCertificate* cert = VoteTransactionIdCertificate::createFromBinary(in);
 
-		this->certList->addElement(cert);
+			this->certList->addElement(cert);
+		}
+	}
+
+	{
+		int maxLoop = in->getShort();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractTransferedData* d = AbstractTransferedData::createFromBinary(in); __STP(d);
+			BlockTransactionTransferData* data = dynamic_cast<BlockTransactionTransferData*>(d);
+
+			BinaryUtils::checkNotNull(data);
+			__STP_MV(d);
+
+			this->trxList->addElement(data);
+		}
 	}
 }
 
@@ -131,7 +186,7 @@ void BlockHeaderTransferData::setHeader(const BlockHeader *header) noexcept {
 	this->header = header != nullptr ? dynamic_cast<BlockHeader*>(header->copyData()) : nullptr;
 }
 
-void BlockHeaderTransferData::addCert(	const VoteTransactionIdCertificate *cert) noexcept {
+void BlockHeaderTransferData::addCert(const VoteTransactionIdCertificate *cert) noexcept {
 	this->certList->addElement(dynamic_cast<VoteTransactionIdCertificate*>(cert->copyData()));
 }
 
@@ -186,6 +241,10 @@ const VoteTransactionIdCertificate* BlockHeaderTransferData::getVoteTransactionI
 	}
 
 	return ret;
+}
+
+void BlockHeaderTransferData::addTransactionTransferData(const BlockTransactionTransferData *data) noexcept {
+	this->trxList->addElement(dynamic_cast<BlockTransactionTransferData*>(data->copyData()));
 }
 
 } /* namespace codablecash */

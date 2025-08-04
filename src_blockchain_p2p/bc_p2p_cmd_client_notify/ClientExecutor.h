@@ -31,6 +31,7 @@ public:
 
 	void addListner(IClientNotifyListner* listner) noexcept;
 	IClientNotifyListner* removeListner(IClientNotifyListner* listner) noexcept;
+	void clearAllListners() noexcept;
 
 	AbstractCommandResponse* fireOnNewTransaction(const PubSubId *pubsubId, const TransactionTransferData* data);
 

@@ -47,9 +47,9 @@ public:
 	void reset() noexcept;
 
 	void buildHeads(uint16_t zone, IBlockchainStoreProvider *chain, uint64_t finalizedHeight);
-	void evaluate(uint16_t zone, MemPoolTransaction* memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam* config, const File* tmpCacheBaseDir, bool headerOnly);
+	void evaluate(uint16_t zone, MemPoolTransaction* memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam* config, bool headerOnly);
 	void evaluateHead(uint16_t zone, BlockHead* head, MemPoolTransaction* memTrx, IBlockchainStoreProvider *chain
-			, const CodablecashSystemParam* config, const File* tmpCacheBaseDir, bool headerOnly);
+			, const CodablecashSystemParam* config, bool headerOnly);
 	void selectChain();
 
 	const BlockHead* getHead() const noexcept;

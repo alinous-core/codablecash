@@ -24,6 +24,10 @@ class BlockHeader;
 class IStatusCacheContext;
 class MemPoolTransaction;
 class BalanceUnit;
+class BloomFilter1024;
+class AddressDescriptor;
+class IUtxoRefChecker;
+class IAddressChecker;
 
 enum class TrxValidationResult
 {
@@ -87,6 +91,11 @@ public:
 	virtual TrxValidationResult validateFinal(const BlockHeader* header, MemPoolTransaction *memTrx, IStatusCacheContext* context) const = 0;
 	virtual TrxValidationResult validateReported(const BlockHeader* header, IStatusCacheContext* context) const;
 
+
+	virtual bool checkFilter(const ArrayList<BloomFilter1024> *filtersList) const;
+	virtual bool checkFilteredUxtoRef(const IUtxoRefChecker* utxoRefChecker) const;
+	virtual bool checkFilteredAddress(const IAddressChecker* addressChecker) const;
+
 	/**
 	 * Revoke, reward transactions are false
 	 */
@@ -99,7 +108,10 @@ public:
 	}
 
 protected:
-	virtual UtxoValidationResult validateUtxos(MemPoolTransaction *memTrx, IStatusCacheContext* context, BalanceUnit fee) const;
+	virtual UtxoValidationResult validateUtxos(MemPoolTransaction *memTrx, IStatusCacheContext* context, const BalanceUnit& fee) const;
+
+private:
+	bool checkFilters(const ArrayList<BloomFilter1024> *filtersList, const AddressDescriptor* desc) const;
 
 protected:
 	TransactionId* trxId;

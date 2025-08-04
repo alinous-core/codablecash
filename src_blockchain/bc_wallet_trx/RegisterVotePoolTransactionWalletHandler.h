@@ -18,6 +18,7 @@ class BalanceUnit;
 class IWalletDataEncoder;
 class AddressDescriptor;
 class NodeIdentifierSource;
+class ITransactionBuilderContext;
 
 class RegisterVotePoolTransactionWalletHandler : public AbstractWalletTransactionHandler {
 public:
@@ -25,9 +26,15 @@ public:
 	virtual ~RegisterVotePoolTransactionWalletHandler();
 
 	RegisterVotePoolTransaction* createTransaction(
-			const NodeIdentifierSource *source, const BalanceUnit feeRate, const AddressDescriptor* addressDesc,
-			const IWalletDataEncoder *encoder);
+			const NodeIdentifierSource *source, const BalanceUnit& feeRate, const AddressDescriptor* addressDesc,
+			const IWalletDataEncoder *encoder, ITransactionBuilderContext* context);
+
 	virtual void importTransaction(const AbstractBlockchainTransaction *trx);
+
+
+private:
+	void collectUtxoRefs(RegisterVotePoolTransaction* trx, const BalanceUnit& amount, const BalanceUnit& feeRate
+			, IUtxoCollector *collector, ArrayUtxoFinder *utxoFinder, HdWalleMuSigSignerProvidor *musigProvidor, const IWalletDataEncoder* encoder);
 };
 
 } /* namespace codablecash */

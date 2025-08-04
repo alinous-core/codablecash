@@ -159,9 +159,6 @@ void AbstractControlTransaction::__fromBinary(ByteBuffer *in) {
 
 void AbstractControlTransaction::setFeeAmount(const BalanceUnit *fee) {
 	this->fee = *fee;
-
-	BalanceUtxo* utxo = this->list.get(0);
-	utxo->discountFee(*fee);
 }
 
 void AbstractControlTransaction::sign(IMuSigSignerProvidor *providor,	IUtxoFinder *finder) {

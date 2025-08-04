@@ -159,6 +159,6 @@ TEST(SchnorrTestGroup, keypair01){
 	__STP(key3);
 
 	CHECK(key3->getPubKey()->equals(key->getPubKey()));
-	CHECK(key3->getSecretKey() == nullptr);
+	CHECK(key3->getSecretKey()->equals(key->getSecretKey()));
 }
 

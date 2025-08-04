@@ -58,7 +58,7 @@ public:
 	void open();
 	void close();
 
-	void updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashSystemParam* config, const File* tmpCacheBaseDir);
+	void updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashSystemParam* config);
 	void finalizeUpdateCacheData(uint64_t finalizingHeight, const BlockHeaderId *headerId, CodablecashBlockchain* blockchain, IStatusCacheContext* context);
 	void finalizeHeaderUpdateCacheData(uint64_t finalizingHeight, const BlockHeaderId *headerId, CodablecashBlockchain* blockchain);
 

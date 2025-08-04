@@ -37,6 +37,12 @@ IClientNotifyListner* ClientExecutor::removeListner(IClientNotifyListner *listne
 	return this->listners->remove(index);
 }
 
+void ClientExecutor::clearAllListners() noexcept {
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
+
+	this->listners->reset();
+}
+
 AbstractCommandResponse* ClientExecutor::fireOnNewTransaction(const PubSubId *pubsubId, const TransactionTransferData *data) {
 	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
 	int maxLoop = this->listners->size();

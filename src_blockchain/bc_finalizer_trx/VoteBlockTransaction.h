@@ -19,6 +19,7 @@ class BlockHeaderId;
 class SchnorrSignature;
 class NodeIdentifierSource;
 class TicketVotedUtxo;
+class AddressDescriptor;
 
 class VoteBlockTransaction : public AbstractFinalizerTransaction {
 public:
@@ -46,7 +47,7 @@ public:
 	virtual AbstractUtxo* getUtxo(int i) const noexcept;
 
 	void setVoterId(const NodeIdentifier* voterId) noexcept;
-	void setTicketUtxoId(const UtxoId* utxoId, const BalanceUnit amount) noexcept;
+	void setTicketUtxoId(const UtxoId* utxoId, const BalanceUnit amount, const AddressDescriptor* desc) noexcept;
 
 	void setVoteBlockId(const BlockHeaderId* voteBlockHeaderId) noexcept;
 	void setVoteBlockHeight(uint64_t voteBlockHeight) noexcept {

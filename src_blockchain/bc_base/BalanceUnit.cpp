@@ -104,6 +104,10 @@ int BalanceUnit::compareTo(const BalanceUnit *other) const noexcept {
 	return this->amount - other->amount;
 }
 
+int BalanceUnit::compareTo(const BalanceUnit &other) const noexcept {
+	return compareTo(&other);
+}
+
 } /* namespace codablecash */
 
 

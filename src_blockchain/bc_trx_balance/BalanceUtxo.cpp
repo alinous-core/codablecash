@@ -43,6 +43,14 @@ void BalanceUtxo::setAddress(const AddressDescriptor *desc) noexcept {
 	this->addressDesc = new AddressDescriptor(*desc);
 }
 
+int BalanceUtxo::tmpBinarySize() const {
+	int total = sizeof(uint8_t);
+
+
+
+	return total;
+}
+
 int BalanceUtxo::binarySize() const {
 	BinaryUtils::checkNotNull(this->utxoId);
 	BinaryUtils::checkNotNull(this->addressDesc);
@@ -108,6 +116,10 @@ void BalanceUtxo::discountFee(const BalanceUnit &feeRemain) {
 	}
 
 	this->amount -= feeRemain;
+}
+
+void BalanceUtxo::setAmount(const BalanceUnit amount) noexcept {
+	this->amount = amount;
 }
 
 } /* namespace codablecash */

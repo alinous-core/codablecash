@@ -19,4 +19,6 @@ AbstractWalletTransactionHandler::~AbstractWalletTransactionHandler() {
 	this->account = nullptr;
 }
 
+
+
 } /* namespace codablecash */

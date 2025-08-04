@@ -160,6 +160,7 @@ TrxValidationResult RegisterVotePoolTransaction::validateFinal(
 
 void RegisterVotePoolTransaction::voterSign(const NodeIdentifierSource *source) noexcept {
 	delete this->voterSig;
+	this->voterSig = nullptr;
 
 	const char* data = this->trxId->toArray();
 	int length = this->trxId->size();

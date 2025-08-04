@@ -121,7 +121,6 @@ private:
 private:
 	const CodablecashSystemParam* config;
 	File* baseDir;
-	File* tmpCacheBaseDir;
 
 	ArrayList<ZoneStatusCache> zoneList;
 

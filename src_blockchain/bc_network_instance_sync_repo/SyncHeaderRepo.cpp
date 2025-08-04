@@ -20,18 +20,22 @@
 
 #include "btree/Btree.h"
 #include "btree/BtreeConfig.h"
+#include "btree/BtreeScanner.h"
 
 #include "bc_block/BlockHeader.h"
+
+#include "data_history/TransferedDataId.h"
 
 #include "data_history_data/BlockHeaderTransferData.h"
 
 #include "bc_network_instance_sync_repo/HeightHeaderSyncDataList.h"
 
-#include "data_history/TransferedDataId.h"
+#include "bc_p2p_cmd_client/ClientBlockHeaderTransferData.h"
 
 #include "bc_p2p_cmd_node/SyncHeaderHeightData.h"
 
-#include "btree/BtreeScanner.h"
+#include "bc_p2p_cmd_client/ClientSyncHeaderHeightData.h"
+
 namespace codablecash {
 
 SyncHeaderRepo::SyncHeaderRepo(const File* baseDir) {
@@ -96,6 +100,27 @@ void SyncHeaderRepo::add(const SyncHeaderHeightData *headerData) {
 		int maxLoop = list->size();
 		for(int i = 0; i != maxLoop; ++i){
 			BlockHeaderTransferData* data = list->get(i);
+
+			dataList.addData(data);
+		}
+	}
+
+	uint64_t height = headerData->getHeight();
+	ULongKey key(height);
+
+	this->dataStore->putData(&key, &dataList);
+}
+
+void SyncHeaderRepo::add(const ClientSyncHeaderHeightData *headerData) {
+	HeightHeaderSyncDataList dataList;
+
+	{
+		ArrayList<ClientBlockHeaderTransferData>* list = headerData->getDataList();
+
+		int maxLoop = list->size();
+		for(int i = 0; i != maxLoop; ++i){
+			ClientBlockHeaderTransferData* clientdata = list->get(i);
+			BlockHeaderTransferData* data = clientdata->toBlockHeaderTransferData(); __STP(data);
 
 			dataList.addData(data);
 		}

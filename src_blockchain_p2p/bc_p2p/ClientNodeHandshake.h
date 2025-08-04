@@ -13,17 +13,20 @@
 #include "base/ArrayList.h"
 
 namespace codablecash {
-class BloomFilter512;
+class BloomFilter1024;
 
 class ClientNodeHandshake : public BlockchainNodeHandshake {
 public:
 	explicit ClientNodeHandshake(P2pHandshake *handshake, int zone, const NodeIdentifier* nodeId);
 	virtual ~ClientNodeHandshake();
 
-	void addBloomFilter(const BloomFilter512* f);
+	void addBloomFilter(const BloomFilter1024* f);
+	const ArrayList<BloomFilter1024>* getBloomFilters() const noexcept {
+		return this->filterList;
+	}
 
 private:
-	ArrayList<BloomFilter512>* filterList;
+	ArrayList<BloomFilter1024>* filterList;
 };
 
 } /* namespace codablecash */

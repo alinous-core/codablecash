@@ -26,7 +26,7 @@ class ISystemLogger;
 class NodeIdentifierSource;
 class NetworkClientCommandProcessor;
 class NodeIdentifier;
-class BloomFilter512;
+class BloomFilter1024;
 
 class WalletConnectionManager {
 public:
@@ -39,9 +39,17 @@ public:
 	void dispose();
 
 	int getNumConnection() const noexcept;
-	bool connect(int protocol, const UnicodeString* host, uint32_t port, const NodeIdentifier* nodeId, uint16_t zone, ISystemLogger* logger, const ArrayList<BloomFilter512>* filters);
+	bool connect(int protocol, const UnicodeString* host, uint32_t port, const NodeIdentifier* nodeId, uint16_t zone, ISystemLogger* logger, const ArrayList<BloomFilter1024>* filters);
 
 	bool hasNodeId(const NodeIdentifier* nodeId) const noexcept;
+
+	ArrayList<NodeIdentifier>* getNodeIdList() const noexcept;
+
+	const NodeIdentifierSource* getNodeIdentifierSource() const noexcept {
+		return this->source;
+	}
+
+	ClientNodeHandshake* getClientHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept;
 
 private:
 	void __disconnect(const PubSubId* pubsubId);
@@ -49,7 +57,7 @@ private:
 
 private:
 	HashMap<PubSubId, ClientNodeHandshake> clientHandshakeHash;
-	ArrayList<ClientNodeHandshake> list;
+	ArrayList<ClientNodeHandshake> dellist;
 	SysMutex* mutex;
 
 	uint16_t defaultZone;

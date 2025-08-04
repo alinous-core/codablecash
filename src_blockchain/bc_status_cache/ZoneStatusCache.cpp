@@ -169,13 +169,13 @@ void ZoneStatusCache::loadStatus() {
 	this->ticketPrice = this->statusStore->getLongValue(KEY_FINALIZED_TICKET_PRICE);
 }
 
-void ZoneStatusCache::updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashSystemParam* config, const File* tmpCacheBaseDir) {
+void ZoneStatusCache::updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashSystemParam* config) {
 	this->headBlockDetector->reset();
 	// Make header lines
 	this->headBlockDetector->buildHeads(this->zone, chain, this->finalizedHeight);
 
 	// evaluate
-	this->headBlockDetector->evaluate(this->zone, memTrx, chain, config, tmpCacheBaseDir, this->headerOnly);
+	this->headBlockDetector->evaluate(this->zone, memTrx, chain, config, this->headerOnly);
 	this->headBlockDetector->selectChain();
 }
 

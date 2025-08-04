@@ -12,6 +12,11 @@ namespace codablecash {
 
 class WalletAccount;
 class AbstractBlockchainTransaction;
+class IUtxoCollector;
+class ArrayUtxoFinder;
+class BalanceUnit;
+class HdWalleMuSigSignerProvidor;
+class IWalletDataEncoder;
 
 class AbstractWalletTransactionHandler {
 public:

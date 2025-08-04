@@ -39,6 +39,7 @@ public:
 
 	void startProcessors(bool suspend);
 	void resumeRequestProcessor();
+	void shurdownProcessors() noexcept;
 
 	SynchronizedLock* getQueueSynchrinizedLock() const noexcept;
 	bool __isSuspended() const;
@@ -63,7 +64,7 @@ private:
 	NetworkWallet* networkWallet;
 
 	ClientExecutor* clientExec;
-	NetworkClientCommandListner* listner;
+	NetworkClientCommandListner* listner; // extends public IClientNotifyListner
 
 	ClientCommandsQueueProcessor* queueProcessor;
 	PendingClientCommandsQueue* pendingQueue;

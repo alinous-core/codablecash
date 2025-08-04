@@ -8,6 +8,7 @@
 #include "bc_block_body/BlockBody.h"
 #include "bc_block_body/BlockRewordBase.h"
 #include "bc_block_body/OmittedBlockBody.h"
+#include "bc_block_body/ITransactionVisitor.h"
 
 #include "bc_trx/AbstractBalanceTransaction.h"
 #include "bc_trx/AbstractControlTransaction.h"
@@ -33,7 +34,6 @@
 #include "osenv/funcs.h"
 
 #include "bc_smartcontract/AbstractSmartcontractTransaction.h"
-
 
 
 namespace codablecash {
@@ -606,6 +606,44 @@ void BlockBody::setBlockRewordBase(const BlockRewordBase *rewardBase) {
 	this->rewardBase = new BlockRewordBase(*rewardBase);
 }
 
+void BlockBody::visitTransactions(ITransactionVisitor *visitor, const Block* block) const {
+	this->rewardBase->visitTransactions(visitor, block);
+
+	{
+		int maxLoop = this->controlTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractControlTransaction* trx = this->controlTransactions->get(i);
+
+			visitor->visit(trx, block);
+		}
+	}
+	{
+		int maxLoop = this->iccTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractInterChainCommunicationTansaction* trx = this->iccTransactions->get(i);
+
+			visitor->visit(trx, block);
+		}
+	}
+	{
+		int maxLoop = this->balanceTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractBalanceTransaction* trx = this->balanceTransactions->get(i);
+
+			visitor->visit(trx, block);
+		}
+	}
+	{
+		int maxLoop = this->smartcontractTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractSmartcontractTransaction* trx = this->smartcontractTransactions->get(i);
+
+			visitor->visit(trx, block);
+		}
+	}
+}
+
+
 #ifdef __DEBUG__
 
 void BlockBody::assertTransactionsBinary() {
@@ -668,6 +706,5 @@ bool BlockBody::checkTransaction(const AbstractBlockchainTransaction *trx) {
 }
 
 #endif
-
 
 } /* namespace codablecash */

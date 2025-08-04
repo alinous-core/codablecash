@@ -17,6 +17,7 @@ class BalanceUnit;
 class NodeIdentifier;
 class AddressDescriptor;
 class IWalletDataEncoder;
+class ITransactionBuilderContext;
 
 class RegisterTicketTransactionWalletHandler : public AbstractWalletTransactionHandler {
 public:
@@ -24,9 +25,14 @@ public:
 	virtual ~RegisterTicketTransactionWalletHandler();
 
 	RegisterTicketTransaction* createTransaction(
-			const NodeIdentifier *nodeId, const BalanceUnit stakeAmount, const BalanceUnit feeRate, const AddressDescriptor* addressDesc,
-			const IWalletDataEncoder *encoder);
+			const NodeIdentifier *nodeId, const BalanceUnit& stakeAmount, const BalanceUnit& feeRate, const AddressDescriptor* ticketReturnaddressDesc,
+			const IWalletDataEncoder *encoder, ITransactionBuilderContext* context);
+
 	virtual void importTransaction(const AbstractBlockchainTransaction *__trx);
+
+private:
+	void collectUtxoRefs(RegisterTicketTransaction* trx, BalanceUnit& amount, const BalanceUnit& feeRate
+			, IUtxoCollector *collector, ArrayUtxoFinder *utxoFinder, HdWalleMuSigSignerProvidor *musigProvidor, const IWalletDataEncoder* encoder);
 };
 
 } /* namespace codablecash */

@@ -36,6 +36,11 @@
 
 #include "base_timestamp/SystemTimestamp.h"
 
+#include "bc_wallet_filter/BloomFilter1024.h"
+
+#include "bc_trx/IUtxoRefChecker.h"
+
+#include "bc_trx/IAddressChecker.h"
 using alinous::Os;
 
 namespace codablecash {
@@ -103,7 +108,7 @@ AbstractBlockchainTransaction* AbstractBlockchainTransaction::createFromBinary(B
 	return ret;
 }
 
-UtxoValidationResult AbstractBlockchainTransaction::validateUtxos(MemPoolTransaction *memTrx,	IStatusCacheContext *context, BalanceUnit fee) const {
+UtxoValidationResult AbstractBlockchainTransaction::validateUtxos(MemPoolTransaction *memTrx, IStatusCacheContext *context, const BalanceUnit& fee) const {
 	UtxoValidationResult result = UtxoValidationResult::ON_CHAIN;
 
 	BalanceUnit leftBalance(0L);
@@ -157,6 +162,88 @@ UtxoValidationResult AbstractBlockchainTransaction::validateUtxos(MemPoolTransac
 
 TrxValidationResult AbstractBlockchainTransaction::validateReported(const BlockHeader *header, IStatusCacheContext *context) const {
 	return validateFinal(header, nullptr, context);
+}
+
+bool AbstractBlockchainTransaction::checkFilter(const ArrayList<BloomFilter1024> *filtersList) const {
+	bool ret = false;
+
+	{
+		int maxLoop = getUtxoReferenceSize();
+		for(int i = 0; i != maxLoop; ++i){
+			const AbstractUtxoReference* ref = getUtxoReference(i);
+
+			if(ref->checkFilter(filtersList)){
+				ret = true;
+				break;
+			}
+		}
+	}
+
+	if(!ret){
+		int maxLoop = getUtxoSize();
+		for(int i = 0; i != maxLoop; ++i){
+			const AbstractUtxo* utxo = getUtxo(i);
+			const AddressDescriptor* desc = utxo->getAddress();
+
+			bool bl = checkFilters(filtersList, desc);
+			if(bl){
+				ret = true;
+				break;
+			}
+		}
+	}
+
+	return ret;
+}
+
+bool AbstractBlockchainTransaction::checkFilters(const ArrayList<BloomFilter1024> *filtersList, const AddressDescriptor *desc) const {
+	bool ret = false;
+
+	int maxLoop = filtersList->size();
+	for(int i = 0; i != maxLoop; ++i){
+		BloomFilter1024* filter = filtersList->get(i);
+
+		bool bl = filter->checkBytes(desc);
+		if(bl){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+bool AbstractBlockchainTransaction::checkFilteredUxtoRef(const IUtxoRefChecker *utxoRefChecker) const {
+	bool ret = false;
+
+	int maxLoop = getUtxoReferenceSize();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractUtxoReference* ref = getUtxoReference(i);
+
+		if(utxoRefChecker->checkUtxo(ref)){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+bool AbstractBlockchainTransaction::checkFilteredAddress(const IAddressChecker *addressChecker) const {
+	bool ret = false;
+
+	int maxLoop = getUtxoSize();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractUtxo* utxo = getUtxo(i);
+		const AddressDescriptor* desc = utxo->getAddress();
+
+		if(addressChecker->checkAddress(desc)){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
 }
 
 } /* namespace codablecash */

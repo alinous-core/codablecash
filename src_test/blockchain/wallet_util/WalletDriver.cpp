@@ -293,12 +293,16 @@ RegisterTicketTransaction* WalletDriver::createRegisterTicketTransaction(
 	return trx;
 }
 
+/**
+ * import transaction to all wallets
+ * @param trx
+ */
 void WalletDriver::importTransaction(const AbstractBlockchainTransaction *trx) {
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
 		HdWallet* wallet = this->list.get(i);
-
 		WalletAccount* account = wallet->getAccount(0);
+
 		account->importTransaction(trx);
 	}
 }
@@ -311,9 +315,9 @@ AddressDescriptor* WalletDriver::getAddressDesc(int destIndex,	int destAddressIn
 	return __STP_MV(destDesc);
 }
 
-WalletAccount* WalletDriver::getAccount(int index) {
-	HdWallet* walletDest = this->list.get(0);
-	WalletAccount* account = walletDest->getAccount(index);
+WalletAccount* WalletDriver::getAccount(int walletIndex, int accountIndex) {
+	HdWallet* walletDest = this->list.get(walletIndex);
+	WalletAccount* account = walletDest->getAccount(accountIndex);
 
 	return account;
 }

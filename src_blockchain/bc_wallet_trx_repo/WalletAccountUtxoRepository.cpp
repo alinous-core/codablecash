@@ -229,4 +229,10 @@ ArrayList<BalanceUtxo>* WalletAccountUtxoRepository::getBalanceUtxos(const Addre
 	return list;
 }
 
+BtreeScanner* WalletAccountUtxoRepository::getScanner() const {
+	BtreeScanner* scanner = this->utxoIdBtree->getScanner();
+
+	return scanner;
+}
+
 } /* namespace codablecash */

@@ -41,7 +41,7 @@ private:
 
 	void validateRewordBase(MemPoolTransaction *memTrx, IStatusCacheContext *context);
 	void validateUnvotedTickets(MemPoolTransaction *memTrx, IStatusCacheContext *context, VotingBlockStatus* status);
-	void validateUnvokedcandidate(MemPoolTransaction *memTrx, IStatusCacheContext *context, VoteCandidate *candidate, BlockHeaderId* correctVotedHeaderId);
+	void validateUnvokedcandidate(MemPoolTransaction *memTrx, IStatusCacheContext *context, VoteCandidate *candidate, const BlockHeaderId* correctVotedHeaderId);
 
 private:
 	const Block* block;

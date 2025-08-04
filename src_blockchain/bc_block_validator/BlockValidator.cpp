@@ -154,7 +154,7 @@ void BlockValidator::validateControlTransactions(MemPoolTransaction *memTrx, con
 		ExceptionThrower<BlockValidationException>::throwExceptionIfCondition(result != TrxValidationResult::OK
 				, L"Invalid transaction.", __FILE__, __LINE__);
 
-		context->importControlTransaction(header, trx);
+		context->importControlTransaction(header, trx, this->ctrl->getLogger());
 	}
 }
 
@@ -171,7 +171,7 @@ void BlockValidator::validateBalanceTransactions(MemPoolTransaction *memTrx, con
 		ExceptionThrower<BlockValidationException>::throwExceptionIfCondition(result != TrxValidationResult::OK
 				, L"Invalid transaction.", __FILE__, __LINE__);
 
-		context->importBalanceTransaction(header, trx);
+		context->importBalanceTransaction(header, trx, this->ctrl->getLogger());
 	}
 }
 
@@ -188,7 +188,7 @@ void BlockValidator::validateInterChainCommunicationTransactions(MemPoolTransact
 		ExceptionThrower<BlockValidationException>::throwExceptionIfCondition(result != TrxValidationResult::OK
 				, L"Invalid transaction.", __FILE__, __LINE__);
 
-		context->importInterChainCommunicationTransaction(header, trx);
+		context->importInterChainCommunicationTransaction(header, trx, this->ctrl->getLogger());
 	}
 }
 
@@ -205,7 +205,7 @@ void BlockValidator::validateSmartcontractTransactions(MemPoolTransaction *memTr
 		ExceptionThrower<BlockValidationException>::throwExceptionIfCondition(result != TrxValidationResult::OK
 				, L"Invalid transaction.", __FILE__, __LINE__);
 
-		context->importSmartcontractTransaction(header, trx);
+		context->importSmartcontractTransaction(header, trx, this->ctrl->getLogger());
 	}
 }
 
@@ -283,7 +283,7 @@ void BlockValidator::validateRewordBase(MemPoolTransaction *memTrx, IStatusCache
 
 		// correct header Id
 		votedHeader = headerManger->getNBlocksBefore(headerIdOnVoting, votedHeight, voteBeforeNBlocks); __STP(votedHeader);
-		BlockHeaderId* votedHeaderId = votedHeader->getId();
+		const BlockHeaderId* votedHeaderId = votedHeader->getId();
 
 		const VotePart* vpart = header->getVotePart();
 		const VotedHeaderIdGroup* group = vpart->getVotedGroup(votedHeaderId);
@@ -308,7 +308,7 @@ void BlockValidator::validateRewordBase(MemPoolTransaction *memTrx, IStatusCache
 
 	// validate stake reword transctions
 	if(votedHeader != nullptr){
-		BlockHeaderId* votedHeaderId = votedHeader->getId();
+		const BlockHeaderId* votedHeaderId = votedHeader->getId();
 
 		const ArrayList<StakeBaseTransaction>* listtrx = rewardBase->getStakeBases();
 		const ArrayList<BlockRewardStakeBase>* calclist = calc.getStakeRewardBases();
@@ -409,7 +409,7 @@ void BlockValidator::validateUnvotedTickets(MemPoolTransaction *memTrx, IStatusC
 	int voteBeforeNBlocks = this->config->getVoteBeforeNBlocks(votedHeight);
 
 	BlockHeader* correctVotedHeader = headerManger->getNBlocksBefore(headerIdOnVoting, votedHeight, voteBeforeNBlocks); __STP(correctVotedHeader);
-	BlockHeaderId* correctVotedHeaderId = correctVotedHeader->getId();
+	const BlockHeaderId* correctVotedHeaderId = correctVotedHeader->getId();
 
 	const VotePart* vpart = header->getVotePart();
 	const VotedHeaderIdGroup* group = vpart->getVotedGroup(correctVotedHeaderId);
@@ -426,7 +426,7 @@ void BlockValidator::validateUnvotedTickets(MemPoolTransaction *memTrx, IStatusC
 	}
 }
 
-void BlockValidator::validateUnvokedcandidate(MemPoolTransaction *memTrx, IStatusCacheContext *context, VoteCandidate *candidate, BlockHeaderId* correctVotedHeaderId) {
+void BlockValidator::validateUnvokedcandidate(MemPoolTransaction *memTrx, IStatusCacheContext *context, VoteCandidate *candidate, const BlockHeaderId* correctVotedHeaderId) {
 	const UtxoId* utxoId = candidate->getUtxoId();
 	BlockBody* body = this->block->getBody();
 

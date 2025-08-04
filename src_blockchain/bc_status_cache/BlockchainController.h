@@ -96,6 +96,10 @@ public:
 
 	bool registerBlockHeader4Limit(uint16_t zone, const BlockHeader* header, const CodablecashSystemParam* param);
 
+	ISystemLogger* getLogger() const noexcept {
+		return this->logger;
+	}
+
 private:
 	IStatusCacheContext* doGetStatusCacheContext(uint16_t zone, const BlockHeaderId* headerId, uint64_t height, StackWriteLock* lock);
 	void initCacehContext(uint16_t zone, StatusCacheContext* context, const BlockHeaderId *headerId, uint64_t height);

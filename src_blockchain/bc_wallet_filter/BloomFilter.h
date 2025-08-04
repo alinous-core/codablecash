@@ -29,7 +29,7 @@ public:
 	bool hasBit(int pos);
 
 	bool checkBytes(const char* b, int length);
-
+	bool checkBytes(uint64_t v1, uint64_t v2, uint64_t v3);
 
 	bool equals(const BloomFilter* other) const noexcept;
 
@@ -37,6 +37,8 @@ private:
 	bool filterBinaryEquals(const BloomFilter* other) const noexcept;
 
 protected:
+
+
 	int __binarySize() const;
 	void __toBinary(ByteBuffer* out) const;
 	void __fromBinary(ByteBuffer* in);

@@ -33,7 +33,7 @@ public:
 
 	virtual void detect(uint16_t height, const ArrayList<Block>* list);
 
-private:
+protected:
 	ArrayList<SyncHeaderHeightData>* list;
 };
 

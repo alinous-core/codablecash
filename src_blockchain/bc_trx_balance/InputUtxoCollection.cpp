@@ -47,12 +47,12 @@ void InputUtxoCollection::addReference(const BalanceUtxoReference *ref) noexcept
 	this->list.addElement(r);
 }
 
-MuSig InputUtxoCollection::sign(IMuSigSignerProvidor* providor, IUtxoFinder* finder, const char *data, int length) {
+MuSig InputUtxoCollection::sign(IMuSigSignerProvidor* providor, IUtxoFinder* finder, const char *data, int length) const {
 	MuSigBuilder builder;
 
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
-		BalanceUtxoReference* ref = this->list.get(i);
+		const BalanceUtxoReference* ref = this->list.get(i);
 		const UtxoId* utxoId = ref->getUtxoId();
 
 		BalanceUtxo* utxo = finder->getBalanceUtxo(utxoId); __STP(utxo);

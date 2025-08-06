@@ -4,6 +4,8 @@ set(__src
 	AbstractClientRequestCommand.cpp
 	ClientBlockHeaderTransferData.cpp
 	ClientBlockHeaderTransferDataValidator.cpp
+	ClientListStakingNodeIdsCommand.cpp
+	ClientListStakingNodeIdsCommandResponse.cpp
 	ClientSyncHeaderCommand.cpp
 	ClientSyncHeaderCommandResponse.cpp
 	ClientSyncHeaderHeightData.cpp

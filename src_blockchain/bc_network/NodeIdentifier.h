@@ -13,6 +13,7 @@
 namespace alinous {
 class ByteBuffer;
 class BigInteger;
+class UnicodeString;
 }
 
 namespace codablecash {
@@ -42,6 +43,8 @@ public:
 	}
 
 	int hashCode() const;
+
+	UnicodeString* toString() const noexcept;
 
 private:
 	BigInteger* nodeIdentifier; // pubkey

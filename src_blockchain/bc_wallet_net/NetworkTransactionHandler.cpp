@@ -41,6 +41,7 @@
 
 #include "bc/ISystemLogger.h"
 
+#include "bc_p2p_cmd_client/ClientListStakingNodeIdsCommand.h"
 namespace codablecash {
 
 NetworkTransactionHandler::NetworkTransactionHandler(int accountIndex, NetworkWallet* netWallet, ISystemLogger* logger) {
@@ -115,6 +116,15 @@ void NetworkTransactionHandler::broadcastTransaction(const AbstractClientRequest
 			}
 		}
 	}
+}
+
+void NetworkTransactionHandler::listSTakingNodeIds() {
+	NetworkWalletData* data = this->netWallet->getWalletData();
+	uint16_t zone = data->getDefaultZone();
+
+	ClientListStakingNodeIdsCommand command;
+	command.setZone(zone);
+
 }
 
 } /* namespace codablecash */

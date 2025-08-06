@@ -31,6 +31,7 @@ public:
 
 	static const constexpr uint32_t TYPE_RES_PING{10};
 	static const constexpr uint32_t TYPE_RES_DOWNLOAD_DNS_INFO{11};
+	static const constexpr uint32_t TYPE_RES_CLIENT_LIST_STAKING_IDS{12};
 
 	static const constexpr uint32_t TYPE_NODE_COMMAND_VALIDATION_ERROR{99};
 	static const constexpr uint32_t TYPE_RES_SYNC_MEMPOOL{100};

@@ -95,4 +95,9 @@ bool NodeIdentifier::equals(const NodeIdentifier *other) const noexcept {
 	return compareTo(other) == 0;
 }
 
+UnicodeString* NodeIdentifier::toString() const noexcept {
+	UnicodeString str = this->nodeIdentifier->toString(16);
+	return new UnicodeString(str);
+}
+
 } /* namespace codablecash */

@@ -37,6 +37,7 @@ public:
 	static const constexpr uint32_t TYPE_CLIENT_PING{11};
 	static const constexpr uint32_t TYPE_CLIENT_TRANSACTION_TRANSFER{12};
 	static const constexpr uint32_t TYPE_CLIENT_SYNC_HEADER{13};
+	static const constexpr uint32_t TYPE_CLIENT_LIST_STAKING_IDS{14};
 
 	// DNS Commands
 	static const constexpr uint32_t TYPE_NETWORK_NODE_SHUTDOWN{100};

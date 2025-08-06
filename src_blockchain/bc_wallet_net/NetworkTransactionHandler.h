@@ -25,7 +25,7 @@ public:
 
 	void sendRegisterVotePoolTransaction(const BalanceUnit& feeRate, const IWalletDataEncoder* encoder);
 
-
+	void listSTakingNodeIds();
 
 
 private:

@@ -17,6 +17,7 @@
 
 #include "bc_p2p_cmd_client/PingNodeCommandResponse.h"
 #include "bc_p2p_cmd_client/DownloadDnsInfoCommandResponse.h"
+#include "bc_p2p_cmd_client/ClientListStakingNodeIdsCommandResponse.h"
 
 #include "bc_p2p_cmd_node/SyncMempoolNodeCommandResponse.h"
 #include "bc_p2p_cmd_node/SyncHeaderNodeCommandResponse.h"
@@ -74,6 +75,9 @@ AbstractCommandResponse* AbstractCommandResponse::createFromBinary(ByteBuffer *b
 		break;
 	case TYPE_RES_DOWNLOAD_DNS_INFO:
 		ret = new DownloadDnsInfoCommandResponse();
+		break;
+	case TYPE_RES_CLIENT_LIST_STAKING_IDS:
+		ret = new ClientListStakingNodeIdsCommandResponse();
 		break;
 	case TYPE_NODE_COMMAND_VALIDATION_ERROR:
 		ret = new NodeCommandValidationErrorResponse();

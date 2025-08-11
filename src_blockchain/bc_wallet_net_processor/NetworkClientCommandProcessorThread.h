@@ -19,7 +19,7 @@ namespace codablecash {
 
 class ISystemLogger;
 class ClientCommandsQueueProcessor;
-class AbstractClientCommand;
+class AbstractClientQueueCommand;
 class NetworkWallet;
 
 class NetworkClientCommandProcessorThread : public AbstractThreadRunner {
@@ -47,12 +47,12 @@ public:
 		return this->lock;
 	}
 
-	void putCommnad(const AbstractClientCommand* cmd);
+	void putCommnad(const AbstractClientQueueCommand* cmd);
 
 protected:
 	virtual void process() noexcept;
 
-	void processCommand(const AbstractClientCommand* cmd) const;
+	void processCommand(const AbstractClientQueueCommand* cmd) const;
 
 private:
 	ClientCommandsQueueProcessor* queue;

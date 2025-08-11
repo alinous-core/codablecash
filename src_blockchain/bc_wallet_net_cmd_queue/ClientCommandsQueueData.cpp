@@ -73,8 +73,8 @@ void ClientCommandsQueueData::setData(const AbstractTransferedData *dt) {
 	this->data = dynamic_cast<AbstractTransferedData*>(dt->copyData());
 }
 
-AbstractClientCommand* ClientCommandsQueueData::toClientCommand() const {
-	AbstractClientCommand* cmd = nullptr;
+AbstractClientQueueCommand* ClientCommandsQueueData::toClientCommand() const {
+	AbstractClientQueueCommand* cmd = nullptr;
 
 	if(this->data != nullptr){
 		uint8_t type = this->data->getType();

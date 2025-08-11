@@ -13,6 +13,7 @@
 
 #include "bc_wallet_net/NetworkWallet.h"
 #include "bc_wallet_net/WalletConfig.h"
+#include "bc_wallet_net/NetworkTransactionHandler.h"
 
 #include "bc_wallet/HdWalletSeed.h"
 
@@ -39,10 +40,11 @@
 #include "bc_network_instance/CodablecashNetworkNodeConfig.h"
 
 #include "bc_network/NodeIdentifierSource.h"
+#include "bc_network/NodeIdentifier.h"
 
 #include "bc_wallet_encoder/PasswordEncoder.h"
 
-#include "bc_wallet_net/NetworkTransactionHandler.h"
+#include "osenv/funcs.h"
 
 #include "setup/TestnetSetupper01.h"
 
@@ -153,8 +155,25 @@ TEST(TestNetWalletGroup, case01){
 		handler->sendRegisterVotePoolTransaction(fee, &enc);
 	}
 
+	{
+		ArrayList<NodeIdentifier>* list = handler->listStakingNodeIds();
+		list->setDeleteOnExit();
 
-	// ClientListStakingNodeIds
+		while(list->isEmpty()){
+			delete list;
+
+			Os::usleep(200 * 1000);
+
+			list = handler->listStakingNodeIds();
+			list->setDeleteOnExit();
+		}
+
+	//	list->get(0);
+
+		__STP(list);
+	}
+
+
 
 
 	// FIXME TestNetWalletGroup

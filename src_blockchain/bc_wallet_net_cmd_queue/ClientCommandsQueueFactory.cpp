@@ -5,9 +5,9 @@
  *      Author: iizuka
  */
 
+#include "bc_wallet_net_cmd/AbstractClientQueueCommand.h"
 #include "bc_wallet_net_cmd_queue/ClientCommandsQueueFactory.h"
 
-#include "bc_wallet_net_cmd/AbstractClientCommand.h"
 
 namespace codablecash {
 
@@ -20,7 +20,7 @@ ClientCommandsQueueFactory::~ClientCommandsQueueFactory() {
 }
 
 IBlockObject* ClientCommandsQueueFactory::makeDataFromBinary(ByteBuffer *in) {
-	return AbstractClientCommand::createFromBinary(in);
+	return AbstractClientQueueCommand::createFromBinary(in);
 }
 
 AbstractBtreeDataFactory* ClientCommandsQueueFactory::copy() const noexcept {

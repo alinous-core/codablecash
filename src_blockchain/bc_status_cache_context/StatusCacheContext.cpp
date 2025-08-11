@@ -72,6 +72,14 @@
 #include "bc_status_cache/ZoneStatusCache.h"
 
 #include "bc_status_cache_data/FinalizedDataCache.h"
+
+#include "bc_network/NodeIdentifier.h"
+
+#include "numeric/BigInteger.h"
+
+#include "merkletree/MerkleCertificate.h"
+
+
 namespace codablecash {
 
 uint64_t StatusCacheContext::getSerial() noexcept {
@@ -301,7 +309,7 @@ void StatusCacheContext::importControlTransactions(const BlockHeader *header, co
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractControlTransaction* trx = list->get(i);
 
-		importControlTransaction(header, trx, logger);
+		importControlTransaction(header, blockBody, trx, logger);
 	}
 }
 
@@ -346,7 +354,7 @@ void StatusCacheContext::importSmartcontractTransaction(const BlockHeader *heade
 	importUtxo(trx, header);
 }
 
-void StatusCacheContext::importControlTransaction(const BlockHeader *header, const AbstractControlTransaction *trx, ISystemLogger* logger) {
+void StatusCacheContext::importControlTransaction(const BlockHeader *header,  const BlockBody* body, const AbstractControlTransaction *trx, ISystemLogger* logger) {
 #ifdef __DEBUG__
 	bool bl = this->trxCache->hasTransaction(trx->getTransactionId());
 	assert(bl == false);
@@ -359,7 +367,7 @@ void StatusCacheContext::importControlTransaction(const BlockHeader *header, con
 	uint8_t type = trx->getType();
 	if(type == AbstractBlockchainTransaction::TRX_TYPE_REGISTER_VOTE_POOL){
 		const RegisterVotePoolTransaction* registerTrx = dynamic_cast<const RegisterVotePoolTransaction*>(trx);
-		registerVoterPool(registerTrx, header->getHeight());
+		registerVoterPool(registerTrx, header->getHeight(), header, body);
 	}
 	else if(type == AbstractBlockchainTransaction::TRX_TYPE_REGISTER_TICKET){
 		const RegisterTicketTransaction* ticketTrx = dynamic_cast<const RegisterTicketTransaction*>(trx);
@@ -459,7 +467,7 @@ ArrayList<VoterEntry, VoterEntry::VoteCompare>* StatusCacheContext::getVoterEntr
 	return list;
 }
 
-void StatusCacheContext::registerVoterPool(const RegisterVotePoolTransaction *trx, uint64_t blockHeight) {
+void StatusCacheContext::registerVoterPool(const RegisterVotePoolTransaction *trx, uint64_t blockHeight, const BlockHeader *header, const BlockBody* body) {
 	const NodeIdentifier* nodeId = trx->getNodeId();
 
 	// voter address
@@ -470,6 +478,16 @@ void StatusCacheContext::registerVoterPool(const RegisterVotePoolTransaction *tr
 
 	int cap = this->config->getVoteDefaultCapacity(blockHeight);
 	entry->setCapacity(cap);
+
+
+	const BlockMerkleRoot* root = body->getMerkleRoot();
+	if(root != nullptr){
+		const BigInteger* pub = nodeId->getPublicKey();
+		ByteBuffer* buff = pub->toBinary(); __STP(buff);
+
+		MerkleCertificate* merkleCert = body->makeCertificate((const char*)buff->array(), buff->capacity()); __STP(merkleCert);
+		entry->setNodeIdMerkleCert(merkleCert);
+	}
 }
 
 void StatusCacheContext::registerTicket(const BlockHeader *header, const RegisterTicketTransaction *trx) {

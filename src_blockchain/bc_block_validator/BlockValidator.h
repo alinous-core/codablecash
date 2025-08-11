@@ -21,6 +21,7 @@ class MiningConfig;
 class VotingBlockStatus;
 class VoteCandidate;
 class BlockHeaderId;
+class BlockBody;
 
 class BlockValidator {
 public:

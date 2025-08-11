@@ -20,6 +20,10 @@
 #include "base/StackRelease.h"
 
 #include "bc_block/BlockMerkleRoot.h"
+
+#include "bc_trx/TransactionId.h"
+
+
 namespace codablecash {
 
 BlockHeaderTransferDataValidator::BlockHeaderTransferDataValidator(const BlockHeaderTransferData* data) {
@@ -54,7 +58,8 @@ void BlockHeaderTransferDataValidator::visit(const BlockHeaderId *votedHeaderId,
 
 	// check certification
 	{
-		bool bl = merklecert->certificate();
+		ByteBuffer* buff = voteTrxId->getByteBuffer();
+		bool bl = merklecert->certificate(buff);
 		ExceptionThrower<DataStructureException>::throwExceptionIfCondition(!bl, L"Merkle certification is wrong.", __FILE__, __LINE__);
 	}
 }

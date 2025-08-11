@@ -72,7 +72,7 @@ bool ClientCommandsQueueProcessor::isEmpty() const {
 	return this->queue->isEmpty();
 }
 
-AbstractClientCommand* ClientCommandsQueueProcessor::fetchFirst() const {
+AbstractClientQueueCommand* ClientCommandsQueueProcessor::fetchFirst() const {
 	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	return this->queue->fetchFirst();
@@ -90,7 +90,7 @@ void ClientCommandsQueueProcessor::__setSuspend(bool suspend) {
 	this->thread->__setSuspend(suspend);
 }
 
-void ClientCommandsQueueProcessor::addCommand(const AbstractClientCommand *cmd) {
+void ClientCommandsQueueProcessor::addCommand(const AbstractClientQueueCommand *cmd) {
 	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
 	 this->queue->addCommand(cmd);

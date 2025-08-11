@@ -68,7 +68,8 @@ public:
 		return this->merkleRoot;
 	}
 
-	MerkleCertificate* makeCertificate(const Abstract32BytesId* b) noexcept;
+	MerkleCertificate* makeCertificate(const Abstract32BytesId* b) const noexcept;
+	MerkleCertificate* makeCertificate(const char* hash, int size) const noexcept;
 
 	const ArrayList<AbstractBalanceTransaction>* getBalanceTransactions() const noexcept {
 		return this->balanceTransactions;

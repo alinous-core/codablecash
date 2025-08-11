@@ -100,7 +100,10 @@ void BlockTransactionTransferData::validate(const BlockMerkleRoot *merkleRoot) c
 
 	// check certification
 	{
-		bool bl = this->cert->certificate();
+		const TransactionId* trxId = this->trx->getTransactionId();
+		ByteBuffer* buff = trxId->getByteBuffer();
+
+		bool bl = this->cert->certificate(buff);
 		ExceptionThrower<DataStructureException>::throwExceptionIfCondition(!bl, L"Transaction's Merkle certification is wrong.", __FILE__, __LINE__);
 	}
 }

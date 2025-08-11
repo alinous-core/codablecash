@@ -47,15 +47,15 @@ void ClientListStakingNodeIdsCommand::toBinary(ByteBuffer *buff) const {
 }
 
 void ClientListStakingNodeIdsCommand::fromBinary(ByteBuffer *buff) {
-	AbstractClientRequestCommand::toBinary(buff);
+	AbstractClientRequestCommand::fromBinary(buff);
 
-	buff->putShort(this->zone);
+	this->zone = buff->getShort();
 }
 
 AbstractCommandResponse* ClientListStakingNodeIdsCommand::executeAsClient(ClientNodeHandshake *clientHandshake, CodablecashNodeInstance *inst) const {
 	BlockchainController* ctrl = inst->getController();
 
-	IStatusCacheContext* context =  ctrl->getStatusCacheContext(this->zone);
+	IStatusCacheContext* context = ctrl->getStatusCacheContext(this->zone); __STP(context);
 	ArrayList<VoterEntry, VoterEntry::VoteCompare>* list = context->getVoterEntries(); __STP(list);
 	list->setDeleteOnExit();
 
@@ -64,16 +64,21 @@ AbstractCommandResponse* ClientListStakingNodeIdsCommand::executeAsClient(Client
 	int maxLoop = list->size();
 	for(int i = 0; i != maxLoop; ++i){
 		const VoterEntry* entry = list->get(i);
+		const NodeIdentifier* nodeId = entry->getNodeIdentifier();
+		const MerkleCertificate* cert = entry->getNodeIdMerkleCertificate();
+
+		response->addNodeIdentifier(nodeId);
+		response->addMerkleCertificate(cert);
 	}
 
 	return __STP_MV(response);
 }
 
 ByteBuffer* ClientListStakingNodeIdsCommand::getSignBinary() const {
-	int cap = this->nodeId->binarySize();
+	int total = sizeof(this->zone);
 
-	ByteBuffer* buff = ByteBuffer::allocateWithEndian(cap, true); __STP(buff);
-	this->nodeId->toBinary(buff);
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(total, true); __STP(buff);
+	buff->putShort(this->zone);
 
 	return __STP_MV(buff);
 }

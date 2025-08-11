@@ -40,9 +40,11 @@ public:
 		return this->list.size();
 	}
 
-	bool certificate() const;
+	bool certificate(ByteBuffer* data) const;
 
 	ByteBuffer* getRootHash() const noexcept;
+
+	ByteBuffer* getOriginalHash() const noexcept;
 
 private:
 	ByteBuffer* joinHash(const ByteBuffer* left, const ByteBuffer* right) const noexcept;

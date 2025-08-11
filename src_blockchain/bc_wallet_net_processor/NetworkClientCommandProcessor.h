@@ -25,7 +25,7 @@ class PendingClientCommandsQueue;
 class ClientCommandsQueueProcessor;
 class ClientCommandsQueueData;
 class ISystemLogger;
-class AbstractClientCommand;
+class AbstractClientQueueCommand;
 
 class NetworkClientCommandProcessor : public IPubsubCommandListner {
 public:
@@ -51,7 +51,7 @@ public:
 	virtual IPubsubCommandExecutor* getExecutor() const noexcept;
 
 	void addPendingQueue(const ClientCommandsQueueData* queueData);
-	void addClientCommand(const AbstractClientCommand* clientCommnad);
+	void addClientCommand(const AbstractClientQueueCommand* clientCommnad);
 
 private:
 	ClientCommandsQueueData* fetchFirstPendingData(SynchronizedLock* lock) const;

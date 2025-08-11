@@ -12,8 +12,6 @@
 #include "bc_wallet_net_cmd_queue/PendingClientCommandsQueue.h"
 #include "bc_wallet_net_cmd_queue/ClientCommandsQueueData.h"
 
-#include "bc_wallet_net_cmd/AbstractClientCommand.h"
-
 #include "bc_wallet_net/NetworkWallet.h"
 
 #include "bc_p2p_cmd_client_notify/ClientExecutor.h"
@@ -28,6 +26,7 @@
 #include "base/Exception.h"
 
 #include "bc/ISystemLogger.h"
+#include "bc_wallet_net_cmd/AbstractClientQueueCommand.h"
 
 
 namespace codablecash {
@@ -133,7 +132,7 @@ bool NetworkClientCommandProcessor::isPendingQueueEmptyWithResume(SynchronizedLo
 }
 
 void NetworkClientCommandProcessor::processPendingData(ClientCommandsQueueData *data) {
-	AbstractClientCommand* cmd = data->toClientCommand(); __STP(cmd);
+	AbstractClientQueueCommand* cmd = data->toClientCommand(); __STP(cmd);
 
 	cmd->process(this->networkWallet);
 }
@@ -150,7 +149,7 @@ void NetworkClientCommandProcessor::addPendingQueue(const ClientCommandsQueueDat
 	this->pendingQueue->addCommnadData(queueData);
 }
 
-void NetworkClientCommandProcessor::addClientCommand(const AbstractClientCommand *clientCommnad) {
+void NetworkClientCommandProcessor::addClientCommand(const AbstractClientQueueCommand *clientCommnad) {
 	SynchronizedLock* lock = getQueueSynchrinizedLock();
 
 	{

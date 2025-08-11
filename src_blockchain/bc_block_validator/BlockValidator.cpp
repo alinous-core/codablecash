@@ -125,6 +125,7 @@ void BlockValidator::validateLastHeader() {
 
 void BlockValidator::validateTransactionsInBlock(MemPoolTransaction *memTrx) {
 	const BlockHeader* header = this->block->getHeader();
+
 	const BlockHeaderId* lastheaderId = header->getLastHeaderId();
 	uint64_t lastheight = header->getHeight() - 1;
 	uint16_t zone = header->getZone();
@@ -154,7 +155,7 @@ void BlockValidator::validateControlTransactions(MemPoolTransaction *memTrx, con
 		ExceptionThrower<BlockValidationException>::throwExceptionIfCondition(result != TrxValidationResult::OK
 				, L"Invalid transaction.", __FILE__, __LINE__);
 
-		context->importControlTransaction(header, trx, this->ctrl->getLogger());
+		context->importControlTransaction(header, body, trx, this->ctrl->getLogger());
 	}
 }
 

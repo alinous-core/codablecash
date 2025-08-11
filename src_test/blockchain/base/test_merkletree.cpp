@@ -47,8 +47,13 @@ TEST(TestMerkleTreeGroup, case01){
 	int len = cert->size();
 	CHECK(len == 4);
 
-	bool bl = cert->certificate();
+	bool bl = cert->certificate(b);
 	CHECK(bl == true);
+
+	data = 4;
+	ByteBuffer* b2 = Sha256::sha256((const char*)&data, sizeof(data), true); __STP(b2);
+	bl = cert->certificate(b2);
+	CHECK(bl == false);
 }
 
 TEST(TestMerkleTreeGroup, case02){
@@ -72,7 +77,7 @@ TEST(TestMerkleTreeGroup, case02){
 	int len = cert->size();
 	CHECK(len == 1);
 
-	bool bl = cert->certificate();
+	bool bl = cert->certificate(b);
 	CHECK(bl == true);
 }
 

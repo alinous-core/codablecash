@@ -9,13 +9,13 @@
 #define BC_WALLET_NET_CMD_CLIENTNEWTRANSACTIONCOMMAND_H_
 
 
-#include "bc_wallet_net_cmd/AbstractClientCommand.h"
+#include "bc_wallet_net_cmd/AbstractClientQueueCommand.h"
 
 namespace codablecash {
 
 class TransactionTransferData;
 
-class ClientNewTransactionCommand : public AbstractClientCommand {
+class ClientNewTransactionCommand : public AbstractClientQueueCommand {
 public:
 	ClientNewTransactionCommand(const ClientNewTransactionCommand& inst);
 	ClientNewTransactionCommand();

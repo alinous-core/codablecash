@@ -128,7 +128,7 @@ MarkleElementFifo* MerkleTree::packFifo(MarkleElementFifo* fifo) const noexcept 
 	return newFifo;
 }
 
-MerkleCertificate* MerkleTree::makeCertificate(const ByteBuffer* b) noexcept {
+MerkleCertificate* MerkleTree::makeCertificate(const ByteBuffer* b) const noexcept {
 	MerkleCertificate* cert = new MerkleCertificate(); __STP(cert);
 
 	const ByteBuffer* rootHash = this->root->getHash();
@@ -164,7 +164,7 @@ MerkleCertificate* MerkleTree::makeCertificate(const ByteBuffer* b) noexcept {
 	return __STP_MV(cert);
 }
 
-MerkleCertificate* MerkleTree::makeCertificate(const char* hash, int size) noexcept {
+MerkleCertificate* MerkleTree::makeCertificate(const char* hash, int size) const noexcept {
 	ByteBuffer* buff = ByteBuffer::wrapWithEndian((const uint8_t*)hash, size, true); __STP(buff);
 
 	return makeCertificate(buff);

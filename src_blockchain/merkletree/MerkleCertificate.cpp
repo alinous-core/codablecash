@@ -48,7 +48,15 @@ void MerkleCertificate::addHash(MerkleCertificateElement* element) noexcept {
 	this->list.addElement(element);
 }
 
-bool MerkleCertificate::certificate() const {
+bool MerkleCertificate::certificate(ByteBuffer* data) const {
+	{
+		ByteBuffer* orgBuff = getOriginalHash(); __STP(orgBuff);
+
+		if(orgBuff->binaryCmp(data) != 0){
+			return false;
+		}
+	}
+
 	ArrayList<MerkleCertificateElement> fifo;
 	fifo.addAll(&this->list);
 
@@ -150,6 +158,13 @@ IBlockObject* MerkleCertificate::copyData() const noexcept {
 
 ByteBuffer* MerkleCertificate::getRootHash() const noexcept {
 	return this->rootHash->clone();
+}
+
+ByteBuffer* MerkleCertificate::getOriginalHash() const noexcept {
+	MerkleCertificateElement* first = this->list.get(0);
+	const ByteBuffer* buff = first->getHash();
+
+	return buff->clone();
 }
 
 } /* namespace codablecash */

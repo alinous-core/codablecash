@@ -17,6 +17,9 @@
 
 #include "base/StackRelease.h"
 
+#include "merkletree/MerkleCertificate.h"
+
+
 namespace codablecash {
 
 VoterEntry::VoterEntry(const VoterEntry &inst) {
@@ -39,6 +42,8 @@ VoterEntry::VoterEntry(const VoterEntry &inst) {
 
 	this->voterAddressDesc = inst.voterAddressDesc != nullptr ? new AddressDescriptor(*inst.voterAddressDesc) : nullptr;
 	this->updated = inst.updated;
+
+	this->nodeIdMerkleCert = inst.nodeIdMerkleCert != nullptr ? dynamic_cast<MerkleCertificate*>(inst.nodeIdMerkleCert->copyData()) : nullptr;
 }
 
 VoterEntry::VoterEntry() {
@@ -52,6 +57,8 @@ VoterEntry::VoterEntry() {
 
 	this->voterAddressDesc = nullptr;
 	this->updated = false;
+
+	this->nodeIdMerkleCert = nullptr;
 }
 
 VoterEntry::~VoterEntry() {
@@ -61,6 +68,8 @@ VoterEntry::~VoterEntry() {
 	delete this->list;
 
 	delete this->voterAddressDesc;
+
+	delete this->nodeIdMerkleCert;
 }
 
 VoterEntry* VoterEntry::createVoteEntry(const NodeIdentifier *nodeId, const AddressDescriptor* voterAddress) {
@@ -236,6 +245,12 @@ int VoterEntry::binarySize() const {
 		total += ticket->binarySize();
 	}
 
+
+	total += sizeof(uint8_t);
+	if(this->nodeIdMerkleCert != nullptr){
+		total += this->nodeIdMerkleCert->binarySize();
+	}
+
 	return total;
 }
 
@@ -257,6 +272,12 @@ void VoterEntry::toBinary(ByteBuffer *out) const {
 		VoteTicket* ticket = this->list->get(i);
 		ticket->toBinary(out);
 	}
+
+	uint8_t bl = this->nodeIdMerkleCert != nullptr ? 1 : 0;
+	out->put(bl);
+	if(bl > 0){
+		this->nodeIdMerkleCert->toBinary(out);
+	}
 }
 
 VoterEntry* VoterEntry::createFromBinary(ByteBuffer *in) {
@@ -275,6 +296,11 @@ VoterEntry* VoterEntry::createFromBinary(ByteBuffer *in) {
 		entry->addTicket(ticket);
 	}
 
+	uint8_t bl = in->get();
+	if(bl > 0){
+		entry->nodeIdMerkleCert = MerkleCertificate::createFromBinary(in);
+	}
+
 	// clear update flag
 	entry->setUpdated(false);
 
@@ -283,6 +309,13 @@ VoterEntry* VoterEntry::createFromBinary(ByteBuffer *in) {
 
 IBlockObject* VoterEntry::copyData() const noexcept {
 	return new VoterEntry(*this);
+}
+
+void VoterEntry::setNodeIdMerkleCert(const MerkleCertificate *cert) noexcept {
+	delete this->nodeIdMerkleCert;
+	this->nodeIdMerkleCert = dynamic_cast<MerkleCertificate*>(cert->copyData());
+
+	this->updated = true;
 }
 
 } /* namespace codablecash */

@@ -65,7 +65,7 @@ public:
 	virtual void endBlock(const BlockHeader* header, ILockinManager* lockinManager);
 
 	virtual void importBalanceTransaction(const BlockHeader* header, const AbstractBalanceTransaction* trx, ISystemLogger* logger);
-	virtual void importControlTransaction(const BlockHeader* header, const AbstractControlTransaction* trx, ISystemLogger* logger);
+	virtual void importControlTransaction(const BlockHeader* header, const BlockBody* body, const AbstractControlTransaction* trx, ISystemLogger* logger);
 	virtual void importInterChainCommunicationTransaction(const BlockHeader* header, const AbstractInterChainCommunicationTansaction* trx, ISystemLogger* logger);
 	virtual void importSmartcontractTransaction(const BlockHeader* header, const AbstractSmartcontractTransaction* trx, ISystemLogger* logger);
 
@@ -98,7 +98,7 @@ public:
 
 	virtual void loadInitialVotersData();
 
-	virtual void registerVoterPool(const RegisterVotePoolTransaction* trx, uint64_t blockHeight);
+	virtual void registerVoterPool(const RegisterVotePoolTransaction* trx, uint64_t blockHeight, const BlockHeader *header, const BlockBody* body);
 	virtual void registerTicket(const BlockHeader *header, const RegisterTicketTransaction* trx);
 	virtual void registerVote(const BlockHeader *header, const VoteBlockTransaction* trx);
 

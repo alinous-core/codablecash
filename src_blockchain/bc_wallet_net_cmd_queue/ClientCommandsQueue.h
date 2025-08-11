@@ -20,7 +20,7 @@ using namespace alinous;
 
 namespace codablecash {
 
-class AbstractClientCommand;
+class AbstractClientQueueCommand;
 
 class ClientCommandsQueue {
 public:
@@ -34,14 +34,14 @@ public:
 	void open();
 	void close();
 
-	void addCommand(const AbstractClientCommand* cmd);
+	void addCommand(const AbstractClientQueueCommand* cmd);
 
-	AbstractClientCommand* getFirst() const;
+	AbstractClientQueueCommand* getFirst() const;
 	ULongKey* getFirstKey() const;
-	AbstractClientCommand* getLast() const;
+	AbstractClientQueueCommand* getLast() const;
 
 	bool isEmpty() const;
-	AbstractClientCommand* fetchFirst() const;
+	AbstractClientQueueCommand* fetchFirst() const;
 
 private:
 	File* baseDir;

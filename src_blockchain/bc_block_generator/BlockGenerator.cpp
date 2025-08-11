@@ -190,6 +190,8 @@ void BlockGenerator::importControlTransactions2Block(MemPoolTransaction* memTrx,
 	// control transaction
 	const BlockHeaderId* lastHeaderId = header->getLastHeaderId();
 
+	const BlockBody* blockBody = block->getBody();
+
 	/**
 	 * ControlTransactionScanner eliminates consumed transactions
 	 */
@@ -205,7 +207,7 @@ void BlockGenerator::importControlTransactions2Block(MemPoolTransaction* memTrx,
 
 			if(result == TrxValidationResult::OK){
 				block->addControlTransaction(trx);
-				context->importControlTransaction(header, trx, this->logger);
+				context->importControlTransaction(header, blockBody, trx, this->logger);
 			}
 			continue;
 		}
@@ -213,7 +215,7 @@ void BlockGenerator::importControlTransactions2Block(MemPoolTransaction* memTrx,
 		TrxValidationResult result = trx->validateFinal(header, memTrx, context);
 		if(result == TrxValidationResult::OK){
 			block->addControlTransaction(trx);
-			context->importControlTransaction(header, trx, this->logger);
+			context->importControlTransaction(header, blockBody, trx, this->logger);
 		}
 	}
 }

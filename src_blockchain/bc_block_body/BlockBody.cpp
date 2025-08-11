@@ -111,6 +111,7 @@ void BlockBody::build() {
 		for(int i = 0; i != maxLoop; ++i){
 			AbstractControlTransaction* trx = this->controlTransactions->get(i);
 			this->tree->addElement(trx);
+			trx->addInternalMerkleTreeElement(this->tree);
 		}
 	}
 	{
@@ -118,6 +119,7 @@ void BlockBody::build() {
 		for(int i = 0; i != maxLoop; ++i){
 			AbstractInterChainCommunicationTansaction* trx = this->iccTransactions->get(i);
 			this->tree->addElement(trx);
+			trx->addInternalMerkleTreeElement(this->tree);
 		}
 	}
 	{
@@ -125,6 +127,7 @@ void BlockBody::build() {
 		for(int i = 0; i != maxLoop; ++i){
 			AbstractBalanceTransaction* trx = this->balanceTransactions->get(i);
 			this->tree->addElement(trx);
+			trx->addInternalMerkleTreeElement(this->tree);
 		}
 	}
 	{
@@ -132,6 +135,7 @@ void BlockBody::build() {
 		for(int i = 0; i != maxLoop; ++i){
 			AbstractSmartcontractTransaction* trx = this->smartcontractTransactions->get(i);
 			this->tree->addElement(trx);
+			trx->addInternalMerkleTreeElement(this->tree);
 		}
 	}
 
@@ -547,8 +551,13 @@ ArrayList<const RevokeMissedTicket>* BlockBody::findRevokeMissedTicket(const Utx
 	return __STP_MV(ret);
 }
 
-MerkleCertificate* BlockBody::makeCertificate(const Abstract32BytesId *b) noexcept {
+MerkleCertificate* BlockBody::makeCertificate(const Abstract32BytesId *b) const noexcept {
 	return this->tree->makeCertificate(b->toArray(), b->size());
+}
+
+MerkleCertificate* BlockBody::makeCertificate(const char *hash, int size) const noexcept {
+	return this->tree->makeCertificate(hash, size);
+
 }
 
 OmittedBlockBody* BlockBody::toOmittedBlockBody() const {

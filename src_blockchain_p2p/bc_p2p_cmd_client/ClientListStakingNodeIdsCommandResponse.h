@@ -16,6 +16,7 @@
 namespace codablecash {
 
 class NodeIdentifier;
+class MerkleCertificate;
 
 class ClientListStakingNodeIdsCommandResponse : public AbstractCommandResponse {
 public:
@@ -28,8 +29,18 @@ public:
 
 	virtual UnicodeString* toString() const noexcept;
 
+	void addNodeIdentifier(const NodeIdentifier* nodeId) noexcept;
+	void addMerkleCertificate(const MerkleCertificate* cert) noexcept;
+
+	void certifyNodeIds();
+
+	ArrayList<NodeIdentifier>* getNodeIdentifierList() const noexcept {
+		return this->list;
+	}
+
 private:
 	ArrayList<NodeIdentifier>* list;
+	ArrayList<MerkleCertificate>* certlist;
 };
 
 } /* namespace codablecash */

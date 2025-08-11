@@ -37,8 +37,8 @@ public:
 
 	void pack() noexcept;
 
-	MerkleCertificate* makeCertificate(const ByteBuffer* b) noexcept;
-	MerkleCertificate* makeCertificate(const char* hash, int size) noexcept;
+	MerkleCertificate* makeCertificate(const ByteBuffer* b) const noexcept;
+	MerkleCertificate* makeCertificate(const char* hash, int size) const noexcept;
 
 	const AbstractMerkleElement* getRoot() const noexcept {
 		return this->root;

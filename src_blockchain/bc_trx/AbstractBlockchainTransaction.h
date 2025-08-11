@@ -28,6 +28,7 @@ class BloomFilter1024;
 class AddressDescriptor;
 class IUtxoRefChecker;
 class IAddressChecker;
+class MerkleTree;
 
 enum class TrxValidationResult
 {
@@ -103,9 +104,16 @@ public:
 		return true;
 	}
 
+	/**
+	 * To add Merkle tree elements inside the transaction.
+	 * @param tree
+	 */
+	virtual void addInternalMerkleTreeElement(MerkleTree* tree){};
+
 	const SystemTimestamp* getTimestamp() const noexcept {
 		return this->timestamp;
 	}
+
 
 protected:
 	virtual UtxoValidationResult validateUtxos(MemPoolTransaction *memTrx, IStatusCacheContext* context, const BalanceUnit& fee) const;

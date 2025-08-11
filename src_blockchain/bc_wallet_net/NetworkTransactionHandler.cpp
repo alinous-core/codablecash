@@ -42,6 +42,14 @@
 #include "bc/ISystemLogger.h"
 
 #include "bc_p2p_cmd_client/ClientListStakingNodeIdsCommand.h"
+#include "bc_p2p_cmd_client/ClientListStakingNodeIdsCommandResponse.h"
+
+#include "bc_network_instance_sync/RamdomNodesSelector.h"
+
+#include "bc_wallet_net_access/RetriableClientAccessContainer.h"
+#include "bc_wallet_net_access/ListStakingNodeAccess.h"
+
+
 namespace codablecash {
 
 NetworkTransactionHandler::NetworkTransactionHandler(int accountIndex, NetworkWallet* netWallet, ISystemLogger* logger) {
@@ -118,13 +126,38 @@ void NetworkTransactionHandler::broadcastTransaction(const AbstractClientRequest
 	}
 }
 
-void NetworkTransactionHandler::listSTakingNodeIds() {
+ArrayList<NodeIdentifier>* NetworkTransactionHandler::listStakingNodeIds() {
+	WalletNetworkManager* networkManager = this->netWallet->getWalletNetworkManager();
+
+	const NodeIdentifierSource* source = networkManager->getNodeIdentifierSource();
+
 	NetworkWalletData* data = this->netWallet->getWalletData();
 	uint16_t zone = data->getDefaultZone();
 
 	ClientListStakingNodeIdsCommand command;
 	command.setZone(zone);
 
+	command.sign(source);
+
+	ListStakingNodeAccess access(&command);
+	RetriableClientAccessContainer retriable(&access, this->logger, networkManager);
+
+	retriable.clientAccess();
+
+	const ClientListStakingNodeIdsCommandResponse* response = access.getResponse();
+	const ArrayList<NodeIdentifier>* list = response->getNodeIdentifierList();
+
+	ArrayList<NodeIdentifier>* ret = new ArrayList<NodeIdentifier>();
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const NodeIdentifier* nodeId = list->get(i);
+
+		ret->addElement(dynamic_cast<NodeIdentifier*>(nodeId->copyData()));
+	}
+
+	return ret;
 }
+
 
 } /* namespace codablecash */

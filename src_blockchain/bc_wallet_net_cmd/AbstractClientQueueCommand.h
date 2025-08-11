@@ -5,8 +5,8 @@
  *      Author: iizuka
  */
 
-#ifndef BC_WALLET_NET_CMD_ABSTRACTCLIENTCOMMAND_H_
-#define BC_WALLET_NET_CMD_ABSTRACTCLIENTCOMMAND_H_
+#ifndef BC_WALLET_NET_CMD_ABSTRACTCLIENTQUEUECOMMAND_H_
+#define BC_WALLET_NET_CMD_ABSTRACTCLIENTQUEUECOMMAND_H_
 
 #include <cstdint>
 
@@ -18,15 +18,15 @@ namespace codablecash {
 
 class NetworkWallet;
 
-class AbstractClientCommand : public IBlockObject {
+class AbstractClientQueueCommand : public IBlockObject {
 public:
 	static const constexpr uint8_t CLIENT_NEW_TRANSACTION{1};
 
-	AbstractClientCommand(const AbstractClientCommand& inst);
-	explicit AbstractClientCommand(uint8_t type);
-	virtual ~AbstractClientCommand();
+	AbstractClientQueueCommand(const AbstractClientQueueCommand& inst);
+	explicit AbstractClientQueueCommand(uint8_t type);
+	virtual ~AbstractClientQueueCommand();
 
-	static AbstractClientCommand* createFromBinary(ByteBuffer* in);
+	static AbstractClientQueueCommand* createFromBinary(ByteBuffer* in);
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out) const;
@@ -40,4 +40,4 @@ protected:
 
 } /* namespace codablecash */
 
-#endif /* BC_WALLET_NET_CMD_ABSTRACTCLIENTCOMMAND_H_ */
+#endif /* BC_WALLET_NET_CMD_ABSTRACTCLIENTQUEUECOMMAND_H_ */

@@ -23,6 +23,7 @@ class VoteTicket;
 class AddressDescriptor;
 class UtxoId;
 class BalanceUnit;
+class MerkleCertificate;
 
 class VoterEntry : public IBlockObject {
 public:
@@ -76,6 +77,11 @@ public:
 
 	BalanceUnit getTicketPriceSum() const noexcept;
 
+	void setNodeIdMerkleCert(const MerkleCertificate* cert) noexcept;
+	const MerkleCertificate* getNodeIdMerkleCertificate() const noexcept {
+		return this->nodeIdMerkleCert;
+	}
+
 #ifdef __DEBUG__
 	bool checkTickets() const;
 	int countTicket(const UtxoId* id) const;
@@ -93,6 +99,8 @@ private:
 
 	int pos;
 	bool updated;
+
+	MerkleCertificate* nodeIdMerkleCert;
 };
 
 } /* namespace codablecash */

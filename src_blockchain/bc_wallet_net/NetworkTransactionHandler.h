@@ -8,6 +8,10 @@
 #ifndef BC_WALLET_NET_NETWORKTRANSACTIONHANDLER_H_
 #define BC_WALLET_NET_NETWORKTRANSACTIONHANDLER_H_
 
+#include "base/ArrayList.h"
+
+using alinous::ArrayList;
+
 namespace codablecash {
 
 class NodeIdentifierSource;
@@ -17,6 +21,8 @@ class IWalletDataEncoder;
 class NetworkWallet;
 class AbstractClientRequestCommand;
 class ISystemLogger;
+class AbstractCommandResponse;
+class NodeIdentifier;
 
 class NetworkTransactionHandler {
 public:
@@ -25,7 +31,7 @@ public:
 
 	void sendRegisterVotePoolTransaction(const BalanceUnit& feeRate, const IWalletDataEncoder* encoder);
 
-	void listSTakingNodeIds();
+	ArrayList<NodeIdentifier>* listStakingNodeIds();
 
 
 private:

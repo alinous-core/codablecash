@@ -91,8 +91,9 @@ TEST(TestConsumedUtxoGroup, case01){
 
 			Block block(0, 2);
 			BlockHeader* header = block.getHeader();
+			BlockBody* body = block.getBody();
 
-			context->importControlTransaction(header, trx, logger);
+			context->importControlTransaction(header, body, trx, logger);
 
 			const UtxoId* utxoId = ref->getUtxoId();
 			AbstractUtxo* utxo = context->getUtxo(utxoId);
@@ -103,8 +104,9 @@ TEST(TestConsumedUtxoGroup, case01){
 
 			Block block(0, 2);
 			BlockHeader* header = block.getHeader();
+			BlockBody* body = block.getBody();
 
-			context->importControlTransaction(header, trx, logger);
+			context->importControlTransaction(header, body, trx, logger);
 
 			const UtxoId* utxoId = ref->getUtxoId();
 			AbstractUtxo* utxo = context->getUtxo(utxoId);
@@ -116,8 +118,9 @@ TEST(TestConsumedUtxoGroup, case01){
 
 			Block block(0, 2);
 			BlockHeader* header = block.getHeader();
+			BlockBody* body = block.getBody();
 
-			context->importControlTransaction(header, trx, logger);
+			context->importControlTransaction(header, body, trx, logger);
 
 			//
 			RegisterVotePoolTransaction* regTrx = dynamic_cast<RegisterVotePoolTransaction*>(trx);

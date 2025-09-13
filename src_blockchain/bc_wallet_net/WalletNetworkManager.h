@@ -29,6 +29,7 @@ class BloomFilter1024;
 class NodeIdentifier;
 class NodeIdentifierSource;
 class ClientNodeHandshake;
+class PubSubId;
 
 class WalletNetworkManager {
 public:
@@ -36,6 +37,8 @@ public:
 
 	explicit WalletNetworkManager(uint16_t defaultZone, ISystemLogger* logger, NetworkClientCommandProcessor* clientCommandProcessor);
 	virtual ~WalletNetworkManager();
+
+	void shutdownNetwork();
 
 	void setSeeder(INetworkSeeder* seeder) noexcept;
 
@@ -45,6 +48,7 @@ public:
 	const NodeIdentifierSource* getNodeIdentifierSource() const noexcept;
 
 	ClientNodeHandshake* getClientHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept;
+	const NodeIdentifier* pubsubId2NodeId(const PubSubId* pubsubId) const noexcept;
 
 private:
 	void importSeeds(int numZones, const P2pNodeRecord* seedRec);

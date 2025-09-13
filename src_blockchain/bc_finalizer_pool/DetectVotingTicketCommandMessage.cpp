@@ -157,6 +157,10 @@ void DetectVotingTicketCommandMessage::putTransaction(const BlockHeader *header2
 			NodeIdentifierSource* networkKey = p2pRequestProcessor->getNetworkKey();
 			command.sign(networkKey);
 
+			// add into the history
+			p2pRequestProcessor->addHistory(&data);
+
+			// broad cast
 			uint16_t zone = header2vote->getZone();
 			p2pManager->broadCastWithinZone(zone, &command, p2pRequestProcessor);
 		}

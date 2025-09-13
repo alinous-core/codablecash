@@ -25,11 +25,14 @@ public:
 
 	void reset() noexcept;
 	void addTransaction(const AbstractBlockchainTransaction* trx);
+	const AbstractBlockchainTransaction* getTransaction(const TransactionId *trxId) const noexcept;
+	bool hasTransaction(const TransactionId *trxId) const noexcept;
 
 	void importOtherManagementTransactionsHistory(const ManagementTransactionsHistory* other);
 
 	int historySize() const noexcept;
 	const AbstractBlockchainTransaction* getTransaction(int i) const noexcept;
+
 
 private:
 	ArrayList<AbstractBlockchainTransaction>* list;

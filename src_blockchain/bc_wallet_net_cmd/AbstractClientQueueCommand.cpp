@@ -7,7 +7,7 @@
 
 #include "bc_wallet_net_cmd/AbstractClientQueueCommand.h"
 #include "bc_wallet_net_cmd/ClientNewTransactionCommand.h"
-
+#include "bc_wallet_net_cmd/ClientBlockMinedCommand.h"
 
 namespace codablecash {
 
@@ -38,6 +38,9 @@ AbstractClientQueueCommand* AbstractClientQueueCommand::createFromBinary(ByteBuf
 	switch(t){
 	case CLIENT_NEW_TRANSACTION:
 		cmd = new ClientNewTransactionCommand();
+		break;
+	case CLIENT_BLOCK_MINED:
+		cmd = new ClientBlockMinedCommand();
 		break;
 	default:
 		return nullptr;

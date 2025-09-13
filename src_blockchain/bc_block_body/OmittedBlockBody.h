@@ -30,6 +30,8 @@ class AbstractBlockchainTransaction;
 class MemPoolTransaction;
 class BlockHeaderId;
 class ReservedVotes;
+class IOmittedBlockBodyFixer;
+class ISystemLogger;
 
 class OmittedBlockBody : public alinous::IBlockObject {
 public:
@@ -50,13 +52,18 @@ public:
 	void addSmartContractTransaction(const TransactionId* trxId);
 	void setRewordBase(const BlockRewordBase* rewardBase);
 
-	BlockBody* toBlockBody(uint64_t height, const BlockHeaderId* headerId, IBlockBodyFetcher* fetcher) const;
+	BlockBody* toBlockBody(uint64_t height, const BlockHeaderId* headerId, IOmittedBlockBodyFixer* fixer, ISystemLogger *logger) const;
 
 private:
-	void exportBalanceTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IBlockBodyFetcher *fetcher) const;
-	void exportControlTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IBlockBodyFetcher *fetcher) const;
-	void exportInterChainCommunicationTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IBlockBodyFetcher *fetcher) const;
-	void exportSmartcontractTransaction(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IBlockBodyFetcher *fetcher) const;
+	void scanUnsentBalanceTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IOmittedBlockBodyFixer* fixer) const;
+	void scanUnsentControlTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IOmittedBlockBodyFixer* fixer) const;
+	void scanUnsentInterChainCommunicationTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IOmittedBlockBodyFixer* fixerr) const;
+	void scanUnsentSmartcontractTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IOmittedBlockBodyFixer* fixer) const;
+
+	void exportBalanceTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IOmittedBlockBodyFixer* fixer) const;
+	void exportControlTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IOmittedBlockBodyFixer* fixer) const;
+	void exportInterChainCommunicationTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IOmittedBlockBodyFixer* fixer) const;
+	void exportSmartcontractTransaction(uint64_t height, const BlockHeaderId* headerId, BlockBody* body, IOmittedBlockBodyFixer* fixer) const;
 
 private:
 	uint64_t nonce;
@@ -69,15 +76,6 @@ private:
 	BlockRewordBase* rewardBase;
 };
 
-class IBlockBodyFetcher {
-public:
-	virtual ~IBlockBodyFetcher(){};
-
-	virtual MemPoolTransaction* begin() = 0;
-	virtual DownloadTransactionsNodeCommandResponse* downloadTransactions(const DownloadTransactionsNodeCommand* command) const = 0;
-	virtual NodeIdentifierSource* getNetworkKey() const noexcept = 0;
-
-};
 
 } /* namespace codablecash */
 

@@ -193,8 +193,8 @@ void RegisterVotePoolTransactionWalletHandler::importTransaction(const AbstractB
 		AbstractUtxo* utxo = trx->getUtxo(i);
 
 		const AddressDescriptor* addressDesc = utxo->getAddress();
-		if(this->account->hasAddress(addressDesc) && dynamic_cast<BalanceUtxo*>(utxo) != nullptr){
-			trxRepo->importUtxo(dynamic_cast<BalanceUtxo*>(utxo));
+		if(this->account->hasAddress(addressDesc)){
+			trxRepo->importUtxo(utxo);
 			imported = true;
 		}
 	}

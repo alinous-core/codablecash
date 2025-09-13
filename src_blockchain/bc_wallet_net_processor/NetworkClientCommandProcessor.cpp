@@ -113,7 +113,13 @@ void NetworkClientCommandProcessor::resumeRequestProcessor() {
 }
 
 ClientCommandsQueueData* NetworkClientCommandProcessor::fetchFirstPendingData(SynchronizedLock *lock) const {
-	ClientCommandsQueueData* data = this->pendingQueue->fetchFirst();
+	ClientCommandsQueueData* data = nullptr;
+	{
+		StackUnlocker unlocker(lock, __FILE__, __LINE__);
+		data = this->pendingQueue->fetchFirst();
+	}
+
+
 	return data;
 }
 
@@ -155,6 +161,9 @@ void NetworkClientCommandProcessor::addClientCommand(const AbstractClientQueueCo
 	{
 		StackUnlocker unlocker(lock, __FILE__, __LINE__);
 		this->queueProcessor->addCommand(clientCommnad);
+
+		// notify all
+		lock->notifyAll();
 	}
 }
 
@@ -165,6 +174,10 @@ void NetworkClientCommandProcessor::shurdownProcessors() noexcept {
 	// wait for queue commands to be empty
 	this->queueProcessor->close();
 
+}
+
+WalletNetworkManager* NetworkClientCommandProcessor::getWalletNetworkManager() const noexcept {
+	return this->networkWallet->getWalletNetworkManager();
 }
 
 } /* namespace codablecash */

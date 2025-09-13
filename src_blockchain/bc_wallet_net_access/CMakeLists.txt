@@ -1,6 +1,7 @@
 
 
 set(__src
+	ClientFetchMempoolTrxAccess.cpp
 	IRetriableClientAccess.cpp
 	ListStakingNodeAccess.cpp
 	RetriableClientAccessContainer.cpp

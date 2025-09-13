@@ -38,6 +38,8 @@ public:
 	static const constexpr uint32_t TYPE_CLIENT_TRANSACTION_TRANSFER{12};
 	static const constexpr uint32_t TYPE_CLIENT_SYNC_HEADER{13};
 	static const constexpr uint32_t TYPE_CLIENT_LIST_STAKING_IDS{14};
+	static const constexpr uint32_t TYPE_CLIENT_FETCH_MEMPOOL_TRX{15};
+	static const constexpr uint32_t TYPE_CLIENT_FETCH_HEADER_TRX{16};
 
 	// DNS Commands
 	static const constexpr uint32_t TYPE_NETWORK_NODE_SHUTDOWN{100};
@@ -59,6 +61,7 @@ public:
 
 	// Client Notify Commands
 	static const constexpr uint32_t TYPE_CLIENT_NOTIFY_NEW_TRANSACTION{401};
+	static const constexpr uint32_t TYPE_CLIENT_NOTIFY_BLOCK_MINED{402};
 
 	AbstractPubSubCommand(const AbstractPubSubCommand& inst);
 	explicit AbstractPubSubCommand(uint32_t type);

@@ -122,4 +122,16 @@ uint64_t TestnetInstanceWrapper::getHeight() {
 	return h;
 }
 
+void TestnetInstanceWrapper::suspendMining() {
+	this->node->suspendMining();
+}
+
+void TestnetInstanceWrapper::resumeMining() {
+	this->node->resumeMining();
+}
+
+const FinalizerConfig* TestnetInstanceWrapper::getFinalizerConfig() const noexcept {
+	return this->nwconfig->getFinalizerConfig();
+}
+
 } /* namespace codablecash */

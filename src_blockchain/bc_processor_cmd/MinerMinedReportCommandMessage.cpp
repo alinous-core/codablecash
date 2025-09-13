@@ -27,6 +27,8 @@
 #include "bc_p2p_cmd_node_consensus/ReportMinedBlockNodeCommand.h"
 #include "bc_p2p_cmd_node_consensus/ReportNonceCalculatedNodeCommand.h"
 
+#include "bc_p2p_cmd_client_notify/ClientNotifyBlockMinedCommand.h"
+
 
 namespace codablecash {
 
@@ -49,8 +51,10 @@ void MinerMinedReportCommandMessage::process(CentralProcessor *processor) {
 	P2pRequestProcessor* p2pRequestProcessor = processor->getP2pRequestProcessor();
 	BlochchainP2pManager* p2pManager = processor->getBlochchainP2pManager();
 
-	// register header for PoS limit
+
 	BlockHeaderTransferData* data = BlockHeaderTransferData::createFromBlock(this->block); __STP(data);
+
+	// register header for PoS limit
 	{
 		const BlockHeader* header = data->getHeader();
 		uint16_t zone = header->getZone();
@@ -74,6 +78,10 @@ void MinerMinedReportCommandMessage::process(CentralProcessor *processor) {
 			ArrayList<NodeIdentifier> list;
 			p2pManager->bloadCastHighPriorityAllZones(&list, &cmd, p2pRequestProcessor);
 		}
+
+		// add to history
+		p2pRequestProcessor->addHistory(data);
+
 		// notify headers
 		{
 			ReportMinedBlockNodeCommand command;
@@ -86,7 +94,17 @@ void MinerMinedReportCommandMessage::process(CentralProcessor *processor) {
 			p2pManager->broadCastAllZones(nullptr, &command, p2pRequestProcessor);
 		}
 
-		// TODO; client notify
+		// client notify
+		{
+			ClientNotifyBlockMinedCommand command;
+			command.setBlockHeaderTransferData(data);
+
+			// sign
+			NodeIdentifierSource* nwkey = p2pRequestProcessor->getNetworkKey();
+			command.sign(nwkey);
+
+			p2pManager->broadCastToClients(&command, p2pRequestProcessor);
+		}
 	}
 }
 

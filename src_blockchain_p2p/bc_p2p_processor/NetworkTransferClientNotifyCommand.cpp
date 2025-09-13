@@ -17,12 +17,16 @@
 #include "bc_p2p/BlochchainP2pManager.h"
 #include "bc_p2p/ClientNodeHandshake.h"
 #include "bc_p2p/StackHandshakeReleaser.h"
+#include "bc_p2p/BlockchainNodeHandshakeException.h"
 
 #include "pubsub_cmd/AbstractCommandResponse.h"
 
 #include "base/StackRelease.h"
 
 #include "bc/ISystemLogger.h"
+
+#include "bc/ExceptionThrower.h"
+
 
 namespace codablecash {
 
@@ -43,6 +47,8 @@ void NetworkTransferClientNotifyCommand::execute(ICommandParameter *param) {
 	BlochchainP2pManager* p2pManager = processor->getBlochchainP2pManager();
 
 	ClientNodeHandshake* handshake = p2pManager->getClientHandshakeByNodeId(this->nodeId);
+	ExceptionThrower<BlockchainNodeHandshakeException>::throwExceptionIfCondition(handshake == nullptr, L"Node connection has alrealy closed.", __FILE__, __LINE__);
+
 	StackHandshakeReleaser __releaser(handshake);
 
 	AbstractCommandResponse* response = handshake->sendCommnad(this->command); __STP(response);

@@ -18,9 +18,10 @@ class TransactionId;
 
 class ManagedUtxoCacheRecord {
 public:
-	static constexpr const uint8_t FINALIZED{0};
-	static constexpr const uint8_t UNFINALIZED{1};
-	static constexpr const uint8_t MEMPOOL{2};
+	static constexpr const uint8_t NONE{0};
+	static constexpr const uint8_t FINALIZED{1};
+	static constexpr const uint8_t UNFINALIZED{2};
+	static constexpr const uint8_t MEMPOOL{3};
 
 	ManagedUtxoCacheRecord();
 	virtual ~ManagedUtxoCacheRecord();

@@ -161,4 +161,12 @@ ClientNodeHandshake* WalletNetworkManager::getClientHandshakeByNodeId(const Node
 	return this->connectionManager->getClientHandshakeByNodeId(nodeId);
 }
 
+const NodeIdentifier* WalletNetworkManager::pubsubId2NodeId(const PubSubId *pubsubId) const noexcept {
+	return this->connectionManager->pubsubId2NodeId(pubsubId);
+}
+
+void WalletNetworkManager::shutdownNetwork() {
+	this->connectionManager->dispose();
+}
+
 } /* namespace codablecash */

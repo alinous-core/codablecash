@@ -27,7 +27,10 @@
 #include "bc_p2p_cmd_client/PingNodeCommand.h"
 #include "bc_p2p_cmd_client/SendTransactionClientCommand.h"
 #include "bc_p2p_cmd_client/ClientSyncHeaderCommand.h"
+#include "bc_p2p_cmd_client/ClientFetchMempoolTrxCommand.h"
+
 #include "bc_p2p_cmd_client_notify/ClientNotifyNewTransactionCommand.h"
+#include "bc_p2p_cmd_client_notify/ClientNotifyBlockMinedCommand.h"
 
 #include "bc_p2p_cmd_node/SyncMempoolNodeCommand.h"
 #include "bc_p2p_cmd_node/SyncHeaderNodeCommand.h"
@@ -42,6 +45,9 @@
 #include "bc_p2p_cmd_node_consensus/SendVoteTransactionNodeCommand.h"
 
 #include "bc_p2p_cmd_network/NodeShutdownCommand.h"
+
+#include "bc_p2p_cmd_client/ClientFetchHeaderTransactionsCommand.h"
+
 
 
 namespace codablecash {
@@ -90,6 +96,12 @@ AbstractPubSubCommand* AbstractPubSubCommand::createFromBinary(ByteBuffer *buff)
 	case TYPE_CLIENT_LIST_STAKING_IDS:
 		ret = new ClientListStakingNodeIdsCommand();
 		break;
+	case TYPE_CLIENT_FETCH_MEMPOOL_TRX:
+		ret = new ClientFetchMempoolTrxCommand();
+		break;
+	case TYPE_CLIENT_FETCH_HEADER_TRX:
+		ret = new ClientFetchHeaderTransactionsCommand();
+		break;
 	case AbstractPubSubCommand::TYPE_NETWORK_NODE_SHUTDOWN:
 		ret = new NodeShutdownCommand();
 		break;
@@ -101,6 +113,9 @@ AbstractPubSubCommand* AbstractPubSubCommand::createFromBinary(ByteBuffer *buff)
 		break;
 	case TYPE_CLIENT_NOTIFY_NEW_TRANSACTION:
 		ret = new ClientNotifyNewTransactionCommand();
+		break;
+	case TYPE_CLIENT_NOTIFY_BLOCK_MINED:
+		ret = new ClientNotifyBlockMinedCommand();
 		break;
 	case TYPE_NODE_SYNC_MEMPOOL:
 		ret = new SyncMempoolNodeCommand();

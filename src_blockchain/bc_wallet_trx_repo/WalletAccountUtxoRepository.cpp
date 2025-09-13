@@ -127,7 +127,7 @@ void WalletAccountUtxoRepository::close() noexcept {
 	}
 }
 
-void WalletAccountUtxoRepository::importUtxo(const BalanceUtxo *utxo) {
+void WalletAccountUtxoRepository::importUtxo(const AbstractUtxo *utxo) {
 	{
 		AddressDescriptorKey key(utxo->getAddress());
 		AddressDescriptorUtxoData data;
@@ -187,9 +187,10 @@ BalanceUtxo* WalletAccountUtxoRepository::getBalanceUtxo(const UtxoId *utxoId) {
 
 	ArrayList<BalanceUtxo>* list = getBalanceUtxos(data->getDescriptor()); __STP(list);
 	assert(list != nullptr);
+	list->setDeleteOnExit();
 
 	BalanceUtxo* ret = nullptr;
-	list->setDeleteOnExit();
+
 	int maxLoop = list->size();
 	for(int i = 0; i != maxLoop; ++i){
 		BalanceUtxo* utxo = list->get(i);
@@ -228,6 +229,59 @@ ArrayList<BalanceUtxo>* WalletAccountUtxoRepository::getBalanceUtxos(const Addre
 
 	return list;
 }
+
+AbstractUtxo* WalletAccountUtxoRepository::getUtxo(const UtxoId *utxoId) {
+	UtxoIdKey key(utxoId);
+	IBlockObject* obj = this->utxoIdBtree->findByKey(&key); __STP(obj);
+
+	AddressDescriptorData* data = dynamic_cast<AddressDescriptorData*>(obj);
+	if(data == nullptr){
+		return nullptr;
+	}
+
+	ArrayList<AbstractUtxo>* list = getUtxos(data->getDescriptor()); __STP(list);
+	assert(list != nullptr);
+	list->setDeleteOnExit();
+
+	AbstractUtxo* ret = nullptr;
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractUtxo* utxo = list->get(i);
+		const UtxoId* id = utxo->getId();
+
+		if(id->compareTo(utxoId) == 0){
+			ret = dynamic_cast<AbstractUtxo*>(utxo->copyData());
+			break;
+		}
+	}
+
+	return ret;
+}
+
+ArrayList<AbstractUtxo>* WalletAccountUtxoRepository::getUtxos(const AddressDescriptor *desc) {
+	AddressDescriptorKey key(desc);
+	IBlockObject* obj = this->btree->findByKey(&key); __STP(obj);
+
+	AddressDescriptorUtxoData* data = dynamic_cast<AddressDescriptorUtxoData*>(obj);
+	if(data == nullptr){
+		return nullptr;
+	}
+
+	ArrayList<AbstractUtxo>* list = new ArrayList<AbstractUtxo>();
+
+	const ArrayList<AbstractUtxo>* l = data->getList();
+	int maxLoop = l->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractUtxo* utxo = l->get(i);
+
+		list->addElement(dynamic_cast<AbstractUtxo*>(utxo->copyData()));
+	}
+
+	return list;
+}
+
+
 
 BtreeScanner* WalletAccountUtxoRepository::getScanner() const {
 	BtreeScanner* scanner = this->utxoIdBtree->getScanner();

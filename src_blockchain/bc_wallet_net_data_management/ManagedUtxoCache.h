@@ -31,7 +31,7 @@ public:
 	const ManagedUtxoCacheRecord* getManagedUtxoCacheRecord(const UtxoId* utxoId) const noexcept;
 	bool hasUtxo(const UtxoId* utxoId) const noexcept;
 
-	void removeUtxo(const UtxoId* utxoId) noexcept;
+	bool removeUtxo(const UtxoId* utxoId) noexcept;
 
 	void importOtherManagedUtxoCache(const ManagedUtxoCache* other);
 

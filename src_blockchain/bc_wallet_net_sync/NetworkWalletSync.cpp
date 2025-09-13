@@ -91,7 +91,10 @@ void NetworkWalletSync::__buildManagementAccounts() {
 	this->walletData->resetManagementAccounts();
 
 	// buildManagementAccounts
-	this->walletData->buildManagementAccount(true);
+	uint64_t finalizedHeight = this->walletData->getFinalizedHeight();
+	uint64_t startHeight = finalizedHeight > 0 ? finalizedHeight : 1;
+
+	this->walletData->buildManagementAccount(true, startHeight);
 }
 
 void NetworkWalletSync::processHeaders() {
@@ -123,6 +126,7 @@ void NetworkWalletSync::processHeaders() {
 				}
 
 				this->walletData->addHeader(header, &trxlist);
+				this->walletData->updateHeadDetection();
 			}
 		}
 	}

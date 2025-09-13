@@ -9,6 +9,9 @@
 #include "bc_trx/TransactionId.h"
 #include "bc_trx/AbstractUtxoReference.h"
 #include "bc_trx/NopInterChainCommunicationTransaction.h"
+#include "bc_trx/IUtxoRefChecker.h"
+#include "bc_trx/IAddressChecker.h"
+#include "bc_trx/UtxoId.h"
 
 #include "bc_trx_genesis/GenesisTransaction.h"
 
@@ -38,9 +41,6 @@
 
 #include "bc_wallet_filter/BloomFilter1024.h"
 
-#include "bc_trx/IUtxoRefChecker.h"
-
-#include "bc_trx/IAddressChecker.h"
 using alinous::Os;
 
 namespace codablecash {
@@ -113,10 +113,17 @@ UtxoValidationResult AbstractBlockchainTransaction::validateUtxos(MemPoolTransac
 
 	BalanceUnit leftBalance(0L);
 	{
+		ArrayList<const UtxoId> usedUtxo;
+
 		int maxLoop = getUtxoReferenceSize();
 		for(int i = 0; i != maxLoop; ++i){
 			const AbstractUtxoReference* ref = getUtxoReference(i);
 			const UtxoId* utxoId = ref->getUtxoId();
+
+			if(hasUsedUtxo(&usedUtxo, utxoId)){
+				return UtxoValidationResult::INVALID;
+			}
+			usedUtxo.addElement(utxoId);
 
 			// on chain
 			{
@@ -158,6 +165,41 @@ UtxoValidationResult AbstractBlockchainTransaction::validateUtxos(MemPoolTransac
 	}
 
 	return result;
+}
+
+bool AbstractBlockchainTransaction::checkUtxoRefs() const noexcept {
+	bool ret = true;
+
+	ArrayList<const UtxoId> usedUtxo;
+	int maxLoop = getUtxoReferenceSize();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractUtxoReference* ref = getUtxoReference(i);
+		const UtxoId* utxoId = ref->getUtxoId();
+
+		if(hasUsedUtxo(&usedUtxo, utxoId)){
+			ret = false;
+			break;
+		}
+		usedUtxo.addElement(utxoId);
+	}
+
+	return ret;
+}
+
+
+bool AbstractBlockchainTransaction::hasUsedUtxo(ArrayList<const UtxoId>* usedUtxo, const UtxoId *utxoId) const {
+	bool ret = false;
+
+	int maxLoop = usedUtxo->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const UtxoId* id = usedUtxo->get(i);
+		if(utxoId->equals(id)){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
 }
 
 TrxValidationResult AbstractBlockchainTransaction::validateReported(const BlockHeader *header, IStatusCacheContext *context) const {

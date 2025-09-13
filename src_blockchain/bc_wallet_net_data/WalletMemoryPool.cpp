@@ -134,6 +134,12 @@ AbstractBlockchainTransaction* WalletMemoryPool::getBlockchainTransaction(const 
 	return data != nullptr ? dynamic_cast<AbstractBlockchainTransaction*>(data->getTrx()->copyData()) : nullptr;
 }
 
+bool WalletMemoryPool::hasTransaction(const TransactionId *trxId) const {
+	AbstractBlockchainTransaction* trx = getBlockchainTransaction(trxId); __STP(trx);
+
+	return trx != nullptr;
+}
+
 BtreeScanner* WalletMemoryPool::getScanner() const noexcept {
 	return this->trxStore->getScanner();
 }

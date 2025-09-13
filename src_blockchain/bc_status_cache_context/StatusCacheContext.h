@@ -115,7 +115,15 @@ public:
 	virtual const CachedStatusCache* getCachedStatusCache() const noexcept {
 		return nullptr;
 	}
-	virtual uint64_t getAnalyzedHeight() const noexcept;
+	virtual uint64_t getPreAnalyzedHeight() const noexcept;
+
+
+	virtual uint64_t getTopHeight() const noexcept {
+		return this->topHeight;
+	}
+	void setTopHeight(uint64_t height) noexcept {
+		this->topHeight = height;
+	}
 
 protected:
 	void importBalanceTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
@@ -152,6 +160,8 @@ protected:
 	VoterStatusMappedCacheContext* voterCache;
 
 	const CodablecashSystemParam* config;
+
+	uint64_t topHeight;
 };
 
 } /* namespace codablecash */

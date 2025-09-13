@@ -56,7 +56,9 @@ const ManagedUtxoCacheRecord* ManagedUtxoCache::getManagedUtxoCacheRecord(const 
 	return record;
 }
 
-void ManagedUtxoCache::removeUtxo(const UtxoId *utxoId) noexcept {
+bool ManagedUtxoCache::removeUtxo(const UtxoId *utxoId) noexcept {
+	bool result = false;
+
 	ManagedUtxoCacheRecord* record = this->map->get(utxoId); __STP(record);
 
 	if(record != nullptr){
@@ -64,7 +66,11 @@ void ManagedUtxoCache::removeUtxo(const UtxoId *utxoId) noexcept {
 
 		int index = this->list->indexOfPtr(record);
 		this->list->remove(index);
+
+		result = true;
 	}
+
+	return result;
 }
 
 bool ManagedUtxoCache::hasUtxo(const UtxoId *utxoId) const noexcept {

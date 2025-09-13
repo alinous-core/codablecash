@@ -57,4 +57,16 @@ void ManagementTransactionsHistory::importOtherManagementTransactionsHistory(con
 	}
 }
 
+const AbstractBlockchainTransaction* ManagementTransactionsHistory::getTransaction(const TransactionId *trxId) const noexcept {
+	AbstractBlockchainTransaction* trx = this->map->get(trxId);
+
+	return trx;
+}
+
+bool ManagementTransactionsHistory::hasTransaction(const TransactionId *trxId) const noexcept {
+	const AbstractBlockchainTransaction* trx = getTransaction(trxId);
+
+	return trx != nullptr;
+}
+
 } /* namespace codablecash */

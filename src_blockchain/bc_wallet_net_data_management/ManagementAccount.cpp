@@ -40,33 +40,43 @@ bool ManagementAccount::checkUtxo(const AbstractUtxoReference *ref) const {
 }
 
 void ManagementAccount::addTransaction(const AbstractBlockchainTransaction *trx, const IAddressChecker *addressChecker) {
-	this->trxHistory->addTransaction(trx);
-
+	bool trxIsRelevant = false;
 	const TransactionId* trxId = trx->getTransactionId();
 
-	// utxo ref
-	{
-		int maxLoop = trx->getUtxoReferenceSize();
-		for(int i = 0; i != maxLoop; ++i){
-			const AbstractUtxoReference* ref = trx->getUtxoReference(i);
-			const UtxoId* utxoId = ref->getUtxoId();
+	bool bl = this->trxHistory->hasTransaction(trxId);
+	if(!bl){
+		// utxo ref
+		{
+			int maxLoop = trx->getUtxoReferenceSize();
+			for(int i = 0; i != maxLoop; ++i){
+				const AbstractUtxoReference* ref = trx->getUtxoReference(i);
+				const UtxoId* utxoId = ref->getUtxoId();
 
-			this->utxoCache->removeUtxo(utxoId);
-		}
-	}
-
-	// new utxo
-	{
-		int maxLoop = trx->getUtxoSize();
-		for(int i = 0; i != maxLoop; ++i){
-			const AbstractUtxo* utxo = trx->getUtxo(i);
-
-			// check if the utxo is included in the wallet
-			const AddressDescriptor* desc = utxo->getAddress();
-
-			if(desc != nullptr && addressChecker->checkAddress(desc)){
-				this->utxoCache->addUtxo(utxo, trxId, this->storeType);
+				bool hasUtxo = this->utxoCache->removeUtxo(utxoId);
+				if(hasUtxo){
+					trxIsRelevant = true;
+				}
 			}
+		}
+
+		// new utxo
+		{
+			int maxLoop = trx->getUtxoSize();
+			for(int i = 0; i != maxLoop; ++i){
+				const AbstractUtxo* utxo = trx->getUtxo(i);
+
+				// check if the utxo is included in the wallet
+				const AddressDescriptor* desc = utxo->getAddress();
+
+				if(desc != nullptr && addressChecker->checkAddress(desc)){
+					this->utxoCache->addUtxo(utxo, trxId, this->storeType);
+					trxIsRelevant = true;
+				}
+			}
+		}
+
+		if(trxIsRelevant){
+			this->trxHistory->addTransaction(trx);
 		}
 	}
 }
@@ -78,6 +88,12 @@ void ManagementAccount::importOtherAccount(const ManagementAccount* other) {
 
 const ArrayList<ManagedUtxoCacheRecord>* ManagementAccount::getUtxoList() const noexcept {
 	return this->utxoCache->getUtxoList();
+}
+
+bool ManagementAccount::hasTransaction(const TransactionId *trxId) const {
+	const AbstractBlockchainTransaction* trx = this->trxHistory->getTransaction(trxId);
+
+	return trx != nullptr;
 }
 
 } /* namespace codablecash */

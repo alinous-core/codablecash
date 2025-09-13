@@ -86,12 +86,11 @@ public:
 
 	void setScheduledBlock(const Block* block);
 	Block* fetchScheduledBlock();
+	Block* getScheduledBlock();
 
 	UtxoData* findUtxo(const UtxoId* utxoId) const;
 
 	bool registerBlockHeader4Limit(const BlockHeader* header, const CodablecashSystemParam* param);
-
-
 
 private:
 	void addIdex2String(UnicodeString *str) const noexcept;

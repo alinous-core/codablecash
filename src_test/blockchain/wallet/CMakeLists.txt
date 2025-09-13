@@ -4,6 +4,7 @@ set(testsrc
 	test_bloomfilter.cpp
 	test_bloomfilter1024_value.cpp
 	test_bloomfilter1024.cpp
+	test_client_command_queue.cpp
 	test_net_wallet.cpp
 	test_ripemd160.cpp
 	test_unfinalized_repo.cpp

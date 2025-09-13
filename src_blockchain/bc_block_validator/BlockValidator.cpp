@@ -118,7 +118,7 @@ void BlockValidator::validateLastHeader() {
 	const BlockHeaderId *lastHeaderId = header->getLastHeaderId();
 	uint64_t lastBlockHeight = header->getHeight() - 1;
 
-	Block* lastBlock = this->ctrl->getBlocksHeightAt(zone, lastBlockHeight, lastHeaderId); __STP(lastBlock);
+	Block* lastBlock = this->ctrl->getBlockHeightAt(zone, lastBlockHeight, lastHeaderId); __STP(lastBlock);
 	ExceptionThrower<BlockValidationException>::throwExceptionIfCondition(lastBlock == nullptr
 			, L"Invalid last block id.", __FILE__, __LINE__);
 }

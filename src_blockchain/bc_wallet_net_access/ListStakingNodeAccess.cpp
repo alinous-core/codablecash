@@ -19,7 +19,7 @@
 #include "pubsub_cmd/AbstractCommandResponse.h"
 
 #include "bc/ExceptionThrower.h"
-
+#include "bc/ISystemLogger.h"
 
 namespace codablecash {
 
@@ -37,6 +37,11 @@ void ListStakingNodeAccess::access(ClientNodeHandshake *handshake, ISystemLogger
 	{
 		AbstractCommandResponse* res = handshake->sendCommnad(this->command); __STP(res);
 
+		{
+			UnicodeString* msg = res->toString(); __STP(msg);
+			logger->debugLog(ISystemLogger::DEBUG_NODE_TRANSFER_RESPONSE, msg, __FILE__, __LINE__);
+		}
+
 		ClientListStakingNodeIdsCommandResponse* stakingResponse = dynamic_cast<ClientListStakingNodeIdsCommandResponse*>(res);
 		ExceptionThrower<PubsubCommandException>::throwExceptionIfCondition(stakingResponse == nullptr, L"Bad Command Response Type.", __FILE__, __LINE__);
 		__STP_MV(res);
@@ -44,11 +49,6 @@ void ListStakingNodeAccess::access(ClientNodeHandshake *handshake, ISystemLogger
 		delete this->response;
 		this->response = stakingResponse;
 	}
-
-
-
-	// FIXME ListStakingNodeAccess
-
 }
 
 } /* namespace codablecash */

@@ -67,4 +67,22 @@ TestnetInstanceWrapper* ZoneTestnet::getInstance(int index) const noexcept {
 	return this->instances.get(index);
 }
 
+void ZoneTestnet::suspendMining() {
+	int maxLoop = this->instances.size();
+	for(int i = 0; i != maxLoop; ++i){
+		TestnetInstanceWrapper* instWrapper = this->instances.get(i);
+
+		instWrapper->suspendMining();
+	}
+}
+
+void ZoneTestnet::resumeMining() {
+	int maxLoop = this->instances.size();
+	for(int i = 0; i != maxLoop; ++i){
+		TestnetInstanceWrapper* instWrapper = this->instances.get(i);
+
+		instWrapper->resumeMining();
+	}
+}
+
 } /* namespace codablecash */

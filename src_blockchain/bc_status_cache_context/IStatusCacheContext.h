@@ -82,6 +82,7 @@ public:
 	virtual AbstractUtxo* getUtxo(const UtxoId* utxoId) const = 0;
 	virtual void removeUtxo(const AbstractUtxoReference *utxoref, const AbstractBlockchainTransaction *trx) = 0;
 
+	virtual uint64_t getTopHeight() const noexcept = 0;
 };
 
 } /* namespace codablecash */

@@ -14,6 +14,8 @@
 #include "pubsub/IPubsubCommandListner.h"
 
 #include "bc_block_body/OmittedBlockBody.h"
+#include "bc_block_body/IOmittedBlockBodyFixer.h"
+
 
 namespace alinous {
 class UnicodeString;
@@ -31,8 +33,9 @@ class NodeIdentifierSource;
 class AbstractNodeCommand;
 class AbstractCommandResponse;
 class MemoryPool;
+class DownloadTransactionEntry;
 
-class NodeConnectionSimulator : public IPubsubCommandExecutor, public IPubsubCommandListner, public IBlockBodyFetcher {
+class NodeConnectionSimulator : public IPubsubCommandExecutor, public IPubsubCommandListner, public IOmittedBlockBodyFixer {
 public:
 	explicit NodeConnectionSimulator(ISystemLogger* logger, const File* baseDir);
 	virtual ~NodeConnectionSimulator();
@@ -48,9 +51,21 @@ public:
 
 	virtual IPubsubCommandExecutor* getExecutor() const noexcept;
 
+
+	//
 	virtual MemPoolTransaction* begin();
-	virtual DownloadTransactionsNodeCommandResponse* downloadTransactions(const DownloadTransactionsNodeCommand* command) const;
 	virtual NodeIdentifierSource* getNetworkKey() const noexcept;
+
+	virtual void addDownloadTransactionEntry(const DownloadTransactionEntry* entry);
+	virtual void downloadTransactions(ISystemLogger *logger);
+	virtual const AbstractBlockchainTransaction* get(const TransactionId* trxId) const noexcept;
+
+	void setCommandData(uint64_t height, const BlockHeaderId* headerId);
+
+
+	MemoryPool* getMemoryPool() const noexcept {
+		return this->memPool;
+	}
 
 private:
 	void loginNode(uint16_t zone, P2pHandshake *handshake);
@@ -64,6 +79,13 @@ private:
 	P2pServerConnectionManager* connectionManager;
 
 	MemoryPool* memPool;
+
+	//
+	ArrayList<DownloadTransactionEntry>* entrylist;
+	uint64_t height;
+	const BlockHeaderId* headerId;
+
+	HashMap<TransactionId, AbstractBlockchainTransaction>* map;
 };
 
 } /* namespace codablecash */

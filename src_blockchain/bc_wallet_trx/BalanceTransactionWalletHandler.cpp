@@ -272,7 +272,7 @@ void BalanceTransactionWalletHandler::importTransaction(const AbstractBlockchain
 
 		const AddressDescriptor* addressDesc = utxo->getAddress();
 		if(this->account->hasAddress(addressDesc)){
-			trxRepo->importUtxo(dynamic_cast<BalanceUtxo*>(utxo));
+			trxRepo->importUtxo(utxo);
 			imported = true;
 		}
 	}

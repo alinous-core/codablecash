@@ -118,6 +118,8 @@ StatusCacheContext::StatusCacheContext(const CodablecashSystemParam* config, con
 	this->trxCache = nullptr;
 	this->utxoCache = nullptr;
 	this->voterCache = nullptr;
+
+	this->topHeight = 0;
 }
 
 StatusCacheContext::~StatusCacheContext() {
@@ -614,7 +616,7 @@ VotingBlockStatus* StatusCacheContext::getVotingBlockStatus(const BlockHeader *h
 	return __STP_MV(status);
 }
 
-uint64_t StatusCacheContext::getAnalyzedHeight() const noexcept {
+uint64_t StatusCacheContext::getPreAnalyzedHeight() const noexcept {
 	return this->statusCache->getFinalizedHeight(this->zone);
 }
 

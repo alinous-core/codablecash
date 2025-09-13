@@ -110,7 +110,7 @@ void CachedStatusCacheContext::removeUtxo(const AbstractUtxoReference *utxoref, 
 	StatusCacheContext::removeUtxo(utxoref, trx);
 }
 
-uint64_t CachedStatusCacheContext::getAnalyzedHeight() const noexcept {
+uint64_t CachedStatusCacheContext::getPreAnalyzedHeight() const noexcept {
 	return this->cache->getHeight();
 }
 

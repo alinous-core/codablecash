@@ -12,6 +12,7 @@ namespace codablecash {
 
 class PubSubId;
 class TransactionTransferData;
+class BlockHeaderTransferData;
 
 class IClientNotifyListner {
 public:
@@ -19,6 +20,7 @@ public:
 	virtual ~IClientNotifyListner();
 
 	virtual void onNewTransaction(const PubSubId *pubsubId, const TransactionTransferData* data) = 0;
+	virtual void onBlockMined(const PubSubId *pubsubId, const BlockHeaderTransferData *blockcheaderData) = 0;
 };
 
 } /* namespace codablecash */

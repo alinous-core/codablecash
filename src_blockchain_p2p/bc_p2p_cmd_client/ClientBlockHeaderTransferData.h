@@ -63,6 +63,10 @@ public:
 
 	virtual void visit(const AbstractBlockchainTransaction* trx, const Block* block);
 
+	const ArrayList<BlockTransactionTransferData>* getTransactionsList() const noexcept {
+		return this->trxList;
+	}
+
 private:
 	BlockHeader* header;
 	ArrayList<VoteTransactionIdCertificate>* certList;

@@ -10,12 +10,11 @@
 namespace codablecash {
 
 IRetriableClientAccess::IRetriableClientAccess() {
-	// TODO Auto-generated constructor stub
 
 }
 
 IRetriableClientAccess::~IRetriableClientAccess() {
-	// TODO Auto-generated destructor stub
+
 }
 
 } /* namespace codablecash */

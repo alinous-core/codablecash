@@ -35,7 +35,6 @@
 namespace codablecash {
 
 DownloadTransactionsNodeCommand::DownloadTransactionsNodeCommand(const DownloadTransactionsNodeCommand &inst) : AbstractNodeCommand(inst) {
-	this->trxType = inst.trxType;
 	this->height = inst.height;
 	this->headerId = inst.headerId != nullptr ? dynamic_cast<BlockHeaderId*>(inst.headerId->copyData()) : nullptr;
 	this->list = new ArrayList<DownloadTransactionEntry>();
@@ -49,7 +48,6 @@ DownloadTransactionsNodeCommand::DownloadTransactionsNodeCommand(const DownloadT
 }
 
 DownloadTransactionsNodeCommand::DownloadTransactionsNodeCommand() : AbstractNodeCommand(TYPE_NODE_DOWNLOAD_TRANSACTIONS) {
-	this->trxType = TYPE_BALANCE;
 	this->height = 0;
 	this->headerId = nullptr;
 	this->list = new ArrayList<DownloadTransactionEntry>();
@@ -66,7 +64,6 @@ int DownloadTransactionsNodeCommand::binarySize() const {
 
 	int total = AbstractNodeCommand::binarySize();
 
-	total += sizeof(this->trxType);
 	total += sizeof(this->height);
 	total += this->headerId->binarySize();
 
@@ -87,7 +84,6 @@ void DownloadTransactionsNodeCommand::toBinary(ByteBuffer *buff) const {
 
 	AbstractNodeCommand::toBinary(buff);
 
-	buff->put(this->trxType);
 	buff->putLong(this->height);
 	this->headerId->toBinary(buff);
 
@@ -104,8 +100,7 @@ void DownloadTransactionsNodeCommand::toBinary(ByteBuffer *buff) const {
 ByteBuffer* DownloadTransactionsNodeCommand::getSignBinary() const {
 	BinaryUtils::checkNotNull(this->headerId);
 
-	int total = sizeof(this->trxType);
-	total += sizeof(this->height);
+	int total = sizeof(this->height);
 	total += this->headerId->binarySize();
 
 	{
@@ -121,7 +116,6 @@ ByteBuffer* DownloadTransactionsNodeCommand::getSignBinary() const {
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(total, true);
 
-	buff->put(this->trxType);
 	buff->putLong(this->height);
 	this->headerId->toBinary(buff);
 
@@ -140,7 +134,6 @@ ByteBuffer* DownloadTransactionsNodeCommand::getSignBinary() const {
 void DownloadTransactionsNodeCommand::fromBinary(ByteBuffer *buff) {
 	AbstractNodeCommand::fromBinary(buff);
 
-	this->trxType = buff->get();
 	this->height = buff->getLong();
 	this->headerId = BlockHeaderId::fromBinary(buff);
 
@@ -164,7 +157,7 @@ AbstractCommandResponse* DownloadTransactionsNodeCommand::executeAsNode(Blockcha
 	BlockchainController* ctrl = inst->getController();
 	uint16_t zone = inst->getZoneSelf();
 
-	Block* block = ctrl->getBlocksHeightAt(zone, this->height, this->headerId); __STP(block);
+	Block* block = ctrl->getBlockHeightAt(zone, this->height, this->headerId); __STP(block);
 	ExceptionThrower<InvalidTransactionException>::throwExceptionIfCondition(block == nullptr
 			, L"The block does not exists in the blockchain.", __FILE__, __LINE__);
 
@@ -191,13 +184,15 @@ AbstractCommandResponse* DownloadTransactionsNodeCommand::executeAsNode(Blockcha
 const AbstractBlockchainTransaction* DownloadTransactionsNodeCommand::getTransaction(const DownloadTransactionEntry *trxEntry, const BlockBody* body) const {
 	const TransactionId* trxId = trxEntry->getTransactionId();
 
-	if(this->trxType == TYPE_CONTROL){
+	uint8_t trxType = trxEntry->getTrxType();
+
+	if(trxType == DownloadTransactionEntry::TYPE_CONTROL){
 		return body->getControlTransaction(trxId);
 	}
-	else if(this->trxType == TYPE_ICC){
+	else if(trxType == DownloadTransactionEntry::TYPE_ICC){
 		return body->getInterChainCommunicationTansaction(trxId);
 	}
-	else if(this->trxType == TYPE_SMARTCONTRACT){
+	else if(trxType == DownloadTransactionEntry::TYPE_SMARTCONTRACT){
 		return body->getSmartcontractTransaction(trxId);
 	}
 
@@ -206,10 +201,6 @@ const AbstractBlockchainTransaction* DownloadTransactionsNodeCommand::getTransac
 
 void DownloadTransactionsNodeCommand::addTrxId(const DownloadTransactionEntry* trxEntry) {
 	this->list->addElement(dynamic_cast<DownloadTransactionEntry*>(trxEntry->copyData()));
-}
-
-void DownloadTransactionsNodeCommand::setTransactionType(uint8_t trxType) noexcept {
-	this->trxType = trxType;
 }
 
 void DownloadTransactionsNodeCommand::setBlockHeaderId(const BlockHeaderId *headerId) {

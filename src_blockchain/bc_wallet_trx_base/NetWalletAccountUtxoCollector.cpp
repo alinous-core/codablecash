@@ -14,6 +14,7 @@
 #include "bc_trx/AbstractUtxo.h"
 #include "bc_trx_balance/BalanceUtxo.h"
 
+#include "bc_wallet_net_data_management/ManagementAccountsCollection.h"
 namespace codablecash {
 
 NetWalletAccountUtxoCollector::NetWalletAccountUtxoCollector(const ManagementAccount* managementAccount) {
@@ -48,7 +49,7 @@ void NetWalletAccountUtxoCollector::init() {
 		ManagedUtxoCacheRecord* record = utxolist->get(i);
 
 		const AbstractUtxo* utxo = record->getUtxo();
-		int index = record->getType();
+		int index = ManagementAccountsCollection::RECORD_SOTRE_TYPE_TO_INXED(record->getType()); // not record type
 
 		if(utxo->getType() == AbstractUtxo::TRX_UTXO_BALANCE){
 			NetWalletAccountUtxoArray* ar = this->list->get(index);

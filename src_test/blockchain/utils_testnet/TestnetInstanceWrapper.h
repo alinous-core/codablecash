@@ -35,6 +35,8 @@ public:
 
 	void setMinerConfig(const MiningConfig* minerConfig);
 	void setFinalizerConfig(const FinalizerConfig* config);
+	const FinalizerConfig* getFinalizerConfig() const noexcept;
+
 
 	void initGenesis();
 	void initBlank();
@@ -43,6 +45,9 @@ public:
 	void syncNetwork();
 
 	uint64_t getHeight();
+
+	void suspendMining();
+	void resumeMining();
 
 private:
 	uint16_t zone;

@@ -107,6 +107,7 @@ public:
 
 	void setScheduledBlock(uint16_t zone, const Block *block);
 	Block* fetchScheduledBlock(uint16_t zone);
+	Block* getScheduledBlock(uint16_t zone);
 
 	bool registerBlockHeader4Limit(uint16_t zone, const BlockHeader* header, const CodablecashSystemParam* param);
 

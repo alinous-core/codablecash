@@ -92,4 +92,11 @@ HeaderTransactionGroup* TransactionGroupDataStore::getHeaderTransactionGroup(con
 	return trxGroup;
 }
 
+bool TransactionGroupDataStore::removeHeaderTransactionGroup(const BlockHeaderId *headerId) {
+	BlockHeaderIdKey key(headerId);
+
+	bool ret = this->headerGroupStore->remove(&key);
+	return ret;
+}
+
 } /* namespace codablecash */

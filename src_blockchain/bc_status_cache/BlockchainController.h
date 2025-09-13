@@ -38,6 +38,9 @@ class ISystemLogger;
 class IBlockDetectCallback;
 class NodeIdentifier;
 class VoterEntry;
+class BloomFilter1024;
+class AbstractBlockchainTransaction;
+
 
 class BlockchainController {
 public:
@@ -75,11 +78,12 @@ public:
 	void getSyncHeaderData(uint16_t zone, uint64_t offsetHeight, int limit, IBlockDetectCallback* callback);
 
 	int getMempoolTrxCount() const noexcept;
+	ArrayList<AbstractBlockchainTransaction>* fetchMempoolTrx(const ArrayList<BloomFilter1024>* filters);
 
 	static void checkFinalizedHeight(uint64_t finalizedHeight, uint64_t finalizingHeight);
 
 	ArrayList<Block>* getBlocksHeightAt(uint16_t zone, uint64_t height) const;
-	Block* getBlocksHeightAt(uint16_t zone, uint64_t height, const BlockHeaderId* headerId) const;
+	Block* getBlockHeightAt(uint16_t zone, uint64_t height, const BlockHeaderId* headerId) const;
 	static Block* getBlockById(ArrayList<Block>* list, const BlockHeaderId* headerId);
 
 	bool hasHeaderId(uint16_t zone, uint64_t height, const BlockHeaderId* headerId) const;
@@ -91,6 +95,8 @@ public:
 
 	void setScheduledBlock(const Block *block);
 	Block* fetechScheduledBlock();
+	Block* __fetechScheduledBlock();
+	Block* __getScheduledBlock();
 
 	const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId);
 

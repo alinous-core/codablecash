@@ -55,4 +55,16 @@ AbstractCommandResponse* ClientExecutor::fireOnNewTransaction(const PubSubId *pu
 	return new OkPubsubResponse();
 }
 
+AbstractCommandResponse* ClientExecutor::fireOnBlockMined(const PubSubId *pubsubId, const BlockHeaderTransferData *blockcheaderData) {
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
+	int maxLoop = this->listners->size();
+	for(int i = 0; i != maxLoop; ++i){
+		IClientNotifyListner* listner = this->listners->get(i);
+
+		listner->onBlockMined(pubsubId, blockcheaderData);
+	}
+
+	return new OkPubsubResponse();
+}
+
 } /* namespace codablecash */

@@ -29,6 +29,7 @@ class AddressDescriptor;
 class IUtxoRefChecker;
 class IAddressChecker;
 class MerkleTree;
+class UtxoId;
 
 enum class TrxValidationResult
 {
@@ -87,7 +88,6 @@ public:
 	virtual int getUtxoReferenceSize() const noexcept = 0;
 	virtual AbstractUtxoReference* getUtxoReference(int i) const noexcept = 0;
 
-
 	virtual bool validateOnAccept(MemPoolTransaction *memTrx, IStatusCacheContext* context) const = 0;
 	virtual TrxValidationResult validateFinal(const BlockHeader* header, MemPoolTransaction *memTrx, IStatusCacheContext* context) const = 0;
 	virtual TrxValidationResult validateReported(const BlockHeader* header, IStatusCacheContext* context) const;
@@ -96,6 +96,8 @@ public:
 	virtual bool checkFilter(const ArrayList<BloomFilter1024> *filtersList) const;
 	virtual bool checkFilteredUxtoRef(const IUtxoRefChecker* utxoRefChecker) const;
 	virtual bool checkFilteredAddress(const IAddressChecker* addressChecker) const;
+
+	bool checkUtxoRefs() const noexcept;
 
 	/**
 	 * Revoke, reward transactions are false
@@ -119,6 +121,8 @@ protected:
 	virtual UtxoValidationResult validateUtxos(MemPoolTransaction *memTrx, IStatusCacheContext* context, const BalanceUnit& fee) const;
 
 private:
+	bool hasUsedUtxo(ArrayList<const UtxoId>* usedUtxo, const UtxoId* utxoId) const;
+
 	bool checkFilters(const ArrayList<BloomFilter1024> *filtersList, const AddressDescriptor* desc) const;
 
 protected:

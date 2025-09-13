@@ -21,6 +21,7 @@ class NetworkWallet;
 class AbstractClientQueueCommand : public IBlockObject {
 public:
 	static const constexpr uint8_t CLIENT_NEW_TRANSACTION{1};
+	static const constexpr uint8_t CLIENT_BLOCK_MINED{2};
 
 	AbstractClientQueueCommand(const AbstractClientQueueCommand& inst);
 	explicit AbstractClientQueueCommand(uint8_t type);

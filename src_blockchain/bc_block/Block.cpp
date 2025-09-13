@@ -165,4 +165,8 @@ void Block::setGenesisTimestamp() {
 	this->header->setTimestamp(&tm);
 }
 
+bool Block::isScheduledBlock() const noexcept {
+	return this->header->isScheduledBlock();
+}
+
 } /* namespace codablecash */

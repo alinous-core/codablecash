@@ -40,6 +40,8 @@ public:
 	void add(const BlockHeaderId* headerId, const HeaderTransactionGroup* group);
 	HeaderTransactionGroup* getHeaderTransactionGroup(const BlockHeaderId* headerId) const;
 
+	bool removeHeaderTransactionGroup(const BlockHeaderId* headerId);
+
 private:
 	File* baseDir;
 

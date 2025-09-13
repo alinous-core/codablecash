@@ -26,6 +26,7 @@ class ClientCommandsQueueProcessor;
 class ClientCommandsQueueData;
 class ISystemLogger;
 class AbstractClientQueueCommand;
+class WalletNetworkManager;
 
 class NetworkClientCommandProcessor : public IPubsubCommandListner {
 public:
@@ -52,6 +53,8 @@ public:
 
 	void addPendingQueue(const ClientCommandsQueueData* queueData);
 	void addClientCommand(const AbstractClientQueueCommand* clientCommnad);
+
+	WalletNetworkManager* getWalletNetworkManager() const noexcept;
 
 private:
 	ClientCommandsQueueData* fetchFirstPendingData(SynchronizedLock* lock) const;

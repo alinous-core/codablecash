@@ -141,7 +141,7 @@ void ClientSyncHeaderCommand::handleBlockHeightTransactions(const ClientSyncHead
 		uint64_t height = header->getHeight();
 		const BlockHeaderId* headerId = header->getId();
 
-		Block* block = ctrl->getBlocksHeightAt(zone, height, headerId); __STP(block);
+		Block* block = ctrl->getBlockHeightAt(zone, height, headerId); __STP(block);
 
 		// server side trx fetch
 		handleBlockTransactions(data, block, filtersList, inst);

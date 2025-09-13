@@ -8,6 +8,7 @@
 #include "bc_block_body/OmittedBlockBody.h"
 #include "bc_block_body/BlockRewordBase.h"
 #include "bc_block_body/BlockBody.h"
+#include "bc_block_body/OmittedBlockBodyFixer.h"
 
 #include "bc_network/NodeIdentifierSource.h"
 
@@ -300,13 +301,20 @@ void OmittedBlockBody::setRewordBase(const BlockRewordBase *rewardBase) {
 	this->rewardBase = new BlockRewordBase(*rewardBase);
 }
 
-BlockBody* OmittedBlockBody::toBlockBody(uint64_t height, const BlockHeaderId* headerId, IBlockBodyFetcher *fetcher) const {
+BlockBody* OmittedBlockBody::toBlockBody(uint64_t height, const BlockHeaderId* headerId, IOmittedBlockBodyFixer* fixer, ISystemLogger *logger) const {
 	BlockBody* body = new BlockBody(this->nonce); __STP(body);
 
-	exportControlTransactions(height, headerId, body, fetcher);
-	exportInterChainCommunicationTransactions(height, headerId, body, fetcher);
-	exportBalanceTransactions(height, headerId, body, fetcher);
-	exportSmartcontractTransaction(height, headerId, body, fetcher);
+	scanUnsentBalanceTransactions(height, headerId, body, fixer);
+	scanUnsentControlTransactions(height, headerId, body, fixer);
+	scanUnsentInterChainCommunicationTransactions(height, headerId, body, fixer);
+	scanUnsentSmartcontractTransactions(height, headerId, body, fixer);
+
+	fixer->downloadTransactions(logger);
+
+	exportControlTransactions(height, headerId, body, fixer);
+	exportInterChainCommunicationTransactions(height, headerId, body, fixer);
+	exportBalanceTransactions(height, headerId, body, fixer);
+	exportSmartcontractTransaction(height, headerId, body, fixer);
 
 	body->setBlockRewordBase(this->rewardBase);
 
@@ -314,13 +322,8 @@ BlockBody* OmittedBlockBody::toBlockBody(uint64_t height, const BlockHeaderId* h
 	return __STP_MV(body);
 }
 
-void OmittedBlockBody::exportBalanceTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody *body, IBlockBodyFetcher *fetcher) const {
-	DownloadTransactionsNodeCommand command;
-	command.setTransactionType(DownloadTransactionsNodeCommand::TYPE_BALANCE);
-	command.setHeight(height);
-	command.setBlockHeaderId(headerId);
-
-	MemPoolTransaction* memTrx = fetcher->begin(); __STP(memTrx);
+void OmittedBlockBody::scanUnsentBalanceTransactions(uint64_t height, const BlockHeaderId *headerId, BlockBody *body, IOmittedBlockBodyFixer* fixer) const {
+	MemPoolTransaction* memTrx = fixer->begin(); __STP(memTrx);
 
 	{
 		int maxLoop = this->balanceTransactions->size();
@@ -328,32 +331,63 @@ void OmittedBlockBody::exportBalanceTransactions(uint64_t height, const BlockHea
 			TransactionId* trxId = this->balanceTransactions->get(i);
 
 			if(!memTrx->hasBalanceTransaction(trxId)){
-				DownloadTransactionEntry entry(height, trxId);
-				command.addTrxId(&entry);
+				DownloadTransactionEntry entry(height, trxId, DownloadTransactionEntry::TYPE_BALANCE);
+				fixer->addDownloadTransactionEntry(&entry);
 			}
 		}
 	}
+}
 
-	NodeIdentifierSource* source = fetcher->getNetworkKey();
-	command.sign(source);
+void OmittedBlockBody::scanUnsentControlTransactions(uint64_t height, const BlockHeaderId *headerId, BlockBody *body, IOmittedBlockBodyFixer* fixer) const {
+	MemPoolTransaction* memTrx = fixer->begin(); __STP(memTrx);
 
-	DownloadTransactionsNodeCommandResponse* response = fetcher->downloadTransactions(&command); __STP(response);
-
-	HashMap<TransactionId, const AbstractBalanceTransaction> map;
 	{
-		int maxLoop = response->size();
+		int maxLoop = this->controlTransactions->size();
 		for(int i = 0; i != maxLoop; ++i){
-			const AbstractBlockchainTransaction* trx = response->get(i);
-			const AbstractBalanceTransaction* btrx = dynamic_cast<const AbstractBalanceTransaction*>(trx);
+			TransactionId* trxId = this->controlTransactions->get(i);
 
-			ExceptionThrower<InvalidTransactionException>::throwExceptionIfCondition(btrx == nullptr
-					, L"Balance Transaction is required.", __FILE__, __LINE__);
-
-			const TransactionId* trxId = trx->getTransactionId();
-
-			map.put(trxId, btrx);
+			if(!memTrx->hasBalanceTransaction(trxId)){
+				DownloadTransactionEntry entry(height, trxId, DownloadTransactionEntry::TYPE_CONTROL);
+				fixer->addDownloadTransactionEntry(&entry);
+			}
 		}
 	}
+}
+
+void OmittedBlockBody::scanUnsentInterChainCommunicationTransactions(uint64_t height, const BlockHeaderId *headerId, BlockBody *body, IOmittedBlockBodyFixer* fixer) const {
+	MemPoolTransaction* memTrx = fixer->begin(); __STP(memTrx);
+
+	{
+		int maxLoop = this->iccTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			TransactionId* trxId = this->iccTransactions->get(i);
+
+			if(!memTrx->hasBalanceTransaction(trxId)){
+				DownloadTransactionEntry entry(height, trxId, DownloadTransactionEntry::TYPE_ICC);
+				fixer->addDownloadTransactionEntry(&entry);
+			}
+		}
+	}
+}
+
+void OmittedBlockBody::scanUnsentSmartcontractTransactions(uint64_t height, const BlockHeaderId *headerId, BlockBody *body, IOmittedBlockBodyFixer* fixer) const {
+	MemPoolTransaction* memTrx = fixer->begin(); __STP(memTrx);
+
+	{
+		int maxLoop = this->smartcontractTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			TransactionId* trxId = this->smartcontractTransactions->get(i);
+
+			if(!memTrx->hasBalanceTransaction(trxId)){
+				DownloadTransactionEntry entry(height, trxId, DownloadTransactionEntry::TYPE_SMARTCONTRACT);
+				fixer->addDownloadTransactionEntry(&entry);
+			}
+		}
+	}
+}
+
+void OmittedBlockBody::exportBalanceTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody *body, IOmittedBlockBodyFixer* fixer) const {
+	MemPoolTransaction* memTrx = fixer->begin(); __STP(memTrx);
 
 	{
 		int maxLoop = this->balanceTransactions->size();
@@ -361,7 +395,7 @@ void OmittedBlockBody::exportBalanceTransactions(uint64_t height, const BlockHea
 			TransactionId* trxId = this->balanceTransactions->get(i);
 
 			{
-				const AbstractBalanceTransaction* trx = map.get(trxId);
+				const AbstractBalanceTransaction* trx = dynamic_cast<const AbstractBalanceTransaction*>(fixer->get(trxId));
 				if(trx != nullptr){
 					body->addBalanceTransaction(trx);
 					continue;
@@ -375,46 +409,8 @@ void OmittedBlockBody::exportBalanceTransactions(uint64_t height, const BlockHea
 	}
 }
 
-void OmittedBlockBody::exportControlTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody *body, IBlockBodyFetcher *fetcher) const {
-	DownloadTransactionsNodeCommand command;
-	command.setTransactionType(DownloadTransactionsNodeCommand::TYPE_CONTROL);
-	command.setHeight(height);
-	command.setBlockHeaderId(headerId);
-
-	MemPoolTransaction* memTrx = fetcher->begin(); __STP(memTrx);
-
-	{
-		int maxLoop = this->controlTransactions->size();
-		for(int i = 0; i != maxLoop; ++i){
-			TransactionId* trxId = this->controlTransactions->get(i);
-
-			if(!memTrx->hasBalanceTransaction(trxId)){
-				DownloadTransactionEntry entry(height, trxId);
-				command.addTrxId(&entry);
-			}
-		}
-	}
-
-	NodeIdentifierSource* source = fetcher->getNetworkKey();
-	command.sign(source);
-
-	DownloadTransactionsNodeCommandResponse* response = fetcher->downloadTransactions(&command); __STP(response);
-
-	HashMap<TransactionId, const AbstractControlTransaction> map;
-	{
-		int maxLoop = response->size();
-		for(int i = 0; i != maxLoop; ++i){
-			const AbstractBlockchainTransaction* trx = response->get(i);
-			const AbstractControlTransaction* ctrx = dynamic_cast<const AbstractControlTransaction*>(trx);
-
-			ExceptionThrower<InvalidTransactionException>::throwExceptionIfCondition(ctrx == nullptr
-					, L"Control Transaction is required.", __FILE__, __LINE__);
-
-			const TransactionId* trxId = trx->getTransactionId();
-
-			map.put(trxId, ctrx);
-		}
-	}
+void OmittedBlockBody::exportControlTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody *body, IOmittedBlockBodyFixer* fixer) const {
+	MemPoolTransaction* memTrx = fixer->begin(); __STP(memTrx);
 
 	{
 		int maxLoop = this->controlTransactions->size();
@@ -422,7 +418,7 @@ void OmittedBlockBody::exportControlTransactions(uint64_t height, const BlockHea
 			TransactionId* trxId = this->controlTransactions->get(i);
 
 			{
-				const AbstractControlTransaction* trx = map.get(trxId);
+				const AbstractControlTransaction* trx = dynamic_cast<const AbstractControlTransaction*>(fixer->get(trxId));
 				if(trx != nullptr){
 					body->addControlTransaction(trx);
 					continue;
@@ -436,45 +432,8 @@ void OmittedBlockBody::exportControlTransactions(uint64_t height, const BlockHea
 	}
 }
 
-void OmittedBlockBody::exportInterChainCommunicationTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody *body, IBlockBodyFetcher *fetcher) const {
-	DownloadTransactionsNodeCommand command;
-	command.setTransactionType(DownloadTransactionsNodeCommand::TYPE_ICC);
-	command.setHeight(height);
-	command.setBlockHeaderId(headerId);
-
-	MemPoolTransaction* memTrx = fetcher->begin(); __STP(memTrx);
-	{
-		int maxLoop = this->iccTransactions->size();
-		for(int i = 0; i != maxLoop; ++i){
-			TransactionId* trxId = this->iccTransactions->get(i);
-
-			if(!memTrx->hasInterChainCommunicationTansaction(trxId)){
-				DownloadTransactionEntry entry(height, trxId);
-				command.addTrxId(&entry);
-			}
-		}
-	}
-
-	NodeIdentifierSource* source = fetcher->getNetworkKey();
-	command.sign(source);
-
-	DownloadTransactionsNodeCommandResponse* response = fetcher->downloadTransactions(&command); __STP(response);
-
-	HashMap<TransactionId, const AbstractInterChainCommunicationTansaction> map;
-	{
-		int maxLoop = response->size();
-		for(int i = 0; i != maxLoop; ++i){
-			const AbstractBlockchainTransaction* trx = response->get(i);
-			const AbstractInterChainCommunicationTansaction* icctrx = dynamic_cast<const AbstractInterChainCommunicationTansaction*>(trx);
-
-			ExceptionThrower<InvalidTransactionException>::throwExceptionIfCondition(icctrx == nullptr
-					, L"Inter Communication Transaction is required.", __FILE__, __LINE__);
-
-			const TransactionId* trxId = trx->getTransactionId();
-
-			map.put(trxId, icctrx);
-		}
-	}
+void OmittedBlockBody::exportInterChainCommunicationTransactions(uint64_t height, const BlockHeaderId* headerId, BlockBody *body, IOmittedBlockBodyFixer* fixer) const {
+	MemPoolTransaction* memTrx = fixer->begin(); __STP(memTrx);
 
 	{
 		int maxLoop = this->iccTransactions->size();
@@ -482,7 +441,7 @@ void OmittedBlockBody::exportInterChainCommunicationTransactions(uint64_t height
 			TransactionId* trxId = this->iccTransactions->get(i);
 
 			{
-				const AbstractInterChainCommunicationTansaction* trx = map.get(trxId);
+				const AbstractInterChainCommunicationTansaction* trx = dynamic_cast<const AbstractInterChainCommunicationTansaction*>(fixer->get(trxId));
 				if(trx != nullptr){
 					body->addInterChainCommunicationTransaction(trx);
 					continue;
@@ -496,45 +455,8 @@ void OmittedBlockBody::exportInterChainCommunicationTransactions(uint64_t height
 	}
 }
 
-void OmittedBlockBody::exportSmartcontractTransaction(uint64_t height, const BlockHeaderId* headerId, BlockBody *body, IBlockBodyFetcher *fetcher) const {
-	DownloadTransactionsNodeCommand command;
-	command.setTransactionType(DownloadTransactionsNodeCommand::TYPE_SMARTCONTRACT);
-	command.setHeight(height);
-	command.setBlockHeaderId(headerId);
-
-	MemPoolTransaction* memTrx = fetcher->begin(); __STP(memTrx);
-	{
-		int maxLoop = this->iccTransactions->size();
-		for(int i = 0; i != maxLoop; ++i){
-			TransactionId* trxId = this->smartcontractTransactions->get(i);
-
-			if(!memTrx->hasSmartcontractTransaction(trxId)){
-				DownloadTransactionEntry entry(height, trxId);
-				command.addTrxId(&entry);
-			}
-		}
-	}
-
-	NodeIdentifierSource* source = fetcher->getNetworkKey();
-	command.sign(source);
-
-	DownloadTransactionsNodeCommandResponse* response = fetcher->downloadTransactions(&command); __STP(response);
-
-	HashMap<TransactionId, const AbstractSmartcontractTransaction> map;
-	{
-		int maxLoop = response->size();
-		for(int i = 0; i != maxLoop; ++i){
-			const AbstractBlockchainTransaction* trx = response->get(i);
-			const AbstractSmartcontractTransaction* sctrx = dynamic_cast<const AbstractSmartcontractTransaction*>(trx);
-
-			ExceptionThrower<InvalidTransactionException>::throwExceptionIfCondition(sctrx == nullptr
-					, L"Smartcontract Transaction is required.", __FILE__, __LINE__);
-
-			const TransactionId* trxId = trx->getTransactionId();
-
-			map.put(trxId, sctrx);
-		}
-	}
+void OmittedBlockBody::exportSmartcontractTransaction(uint64_t height, const BlockHeaderId* headerId, BlockBody *body, IOmittedBlockBodyFixer* fixer) const {
+	MemPoolTransaction* memTrx = fixer->begin(); __STP(memTrx);
 
 	{
 		int maxLoop = this->smartcontractTransactions->size();
@@ -542,7 +464,7 @@ void OmittedBlockBody::exportSmartcontractTransaction(uint64_t height, const Blo
 			TransactionId* trxId = this->smartcontractTransactions->get(i);
 
 			{
-				const AbstractSmartcontractTransaction* trx = map.get(trxId);
+				const AbstractSmartcontractTransaction* trx = dynamic_cast<const AbstractSmartcontractTransaction*>(fixer->get(trxId));
 				if(trx != nullptr){
 					body->addSmartcontractTransaction(trx);
 					continue;

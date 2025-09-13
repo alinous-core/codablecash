@@ -26,6 +26,9 @@ public:
 	virtual void importTransaction(const AbstractBlockchainTransaction *trx) = 0;
 
 protected:
+	void __importTransaction(const AbstractBlockchainTransaction *__trx);
+
+protected:
 	WalletAccount* account;
 };
 

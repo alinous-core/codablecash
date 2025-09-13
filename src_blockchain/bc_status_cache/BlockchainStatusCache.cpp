@@ -321,6 +321,12 @@ Block* BlockchainStatusCache::fetchScheduledBlock(uint16_t zone) {
 	return cache->fetchScheduledBlock();
 }
 
+Block* BlockchainStatusCache::getScheduledBlock(uint16_t zone) {
+	ZoneStatusCache* cache = this->zoneList.get(zone);
+
+	return cache->getScheduledBlock();
+}
+
 uint64_t BlockchainStatusCache::getHeadHeight(uint16_t zone) {
 	ZoneStatusCache* cache = this->zoneList.get(zone);
 

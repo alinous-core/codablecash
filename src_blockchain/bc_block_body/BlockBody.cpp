@@ -616,8 +616,6 @@ void BlockBody::setBlockRewordBase(const BlockRewordBase *rewardBase) {
 }
 
 void BlockBody::visitTransactions(ITransactionVisitor *visitor, const Block* block) const {
-	this->rewardBase->visitTransactions(visitor, block);
-
 	{
 		int maxLoop = this->controlTransactions->size();
 		for(int i = 0; i != maxLoop; ++i){
@@ -650,6 +648,8 @@ void BlockBody::visitTransactions(ITransactionVisitor *visitor, const Block* blo
 			visitor->visit(trx, block);
 		}
 	}
+
+	this->rewardBase->visitTransactions(visitor, block);
 }
 
 

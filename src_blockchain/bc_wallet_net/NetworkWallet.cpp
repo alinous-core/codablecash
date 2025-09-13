@@ -176,9 +176,8 @@ NetworkTransactionHandler* NetworkWallet::getNetworkTransactionHandler(int accou
 }
 
 void NetworkWallet::shutdownNetwork() {
-	if(this->networkManager){
-		delete this->networkManager;
-		this->networkManager = nullptr;
+	if(this->networkManager != nullptr){
+		this->networkManager->shutdownNetwork();
 	}
 
 	if(this->clientCommandProcessor != nullptr){
@@ -186,6 +185,11 @@ void NetworkWallet::shutdownNetwork() {
 
 		delete this->clientCommandProcessor;
 		this->clientCommandProcessor = nullptr;
+	}
+
+	if(this->networkManager != nullptr){
+		delete this->networkManager;
+		this->networkManager = nullptr;
 	}
 }
 

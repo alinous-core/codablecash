@@ -99,33 +99,44 @@ void WalletConnectionManager::__disconnect(const PubSubId *pubsubId) {
 }
 
 void WalletConnectionManager::clearDeleteList() {
-	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
+	// make delete list
+	ArrayList<ClientNodeHandshake> list;
 
-	int pos = 0;
-	int maxLoop = this->dellist.size();
-	for(int i = 0; i != maxLoop; ++i){
-		ClientNodeHandshake* clientHandshake = this->dellist.get(pos);
+	{
+		StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
 
-		if(clientHandshake->isDeletable()){
-			this->dellist.remove(pos);
+		int pos = 0;
+		int maxLoop = this->dellist.size();
+		for(int i = 0; i != maxLoop; ++i){
+			ClientNodeHandshake* clientHandshake = this->dellist.get(pos);
 
-			// get inner handshake
-			P2pHandshake* handshake = clientHandshake->getHandshake();
+			if(clientHandshake->isDeletable()){
+				this->dellist.remove(pos);
 
-			// delete wrapper client handshake
-			clientHandshake->dispose(true);
-			delete clientHandshake;
-
-			// delete inner
-			assert(handshake->is2Delete());
-			handshake->dispose();
-			delete handshake;
-		}
-		else{
-			++pos;
+				list.addElement(clientHandshake);
+			}
+			else{
+				++pos;
+			}
 		}
 	}
 
+	int maxLoop = list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		ClientNodeHandshake* clientHandshake = list.get(i);
+
+		// get inner handshake
+		P2pHandshake* handshake = clientHandshake->getHandshake();
+
+		// delete wrapper client handshake
+		clientHandshake->dispose(true);
+		delete clientHandshake;
+
+		// delete inner
+		assert(handshake->is2Delete());
+		handshake->dispose();
+		delete handshake;
+	}
 }
 
 int WalletConnectionManager::getNumConnection() const noexcept {
@@ -247,6 +258,14 @@ ClientNodeHandshake* WalletConnectionManager::getClientHandshakeByNodeId(const N
 	}
 
 	return ret;
+}
+
+const NodeIdentifier* WalletConnectionManager::pubsubId2NodeId(const PubSubId *pubsubId) const noexcept {
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
+
+	ClientNodeHandshake* handshake = this->clientHandshakeHash.get(pubsubId);
+
+	return handshake != nullptr ? handshake->getNodeId() : nullptr;
 }
 
 } /* namespace codablecash */

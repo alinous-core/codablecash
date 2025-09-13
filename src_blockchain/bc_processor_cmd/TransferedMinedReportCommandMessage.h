@@ -25,20 +25,13 @@ class MemoryPool;
 class P2pHandshake;
 
 
-class TransferedMinedReportCommandMessage : public AbstractCentralProcessorCommandMessage, public IBlockBodyFetcher {
+class TransferedMinedReportCommandMessage : public AbstractCentralProcessorCommandMessage {
 public:
 	TransferedMinedReportCommandMessage();
 	virtual ~TransferedMinedReportCommandMessage();
 
 	void setData(const BlockHeaderTransferData* data);
 	void setNodeId(const NodeIdentifier* nodeId);
-
-	virtual MemPoolTransaction* begin();
-	virtual DownloadTransactionsNodeCommandResponse* downloadTransactions(const DownloadTransactionsNodeCommand* command) const;
-	virtual NodeIdentifierSource* getNetworkKey() const noexcept;
-
-	static DownloadTransactionsNodeCommandResponse* __downloadTransactions(const DownloadTransactionsNodeCommand* command,
-			P2pHandshake* handshake, ISystemLogger* logger);
 
 protected:
 	virtual void process(CentralProcessor* processor);

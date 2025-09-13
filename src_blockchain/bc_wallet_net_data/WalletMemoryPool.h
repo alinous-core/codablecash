@@ -40,6 +40,8 @@ public:
 	void removeTransaction(const TransactionId* trxId);
 
 	AbstractBlockchainTransaction* getBlockchainTransaction(const TransactionId* trxId) const;
+	bool hasTransaction(const TransactionId* trxId) const;
+
 	BtreeScanner* getScanner() const noexcept;
 
 private:

@@ -60,4 +60,30 @@ ManagementAccount* ManagementAccountsCollection::getManagementAccount(int pos) c
 	return this->list->get(pos);
 }
 
+uint8_t ManagementAccountsCollection::getTransactionStoreStatus(const TransactionId *trxId) const noexcept {
+	uint8_t storeType = ManagedUtxoCacheRecord::NONE;
+
+	ManagementAccount* memPool = getMempoolManagementAccount();
+	ManagementAccount* unFinalized = getUnFinalizedManagementAccount();
+	ManagementAccount* finalized = getFinalizedManagementAccount();
+
+	// mempool
+	if(memPool->hasTransaction(trxId) && !unFinalized->hasTransaction(trxId)) {
+		storeType = ManagedUtxoCacheRecord::MEMPOOL;
+	}
+
+	// unfinalized
+	if(storeType == ManagedUtxoCacheRecord::NONE && unFinalized->hasTransaction(trxId)){
+		storeType = ManagedUtxoCacheRecord::UNFINALIZED;
+	}
+
+	// finalized
+	if(storeType == ManagedUtxoCacheRecord::NONE && finalized->hasTransaction(trxId)){
+		storeType = ManagedUtxoCacheRecord::FINALIZED;
+	}
+
+
+	return storeType;
+}
+
 } /* namespace codablecash */

@@ -44,6 +44,9 @@ public:
 	void waitForHeaderHeight(uint16_t zoneSelf, uint16_t zone, int index, uint64_t height);
 
 
+	void suspendMining(uint16_t zone);
+	void resumeMining(uint16_t zone);
+
 private:
 	StackTestPortGetter* portSel;
 	File* projectFolder;

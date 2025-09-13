@@ -9,6 +9,7 @@
 #define BC_WALLET_NET_NETWORKTRANSACTIONHANDLER_H_
 
 #include "base/ArrayList.h"
+#include <cstdint>
 
 using alinous::ArrayList;
 
@@ -23,6 +24,9 @@ class AbstractClientRequestCommand;
 class ISystemLogger;
 class AbstractCommandResponse;
 class NodeIdentifier;
+class AbstractBlockchainTransaction;
+class TransactionId;
+
 
 class NetworkTransactionHandler {
 public:
@@ -30,18 +34,33 @@ public:
 	virtual ~NetworkTransactionHandler();
 
 	void sendRegisterVotePoolTransaction(const BalanceUnit& feeRate, const IWalletDataEncoder* encoder);
+	void sendRegisterTicketTransaction(const NodeIdentifier *nodeId, const BalanceUnit& stakeAmount, const BalanceUnit& feeRate, const IWalletDataEncoder* encoder);
 
 	ArrayList<NodeIdentifier>* listStakingNodeIds();
 
+	const AbstractBlockchainTransaction* getLastTransaction() const noexcept {
+		return this->lastTrx;
+	}
+
+	ArrayList<AbstractBlockchainTransaction>* fetchMempoolTransactions();
+
+
+	uint8_t getTransactionStoreStatus(const TransactionId* trxId) const noexcept;
+
+	uint64_t getFinalizedHeight() const;
 
 private:
 	void broadcastTransaction(const AbstractClientRequestCommand* command);
+
+	void setLastTransaction(const AbstractBlockchainTransaction* trx) noexcept;
 
 private:
 	int accountIndex;
 	NetworkWallet* netWallet;
 
 	ISystemLogger* logger;
+
+	AbstractBlockchainTransaction* lastTrx;
 };
 
 } /* namespace codablecash */

@@ -59,6 +59,7 @@ public:
 
 	void setScheduledBlock(const Block* block);
 	Block* fetchScheduledBlock();
+	Block* getScheduledBlock();
 
 private:
 	void addScheculedBlock(uint64_t height, const BlockHeaderId* headerId, ArrayList<BlockHeader>* children) const;

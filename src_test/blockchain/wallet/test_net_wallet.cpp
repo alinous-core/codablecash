@@ -46,7 +46,14 @@
 
 #include "osenv/funcs.h"
 
+#include "bc_finalizer_trx/RegisterTicketTransaction.h"
+
+#include "../utils_testnet/ZoneTestnet.h"
+#include "bc_finalizer_trx/RegisterVotePoolTransaction.h"
+
+#include "bc_wallet_net_data_management/ManagedUtxoCacheRecord.h"
 #include "setup/TestnetSetupper01.h"
+
 
 using namespace codablecash;
 
@@ -57,7 +64,8 @@ public:
 		this->seeder = new ArrayDebugSeeder();
 		this->logger = new DebugDefaultLogger();
 		this->config = nullptr;
-		this->source = NodeIdentifierSource::create();
+		this->source = nullptr;
+		this->testnet = nullptr;
 	}
 	~TesGrouptParams(){
 		delete this->rootSeed;
@@ -65,6 +73,7 @@ public:
 		delete this->logger;
 		delete this->config;
 		delete this->source;
+		this->testnet = nullptr;
 	}
 
 	HdWalletSeed* rootSeed;
@@ -72,6 +81,7 @@ public:
 	DebugDefaultLogger* logger;
 	CodablecashSystemParam *config;
 	NodeIdentifierSource *source;
+	MultizoneTestnet* testnet;
 };
 
 TEST_GROUP(TestNetWalletGroup) {
@@ -92,11 +102,10 @@ TEST_GROUP(TestNetWalletGroup) {
 
 		File projectFolder = this->env->testCaseDir();
 		_ST(File, baseDir, projectFolder.get(L"wallet_before"))
+		_ST(File, baseTestnetDir, projectFolder.get(L"testnet"))
 
 		UnicodeString pass(L"changeit");
 		PasswordEncoder enc(&pass);
-
-
 
 		CodablecashSystemParam param;
 		DebugCodablecashSystemParamSetup::setupConfig02(param);
@@ -106,7 +115,17 @@ TEST_GROUP(TestNetWalletGroup) {
 		this->params->rootSeed = wallet->getRootSeed(&enc);
 		this->params->config = new CodablecashSystemParam(param);
 
-		this->testnet = TestnetSetupper01::setup2NodeZone0(wallet, 1000L * 10000L * 10000L, params->seeder, this->portSel, &projectFolder, params->logger);
+		this->testnet = TestnetSetupper01::setup2NodeZone0(wallet, 1000L * 10000L * 10000L, params->seeder, this->portSel, baseTestnetDir, params->logger);
+		this->params->testnet = this->testnet;
+
+		// staking source
+		{
+			TestnetInstanceWrapper* wr = this->testnet->getZone(0)->getInstance(0);
+			const FinalizerConfig* fconfig = wr->getFinalizerConfig();
+
+			this->params->source = dynamic_cast<NodeIdentifierSource*>(fconfig->getVoterSource()->copyData());
+		}
+
 	}
 	TEST_TEARDOWN(){
 		delete this->testnet;
@@ -122,6 +141,27 @@ public:
 	MultizoneTestnet* testnet;
 };
 
+void waitForBlocks(MultizoneTestnet* testnet, int num) {
+	ZoneTestnet* zoneNet = testnet->getZone(0);
+	TestnetInstanceWrapper* instw = zoneNet->getInstance(0);
+
+	uint64_t height = instw->getHeight();
+	uint64_t targetHeight = height + num;
+
+	while(height < targetHeight){
+		Os::usleep(300 * 1000);
+		height = instw->getHeight();
+	}
+}
+
+void waitForFinalizedBlock(NetworkTransactionHandler* handler, uint64_t height) {
+	uint64_t finalizedHeight = handler->getFinalizedHeight();
+
+	while(finalizedHeight < height){
+		Os::usleep(300 * 1000);
+		finalizedHeight = handler->getFinalizedHeight();
+	}
+}
 
 TEST(TestNetWalletGroup, case01){
 	TesGrouptParams* params = (TesGrouptParams*)(this->env->getTestGroup()->getParam());
@@ -129,6 +169,7 @@ TEST(TestNetWalletGroup, case01){
 	INetworkSeeder* seeder = params->seeder;
 	const CodablecashSystemParam* config = params->config;
 	const NodeIdentifierSource* source = params->source;
+	MultizoneTestnet* testnet = params->testnet;
 
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"wallet"))
@@ -145,6 +186,7 @@ TEST(TestNetWalletGroup, case01){
 
 	// sync
 	wallet->syncBlockchain();
+	waitForBlocks(testnet, 2);
 	wallet->resumeNetwork();
 
 
@@ -153,8 +195,20 @@ TEST(TestNetWalletGroup, case01){
 	{
 		BalanceUnit fee(1L);
 		handler->sendRegisterVotePoolTransaction(fee, &enc);
+
+		const AbstractBlockchainTransaction* t = handler->getLastTransaction();
+		const RegisterVotePoolTransaction* trx = dynamic_cast<const RegisterVotePoolTransaction*>(t);
+		const TransactionId* trxId = trx->getTransactionId();
+
+		// check by management account
+		uint8_t type = handler->getTransactionStoreStatus(trxId);
+		while(type != ManagedUtxoCacheRecord::UNFINALIZED){
+			Os::usleep(200 * 1000);
+			type = handler->getTransactionStoreStatus(trxId);
+		}
 	}
 
+	NodeIdentifier* nodeId = nullptr;
 	{
 		ArrayList<NodeIdentifier>* list = handler->listStakingNodeIds();
 		list->setDeleteOnExit();
@@ -167,14 +221,45 @@ TEST(TestNetWalletGroup, case01){
 			list = handler->listStakingNodeIds();
 			list->setDeleteOnExit();
 		}
-
-	//	list->get(0);
-
 		__STP(list);
+
+		nodeId = dynamic_cast<NodeIdentifier*>(list->get(0)->copyData());
+	}
+	__STP(nodeId);
+
+	waitForBlocks(testnet, 2);
+
+	testnet->suspendMining(0);
+
+	int maxLoop = 5;
+	for(int i = 0; i != maxLoop; ++i){
+		BalanceUnit fee(1L);
+		BalanceUnit stakeAmount(100L);
+		handler->sendRegisterTicketTransaction(nodeId, stakeAmount, fee, &enc);
+
+		const AbstractBlockchainTransaction* t = handler->getLastTransaction();
+		const RegisterTicketTransaction* trx = dynamic_cast<const RegisterTicketTransaction*>(t);
+
+		const TransactionId* trxId = trx->getTransactionId();
+
+		// check by management account
+		uint8_t type = handler->getTransactionStoreStatus(trxId);
+		while(type == ManagedUtxoCacheRecord::NONE){
+			Os::usleep(200 * 1000);
+			type = handler->getTransactionStoreStatus(trxId);
+		}
 	}
 
+	{
+		ArrayList<AbstractBlockchainTransaction>* memret = handler->fetchMempoolTransactions(); __STP(memret);
+		memret->setDeleteOnExit();
+	}
+
+	testnet->resumeMining(0);
 
 
+	waitForFinalizedBlock(handler, 7);
+	waitForBlocks(testnet, 2);
 
 	// FIXME TestNetWalletGroup
 }

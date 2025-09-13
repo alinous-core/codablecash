@@ -92,6 +92,12 @@ Block* HeadBlockDetector::fetchScheduledBlock() {
 	return ret;
 }
 
+Block* HeadBlockDetector::getScheduledBlock() {
+	Block* ret = new Block(*this->scheduledBlock);
+
+	return ret;
+}
+
 void HeadBlockDetector::buildHeads(uint16_t zone, IBlockchainStoreProvider *chain, uint64_t finalizedHeight) {
 	BlockHeaderStoreManager* headerStore = chain->getHeaderManager(zone);
 

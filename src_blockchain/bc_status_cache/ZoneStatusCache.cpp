@@ -351,6 +351,10 @@ Block* ZoneStatusCache::fetchScheduledBlock() {
 	return this->headBlockDetector->fetchScheduledBlock();
 }
 
+Block* ZoneStatusCache::getScheduledBlock() {
+	return this->headBlockDetector->getScheduledBlock();
+}
+
 bool ZoneStatusCache::registerBlockHeader4Limit(const BlockHeader *header, const CodablecashSystemParam *param) {
 	return this->voteManager->registerBlockHeader(header, param);
 }

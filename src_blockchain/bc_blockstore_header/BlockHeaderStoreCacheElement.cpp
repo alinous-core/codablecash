@@ -177,7 +177,9 @@ void BlockHeaderStoreCacheElement::finalize(uint64_t height, const BlockHeaderId
 		this->store->removeHeader(fpos);
 
 		// call body deleter
-		notifier->onRemovedHeader(header);
+		if(notifier != nullptr){
+			notifier->onRemovedHeader(header);
+		}
 	}
 }
 

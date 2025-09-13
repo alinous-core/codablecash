@@ -109,6 +109,10 @@ BalanceUtxo* WalletAccountTrxRepository::getBalanceUtxo(const UtxoId *utxoId) {
 	return this->utxoRepo->getBalanceUtxo(utxoId);
 }
 
+AbstractUtxo* WalletAccountTrxRepository::getUtxo(const UtxoId *utxoId) {
+	return this->utxoRepo->getUtxo(utxoId);
+}
+
 void WalletAccountTrxRepository::closeSelf() {
 	if(this->btree != nullptr){
 		this->btree->close();
@@ -117,7 +121,7 @@ void WalletAccountTrxRepository::closeSelf() {
 	}
 }
 
-void WalletAccountTrxRepository::importUtxo(const BalanceUtxo *utxo) {
+void WalletAccountTrxRepository::importUtxo(const AbstractUtxo *utxo) {
 	this->utxoRepo->importUtxo(utxo);
 }
 

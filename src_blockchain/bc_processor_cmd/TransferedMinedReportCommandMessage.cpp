@@ -54,7 +54,9 @@
 
 #include "base_thread/SysMutex.h"
 
+#include "bc_p2p_cmd_client_notify/ClientNotifyBlockMinedCommand.h"
 
+#include "bc_block_body/OmittedBlockBodyFixer.h"
 
 namespace codablecash {
 
@@ -79,7 +81,7 @@ void TransferedMinedReportCommandMessage::setNodeId(const NodeIdentifier *nodeId
 }
 
 /**
- *
+ * After getting ReportMinedBlockNodeCommand, from miners or other nodes, this process is driven.
  * @param processor
  */
 void TransferedMinedReportCommandMessage::process(CentralProcessor *processor) {
@@ -104,15 +106,27 @@ void TransferedMinedReportCommandMessage::process(CentralProcessor *processor) {
 	}
 
 	if(dataAdded){
-		NodeIdentifierSource* networkKey = requestProcessor->getNetworkKey();
-		ReportMinedBlockNodeCommand command;
-		command.setData(this->data);
+		{
+			NodeIdentifierSource* networkKey = requestProcessor->getNetworkKey();
+			ReportMinedBlockNodeCommand command;
+			command.setData(this->data);
 
-		command.sign(networkKey);
+			command.sign(networkKey);
 
-		p2pManager->broadCastAllZones(this->nodeId, &command, requestProcessor);
+			p2pManager->broadCastAllZones(this->nodeId, &command, requestProcessor);
+		}
 
-		// TODO; client notify
+		// client notify
+		{
+			ClientNotifyBlockMinedCommand command;
+			command.setBlockHeaderTransferData(this->data);
+
+			// sign
+			NodeIdentifierSource* nwkey = requestProcessor->getNetworkKey();
+			command.sign(nwkey);
+
+			p2pManager->broadCastToClients(&command, requestProcessor);
+		}
 	}
 }
 
@@ -125,9 +139,17 @@ bool TransferedMinedReportCommandMessage::importHeader(BlockchainController *ctr
 bool TransferedMinedReportCommandMessage::importBlock(MemoryPool* memPool, BlockchainController *ctrl, BlochchainP2pManager *p2pManager
 		, NodeIdentifierSource* networkKey ,ISystemLogger* logger, CodablecashSystemParam* config) {
 	const BlockHeader* header = this->data->getHeader();
+	uint16_t zone = header->getZone();
 	uint64_t height = header->getHeight();
 	const BlockHeaderId* headerId = header->getId();
 
+	// check if already block exists
+	{
+		bool bl = ctrl->hasHeaderId(zone, height, headerId);
+		if(bl){
+			return false;
+		}
+	}
 
 	DownloadOmittedBlockBodyNodeCommand command;
 	command.setZone(header->getZone());
@@ -161,7 +183,9 @@ bool TransferedMinedReportCommandMessage::importBlock(MemoryPool* memPool, Block
 	// download entire block command
 	const OmittedBlockBody* obody = omittedBodyResponse->getBody();
 
-	BlockBody* body = obody->toBlockBody(height, headerId, this);	__STP(body);
+	// ommit to body
+	OmittedBlockBodyFixer fixer(this->nodeId, this->processor->getMemoryPool(), p2pManager, headerId, height, networkKey);
+	BlockBody* body = obody->toBlockBody(height, headerId, &fixer, logger);	__STP(body);
 
 	Block block(dynamic_cast<BlockHeader*>(header->copyData()), __STP_MV(body));
 
@@ -169,61 +193,6 @@ bool TransferedMinedReportCommandMessage::importBlock(MemoryPool* memPool, Block
 	validator.validate();
 
 	return ctrl->addBlock(&block);
-}
-
-MemPoolTransaction* TransferedMinedReportCommandMessage::begin() {
-	MemoryPool* memPool = this->processor->getMemoryPool();
-
-	return memPool->begin();
-}
-
-DownloadTransactionsNodeCommandResponse* TransferedMinedReportCommandMessage::downloadTransactions(const DownloadTransactionsNodeCommand *command) const {
-	if(command->isEmpty()){
-		return new DownloadTransactionsNodeCommandResponse();
-	}
-
-	P2pRequestProcessor* requestProcessor = processor->getP2pRequestProcessor();
-	BlochchainP2pManager* p2pManager = processor->getBlochchainP2pManager();
-	ISystemLogger* logger = processor->getLogger();
-
-	BlockchainNodeHandshake* handshake = p2pManager->getNodeHandshakeByNodeId(this->nodeId);
-	ExceptionThrower<BlockchainNodeHandshakeException>::throwExceptionIfCondition(handshake == nullptr, L"Node connection has alrealy closed.", __FILE__, __LINE__);
-
-	StackHandshakeReleaser __releaser(handshake);
-
-	P2pHandshake* p2pHandshake = handshake->getHandshake();
-
-	SysMutex* mutex = handshake->getSysMutex();
-	StackUnlocker __lock(mutex, __FILE__, __LINE__);
-
-	return __downloadTransactions(command, p2pHandshake, logger);
-}
-
-DownloadTransactionsNodeCommandResponse* TransferedMinedReportCommandMessage::__downloadTransactions(
-		const DownloadTransactionsNodeCommand *command, P2pHandshake* handshake, ISystemLogger *logger) {
-	DownloadTransactionsNodeCommandResponse* ret = nullptr;
-	{
-		ExceptionThrower<BlockchainNodeHandshakeException>::throwExceptionIfCondition(handshake == nullptr, L"Node connection has alrealy closed.", __FILE__, __LINE__);
-
-		AbstractCommandResponse* response = handshake->publishCommand(command); __STP(response);
-		ret = dynamic_cast<DownloadTransactionsNodeCommandResponse*>(response);
-
-		ExceptionThrower<BlockchainNodeHandshakeException>::throwExceptionIfCondition(ret == nullptr, L"Respose error.", __FILE__, __LINE__);
-
-
-		UnicodeString* message = ret->toString(); __STP(message);
-		logger->debugLog(ISystemLogger::DEBUG_NODE_TRANSFER_RESPONSE, message, __FILE__, __LINE__);
-
-		__STP_MV(response);
-	}
-
-	return ret;
-}
-
-NodeIdentifierSource* TransferedMinedReportCommandMessage::getNetworkKey() const noexcept {
-	P2pRequestProcessor* requestProcessor = processor->getP2pRequestProcessor();
-	NodeIdentifierSource* networkKey = requestProcessor->getNetworkKey();
-	return networkKey;
 }
 
 } /* namespace codablecash */

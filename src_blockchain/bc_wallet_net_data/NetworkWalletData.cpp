@@ -31,6 +31,7 @@
 #include "bc_block/BlockHeaderId.h"
 
 #include "bc/CodablecashSystemParam.h"
+#include "bc/ISystemLogger.h"
 
 #include "bc_base_conf_store/StatusStore.h"
 
@@ -41,6 +42,9 @@
 #include "bc_base_trx_index/TransactionData.h"
 
 #include "base_thread/ConcurrentGate.h"
+
+#include "data_history_data/TransactionTransferData.h"
+
 
 using alinous::StackWriteLock;
 
@@ -143,7 +147,21 @@ void NetworkWalletData::createBlank() {
 void NetworkWalletData::addTransactionDataToMempool(const TransactionTransferData *data) {
 	StackWriteLock __lock(this->gateLock, __FILE__, __LINE__);
 
-	// TODO addTransactionDataToMempool
+	AbstractBlockchainTransaction* trx = data->getTransaction();
+	const TransactionId* trxId = trx->getTransactionId();
+
+	if(!this->mempool->hasTransaction(trxId)){
+		this->mempool->putTransaction(trx);
+
+		this->managementAccounts->resetMempool();
+		__buildMempoolAccount();
+	}
+}
+
+uint8_t NetworkWalletData::getTransactionStoreStatus(const TransactionId *trxId) const noexcept {
+	StackReadLock __lock(this->gateLock, __FILE__, __LINE__);
+
+	return this->managementAccounts->getTransactionStoreStatus(trxId);
 }
 
 uint16_t NetworkWalletData::getDefaultZone() const noexcept {
@@ -152,10 +170,19 @@ uint16_t NetworkWalletData::getDefaultZone() const noexcept {
 	return this->hdWallet->getDefaultZone();
 }
 
-void NetworkWalletData::addHeader(const BlockHeader *header, ArrayList<AbstractBlockchainTransaction>* trxlist) {
+void NetworkWalletData::addHeader(const BlockHeader *header, const ArrayList<AbstractBlockchainTransaction>* trxlist) {
 	StackWriteLock __lock(this->gateLock, __FILE__, __LINE__);
 
-	this->headerManager->addHeader(header);
+	// add header if has header
+	{
+		const BlockHeaderId* headerId = header->getId();
+		uint64_t height = header->getHeight();
+
+		BlockHeader* h = headerManager->getHeader(headerId, height); __STP(h);
+		if(h == nullptr){
+			this->headerManager->addHeader(header);
+		}
+	}
 
 	// trx group
 	{
@@ -172,6 +199,161 @@ void NetworkWalletData::addHeader(const BlockHeader *header, ArrayList<AbstractB
 
 		this->transactionGroupData->add(id, &group);
 	}
+}
+
+bool NetworkWalletData::checkAndFinalizing() {
+	StackWriteLock __lock(this->gateLock, __FILE__, __LINE__);
+
+	bool finalized = false;
+
+	int votePerBlock = this->config->getVotePerBlock();
+	ArrayList<const BlockHeader> list;
+
+	// make list
+	{
+		const BlockHead* head = this->detector->getHead();
+		const ArrayList<BlockHeadElement>* elements = head->getHeaders();
+
+		int maxLoop = elements->size();
+		for(int i = 0; i != maxLoop; ++i){
+			const BlockHeadElement* ele = elements->get(i);
+			const BlockHeader* header = ele->getBlockHeader();
+			uint64_t height = header->getHeight();
+
+			if(height > this->finalizedHeight){
+				list.addElement(header);
+			}
+		}
+	}
+
+	// handle the list
+	{
+		int maxLoop = list.size();
+		for(int i = 0; i != maxLoop; ++i){
+			const BlockHeader* header = list.get(i);
+
+			if(header->isFinalizing(votePerBlock)){
+				__doFinalize(header);
+				finalized = true;
+			}
+		}
+	}
+
+	return finalized;
+}
+
+void NetworkWalletData::__doFinalize(const BlockHeader *header) {
+	uint64_t includingHeight = header->getHeight();
+	const BlockHeaderId* id = header->getId();
+
+	uint16_t voteBeforeNBlocks = this->config->getVoteBeforeNBlocks(includingHeight);
+	uint16_t voteBlockIncludeAfterNBlocks = this->config->getVoteBlockIncludeAfterNBlocks(includingHeight);
+	int beforeHeight = voteBeforeNBlocks + voteBlockIncludeAfterNBlocks;
+
+	uint64_t finalizingHeight = includingHeight - beforeHeight;
+
+	if(this->finalizedHeight < finalizingHeight){
+		BlockHeader* finalizedheader = this->headerManager->getNBlocksBefore(id, includingHeight, beforeHeight); __STP(finalizedheader);
+
+#ifdef __DEBUG__
+		assert(finalizedheader != nullptr);
+		assert(finalizingHeight == finalizedheader->getHeight());
+
+		{
+			UnicodeString* strId = id->toString(); __STP(strId);
+
+			UnicodeString message(L"  [Wallet Finalize Header] Height: ");
+			message.append((int)finalizingHeight);
+			message.append(L" Header Id: ").append(strId);
+
+			this->logger->log(&message);
+		}
+#endif
+
+		const BlockHeaderId *fheaderId = finalizedheader->getId();
+		__updateFinalizedData(finalizingHeight, fheaderId);
+
+		// update
+		this->finalizedHeight = finalizingHeight;
+		__saveStatus();
+	}
+}
+
+void NetworkWalletData::__updateFinalizedData(uint64_t finalizingHeight, const BlockHeaderId *finalizingHeaderId) {
+	uint64_t lastFinalizedHeight = this->finalizedHeight;
+
+	ArrayList<BlockHeader> list;
+	list.setDeleteOnExit();
+
+	// make list
+	{
+		uint64_t height = finalizingHeight;
+		BlockHeaderId* currentHeaderId = dynamic_cast<BlockHeaderId*>(finalizingHeaderId->copyData());
+
+		while(height > lastFinalizedHeight){
+			__STP(currentHeaderId);
+
+			BlockHeader* header = this->headerManager->getHeader(currentHeaderId, height); __STP(header);
+			assert(header != nullptr);
+
+			list.addElement(dynamic_cast<BlockHeader*>(header->copyData()), 0);
+
+			// last header
+			currentHeaderId = dynamic_cast<BlockHeaderId*>(header->getLastHeaderId()->copyData());
+			height--;
+		}
+		__STP(currentHeaderId);
+	}
+
+	// to Hd wallet
+	__importIntoHdWallet(&list);
+
+
+	// clean header store
+	__finalizeHeaderStore(finalizingHeight, finalizingHeaderId);
+
+}
+
+void NetworkWalletData::__importIntoHdWallet(const ArrayList<BlockHeader> *list) {
+	WalletAccount* waccount = this->hdWallet->getZoneAccount(this->zone);
+
+	// import
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const BlockHeader* header = list->get(i);
+		const BlockHeaderId* headerId = header->getId();
+
+		HeaderTransactionGroup* trxGourp = this->transactionGroupData->getHeaderTransactionGroup(headerId); __STP(trxGourp);
+		__importImportHeaderTransactionGroup(trxGourp, waccount);
+	}
+
+	// clean
+	for(int i = 0; i != maxLoop; ++i){
+		const BlockHeader* header = list->get(i);
+		const BlockHeaderId* headerId = header->getId();
+
+		this->transactionGroupData->removeHeaderTransactionGroup(headerId);
+	}
+}
+
+void NetworkWalletData::__importImportHeaderTransactionGroup(const HeaderTransactionGroup *trxGourp, WalletAccount *waccount) {
+	const ArrayList<AbstractBlockchainTransaction>* list = trxGourp->getTransactionsList();
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractBlockchainTransaction* trx = list->get(i);
+
+		waccount->importTransaction(trx);
+	}
+}
+
+void NetworkWalletData::__finalizeHeaderStore(uint64_t height, const BlockHeaderId *headerId) {
+	this->headerManager->finalize(height, headerId, nullptr);
+}
+
+
+void NetworkWalletData::updateHeadDetection() {
+	StackWriteLock __lock(this->gateLock, __FILE__, __LINE__);
 
 	// detect header
 	this->detector->reset();
@@ -181,16 +363,6 @@ void NetworkWalletData::addHeader(const BlockHeader *header, ArrayList<AbstractB
 	// evaluate
 	this->detector->evaluate(this->zone, nullptr, this, this->config, true);
 	this->detector->selectChain();
-
-	// check finalizing
-	int votePerBlock = this->config->getVotePerBlock();
-	if(header->isFinalizing(votePerBlock)){
-		__doFinalize(header);
-	}
-}
-
-void NetworkWalletData::__doFinalize(const BlockHeader *header) {
-	// FIXME do finalize
 }
 
 void NetworkWalletData::__saveStatus() {
@@ -218,11 +390,11 @@ void NetworkWalletData::resetManagementAccounts() noexcept {
 	this->managementAccounts->resetAll();
 }
 
-void NetworkWalletData::buildManagementAccount(bool buildFinalized) {
+void NetworkWalletData::buildManagementAccount(bool buildFinalized, uint64_t startHeight) {
 	StackWriteLock __lock(this->gateLock, __FILE__, __LINE__);
 
 	if(buildFinalized){
-		__buildFinalizedManagementAccount();
+		__buildFinalizedManagementAccount(startHeight);
 	}
 
 	// unfinalized
@@ -268,7 +440,9 @@ void NetworkWalletData::__buildUnfinalizedAccount() {
 		const ArrayList<BlockHeadElement>* list = head->getHeaders();
 
 		int maxLoop = list->size();
-		for(int i = 0; i != maxLoop; ++i){
+
+		// i = 1, because the first element is finalized height
+		for(int i = 1; i != maxLoop; ++i){
 			const BlockHeadElement* element = list->get(i);
 			const BlockHeader* header = element->getBlockHeader();
 
@@ -277,27 +451,25 @@ void NetworkWalletData::__buildUnfinalizedAccount() {
 	}
 }
 
-void NetworkWalletData::__buildFinalizedManagementAccount() {
+void NetworkWalletData::__buildFinalizedManagementAccount(uint64_t startHeight) {
 	ManagementAccount *ma = this->managementAccounts->getFinalizedManagementAccount();
-	uint64_t startHeight = 1;
 	uint64_t maxBlockHeight = this->finalizedHeight;
 
-	__buildManagementAccount(ma, startHeight, maxBlockHeight);
+	__buildFinalizedManagementAccount(ma, startHeight, maxBlockHeight);
 }
 
-void NetworkWalletData::__buildManagementAccount(ManagementAccount *ma, uint64_t startHeight, uint64_t maxBlockHeight) {
-	uint64_t maxLoop = maxBlockHeight + 1;
-	for(uint64_t i = startHeight; i != maxLoop; ++i){
-		ArrayList<BlockHeader>* headerList = this->headerManager->getBlocksAtHeight(i); __STP(headerList);
-		if(headerList != nullptr){
-			headerList->setDeleteOnExit();
+void NetworkWalletData::__buildFinalizedManagementAccount(ManagementAccount *ma, uint64_t startHeight, uint64_t maxBlockHeight) {
+	WalletAccount* waccount = this->hdWallet->getZoneAccount(this->zone);
 
-			int maxHeaders = headerList->size();
-			for(int j = 0; i != maxHeaders; ++j){
-				BlockHeader* header = headerList->get(j);
+	ArrayList<AbstractBlockchainTransaction>* list = waccount->getTransactions();
 
-				__buildManagementAccount4Header(ma, header);
-			}
+	// import Hd wallet into Management Account
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractBlockchainTransaction* trx = list->get(i);
+
+		if(trx->checkFilteredUxtoRef(ma) || trx->checkFilteredAddress(waccount)){
+			ma->addTransaction(trx, waccount);
 		}
 	}
 }
@@ -320,6 +492,12 @@ void NetworkWalletData::__buildManagementAccount4Header(ManagementAccount *ma, c
 			ma->addTransaction(trx, waccount);
 		}
 	}
+}
+
+uint64_t NetworkWalletData::getFinalizedHeight() const {
+	StackReadLock __lock(this->gateLock, __FILE__, __LINE__);
+
+	return this->finalizedHeight;
 }
 
 } /* namespace codablecash */

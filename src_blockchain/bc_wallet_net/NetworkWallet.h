@@ -75,6 +75,17 @@ public:
 		return this->networkManager;
 	}
 
+	const WalletConfig* getWalletConfig() const noexcept {
+		return this->walletConfig;
+	}
+	ISystemLogger* getLogger() const noexcept {
+		return this->logger;
+	}
+
+	NetworkClientCommandProcessor* getNetworkClientCommandProcessor() const noexcept {
+		return this->clientCommandProcessor;
+	}
+
 private:
 	void setNetworkSeeder(INetworkSeeder *seeder) noexcept;
 	void doCreateWallet(const IWalletDataEncoder* encoder, const HdWalletSeed* seed, uint16_t zone, int defaultMaxAddress);

@@ -75,8 +75,10 @@ uint8_t VoteBlockTransaction::getType() const noexcept {
 }
 
 bool VoteBlockTransaction::validateOnAccept(MemPoolTransaction *memTrx, IStatusCacheContext *context) const {
+	uint64_t topHeight = context->getTopHeight();
+
 	// check if block exists
-	{
+	if(topHeight >= this->voteBlockHeight){
 		uint16_t zone = context->getZone();
 		CodablecashBlockchain* chain = context->getBlockChain();
 		BlockHeaderStoreManager* headerManager = chain->getHeaderManager(zone);

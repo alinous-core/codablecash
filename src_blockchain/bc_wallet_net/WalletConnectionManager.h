@@ -50,6 +50,7 @@ public:
 	}
 
 	ClientNodeHandshake* getClientHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept;
+	const NodeIdentifier* pubsubId2NodeId(const PubSubId* pubsubId) const noexcept;
 
 private:
 	void __disconnect(const PubSubId* pubsubId);

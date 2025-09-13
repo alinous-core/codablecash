@@ -40,6 +40,11 @@ class StatusStore;
 class CodablecashSystemParam;
 class ManagementAccountsCollection;
 class ManagementAccount;
+class TransactionId;
+class BlockHeaderId;
+class HeaderTransactionGroup;
+class WalletAccount;
+
 
 class NetworkWalletData : public IBlockchainStoreProvider {
 public:
@@ -62,9 +67,11 @@ public:
 	uint16_t getDefaultZone() const noexcept;
 
 	void addTransactionDataToMempool(const TransactionTransferData *data);
+	uint8_t getTransactionStoreStatus(const TransactionId* trxId) const noexcept;
 
-	void addHeader(const BlockHeader* header, ArrayList<AbstractBlockchainTransaction>* trxlist);
-
+	void addHeader(const BlockHeader* header, const ArrayList<AbstractBlockchainTransaction>* trxlist);
+	void updateHeadDetection();
+	bool checkAndFinalizing();
 
 	const File* getBaseDir() const noexcept {
 		return this->baseDir;
@@ -76,7 +83,7 @@ public:
 	virtual BlockBodyStoreManager* getBlockBodyStoreManager(uint16_t zone) const noexcept;
 
 	void resetManagementAccounts() noexcept;
-	void buildManagementAccount(bool buildFinalized);
+	void buildManagementAccount(bool buildFinalized, uint64_t startHeight);
 
 	void __buildMempoolAccount();
 	void __buildUnfinalizedAccount();
@@ -89,15 +96,23 @@ public:
 		return this->managementAccounts;
 	}
 
-private:
-	void __buildFinalizedManagementAccount();
+	uint64_t getFinalizedHeight() const;
 
-	void __buildManagementAccount(ManagementAccount* ma, uint64_t startHeight, uint64_t maxBlockHeight);
+
+private:
+	void __buildFinalizedManagementAccount(uint64_t startHeight);
+
+	void __buildFinalizedManagementAccount(ManagementAccount* ma, uint64_t startHeight, uint64_t maxBlockHeight);
 	void __buildManagementAccount4Header(ManagementAccount* ma, const BlockHeader* header);
 
 
 	void __initStatusStore();
 	void __doFinalize(const BlockHeader *header);
+	void __updateFinalizedData(uint64_t finalizingHeight, const BlockHeaderId *finalizingHeaderId);
+	void __importIntoHdWallet(const ArrayList<BlockHeader>* list);
+	void __importImportHeaderTransactionGroup(const HeaderTransactionGroup* trxGourp, WalletAccount* waccount);
+
+	void __finalizeHeaderStore(uint64_t height,	const BlockHeaderId *headerId);
 
 private:
 	File* baseDir;

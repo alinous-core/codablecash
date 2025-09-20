@@ -53,9 +53,11 @@
 #include "bc_wallet_net_access/ListStakingNodeAccess.h"
 
 #include "bc_trx/AbstractBlockchainTransaction.h"
+#include "bc_trx/AbstractInterChainCommunicationTansaction.h"
 
 #include "bc_wallet_net_access/ClientFetchMempoolTrxAccess.h"
 
+#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
 
 namespace codablecash {
 
@@ -153,6 +155,36 @@ void NetworkTransactionHandler::sendRegisterTicketTransaction(const NodeIdentifi
 	broadcastTransaction(&cmd);
 
 	setLastTransaction(trx);
+}
+
+void NetworkTransactionHandler::sendInterChainCommunicationTransaction(const AbstractInterChainCommunicationTansaction *icctrx) {
+	WalletNetworkManager* networkManager = this->netWallet->getWalletNetworkManager();
+	const NodeIdentifierSource* nodeIdSource = networkManager->getNodeIdentifierSource();
+	NodeIdentifier clientNodeId = nodeIdSource->toNodeIdentifier();
+
+	SendTransactionClientCommand cmd;
+	cmd.setTransaction(icctrx);
+	cmd.setNodeIdentifier(&clientNodeId);
+	cmd.sign(nodeIdSource);
+
+	broadcastTransaction(&cmd);
+
+	setLastTransaction(icctrx);
+}
+
+void NetworkTransactionHandler::sendSmartcontractTansaction(const AbstractSmartcontractTransaction *sctrx) {
+	WalletNetworkManager* networkManager = this->netWallet->getWalletNetworkManager();
+	const NodeIdentifierSource* nodeIdSource = networkManager->getNodeIdentifierSource();
+	NodeIdentifier clientNodeId = nodeIdSource->toNodeIdentifier();
+
+	SendTransactionClientCommand cmd;
+	cmd.setTransaction(sctrx);
+	cmd.setNodeIdentifier(&clientNodeId);
+	cmd.sign(nodeIdSource);
+
+	broadcastTransaction(&cmd);
+
+	setLastTransaction(sctrx);
 }
 
 void NetworkTransactionHandler::broadcastTransaction(const AbstractClientRequestCommand *command) {

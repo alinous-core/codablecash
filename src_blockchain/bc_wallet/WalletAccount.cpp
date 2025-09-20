@@ -63,7 +63,9 @@
 
 #include "bc_p2p_cmd_node/InvalidTransactionException.h"
 
+#include "bc_wallet_trx/IccNopTransactionWalletHandler.h"
 
+#include "bc_wallet_trx/SmartcontractNopTransactionWalletHandler.h"
 namespace codablecash {
 
 WalletAccount::WalletAccount(const File* accountBaseDir) : AbstractWalletAccount(0, 0) {
@@ -281,6 +283,12 @@ void WalletAccount::importTransaction(const AbstractBlockchainTransaction *trx) 
 		break;
 	case AbstractBlockchainTransaction::TRX_TYPE_STAKE_BASE:
 		handler = new StakeBaseTransactionWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_SMARTCONTRACT_NOP:
+		handler = new SmartcontractNopTransactionWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_ICC_NOP:
+		handler = new IccNopTransactionWalletHandler(this);
 		break;
 	default:
 		break;

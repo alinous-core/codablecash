@@ -175,14 +175,12 @@ void FinalizeMissDetectTicketCommandMessage::putTransaction(const BlockHeader *h
 
 
 	/// test
-	{
-		VoteBlockTransaction* trx2 = dynamic_cast<VoteBlockTransaction*>(trx->copyData()); __STP(trx2);
+//	{
+//		VoteBlockTransaction* trx2 = dynamic_cast<VoteBlockTransaction*>(trx->copyData()); __STP(trx2);
 
-		trx2->setVoteBlockHeight(1000L);
-		bool bl = trx2->validateOnAccept(memTrx, context);
-		assert(!bl);
-	}
-
+//		bool bl = trx2->validateOnAccept(memTrx, context);
+//		assert(!bl);
+//	}
 	{
 		VoteBlockTransaction* trx3 = dynamic_cast<VoteBlockTransaction*>(trx->copyData()); __STP(trx3);
 

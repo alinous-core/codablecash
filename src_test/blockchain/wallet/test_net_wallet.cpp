@@ -52,6 +52,12 @@
 #include "bc_finalizer_trx/RegisterVotePoolTransaction.h"
 
 #include "bc_wallet_net_data_management/ManagedUtxoCacheRecord.h"
+
+#include "bc_trx/NopInterChainCommunicationTransaction.h"
+
+#include "bc_trx_balance/BalanceUtxo.h"
+
+#include "bc_smartcontract/NopSmartcontractTransaction.h"
 #include "setup/TestnetSetupper01.h"
 
 
@@ -250,6 +256,46 @@ TEST(TestNetWalletGroup, case01){
 		}
 	}
 
+	// dummy transactions
+	{
+		NopInterChainCommunicationTransaction nopTrx;
+
+		AddressDescriptor* desc = wallet->getAddressDescriptor(0, 0); __STP(desc);
+		BalanceUtxo utxo;
+		utxo.setAddress(desc);
+		nopTrx.addutxo(&utxo);
+
+		nopTrx.build();
+		handler->sendInterChainCommunicationTransaction(&nopTrx);
+
+		const TransactionId* trxId = nopTrx.getTransactionId();
+		// check by management account
+		uint8_t type = handler->getTransactionStoreStatus(trxId);
+		while(type == ManagedUtxoCacheRecord::NONE){
+			Os::usleep(200 * 1000);
+			type = handler->getTransactionStoreStatus(trxId);
+		}
+	}
+	{
+		NopSmartcontractTransaction nopTrx;
+
+		AddressDescriptor* desc = wallet->getAddressDescriptor(0, 0); __STP(desc);
+		BalanceUtxo utxo;
+		utxo.setAddress(desc);
+		nopTrx.addutxo(&utxo);
+
+		nopTrx.build();
+		handler->sendSmartcontractTansaction(&nopTrx);
+
+		const TransactionId* trxId = nopTrx.getTransactionId();
+		// check by management account
+		uint8_t type = handler->getTransactionStoreStatus(trxId);
+		while(type == ManagedUtxoCacheRecord::NONE){
+			Os::usleep(200 * 1000);
+			type = handler->getTransactionStoreStatus(trxId);
+		}
+	}
+
 	{
 		ArrayList<AbstractBlockchainTransaction>* memret = handler->fetchMempoolTransactions(); __STP(memret);
 		memret->setDeleteOnExit();
@@ -260,6 +306,4 @@ TEST(TestNetWalletGroup, case01){
 
 	waitForFinalizedBlock(handler, 7);
 	waitForBlocks(testnet, 2);
-
-	// FIXME TestNetWalletGroup
 }

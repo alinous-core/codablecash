@@ -5,10 +5,12 @@ set(__src
 	BalanceTransactionWalletHandler.cpp
 	CoinbaseTransactionWalletHandler.cpp
 	GenesisTransactionHandler.cpp
+	IccNopTransactionWalletHandler.cpp
 	RegisterTicketTransactionWalletHandler.cpp
 	RegisterVotePoolTransactionWalletHandler.cpp
 	RevokeMissedTicketWalletHandler.cpp
 	RevokeMissVotedTicketWalletHandler.cpp
+	SmartcontractNopTransactionWalletHandler.cpp
 	StakeBaseTransactionWalletHandler.cpp
 	VoteBlockTransactionWalletHandler.cpp
 )

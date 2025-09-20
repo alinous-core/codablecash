@@ -461,7 +461,8 @@ void NetworkWalletData::__buildFinalizedManagementAccount(uint64_t startHeight) 
 void NetworkWalletData::__buildFinalizedManagementAccount(ManagementAccount *ma, uint64_t startHeight, uint64_t maxBlockHeight) {
 	WalletAccount* waccount = this->hdWallet->getZoneAccount(this->zone);
 
-	ArrayList<AbstractBlockchainTransaction>* list = waccount->getTransactions();
+	ArrayList<AbstractBlockchainTransaction>* list = waccount->getTransactions(); __STP(list);
+	list->setDeleteOnExit();
 
 	// import Hd wallet into Management Account
 	int maxLoop = list->size();

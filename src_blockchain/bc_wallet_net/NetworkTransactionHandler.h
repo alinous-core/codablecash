@@ -26,6 +26,8 @@ class AbstractCommandResponse;
 class NodeIdentifier;
 class AbstractBlockchainTransaction;
 class TransactionId;
+class AbstractInterChainCommunicationTansaction;
+class AbstractSmartcontractTransaction;
 
 
 class NetworkTransactionHandler {
@@ -35,6 +37,9 @@ public:
 
 	void sendRegisterVotePoolTransaction(const BalanceUnit& feeRate, const IWalletDataEncoder* encoder);
 	void sendRegisterTicketTransaction(const NodeIdentifier *nodeId, const BalanceUnit& stakeAmount, const BalanceUnit& feeRate, const IWalletDataEncoder* encoder);
+
+	void sendInterChainCommunicationTransaction(const AbstractInterChainCommunicationTansaction* icctrx);
+	void sendSmartcontractTansaction(const AbstractSmartcontractTransaction* sctrx);
 
 	ArrayList<NodeIdentifier>* listStakingNodeIds();
 

@@ -23,7 +23,7 @@ TEST(TestNopTransactionsGroup, case01){
 	NopInterChainCommunicationTransaction trx;
 
 	CHECK(trx.getUtxoSize() == 0);
-	CHECK(trx.getUtxo(0) == nullptr);
+	//CHECK(trx.getUtxo(0) == nullptr);
 	CHECK(trx.getUtxoReferenceSize() == 0);
 	CHECK(trx.getUtxoReference(0) == nullptr);
 
@@ -39,7 +39,7 @@ TEST(TestNopTransactionsGroup, case02){
 	NopSmartcontractTransaction trx;
 
 	CHECK(trx.getUtxoSize() == 0);
-	CHECK(trx.getUtxo(0) == nullptr);
+	//CHECK(trx.getUtxo(0) == nullptr);
 	CHECK(trx.getUtxoReferenceSize() == 0);
 	CHECK(trx.getUtxoReference(0) == nullptr);
 

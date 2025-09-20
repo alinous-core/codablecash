@@ -40,8 +40,17 @@ public:
 	virtual bool validateOnAccept(MemPoolTransaction *memTrx, IStatusCacheContext* context) const;
 	virtual TrxValidationResult validateFinal(const BlockHeader* header, MemPoolTransaction *memTrx, IStatusCacheContext* context) const;
 
+	virtual bool checkFilter(const ArrayList<BloomFilter1024> *filtersList) const;
+
+	void addutxo(const AbstractUtxo* utxo) noexcept;
+
+private:
+	void setUtxoNonce() noexcept;
+
 private:
 	uint64_t nonce;
+
+	ArrayList<AbstractUtxo>* utxoList;
 
 	static uint64_t serial;
 };

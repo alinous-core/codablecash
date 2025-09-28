@@ -1,5 +1,8 @@
 #!/bin/bash -eux
 
+# ulimit -S -c unlimited
+# ulimit -c
+# 
 
 pushd target
 make all -j6

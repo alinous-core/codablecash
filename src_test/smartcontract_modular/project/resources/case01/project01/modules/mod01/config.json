@@ -1,0 +1,7 @@
+{
+	"sourceFolders" : ["src/"],
+	"version" : 1.0,
+	
+	"mainPackage": "sample",
+	"mainClass" : "Sample01"
+}

@@ -51,6 +51,8 @@ void ClientCommandsQueueProcessor::open(bool suspend) {
 }
 
 void ClientCommandsQueueProcessor::close() {
+	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
+
 	if(this->thread != nullptr){
 		this->thread->setRunning(false);
 		this->thread->join();
@@ -93,7 +95,9 @@ void ClientCommandsQueueProcessor::__setSuspend(bool suspend) {
 void ClientCommandsQueueProcessor::addCommand(const AbstractClientQueueCommand *cmd) {
 	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
 
-	 this->queue->addCommand(cmd);
+	if(this->queue != nullptr){
+		 this->queue->addCommand(cmd);
+	}
 }
 
 } /* namespace codablecash */

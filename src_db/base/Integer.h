@@ -27,12 +27,12 @@ public:
 	//static int numberOfLeadingZeros(int i);
 	//static int bitCount(int i);
 
-	static int parseInt(UnicodeString* string);
-	static int parseInt(UnicodeString* string, int radix);
+	static int parseInt(const UnicodeString* string);
+	static int parseInt(const UnicodeString* string, int radix);
 
 	static UnicodeString* toString(int i, int radix);
 protected:
-	static int parse(UnicodeString* string, int offset, int radix, bool negative);
+	static int parse(const UnicodeString* string, int offset, int radix, bool negative);
 
 public:
 	int hashCode() const noexcept;

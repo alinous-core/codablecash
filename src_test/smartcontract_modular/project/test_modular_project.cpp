@@ -26,5 +26,7 @@ TEST(TestModularProjectGroup, case01) {
 	File* baseDir = projectFolder.get(L"projectbase");
 
 	ModularSmartcontractProject project(baseDir);
+
+	// FIXME TestModularProjectGroup
 }
 

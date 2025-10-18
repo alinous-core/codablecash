@@ -57,7 +57,7 @@
 
 #include "bc_trx_balance/BalanceUtxo.h"
 
-#include "bc_smartcontract/NopSmartcontractTransaction.h"
+#include "transaction/NopSmartcontractTransaction.h"
 #include "setup/TestnetSetupper01.h"
 
 

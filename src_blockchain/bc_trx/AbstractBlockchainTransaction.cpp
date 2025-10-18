@@ -35,7 +35,7 @@
 #include "bc_block_body/CoinbaseTransaction.h"
 #include "bc_block_body/StakeBaseTransaction.h"
 
-#include "bc_smartcontract/NopSmartcontractTransaction.h"
+#include "transaction/NopSmartcontractTransaction.h"
 
 #include "base_timestamp/SystemTimestamp.h"
 

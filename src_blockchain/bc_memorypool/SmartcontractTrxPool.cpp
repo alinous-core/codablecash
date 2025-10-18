@@ -5,9 +5,10 @@
  *      Author: iizuka
  */
 
+#include "transaction/AbstractSmartcontractTransaction.h"
+
 #include "bc_memorypool/SmartcontractTrxPool.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
 
 namespace codablecash {
 

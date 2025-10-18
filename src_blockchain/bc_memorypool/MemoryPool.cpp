@@ -31,7 +31,7 @@
 
 #include "bc_base_trx_index/TransactionIdsListData.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 namespace codablecash {
 

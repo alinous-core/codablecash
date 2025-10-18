@@ -14,6 +14,8 @@ namespace codablecash {
 
 class JsonNumericValue : public AbstractJsonValue {
 public:
+	JsonNumericValue(const JsonNumericValue& inst);
+	explicit JsonNumericValue(int v);
 	JsonNumericValue();
 	virtual ~JsonNumericValue();
 
@@ -27,6 +29,9 @@ public:
 	int getValue() const noexcept {
 		return this->value;
 	}
+
+	virtual AbstractJsonObject* copy() const noexcept;
+	virtual bool equals(const AbstractJsonObject* other) const noexcept;
 
 private:
 	int value;

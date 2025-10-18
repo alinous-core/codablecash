@@ -20,7 +20,7 @@
 #include "bc/CodablecashNodeInstance.h"
 #include "bc/ExceptionThrower.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "bc_status_cache/BlockchainController.h"
 

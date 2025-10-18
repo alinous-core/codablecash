@@ -14,8 +14,10 @@ namespace codablecash {
 
 class ExecutableSmartcontractModule : public AbstractSmartcontractModule {
 public:
-	ExecutableSmartcontractModule();
+	explicit ExecutableSmartcontractModule(const UnicodeString* projectRelativePath);
 	virtual ~ExecutableSmartcontractModule();
+
+	virtual void load(const File* modulePath);
 };
 
 } /* namespace codablecash */

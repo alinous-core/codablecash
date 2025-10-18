@@ -57,7 +57,7 @@
 
 #include "bc_wallet_net_access/ClientFetchMempoolTrxAccess.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 namespace codablecash {
 

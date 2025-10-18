@@ -1,8 +1,8 @@
 {
-	"project:" : "Sample01",
+	"project" : "Sample01",
 	"executable" : "exec/",
 	
-	"libraries" : [{"name" : "mod01"}, {"name" : "mod02"}],
+	"libraries" : ["mod01", "mod02"],
 	
 	"author": "Tomohiro Iizuka",
 	"license": "MIT"

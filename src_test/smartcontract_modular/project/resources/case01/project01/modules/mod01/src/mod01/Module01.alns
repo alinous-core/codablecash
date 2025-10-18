@@ -1,0 +1,14 @@
+package sample;
+
+
+class Module01 {
+	public Module01() {
+		this.count = 3 * 2;
+	}
+	
+	public int main(){
+
+	}
+	
+	private int count = 0;
+}

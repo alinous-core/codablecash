@@ -6,7 +6,7 @@ add_subdirectory(modular_project)
 add_subdirectory(smartcontract_cache)
 add_subdirectory(smartcontract_executor)
 add_subdirectory(smartcontract_instance)
-
+add_subdirectory(transaction)
 
 message(STATUS "src_smartcontract_modular : ${__dirsrc}")
 

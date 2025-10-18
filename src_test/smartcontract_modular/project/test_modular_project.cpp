@@ -7,6 +7,10 @@
 #include "test_utils/t_macros.h"
 
 #include "modular_project/ModularSmartcontractProject.h"
+#include "modular_project/ModularConfigException.h"
+
+#include "../utils/ModularProjectUtils.h"
+
 
 using namespace codablecash;
 
@@ -21,12 +25,18 @@ TEST_GROUP(TestModularProjectGroup) {
 };
 
 TEST(TestModularProjectGroup, case01) {
-	File projectFolder = this->env->testCaseDir();
+	const File* projectFolder = this->env->getProjectRoot();
 
-	File* baseDir = projectFolder.get(L"projectbase");
+	ModularProjectUtils utils(L"src_test/smartcontract_modular/project/resources/case01/project01/", projectFolder);
+	const File* baseDir = utils.getFolder();
 
 	ModularSmartcontractProject project(baseDir);
-
-	// FIXME TestModularProjectGroup
+	project.loadProject();
 }
+
+
+TEST(TestModularProjectGroup, error01) {
+	testException<ModularConfigException>();
+}
+
 

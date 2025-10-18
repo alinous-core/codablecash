@@ -8,7 +8,7 @@
 #ifndef BC_SMARTCONTRACT_NOPSMARTCONTRACTTRANSACTION_H_
 #define BC_SMARTCONTRACT_NOPSMARTCONTRACTTRANSACTION_H_
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 namespace codablecash {
 

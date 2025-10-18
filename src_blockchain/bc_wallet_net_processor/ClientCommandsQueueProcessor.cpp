@@ -51,8 +51,6 @@ void ClientCommandsQueueProcessor::open(bool suspend) {
 }
 
 void ClientCommandsQueueProcessor::close() {
-	StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
-
 	if(this->thread != nullptr){
 		this->thread->setRunning(false);
 		this->thread->join();
@@ -62,6 +60,8 @@ void ClientCommandsQueueProcessor::close() {
 	}
 
 	if(this->queue != nullptr){
+		StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
+
 		this->queue->close();
 		delete this->queue;
 		this->queue = nullptr;

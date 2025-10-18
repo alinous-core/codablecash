@@ -4,8 +4,7 @@
  *  Created on: 2023/12/04
  *      Author: iizuka
  */
-
-#include "bc_smartcontract/NopSmartcontractTransaction.h"
+#include "transaction/NopSmartcontractTransaction.h"
 
 #include "bc_base/BalanceUnit.h"
 #include "bc_base/BinaryUtils.h"
@@ -18,6 +17,7 @@
 
 #include "bc_trx/TransactionId.h"
 #include "bc_trx/AbstractUtxo.h"
+
 
 namespace codablecash {
 

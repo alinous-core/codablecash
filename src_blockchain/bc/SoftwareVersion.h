@@ -10,6 +10,11 @@
 
 #include <cstdint>
 
+namespace alinous {
+class UnicodeString;
+}
+using namespace alinous;
+
 namespace codablecash {
 
 class SoftwareVersion {
@@ -29,7 +34,11 @@ public:
 
 	uint64_t toLongValue() const noexcept;
 
-private:
+	int compareTo(const SoftwareVersion* other) const noexcept;
+
+	static SoftwareVersion* parseString(const UnicodeString* str);
+
+protected:
 	int major;
 	int minor;
 	int patch;

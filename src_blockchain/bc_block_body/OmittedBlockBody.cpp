@@ -36,7 +36,7 @@
 
 #include "bc/ExceptionThrower.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 
 using namespace alinous;

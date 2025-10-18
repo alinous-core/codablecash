@@ -5,7 +5,7 @@
  *      Author: iizuka
  */
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 namespace codablecash {
 

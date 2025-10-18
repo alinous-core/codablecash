@@ -17,7 +17,8 @@
 
 #include "osenv/funcs.h"
 
-
+#include "transaction/SmartcontractModuleAddress.h"
+#include "transaction/SmartcontractInstanceAddress.h"
 
 namespace codablecash {
 
@@ -36,6 +37,12 @@ AbstractAddress* AbstractAddress::createFromBinary(ByteBuffer *in) {
 	switch(type){
 	case AbstractAddress::ADDRESS_TYPE_BALANCE:
 		ret = new BalanceAddress();
+		break;
+	case AbstractAddress::ADDRESS_TYPE_SMARTCONTRACT_MODULE:
+		ret = new SmartcontractModuleAddress();
+		break;
+	case AbstractAddress::ADDRESS_TYPE_SMARTCONTRACT_INSTANCE:
+		ret = new SmartcontractInstanceAddress();
 		break;
 	default:
 		return nullptr;

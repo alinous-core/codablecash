@@ -5,17 +5,16 @@
  *      Author: iizuka
  */
 
-#include <json/IJsonStream.h>
+#include "json/IJsonStream.h"
 
 namespace codablecash {
 
 IJsonStream::IJsonStream() {
-	// TODO Auto-generated constructor stub
 
 }
 
 IJsonStream::~IJsonStream() {
-	// TODO Auto-generated destructor stub
+
 }
 
 } /* namespace codablecash */

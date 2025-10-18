@@ -14,6 +14,7 @@ namespace codablecash {
 
 class JsonBooleanValue : public AbstractJsonValue {
 public:
+	JsonBooleanValue(const JsonBooleanValue& inst);
 	JsonBooleanValue();
 	virtual ~JsonBooleanValue();
 
@@ -28,6 +29,9 @@ public:
 	void setValue(bool value) {
 		this->value = value;
 	}
+
+	virtual AbstractJsonObject* copy() const noexcept;
+	virtual bool equals(const AbstractJsonObject* other) const noexcept;
 
 private:
 	bool value;

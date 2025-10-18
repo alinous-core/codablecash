@@ -14,8 +14,17 @@ namespace codablecash {
 
 class LibrarySmartcontractModule : public AbstractSmartcontractModule {
 public:
-	LibrarySmartcontractModule();
+	static constexpr const wchar_t* LIBRARY_NAME = L"libraryName";
+
+	explicit LibrarySmartcontractModule(const UnicodeString* projectRelativePath);
 	virtual ~LibrarySmartcontractModule();
+
+	virtual void load(const File* modulePath);
+
+	void setLibraryName(const UnicodeString* str) noexcept;
+
+private:
+	UnicodeString* libraryName;
 };
 
 } /* namespace codablecash */

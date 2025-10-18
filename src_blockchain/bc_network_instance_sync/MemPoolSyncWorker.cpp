@@ -38,9 +38,11 @@
 #include "bc_trx/AbstractControlTransaction.h"
 #include "bc_trx/AbstractInterChainCommunicationTansaction.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "bc/ISystemLogger.h"
+
+
 namespace codablecash {
 
 MemPoolSyncWorker::MemPoolSyncWorker(const NodeIdentifier* nodeId, NetworkNodeSync* parent, ISystemLogger* logger, const UnicodeString* name)

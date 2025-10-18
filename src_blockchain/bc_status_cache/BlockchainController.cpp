@@ -55,7 +55,7 @@
 #include "bc_trx/AbstractControlTransaction.h"
 #include "bc_trx/AbstractInterChainCommunicationTansaction.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 
 namespace codablecash {

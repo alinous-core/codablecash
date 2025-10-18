@@ -20,6 +20,7 @@ class AbstractJsonObject;
 
 class JsonArrayObject : public AbstractJsonContainer {
 public:
+	JsonArrayObject(const JsonArrayObject& inst);
 	JsonArrayObject();
 	virtual ~JsonArrayObject();
 
@@ -28,6 +29,11 @@ public:
 	}
 
 	void add(AbstractJsonObject* jsonObject) noexcept;
+	int size() const noexcept;
+	AbstractJsonObject* get(int pos) const noexcept;
+
+	virtual AbstractJsonObject* copy() const noexcept;
+	virtual bool equals(const AbstractJsonObject* other) const noexcept;
 
 private:
 	ArrayList<AbstractJsonObject>* list;

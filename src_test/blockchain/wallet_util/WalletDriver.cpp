@@ -39,7 +39,7 @@
 
 #include "pubsub_cmd/AbstractCommandResponse.h"
 
-#include "bc_smartcontract/NopSmartcontractTransaction.h"
+#include "transaction/NopSmartcontractTransaction.h"
 
 #include "bc_finalizer_trx/RegisterTicketTransaction.h"
 

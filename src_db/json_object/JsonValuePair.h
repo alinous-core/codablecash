@@ -17,6 +17,7 @@ class AbstractJsonValue;
 
 class JsonValuePair : public AbstractJsonObject {
 public:
+	JsonValuePair(const JsonValuePair& inst);
 	JsonValuePair();
 	virtual ~JsonValuePair();
 
@@ -33,6 +34,9 @@ public:
 	AbstractJsonObject* getValue() const noexcept {
 		return this->value;
 	}
+
+	virtual AbstractJsonObject* copy() const noexcept;
+	virtual bool equals(const AbstractJsonObject* other) const noexcept;
 
 private:
 	AbstractJsonValue* key;

@@ -109,7 +109,17 @@ JsonObject* JsonParser::jsonObject() {
 		checkTokenType(token, TokenType::BRACE_BEGIN, L"'{'");
 	}
 
+	bool readFinalToken = false;
 	while(true){
+		{
+			StackJsonToknizerForeseeReleaser __stack(this->tokenizer, false);
+			const AbstractJsonToken* token = foreseeToken();
+			if(token->getType() == TokenType::BRACE_END){
+				readFinalToken = true;
+				break;
+			}
+		}
+
 		JsonValuePair* pair = jsonValuePair();
 		obj->add(pair);
 
@@ -122,6 +132,10 @@ JsonObject* JsonParser::jsonObject() {
 			// check comma
 			checkTokenType(token, TokenType::COMMA, L"COMMA");
 		}
+	}
+
+	if(readFinalToken){
+		AbstractJsonToken* token = getToken(); __STP(token); // BRACE_END
 	}
 
 	return __STP_MV(obj);
@@ -138,6 +152,11 @@ bool JsonParser::testJsonObject(bool consume) {
 	while(true){
 		bool bl = testJsonValuePair(true);
 		if(!bl){
+			token = foreseeToken();
+			if(token->getType() == TokenType::BRACE_END){
+				break;
+			}
+
 			return false;
 		}
 
@@ -165,7 +184,17 @@ JsonArrayObject* JsonParser::jsonArrayObject() {
 		checkTokenType(token, TokenType::BRACKET_BEGIN, L"'['");
 	}
 
+	bool readFinalToken = false;
 	while(true){
+		{
+			StackJsonToknizerForeseeReleaser __stack(this->tokenizer, false);
+			const AbstractJsonToken* token = foreseeToken();
+			if(token->getType() == TokenType::BRACKET_END){
+				readFinalToken = true;
+				break;
+			}
+		}
+
 		AbstractJsonObject* obj = allObjects();
 		arrayObj->add(obj);
 
@@ -178,6 +207,10 @@ JsonArrayObject* JsonParser::jsonArrayObject() {
 			// check comma
 			checkTokenType(token, TokenType::COMMA, L"COMMA");
 		}
+	}
+
+	if(readFinalToken){
+		AbstractJsonToken* token = getToken(); __STP(token); // BRACKET_END
 	}
 
 	return __STP_MV(arrayObj);
@@ -194,6 +227,11 @@ bool JsonParser::testJsonArrayObject(bool consume) {
 	while(true){
 		bool bl = testAllObjects(true);
 		if(!bl){
+			token = foreseeToken();
+			if(token->getType() == TokenType::BRACKET_END){
+				break;
+			}
+
 			return false;
 		}
 

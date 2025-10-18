@@ -60,7 +60,7 @@
 
 #include "bc_trx/AbstractInterChainCommunicationTansaction.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "pow/PoWNonce.h"
 

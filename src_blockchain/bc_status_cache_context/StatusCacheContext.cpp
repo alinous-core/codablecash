@@ -64,7 +64,7 @@
 
 #include "bc_block/BlockHeaderId.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "bc_status_cache_lockin/ILockinManager.h"
 #include "bc_status_cache_lockin/LockInOperationData.h"

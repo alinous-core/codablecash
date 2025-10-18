@@ -43,7 +43,7 @@
 
 #include "bc_status_cache_lockin/LockinManager.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 
 namespace codablecash {

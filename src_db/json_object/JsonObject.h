@@ -20,6 +20,7 @@ class JsonValuePair;
 
 class JsonObject : public AbstractJsonContainer {
 public:
+	JsonObject(const JsonObject& inst);
 	JsonObject();
 	virtual ~JsonObject();
 
@@ -30,6 +31,11 @@ public:
 	void add(JsonValuePair* pair) noexcept;
 
 	const JsonValuePair* get(int pos) const noexcept;
+	const JsonValuePair* get(const wchar_t* name) const noexcept;
+	int size() const noexcept;
+
+	virtual AbstractJsonObject* copy() const noexcept;
+	virtual bool equals(const AbstractJsonObject* other) const noexcept;
 
 private:
 	ArrayList<JsonValuePair>* list;

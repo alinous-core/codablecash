@@ -44,7 +44,6 @@
 #include "bc_processor/CentralProcessor.h"
 
 #include "base_thread/SysMutex.h"
-
 #include "base_thread/StackUnlocker.h"
 
 #include "bc_memorypool/MemoryPool.h"
@@ -53,12 +52,14 @@
 
 #include "bc_trx/AbstractInterChainCommunicationTansaction.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "osenv/funcs.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+
 #include "bc/CodablecashSystemParam.h"
+
 namespace codablecash {
 
 BlockchainStatusCache::BlockchainStatusCache(const File* baseDir, const CodablecashSystemParam* config, MemoryPool* memPool, const File* tmpCacheBaseDir, ISystemLogger* logger) {

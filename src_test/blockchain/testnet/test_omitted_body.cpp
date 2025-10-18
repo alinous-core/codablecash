@@ -27,7 +27,7 @@
 
 #include "bc_trx/NopInterChainCommunicationTransaction.h"
 
-#include "bc_smartcontract/NopSmartcontractTransaction.h"
+#include "transaction/NopSmartcontractTransaction.h"
 
 #include "bc_block/Block.h"
 #include "bc_block/BlockHeader.h"
@@ -45,6 +45,7 @@
 
 #include "../utils/DebugCodablecashSystemParamSetup.h"
 #include "bc_block_body/OmittedBlockBodyFixer.h"
+
 
 
 using namespace codablecash;

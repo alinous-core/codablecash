@@ -20,7 +20,9 @@ namespace codablecash {
 
 class JsonStringValue : public AbstractJsonValue {
 public:
+	JsonStringValue(const JsonStringValue& inst);
 	JsonStringValue();
+	explicit JsonStringValue(const wchar_t* str);
 	virtual ~JsonStringValue();
 
 	virtual uint8_t getType() const noexcept {
@@ -28,6 +30,12 @@ public:
 	}
 
 	void setValue(const UnicodeString* value) noexcept;
+	const UnicodeString* getValue() const noexcept {
+		return this->value;
+	}
+
+	virtual AbstractJsonObject* copy() const noexcept;
+	virtual bool equals(const AbstractJsonObject* other) const noexcept;
 
 private:
 	UnicodeString* value;

@@ -24,6 +24,8 @@ public:
 	virtual ~AbstractJsonObject();
 
 	virtual uint8_t getType() const noexcept = 0;
+	virtual AbstractJsonObject* copy() const noexcept = 0;
+	virtual bool equals(const AbstractJsonObject* other) const noexcept = 0;
 };
 
 } /* namespace codablecash */

@@ -1,11 +1,20 @@
 {
 	"sourceFolders" : ["src/"],
-	"version" : "1.0",
+	"version" : "1.0.0",
 	
-	"mainPackage": "sample",
-	"mainClass" : "Sample01",
+	"instance" : {
+		"mainPackage": "sample",
+		"mainClass" : "Sample01",
+		"initializer" : {
+			"method" : "main",
+			"args" : []
+		},
+		"exportMethods" : []
+	},
 	
-	"dependencies": {
-	 	"typescript": "^5.8.3"
-  	}
+	"dependencies": [
+	 	{"name" : "module_01", "version" : "^1.0.0"},
+	 	{"name" : "module_02", "version" : "^1.0.0"}
+  	]
 }
+

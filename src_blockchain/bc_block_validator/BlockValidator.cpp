@@ -43,6 +43,7 @@
 #include "bc_trx/AbstractBalanceTransaction.h"
 #include "bc_trx/AbstractUtxo.h"
 #include "bc_trx/UtxoId.h"
+#include "bc_trx/AbstractInterChainCommunicationTansaction.h"
 
 #include "bc_blockstore/CodablecashBlockchain.h"
 
@@ -67,9 +68,9 @@
 
 #include "bc_base/AddressDescriptor.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
-#include "bc_trx/AbstractInterChainCommunicationTansaction.h"
+
 namespace codablecash {
 
 BlockValidator::BlockValidator(const Block* block, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl) {

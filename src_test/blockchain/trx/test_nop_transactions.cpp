@@ -8,9 +8,11 @@
 
 #include "bc_trx/NopInterChainCommunicationTransaction.h"
 
-#include "bc_smartcontract/NopSmartcontractTransaction.h"
+#include "transaction/NopSmartcontractTransaction.h"
 
 #include "bc_base/BalanceUnit.h"
+
+
 using namespace codablecash;
 //using namespace alinous;
 

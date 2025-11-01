@@ -298,7 +298,7 @@ int FunctionCallExpression::binarySize() const {
 	return total;
 }
 
-void FunctionCallExpression::toBinary(ByteBuffer* out) {
+void FunctionCallExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 
 	out->putShort(CodeElement::EXP_FUNCTIONCALL);
@@ -471,6 +471,24 @@ bool FunctionCallExpression::isSuperConstructorCall() const noexcept {
 	VariableIdentifier* valId = dynamic_cast<VariableIdentifier*>(this->name);
 
 	return valId != nullptr ? valId->isSuper() : false;
+}
+
+AbstractExpression* FunctionCallExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	FunctionCallExpression* inst = new FunctionCallExpression();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedName = this->name->generateGenericsImplement(input);
+	inst->setName(copiedName);
+
+	int maxLoop = this->args.size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractExpression* exp = this->args.get(i);
+		AbstractExpression* copiedExp = exp->generateGenericsImplement(input);
+
+		inst->addArgument(copiedExp);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

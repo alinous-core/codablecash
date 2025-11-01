@@ -64,7 +64,7 @@ int BitReverseExpression::binarySize() const {
 	return total;
 }
 
-void BitReverseExpression::toBinary(ByteBuffer* out) {
+void BitReverseExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::EXP_BIT_REV);
@@ -163,5 +163,14 @@ AbstractVmInstance* BitReverseExpression::interpret64Bit(VirtualMachine* vm) {
 	return PrimitiveReference::createLongReference(vm, result);
 }
 
+AbstractExpression* BitReverseExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	BitReverseExpression* inst = new BitReverseExpression();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copied = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copied);
+
+	return inst;
+}
 
 } /* namespace alinous */

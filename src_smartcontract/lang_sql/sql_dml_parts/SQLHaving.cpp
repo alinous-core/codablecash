@@ -86,7 +86,7 @@ int SQLHaving::binarySize() const {
 	return total;
 }
 
-void SQLHaving::toBinary(ByteBuffer* out) {
+void SQLHaving::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::SQL_PART_HAVING);

@@ -31,7 +31,7 @@ int SQLOrderBy::binarySize() const {
 	return total;
 }
 
-void SQLOrderBy::toBinary(ByteBuffer* out) {
+void SQLOrderBy::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->list);
 
 	out->putShort(CodeElement::SQL_PART_ORDER_BY);

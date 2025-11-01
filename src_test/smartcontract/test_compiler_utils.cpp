@@ -49,6 +49,7 @@ TEST(TestCompilerUtilsGroup, testGetClassName){
 	bool bl = cstr.equals(clazz);
 	CHECK(bl);
 
-	UnicodeString* clazz2 = TypeResolver::getClassName(&cstr);
-	CHECK(clazz2 == nullptr);
+	UnicodeString* clazz2 = TypeResolver::getClassName(&cstr); __STP(clazz2);
+	bl = cstr.equals(clazz2);
+	CHECK(bl);
 }

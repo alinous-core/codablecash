@@ -57,7 +57,7 @@ int SQLInExpression::binarySize() const {
 	return total;
 }
 
-void SQLInExpression::toBinary(ByteBuffer* out) {
+void SQLInExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->left);
 	checkNotNull(this->list);
 

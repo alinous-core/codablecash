@@ -99,7 +99,7 @@ int DoWhileStatement::binarySize() const {
 	return total;
 }
 
-void DoWhileStatement::toBinary(ByteBuffer* out) {
+void DoWhileStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 	checkNotNull(this->stmt);
 
@@ -173,6 +173,19 @@ bool DoWhileStatement::hasCtrlStatement() const noexcept {
 
 bool DoWhileStatement::hasConstructor() const noexcept {
 	return this->stmt->hasConstructor();
+}
+
+AbstractStatement* DoWhileStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	DoWhileStatement* inst = new DoWhileStatement();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedExp = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copiedExp);
+
+	AbstractStatement* copiedStmt = this->stmt->generateGenericsImplement(input);
+	inst->setStatement(copiedStmt);
+
+	return inst;
 }
 
 } /* namespace alinous */

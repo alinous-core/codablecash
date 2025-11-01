@@ -107,7 +107,7 @@ int SQLSelectTarget::binarySize() const {
 	return total;
 }
 
-void SQLSelectTarget::toBinary(ByteBuffer* out) {
+void SQLSelectTarget::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_PART_SELECT_TARGET);
 
 	out->put(this->wildcard ? 1 : 0);

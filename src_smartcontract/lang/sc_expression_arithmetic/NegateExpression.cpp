@@ -38,7 +38,7 @@ void NegateExpression::analyze(AnalyzeContext* actx) {
 	AbstractArithmeticExpression::analyze(actx);
 
 	AnalyzedType type = getType(actx);
-	if(!type.isPrimitiveInteger()){
+	if(!type.isPrimitiveInteger() && !type.isGenericsType()){
 		actx->addValidationError(ValidationError::CODE_ARITHMETIC_NON_INTEGER, this, L"Can not use arithmetic operator to non integer value.", {});
 	}
 }
@@ -52,7 +52,7 @@ int NegateExpression::binarySize() const {
 	return total;
 }
 
-void NegateExpression::toBinary(ByteBuffer* out) {
+void NegateExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::EXP_NEGATE);
@@ -149,6 +149,14 @@ AbstractVmInstance* NegateExpression::interpret64Bit(VirtualMachine* vm) {
 	PrimitiveReference* retValue = PrimitiveReference::createLongReference(vm, val);
 
 	return retValue;
+}
+
+AbstractExpression* NegateExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	NegateExpression* inst = new NegateExpression();
+	inst->copyCodePositions(this);
+	inst->importMembers(this, input);
+
+	return inst;
 }
 
 } /* namespace alinous */

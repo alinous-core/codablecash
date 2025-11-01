@@ -62,7 +62,7 @@ int AlterModifyCommand::binarySize() const {
 	return total;
 }
 
-void AlterModifyCommand::toBinary(ByteBuffer* out) {
+void AlterModifyCommand::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->columnDescriptor);
 
 	out->putShort(CodeElement::DDL_ALTER_MODIFY);

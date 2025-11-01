@@ -33,6 +33,8 @@ public:
 	static const constexpr uint8_t TYPE_DOM_VALUE_PAIR{31};
 	static const constexpr uint8_t TYPE_DOM_VALUE{32};
 
+	static const constexpr uint8_t TYPE_GENERICS_TYPE{101};
+
 
 	static const UnicodeString SIG_BOOL;
 	static const UnicodeString SIG_BYTE;
@@ -52,10 +54,19 @@ public:
 
 	virtual ~AnalyzedType();
 
+	void setAnalyzedClass(AnalyzedClass* aclass) noexcept;
 	AnalyzedClass* getAnalyzedClass() const noexcept;
+
+	void setGenericsType(const UnicodeString* genericsType);
+	const UnicodeString* getGenericsType() const noexcept {
+		return this->genericsType;
+	}
+
 	uint8_t getType() const noexcept;
 	const UnicodeString* stringName() noexcept;
 	const UnicodeString* getSignatureName() noexcept;
+
+	bool isGenericsType() const noexcept;
 
 	bool isVoid() const noexcept;
 	bool isPrimitiveInteger() const noexcept;
@@ -77,6 +88,7 @@ private:
 	uint8_t type;
 	AnalyzedClass* aclazz; // reference
 	int dim;
+	UnicodeString* genericsType;
 
 	UnicodeString* str;
 };

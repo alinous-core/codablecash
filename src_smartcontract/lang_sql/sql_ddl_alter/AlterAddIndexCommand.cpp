@@ -84,7 +84,7 @@ int AlterAddIndexCommand::binarySize() const {
 	return total;
 }
 
-void AlterAddIndexCommand::toBinary(ByteBuffer* out) {
+void AlterAddIndexCommand::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 
 	out->putShort(CodeElement::DDL_ALTER_ADD_INDEX);

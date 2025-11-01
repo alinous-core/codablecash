@@ -49,4 +49,24 @@ VmMethodNotFoundException::VmMethodNotFoundException(const wchar_t* message, Exc
 VmMethodNotFoundException::~VmMethodNotFoundException() {
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+const wchar_t* VmClassNotFoundException::defaultMessage = L"Class is not found. ";
+
+VmClassNotFoundException::VmClassNotFoundException(const char* srcfile, int srcline) noexcept : Exception(srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+}
+VmClassNotFoundException::VmClassNotFoundException(Exception* cause, const char* srcfile, int srcline) noexcept : Exception(cause, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+}
+VmClassNotFoundException::VmClassNotFoundException(const wchar_t* message, const char* srcfile, int srcline) noexcept : Exception(message, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+	this->message->append(message);
+}
+VmClassNotFoundException::VmClassNotFoundException(const wchar_t* message, Exception* cause, const char* srcfile, int srcline) noexcept : Exception(message, cause, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+	this->message->append(message);
+}
+VmClassNotFoundException::~VmClassNotFoundException() {
+}
+
 } /* namespace alinous */

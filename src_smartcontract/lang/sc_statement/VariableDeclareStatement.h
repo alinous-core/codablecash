@@ -31,11 +31,13 @@ public:
 	AnalyzedType getType() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual void init(VirtualMachine* vm);
 	virtual void interpret(VirtualMachine* vm);
+
+	virtual AbstractStatement* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 	virtual bool hasCtrlStatement() const noexcept;
 

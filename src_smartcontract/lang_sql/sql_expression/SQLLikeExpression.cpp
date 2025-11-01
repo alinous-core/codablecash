@@ -66,7 +66,7 @@ int SQLLikeExpression::binarySize() const {
 	return total;
 }
 
-void SQLLikeExpression::toBinary(ByteBuffer* out) {
+void SQLLikeExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->left);
 	checkNotNull(this->right);
 

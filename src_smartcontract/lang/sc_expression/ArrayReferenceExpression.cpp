@@ -30,6 +30,7 @@
 
 #include "instance/IAbstractVmInstanceSubstance.h"
 
+#include "base/StackRelease.h"
 
 namespace alinous {
 
@@ -147,7 +148,7 @@ int ArrayReferenceExpression::binarySize() const {
 	return total;
 }
 
-void ArrayReferenceExpression::toBinary(ByteBuffer* out) {
+void ArrayReferenceExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 	out->putShort(CodeElement::EXP_ARRAY_REF);
 
@@ -163,9 +164,11 @@ void ArrayReferenceExpression::toBinary(ByteBuffer* out) {
 }
 
 void ArrayReferenceExpression::fromBinary(ByteBuffer* in) {
-	CodeElement* element = createFromBinary(in);
-	checkIsExp(element);
+	CodeElement* element = createFromBinary(in); __STP(element);
+
 	this->exp = dynamic_cast<AbstractExpression*>(element);
+	checkNotNull(this->exp);
+	__STP_MV(element);
 
 	int maxLoop = in->getInt();
 	for(int i = 0; i != maxLoop; ++i){
@@ -302,6 +305,24 @@ AbstractVmInstance* ArrayReferenceExpression::interpretDomArray(VirtualMachine* 
 	DomRuntimeReference* rr = domArray->get(idx);
 
 	return rr;
+}
+
+AbstractExpression* ArrayReferenceExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ArrayReferenceExpression* inst = new ArrayReferenceExpression();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copied = exp->generateGenericsImplement(input);
+	inst->setExp(copied);
+
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractExpression* ex = this->list.get(i);
+		copied = ex->generateGenericsImplement(input);
+
+		inst->addIndex(copied);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

@@ -141,7 +141,7 @@ int CatchStatement::binarySize() const {
 	return total;
 }
 
-void CatchStatement::toBinary(ByteBuffer* out) {
+void CatchStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->variableDeclare);
 	checkNotNull(this->block);
 
@@ -175,6 +175,19 @@ bool CatchStatement::hasConstructor() const noexcept {
 	bool ret = this->block->hasConstructor();
 
 	return ret;
+}
+
+AbstractStatement* CatchStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	CatchStatement* inst = new CatchStatement();
+	inst->copyCodePositions(this);
+
+	StatementBlock* copiedStatementBlock = dynamic_cast<StatementBlock*>(this->block->generateGenericsImplement(input));
+	inst->setBlock(copiedStatementBlock);
+
+	VariableDeclareStatement* copiedVariavleDeclare = dynamic_cast<VariableDeclareStatement*>(this->variableDeclare->generateGenericsImplement(input));
+	inst->setVariableDeclare(copiedVariavleDeclare);
+
+	return inst;
 }
 
 } /* namespace alinous */

@@ -66,7 +66,7 @@ int ClassExtends::binarySize() const {
 	return total;
 }
 
-void ClassExtends::toBinary(ByteBuffer* out) {
+void ClassExtends::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->className);
 
 	out->putShort(CodeElement::CLASS_EXTENDS);
@@ -78,6 +78,16 @@ void ClassExtends::fromBinary(ByteBuffer* in) {
 	CodeElement::checkKind(element, CodeElement::CLASS_NAME);
 
 	this->className = dynamic_cast<ClassName*>(element);
+}
+
+ClassExtends* ClassExtends::generateGenericsImplement(HashMap<UnicodeString, AbstractType>* input) const {
+	ClassExtends* extends = new ClassExtends();
+	extends->copyCodePositions(this);
+
+	ClassName* name = new ClassName(*this->className);
+	extends->setClassName(name);
+
+	return extends;
 }
 
 } /* namespace alinous */

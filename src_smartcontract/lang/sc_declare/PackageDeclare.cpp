@@ -37,7 +37,7 @@ int PackageDeclare::binarySize() const {
 	return total;
 }
 
-void PackageDeclare::toBinary(ByteBuffer* out) {
+void PackageDeclare::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::PACKAGE_DECLARE);
 
 	this->name->toBinary(out);
@@ -50,5 +50,13 @@ void PackageDeclare::fromBinary(ByteBuffer* in) {
 	this->name = dynamic_cast<PackageNameDeclare*>(nm);
 }
 
+PackageDeclare* PackageDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) {
+	PackageDeclare* inst = new PackageDeclare();
+	inst->copyCodePositions(this);
+
+	inst->setName(this->name->generateGenericsImplement(input));
+
+	return inst;
+}
 
 } /* namespace alinous */

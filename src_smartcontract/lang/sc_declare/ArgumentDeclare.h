@@ -10,19 +10,24 @@
 
 #include "engine/sc/CodeElement.h"
 
+#include "base/HashMap.h"
+
 namespace alinous {
 
 class AbstractType;
 class UnicodeString;
 class AnalyzeContext;
 class AnalyzedType;
+class AbstractType;
 
 class ArgumentDeclare : public CodeElement {
 public:
 	ArgumentDeclare();
 	virtual ~ArgumentDeclare();
 
+	void preAnalyze(AnalyzeContext* actx);
 	void analyzeTypeRef(AnalyzeContext* actx);
+	void analyze(AnalyzeContext* actx);
 
 	void setType(AbstractType* type) noexcept;
 	void setName(UnicodeString* name) noexcept;
@@ -31,8 +36,10 @@ public:
 	const UnicodeString* getName() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	ArgumentDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 private:
 	AbstractType* type;

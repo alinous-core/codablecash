@@ -82,7 +82,7 @@ int SubstitutionStatement::binarySize() const {
 	return total;
 }
 
-void SubstitutionStatement::toBinary(ByteBuffer* out) {
+void SubstitutionStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->variable);
 	checkNotNull(this->exp);
 
@@ -145,5 +145,17 @@ bool SubstitutionStatement::hasCtrlStatement() const noexcept {
 	return this->bctrl;
 }
 
+AbstractStatement* SubstitutionStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	SubstitutionStatement* inst = new SubstitutionStatement();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedExp = this->variable->generateGenericsImplement(input);
+	inst->setVariableId(copiedExp);
+
+	copiedExp = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copiedExp);
+
+	return inst;
+}
 
 } /* namespace alinous */

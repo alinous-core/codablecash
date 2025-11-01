@@ -69,7 +69,7 @@ int SQLFunctionCall::binarySize() const {
 	return total;
 }
 
-void SQLFunctionCall::toBinary(ByteBuffer* out) {
+void SQLFunctionCall::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 
 	out->putShort(CodeElement::SQL_EXP_FUNCTION_CALL);

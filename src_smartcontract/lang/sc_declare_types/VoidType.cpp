@@ -6,6 +6,7 @@
  */
 
 #include "lang/sc_declare_types/VoidType.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
 
 #include "base/UnicodeString.h"
 
@@ -38,5 +39,15 @@ const UnicodeString* VoidType::toString() noexcept {
 	return &TYPE_NAME;
 }
 
+AbstractType* VoidType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	VoidType* inst = new VoidType();
+	inst->copyCodePositions(this);
+	return inst;
+}
+
+void VoidType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
+}
 
 } /* namespace alinous */

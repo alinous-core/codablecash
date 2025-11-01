@@ -40,7 +40,7 @@ int ParenthesisJoinPart::binarySize() const {
 	return total;
 }
 
-void ParenthesisJoinPart::toBinary(ByteBuffer* out) {
+void ParenthesisJoinPart::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->part);
 
 	out->putShort(CodeElement::SQL_EXP_PARENTHESIS_JOIN_PART);

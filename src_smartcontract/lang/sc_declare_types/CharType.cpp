@@ -6,8 +6,10 @@
  */
 
 #include "lang/sc_declare_types/CharType.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
 
 #include "base/UnicodeString.h"
+
 
 namespace alinous {
 
@@ -26,7 +28,7 @@ int CharType::binarySize() const {
 	return total;
 }
 
-void CharType::toBinary(ByteBuffer* out) {
+void CharType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_CHAR);
 	AbstractType::toBinary(out);
 }
@@ -39,5 +41,15 @@ const UnicodeString* CharType::toString() noexcept {
 	return &TYPE_NAME;
 }
 
+AbstractType* CharType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	CharType* inst = new CharType();
+	inst->copyCodePositions(this);
+	return inst;
+}
+
+void CharType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
+}
 
 } /* namespace alinous */

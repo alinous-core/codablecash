@@ -32,6 +32,16 @@ public:
 	static const wchar_t* defaultMessage;
 };
 
+class VmClassNotFoundException : public Exception{
+public:
+	VmClassNotFoundException(const char* srcfile, int srcline) noexcept;
+	VmClassNotFoundException(Exception* cause, const char* srcfile, int srcline) noexcept;
+	VmClassNotFoundException(const wchar_t* message, const char* srcfile, int srcline) noexcept;
+	VmClassNotFoundException(const wchar_t* message, Exception* cause, const char* srcfile, int srcline) noexcept;
+	virtual ~VmClassNotFoundException();
+	static const wchar_t* defaultMessage;
+};
+
 } /* namespace alinous */
 
 #endif /* VM_EXCEPTIONS_H_ */

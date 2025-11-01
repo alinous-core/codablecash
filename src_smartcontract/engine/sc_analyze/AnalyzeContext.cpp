@@ -5,14 +5,13 @@
  *      Author: iizuka
  */
 #include "engine/sc_analyze/AnalyzeContext.h"
-#include "base/Iterator.h"
-#include "base/UnicodeString.h"
-
 #include "engine/sc_analyze/PackageSpace.h"
 #include "engine/sc_analyze/ValidationError.h"
 #include "engine/sc_analyze_stack/AnalyzeStackManager.h"
 #include "engine/sc_analyze/TypeResolver.h"
 #include "engine/sc_analyze/AnalyzedClass.h"
+#include "engine/sc_analyze/GeneratedGenericsTypeHolder.h"
+#include "engine/sc_analyze/AnalyzedType.h"
 
 #include "engine/sc_analyze_functions/VTableRegistory.h"
 #include "engine/sc_analyze_functions/VTableClassEntry.h"
@@ -28,12 +27,17 @@
 #include "engine/sc/SmartContract.h"
 
 #include "base/StackRelease.h"
+#include "base/Iterator.h"
+#include "base/UnicodeString.h"
 
 #include "instance/reserved_classes/ReservedClassRegistory.h"
 
+#include "instance/instance_ref_class_static_meta/StaticClassMetadataHolder.h"
+
 #include "vm/VirtualMachine.h"
 
-#include "instance/instance_ref_class_static_meta/StaticClassMetadataHolder.h"
+#include "lang/sc_declare_types/AbstractType.h"
+#include "lang/sc_declare_types/GenericsObjectType.h"
 
 
 namespace alinous {
@@ -46,10 +50,11 @@ AnalyzeContext::AnalyzeContext(SmartContract* sc) {
 	this->thisClasses = new ArrayList<AnalyzedClass>();
 	this->vtableReg = new VTableRegistory();
 	this->current = nullptr;
-	this->tmpArrayType = nullptr;
 	this->staticVariablesHolder = new StaticClassMetadataHolder();
+	this->genericsHolder = new GeneratedGenericsTypeHolder();
 
 	this->vm = nullptr;
+	this->tempAtype = nullptr;
 }
 
 AnalyzeContext::~AnalyzeContext() {
@@ -65,6 +70,8 @@ AnalyzeContext::~AnalyzeContext() {
 	delete it;
 
 	delete this->packageSpaces;
+
+	delete this->genericsHolder;
 
 	this->verrorList.deleteElements();
 	delete this->stack;
@@ -272,20 +279,37 @@ CodeElement* AnalyzeContext::getCurrentElement() const noexcept {
 	return this->current;
 }
 
-void AnalyzeContext::setTmpArrayType(AnalyzedType* tmpArrayType) noexcept {
-	this->tmpArrayType = tmpArrayType;
-}
-
-AnalyzedType* AnalyzeContext::getTmpArrayType() const noexcept {
-	return this->tmpArrayType;
-}
-
 ReservedClassRegistory* AnalyzeContext::getReservedClassRegistory() const noexcept {
 	return this->sc->getReservedClassRegistory();
 }
 
 StaticClassMetadataHolder* AnalyzeContext::getStaticVariableHolder() const noexcept {
 	return this->staticVariablesHolder;
+}
+
+void AnalyzeContext::detectGenericsType(AbstractType *atype) {
+	if(!atype->isGenericsType()){
+		return;
+	}
+
+	GenericsObjectType* gtype = dynamic_cast<GenericsObjectType*>(atype);
+	this->genericsHolder->addAbstractTypeCandidate(gtype);
+}
+
+void AnalyzeContext::generateGenericsClasses() {
+	this->genericsHolder->generateGeneratedGenericsClassDeclare(this);
+}
+
+void AnalyzeContext::preAnalyzeGenerics() {
+	this->genericsHolder->preAnalyzeGenerics(this);
+}
+
+void AnalyzeContext::analyzeTypeRefGenerics() {
+	this->genericsHolder->analyzeTypeRefGenerics(this);
+}
+
+void AnalyzeContext::analyzeGenerics() {
+	this->genericsHolder->analyzeGenerics(this);
 }
 
 } /* namespace alinous */

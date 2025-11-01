@@ -10,6 +10,8 @@
 
 #include "engine/sc/CodeElement.h"
 
+#include "base/HashMap.h"
+
 namespace alinous {
 
 class AnalyzeContext;
@@ -17,6 +19,7 @@ class AnalyzedType;
 class VirtualMachine;
 class AbstractVmInstance;
 class VariableInstractionHolder;
+class AbstractType;
 
 class AbstractExpression: public CodeElement {
 public:
@@ -32,6 +35,7 @@ public:
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm) = 0;
 
 	virtual bool isExecutable();
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const = 0;
 
 	bool isStaticMode() noexcept;
 

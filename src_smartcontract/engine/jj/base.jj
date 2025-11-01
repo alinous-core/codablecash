@@ -140,8 +140,11 @@ PackageNameDeclare* packageNameDeclare() :
 ClassDeclare* classDeclare() :
 {
 	ClassDeclare* clazz = nullptr;
+	GenericsClassDeclare* gclazz = nullptr;
+	GenericsParameter* param = nullptr;
 	Token* cls = nullptr;
 	Token* name = nullptr;
+	ClassName* genericsExtendsName = nullptr;
 	ClassDeclareBlock* block = nullptr;
 	Token* t = nullptr;
 	ClassExtends* clsextends = nullptr;
@@ -162,6 +165,62 @@ ClassDeclare* classDeclare() :
 	name=<IDENTIFIER> {
 		 clazz->setName(_STR(name));
 	}
+	
+	[
+		t=<LT>{
+			gclazz = new GenericsClassDeclare();
+			gclazz->setName(new UnicodeString(clazz->getName())); // copy class name
+			
+			delete clazz;
+			clazz = gclazz;
+		}
+		
+		name=<IDENTIFIER>{
+			param = new GenericsParameter();
+			param->setPosition(name);
+			param->setGenericsName(_STR(name));
+			
+			gclazz->addGenericsParameter(param);
+		}
+		
+		[
+			t=<EXTENDS> {
+				param->setPosition(t);
+			}
+			
+			genericsExtendsName=className()	{
+				param->setGenericsExtendsName(genericsExtendsName);
+				param->setPosition(genericsExtendsName);
+			}
+		]
+		
+		(
+			t=<COMMA>{
+				param = new GenericsParameter();
+				param->setPosition(t);
+			}
+
+			
+			name=<IDENTIFIER>{
+				param->setPosition(name);
+				param->setGenericsName(_STR(name));
+				
+				gclazz->addGenericsParameter(param);
+			}
+			
+			[
+				t=<EXTENDS> {
+					param->setPosition(t);
+				}
+				
+				genericsExtendsName=className()	{
+					param->setGenericsExtendsName(genericsExtendsName);
+					param->setPosition(genericsExtendsName);
+				}
+			]
+		)*
+		t=<GT>
+	]
 	
 	[
 		clsextends=classExtends() {

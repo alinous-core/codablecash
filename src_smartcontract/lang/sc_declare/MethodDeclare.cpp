@@ -71,6 +71,12 @@ void MethodDeclare::preAnalyze(AnalyzeContext* actx) {
 			this->block->adjustDecalutConstructorCall(actx);
 		}
 	}
+
+	if(this->type != nullptr){
+		this->type->preAnalyze(actx);
+		this->type->setParent(this);
+		actx->detectGenericsType(this->type);
+	}
 }
 
 void MethodDeclare::analyzeTypeRef(AnalyzeContext* actx) {
@@ -97,6 +103,10 @@ void MethodDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 
 		this->block->analyzeTypeRef(actx);
 	}
+
+	if(this->type != nullptr){
+		this->type->analyzeTypeRef(actx);
+	}
 }
 
 void MethodDeclare::analyze(AnalyzeContext* actx) {
@@ -107,6 +117,10 @@ void MethodDeclare::analyze(AnalyzeContext* actx) {
 
 	if(this->block != nullptr){
 		this->block->analyze(actx);
+	}
+
+	if(this->type != nullptr){
+		this->type->analyze(actx);
 	}
 }
 
@@ -145,7 +159,7 @@ bool MethodDeclare::isConstructor() const {
 	//	throw new MulformattedScBinaryException(__FILE__, __LINE__);
 	//}
 
-	const UnicodeString* clsName = dec->getName();
+	const UnicodeString* clsName = dec->getConstructorName();
 	return clsName->equals(this->name);
 }
 
@@ -200,7 +214,7 @@ int MethodDeclare::binarySize() const {
 	return total;
 }
 
-void MethodDeclare::toBinary(ByteBuffer* out) {
+void MethodDeclare::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 	checkNotNull(this->ctrl);
 	checkNotNull(this->type);
@@ -289,6 +303,32 @@ const UnicodeString* MethodDeclare::toString() {
 	}
 
 	return this->strName;
+}
+
+MethodDeclare* MethodDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	MethodDeclare* inst = new MethodDeclare();
+	inst->copyCodePositions(this);
+
+	AccessControlDeclare* copiedAccess = this->ctrl->generateGenericsImplement(input);
+	inst->setAccessControl(copiedAccess);
+
+	if(this->type != nullptr){
+		AbstractType* copiedType = this->type->generateGenericsImplement(input);
+		inst->setType(copiedType);
+	}
+
+	inst->setName(new UnicodeString(this->name));
+	inst->setStatic(this->_static);
+
+	ArgumentsListDeclare* copiedArgs = this->args->generateGenericsImplement(input);
+	inst->setArguments(copiedArgs);
+
+	if(this->block != nullptr){
+		StatementBlock* copiedStmt = dynamic_cast<StatementBlock*>(this->block->generateGenericsImplement(input));
+		inst->setBlock(copiedStmt);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

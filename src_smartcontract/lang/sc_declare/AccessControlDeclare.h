@@ -10,7 +10,11 @@
 
 #include "engine/sc/CodeElement.h"
 
+#include "base/HashMap.h"
+
 namespace alinous {
+
+class AbstractType;
 
 class AccessControlDeclare : public CodeElement {
 public:
@@ -24,8 +28,10 @@ public:
 	void setCtrl(char ctrl) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	AccessControlDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 private:
 	char accessCtrl;

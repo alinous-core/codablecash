@@ -14,6 +14,7 @@
 namespace alinous {
 class ImportDeclare;
 class AnalyzeContext;
+class AbstractType;
 
 class ImportsDeclare : public CodeElement {
 public:
@@ -21,14 +22,19 @@ public:
 	virtual ~ImportsDeclare();
 
 	void addImport(ImportDeclare* imp) noexcept;
+	//bool hasImportClass(const UnicodeString* fqn);
 
 	void preAnalyze(AnalyzeContext* actx);
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	const ArrayList<ImportDeclare>* getImports() const noexcept;
+
+	ImportsDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input);
+	void replaceImport(const UnicodeString* from, const UnicodeString* to);
+
 private:
 	ArrayList<ImportDeclare> list;
 };

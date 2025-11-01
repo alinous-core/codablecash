@@ -74,7 +74,7 @@ int SQLColumnIdentifier::binarySize() const {
 	return total;
 }
 
-void SQLColumnIdentifier::toBinary(ByteBuffer* out) {
+void SQLColumnIdentifier::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->columnName);
 
 	out->putShort(CodeElement::SQL_EXP_COLUMN_ID);

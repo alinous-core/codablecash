@@ -64,7 +64,7 @@ int SQLBetweenExpression::binarySize() const {
 	return total;
 }
 
-void SQLBetweenExpression::toBinary(ByteBuffer* out) {
+void SQLBetweenExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->left);
 	checkNotNull(this->start);
 	checkNotNull(this->end);

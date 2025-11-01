@@ -19,6 +19,7 @@ class ImportsDeclare;
 class AnalyzeContext;
 class UnicodeString;
 class VirtualMachine;
+class AbstractType;
 
 class CompilationUnit : public CodeElement {
 public:
@@ -40,8 +41,11 @@ public:
 	ImportsDeclare* getImportDeclare() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	CompilationUnit* generateGenericsImplement(HashMap<UnicodeString, AbstractType>* input);
+
 private:
 	PackageDeclare* package;
 	ImportsDeclare* imports;

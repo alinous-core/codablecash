@@ -17,6 +17,8 @@
 #include "lang/sc_declare/ArgumentDeclare.h"
 #include "lang/sc_declare/ClassDeclare.h"
 #include "lang/sc_declare/ClassDeclareBlock.h"
+#include "lang/sc_declare/GenericsClassDeclare.h"
+#include "lang/sc_declare/GenericsParameter.h"
 #include "lang/sc_declare/MemberVariableDeclare.h"
 #include "lang/sc_declare/MethodDeclare.h"
 #include "lang/sc_declare/PackageDeclare.h"
@@ -37,6 +39,7 @@
 #include "lang/sc_declare_types/VoidType.h"
 #include "lang/sc_declare_types/ObjectType.h"
 #include "lang/sc_declare_types/DomType.h"
+#include "lang/sc_declare_types/GenericsObjectType.h"
 
 #include "lang/sc_statement/ExpressionStatement.h"
 #include "lang/sc_statement/StatementBlock.h"

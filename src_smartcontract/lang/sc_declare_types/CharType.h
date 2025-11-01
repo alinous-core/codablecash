@@ -20,10 +20,13 @@ public:
 	virtual ~CharType();
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual const UnicodeString* toString() noexcept;
+	virtual AbstractType* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
+	virtual void visit(ITypeVisitor* visitor);
 };
 
 } /* namespace alinous */

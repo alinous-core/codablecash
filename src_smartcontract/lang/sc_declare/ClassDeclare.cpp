@@ -37,6 +37,16 @@ ClassDeclare::ClassDeclare() : CodeElement(CodeElement::CLASS_DECLARE) {
 	this->fqn = nullptr;
 }
 
+ClassDeclare::ClassDeclare(short kind) : CodeElement(kind) {
+	this->interface = false;
+	this->block = nullptr;
+	this->name = nullptr;
+	this->extends = nullptr;
+	this->implements = nullptr;
+	this->inheritIndex = -1;
+	this->fqn = nullptr;
+}
+
 ClassDeclare::~ClassDeclare() {
 	if(this->block != nullptr){
 		delete this->block;
@@ -50,6 +60,8 @@ ClassDeclare::~ClassDeclare() {
 }
 
 void ClassDeclare::preAnalyze(AnalyzeContext* actx) {
+	this->block->setParent(this);
+
 	if(!this->interface){
 		addDefaultConstructor();
 	}
@@ -76,7 +88,6 @@ void ClassDeclare::preAnalyze(AnalyzeContext* actx) {
 		this->implements->preAnalyze(actx);
 	}
 
-	this->block->setParent(this);
 	this->block->preAnalyze(actx);
 }
 
@@ -175,6 +186,7 @@ void ClassDeclare::init(VirtualMachine* vm) {
 }
 
 void ClassDeclare::setBlock(ClassDeclareBlock* block) noexcept {
+	delete this->block;
 	this->block = block;
 }
 
@@ -182,7 +194,7 @@ void alinous::ClassDeclare::setName(UnicodeString* name) noexcept {
 	this->name = name;
 }
 
-const UnicodeString* ClassDeclare::getName() noexcept {
+const UnicodeString* ClassDeclare::getName() const noexcept {
 	return this->name;
 }
 
@@ -229,12 +241,22 @@ int ClassDeclare::binarySize() const {
 	return total;
 }
 
-void ClassDeclare::toBinary(ByteBuffer* out) {
+void ClassDeclare::toBinary(ByteBuffer* out) const {
+	toBinaryCheck(out);
+	toBinaryHead(out);
+	toBinaryBody(out);
+}
+
+void ClassDeclare::toBinaryCheck(ByteBuffer *out) const {
 	checkNotNull(this->name);
 	checkNotNull(this->block);
+}
 
-	out->putShort(CodeElement::CLASS_DECLARE);
+void ClassDeclare::toBinaryHead(ByteBuffer *out) const {
+	out->putShort(this->kind);
+}
 
+void ClassDeclare::toBinaryBody(ByteBuffer *out) const {
 	putString(out, this->name);
 
 	out->put(this->block != nullptr ? (uint8_t)1 : (uint8_t)0);
@@ -326,6 +348,43 @@ ArrayList<MemberVariableDeclare>* ClassDeclare::getMemberVariables() noexcept {
 
 IVmInstanceFactory* alinous::ClassDeclare::getFactory() const noexcept {
 	return nullptr;
+}
+
+ClassDeclare* ClassDeclare::generateClassDeclare(HashMap<UnicodeString, AbstractType> *input) {
+	ClassDeclare* clazz = new ClassDeclare();
+	clazz->copyCodePositions(this);
+
+	// interface
+	clazz->setInterface(this->interface);
+
+	// block
+	if(this->block != nullptr){
+		ClassDeclareBlock* block = this->block->generateGenericsImplement(input);
+		clazz->setBlock(block);
+	}
+
+	// name
+	UnicodeString* name = new UnicodeString(this->name);
+	clazz->setName(name);
+
+	// extends
+	if(this->extends != nullptr){
+		ClassExtends* ex = this->extends->generateGenericsImplement(input);
+		clazz->setExtends(ex);
+	}
+
+	// implements
+	if(this->implements != nullptr){
+		ClassImplements* implements = this->implements->generateGenericsImplement(input);
+		clazz->setImplements(implements);
+	}
+
+	return clazz;
+
+}
+
+const UnicodeString* ClassDeclare::getConstructorName() const noexcept {
+	return getName();
 }
 
 } /* namespace alinous */

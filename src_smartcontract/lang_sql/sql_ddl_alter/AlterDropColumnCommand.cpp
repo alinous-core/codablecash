@@ -53,7 +53,7 @@ int AlterDropColumnCommand::binarySize() const {
 	return total;
 }
 
-void AlterDropColumnCommand::toBinary(ByteBuffer* out) {
+void AlterDropColumnCommand::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 
 	out->putShort(CodeElement::DDL_ALTER_DROP_COLUMN);

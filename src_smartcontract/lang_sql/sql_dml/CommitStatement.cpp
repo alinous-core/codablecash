@@ -39,7 +39,7 @@ int CommitStatement::binarySize() const {
 	return total;
 }
 
-void CommitStatement::toBinary(ByteBuffer* out) {
+void CommitStatement::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::DML_STMT_COMMIT);
 }
 

@@ -63,7 +63,7 @@ DatabaseExceptionClassDeclare::~DatabaseExceptionClassDeclare() {
 
 }
 
-const UnicodeString* DatabaseExceptionClassDeclare::getName() noexcept {
+const UnicodeString* DatabaseExceptionClassDeclare::getName() const noexcept {
 	return &NAME;
 }
 

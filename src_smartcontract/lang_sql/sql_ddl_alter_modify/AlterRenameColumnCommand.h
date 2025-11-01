@@ -22,7 +22,7 @@ public:
 	void setNewName(UnicodeString* name) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual AbstractAlterCommandLog* getCommandLog(VirtualMachine* vm);

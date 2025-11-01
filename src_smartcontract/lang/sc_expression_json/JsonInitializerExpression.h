@@ -32,8 +32,10 @@ public:
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm);
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 private:
 	ArrayList<JsonKeyValuePairExpression>* elements;

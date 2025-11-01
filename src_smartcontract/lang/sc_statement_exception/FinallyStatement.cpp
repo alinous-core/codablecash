@@ -55,7 +55,7 @@ int FinallyStatement::binarySize() const {
 	return total;
 }
 
-void FinallyStatement::toBinary(ByteBuffer* out) {
+void FinallyStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->block);
 
 	out->putShort(CodeElement::STMT_FINALLY);
@@ -76,6 +76,16 @@ void FinallyStatement::setBlock(StatementBlock* block) noexcept {
 
 bool FinallyStatement::hasConstructor() const noexcept {
 	return this->block->hasConstructor();
+}
+
+AbstractStatement* FinallyStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	FinallyStatement* inst = new FinallyStatement();
+	inst->copyCodePositions(this);
+
+	StatementBlock* copiedStmt = dynamic_cast<StatementBlock*>(this->block->generateGenericsImplement(input));
+	inst->setBlock(copiedStmt);
+
+	return inst;
 }
 
 } /* namespace alinous */

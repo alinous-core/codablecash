@@ -118,7 +118,7 @@ int CompilationUnit::binarySize() const {
 	return total;
 }
 
-void CompilationUnit::toBinary(ByteBuffer* out) {
+void CompilationUnit::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::COMPILANT_UNIT);
 
 	char bl = this->package != nullptr ? (char)1 : (char)0;
@@ -167,6 +167,30 @@ void CompilationUnit::fromBinary(ByteBuffer* in) {
 		ClassDeclare* dec = dynamic_cast<ClassDeclare*>(element);
 		this->classes.addElement(dec);
 	}
+}
+
+CompilationUnit* CompilationUnit::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) {
+	CompilationUnit* inst = new CompilationUnit();
+
+	if(this->package != nullptr){
+		PackageDeclare* pkg = this->package->generateGenericsImplement(input);
+		inst->setPackage(pkg);
+	}
+
+	if(this->imports != nullptr){
+		ImportsDeclare* imports = this->imports->generateGenericsImplement(input);
+		inst->setImports(imports);
+	}
+
+	int maxLoop = this->classes.size();
+	for(int i = 0; i != maxLoop; ++i){
+		ClassDeclare* clazz = this->classes.get(i);
+		ClassDeclare* copied = clazz->generateClassDeclare(input);
+
+		inst->addClassDeclare(copied);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

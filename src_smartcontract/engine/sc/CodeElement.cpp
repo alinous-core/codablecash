@@ -25,6 +25,8 @@
 #include "lang/sc_declare/ClassExtends.h"
 #include "lang/sc_declare/ClassImplements.h"
 #include "lang/sc_declare/ClassName.h"
+#include "lang/sc_declare/GenericsParameter.h"
+#include "lang/sc_declare/GenericsClassDeclare.h"
 
 #include "lang/sc_declare_types/BoolType.h"
 #include "lang/sc_declare_types/ByteType.h"
@@ -36,6 +38,7 @@
 #include "lang/sc_declare_types/VoidType.h"
 #include "lang/sc_declare_types/ObjectType.h"
 #include "lang/sc_declare_types/DomType.h"
+#include "lang/sc_declare_types/GenericsObjectType.h"
 
 #include "lang/sc_statement/StatementBlock.h"
 #include "lang/sc_statement/VariableDeclareStatement.h"
@@ -163,7 +166,20 @@
 
 #include "lang_sql/sql_expression/SQLDistinctArgument.h"
 
+#include "instance/reserved_classes/AbstractReservedClassDeclare.h"
+
+
 namespace alinous {
+
+CodeElement::CodeElement(const CodeElement &inst) {
+	this->kind = inst.kind;
+	this->beginLine = inst.beginLine;
+	this->beginColumn = inst.beginColumn;
+	this->endLine = inst.endLine;
+	this->endColumn = inst.endColumn;
+
+	this->parent = nullptr;
+}
 
 CodeElement::CodeElement(short kind) {
 	this->kind = kind;
@@ -275,6 +291,16 @@ CodeElement* CodeElement::createFromBinary(ByteBuffer* in) {
 	case CLASS_NAME:
 		element = new ClassName();
 		break;
+	case GENERICS_CLASS_DECLARE:
+		element = new GenericsClassDeclare();
+		break;
+	case GENERICS_PARAM:
+		element = new GenericsParameter();
+		break;
+	case RESERVED_CLASS_DECLARE:
+		element = AbstractReservedClassDeclare::createFromBinary(in);
+		break;
+
 
 	case TYPE_BOOL:
 		element = new BoolType();
@@ -305,6 +331,9 @@ CodeElement* CodeElement::createFromBinary(ByteBuffer* in) {
 		break;
 	case TYPE_DOM:
 		element = new DomType();
+		break;
+	case TYPE_GENERICS_OBJECT:
+		element = new GenericsObjectType();
 		break;
 
 	case STMT_BLOCK:
@@ -773,7 +802,10 @@ short CodeElement::getKind() const noexcept {
 
 ClassDeclare* CodeElement::getClassDeclare() const {
 	CodeElement* element = this->parent;
-	while(element != nullptr && element->kind != CodeElement::CLASS_DECLARE){
+	while(element != nullptr &&
+			(element->kind != CodeElement::CLASS_DECLARE && element->kind != CodeElement::GENERICS_CLASS_DECLARE
+					&& element->kind != CodeElement::RESERVED_CLASS_DECLARE
+					&& element->kind != CodeElement::GENERICS_GENERATED_CLASS_DECLARE)){
 		element = element->getParent();
 	}
 
@@ -794,6 +826,13 @@ const UnicodeString* CodeElement::getPackageName() const noexcept {
 
 bool CodeElement::isExecutable() {
 	return false;
+}
+
+void CodeElement::copyCodePositions(const CodeElement *other) noexcept {
+	this->beginLine = other->beginLine;
+	this->beginColumn = other->beginColumn;
+	this->endLine = other->endLine;
+	this->endColumn = other->endColumn;
 }
 
 } /* namespace alinous */

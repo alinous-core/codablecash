@@ -134,8 +134,6 @@ void ModularInstanceConfig::loadInitializer(const JsonObject *initializer) {
 
 			this->initializerMethodArguments->addElement(dynamic_cast<AbstractJsonValue*>(value->copy()));
 		}
-
-		// FIXME copy
 	}
 }
 

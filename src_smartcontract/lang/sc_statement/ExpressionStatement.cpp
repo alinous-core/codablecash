@@ -57,7 +57,7 @@ int ExpressionStatement::binarySize() const {
 	return total;
 }
 
-void ExpressionStatement::toBinary(ByteBuffer* out) {
+void ExpressionStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::STMT_EXPRESSION);
@@ -99,6 +99,16 @@ bool ExpressionStatement::hasConstructor() const noexcept {
 	}
 
 	return false;
+}
+
+AbstractStatement* ExpressionStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ExpressionStatement* inst = new ExpressionStatement();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copied = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copied);
+
+	return inst;
 }
 
 } /* namespace alinous */

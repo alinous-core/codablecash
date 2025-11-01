@@ -55,7 +55,7 @@ int AlterDropIndexCommand::binarySize() const {
 	return total;
 }
 
-void AlterDropIndexCommand::toBinary(ByteBuffer* out) {
+void AlterDropIndexCommand::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 
 	out->putShort(CodeElement::DDL_ALTER_DROP_INDEX);

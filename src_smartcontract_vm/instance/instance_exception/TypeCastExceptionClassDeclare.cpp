@@ -61,7 +61,7 @@ void TypeCastExceptionClassDeclare::throwException(VirtualMachine* vm, const Cod
 TypeCastExceptionClassDeclare::~TypeCastExceptionClassDeclare() {
 }
 
-const UnicodeString* TypeCastExceptionClassDeclare::getName() noexcept {
+const UnicodeString* TypeCastExceptionClassDeclare::getName() const noexcept {
 	return &NAME;
 }
 

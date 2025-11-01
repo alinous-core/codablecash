@@ -120,7 +120,7 @@ int DeleteStatement::binarySize() const {
 	return total;
 }
 
-void DeleteStatement::toBinary(ByteBuffer* out) {
+void DeleteStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->from);
 
 	out->putShort(CodeElement::DML_STMT_DELETE);

@@ -78,7 +78,7 @@ int AlterTableStatement::binarySize() const {
 	return total;
 }
 
-void AlterTableStatement::toBinary(ByteBuffer* out) {
+void AlterTableStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->tableId);
 	checkNotNull(this->cmd);
 

@@ -34,13 +34,15 @@ public:
 	void setOp(uint8_t op) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual AnalyzedType getType(AnalyzeContext* actx);
 
 	virtual void init(VirtualMachine* vm);
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm);
+
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 private:
 	PrimitiveReference* makeBoolInst(VirtualMachine* vm, bool value) const noexcept;

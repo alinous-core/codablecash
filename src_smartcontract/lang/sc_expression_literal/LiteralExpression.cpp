@@ -63,7 +63,7 @@ int LiteralExpression::binarySize() const {
 	return total;
 }
 
-void LiteralExpression::toBinary(ByteBuffer* out) {
+void LiteralExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_LITERAL);
 
 	out->put(this->dquote ? 1 : 0);
@@ -91,6 +91,15 @@ void LiteralExpression::init(VirtualMachine* vm) {
 
 AbstractVmInstance* LiteralExpression::interpret(VirtualMachine* vm) {
 	return this->reference;
+}
+
+AbstractExpression* LiteralExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	LiteralExpression* inst = new LiteralExpression();
+	inst->copyCodePositions(this);
+
+	inst->setString(new UnicodeString(this->str), this->dquote);
+
+	return inst;
 }
 
 } /* namespace alinous */

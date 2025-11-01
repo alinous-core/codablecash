@@ -6,12 +6,14 @@
  */
 
 #include "lang/sc_declare_types/IntType.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
 
 #include "base/UnicodeString.h"
 
+
 namespace alinous {
 
-const UnicodeString IntType::TYPE_NAME(L"String");
+const UnicodeString IntType::TYPE_NAME(L"int");
 
 IntType::IntType()  : AbstractPrimitiveType(CodeElement::TYPE_INT) {
 
@@ -39,6 +41,17 @@ void IntType::fromBinary(ByteBuffer* in) {
 
 const UnicodeString* IntType::toString() noexcept {
 	return &TYPE_NAME;
+}
+
+AbstractType* IntType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	IntType* inst = new IntType();
+	inst->copyCodePositions(this);
+	return inst;
+}
+
+void IntType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
 }
 
 } /* namespace alinous */

@@ -10,8 +10,6 @@
 
 #include "lang/sc_statement/StatementBlock.h"
 
-#include "vm/vm_ctrl/BlockState.h"
-
 #include "engine/sc_analyze/AnalyzedType.h"
 #include "engine/sc_analyze/AnalyzeContext.h"
 #include "engine/sc_analyze/ValidationError.h"
@@ -22,8 +20,8 @@
 #include "instance/instance_gc/StackFloatingVariableHandler.h"
 
 #include "vm/vm_ctrl/ExecControlManager.h"
-
 #include "vm/vm_ctrl/AbstractCtrlInstruction.h"
+#include "vm/vm_ctrl/BlockState.h"
 
 #include "instance/instance_exception/ExceptionInterrupt.h"
 
@@ -92,7 +90,7 @@ int WhileStatement::binarySize() const {
 	return total;
 }
 
-void WhileStatement::toBinary(ByteBuffer* out) {
+void WhileStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 	checkNotNull(this->stmt);
 
@@ -165,6 +163,19 @@ bool WhileStatement::hasCtrlStatement() const noexcept {
 
 bool WhileStatement::hasConstructor() const noexcept {
 	return this->stmt->hasConstructor();
+}
+
+AbstractStatement* WhileStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	WhileStatement* inst = new WhileStatement();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedExp = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copiedExp);
+
+	AbstractStatement* copiedStmt = this->stmt->generateGenericsImplement(input);
+	inst->setStatement(copiedStmt);
+
+	return inst;
 }
 
 } /* namespace alinous */

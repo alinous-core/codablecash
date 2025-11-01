@@ -32,7 +32,6 @@
 #include "vm/stack/StackPopper.h"
 
 #include "instance/instance_gc/GcManager.h"
-
 #include "instance/instance_gc/StackFloatingVariableHandler.h"
 
 #include "vm/type_check/AnalyzedTypeChecker.h"
@@ -58,16 +57,24 @@ MemberVariableDeclare::~MemberVariableDeclare() {
 }
 
 void MemberVariableDeclare::preAnalyze(AnalyzeContext* actx) {
+	this->ctrl->setParent(this);
+	this->type->setParent(this);
+
 	if(this->exp != nullptr){
 		this->exp->setParent(this);
 		this->exp->preAnalyze(actx);
 	}
+
+	this->type->preAnalyze(actx);
+	actx->detectGenericsType(this->type);
 }
 
 void MemberVariableDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 	if(this->exp != nullptr){
 		this->exp->analyzeTypeRef(actx);
 	}
+
+	this->type->analyzeTypeRef(actx);
 
 	TypeResolver* typeResolver = actx->getTypeResolver();
 
@@ -103,6 +110,7 @@ void MemberVariableDeclare::analyze(AnalyzeContext* actx) {
 			actx->addValidationError(ValidationError::CODE_TYPE_INCOMPATIBLE, this, L"Initial variable is incompatible with variable declare .", {});
 		}
 	}
+	this->type->analyze(actx);
 }
 
 void MemberVariableDeclare::init(VirtualMachine* vm) {
@@ -200,7 +208,7 @@ int MemberVariableDeclare::binarySize() const {
 	return total;
 }
 
-void MemberVariableDeclare::toBinary(ByteBuffer* out) {
+void MemberVariableDeclare::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->ctrl);
 	checkNotNull(this->type);
 	checkNotNull(this->name);
@@ -242,4 +250,26 @@ void MemberVariableDeclare::fromBinary(ByteBuffer* in) {
 
 	this->name = getString(in);
 }
+
+MemberVariableDeclare* MemberVariableDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	MemberVariableDeclare* inst = new MemberVariableDeclare();
+	inst->copyCodePositions(this);
+
+	AccessControlDeclare* copiedCtrl = this->ctrl->generateGenericsImplement(input);
+	inst->setAccessControl(copiedCtrl);
+
+	AbstractType* copiedType = this->type->generateGenericsImplement(input);
+	inst->setType(copiedType);
+
+	inst->setStatic(this->_static);
+	inst->setName(new UnicodeString(this->name));
+
+	if(this->exp){
+		AbstractExpression* copiedExp = this->exp->generateGenericsImplement(input);
+		inst->setExp(copiedExp);
+	}
+
+	return inst;
+}
+
 } /* namespace alinous */

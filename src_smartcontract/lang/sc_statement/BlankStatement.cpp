@@ -31,7 +31,7 @@ int BlankStatement::binarySize() const {
 	return total;
 }
 
-void BlankStatement::toBinary(ByteBuffer* out) {
+void BlankStatement::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::STMT_BLANK);
 }
 
@@ -45,5 +45,11 @@ bool BlankStatement::hasCtrlStatement() const noexcept {
 	return false;
 }
 
+AbstractStatement* BlankStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	BlankStatement* inst = new BlankStatement();
+	inst->copyCodePositions(this);
+
+	return inst;
+}
 
 } /* namespace alinous */

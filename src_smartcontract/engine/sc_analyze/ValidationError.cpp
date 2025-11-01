@@ -9,12 +9,15 @@
 
 #include "base/UnicodeString.h"
 
+#include "engine/sc/CodeElement.h"
+
+
 namespace alinous {
 
 ValidationError::ValidationError(int type, int errorCode, CodeElement* element, const UnicodeString* msg, std::initializer_list<const UnicodeString*> params) {
 	this->type = type;
 	this->errorCode = errorCode;
-	this->element = element;
+	this->element = element->getCanonicalCodeElement();
 	this->message = new UnicodeString(*msg);
 
 	for(const UnicodeString* const & p : params){

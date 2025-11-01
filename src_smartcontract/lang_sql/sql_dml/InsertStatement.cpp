@@ -269,7 +269,7 @@ int InsertStatement::binarySize() const {
 	return total;
 }
 
-void InsertStatement::toBinary(ByteBuffer* out) {
+void InsertStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->tableId);
 	checkNotNull(this->expList);
 

@@ -29,6 +29,8 @@ class AnalyzedType;
 class ReservedClassRegistory;
 class StaticClassMetadataHolder;
 class SmartContract;
+class GeneratedGenericsTypeHolder;
+class AbstractType;
 
 class AnalyzeContext {
 public:
@@ -66,10 +68,14 @@ public:
 	void setCurrentElement(CodeElement* current) noexcept;
 	CodeElement* getCurrentElement() const noexcept;
 
-	void setTmpArrayType(AnalyzedType* tmpArrayType) noexcept;
-	AnalyzedType* getTmpArrayType() const noexcept;
-
 	void resigterReservedClasses() noexcept;
+
+	// generics
+	void detectGenericsType(AbstractType* atype);
+	void generateGenericsClasses();
+	void preAnalyzeGenerics();
+	void analyzeTypeRefGenerics();
+	void analyzeGenerics();
 
 	ReservedClassRegistory* getReservedClassRegistory() const noexcept;
 
@@ -77,6 +83,13 @@ public:
 
 	StaticClassMetadataHolder* getStaticVariableHolder() const noexcept;
 	void analyzeStaticVariables() noexcept;
+
+	AnalyzedType* getTmpArrayType() const noexcept {
+		return this->tempAtype;
+	}
+	void setTmpArrayType(AnalyzedType* atype) {
+		this->tempAtype = atype;
+	}
 
 private:
 	void analyzeMembers(PackageSpace* space) noexcept;
@@ -92,12 +105,13 @@ private:
 	ArrayList<AnalyzedClass>* thisClasses;
 	VTableRegistory* vtableReg;
 	StaticClassMetadataHolder* staticVariablesHolder;
+	GeneratedGenericsTypeHolder* genericsHolder;
 
 	CodeElement* current;
-	AnalyzedType* tmpArrayType;
 
 	// temp value
 	VirtualMachine* vm;
+	AnalyzedType* tempAtype;
 };
 
 } /* namespace alinous */

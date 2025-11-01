@@ -120,7 +120,7 @@ int SQLGroupBy::binarySize() const {
 	return total;
 }
 
-void SQLGroupBy::toBinary(ByteBuffer* out) {
+void SQLGroupBy::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->list);
 
 	out->putShort(CodeElement::SQL_PART_GROUP_BY);

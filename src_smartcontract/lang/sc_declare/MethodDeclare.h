@@ -10,6 +10,7 @@
 
 #include "engine/sc/CodeElement.h"
 
+#include "base/HashMap.h"
 namespace alinous {
 
 class AccessControlDeclare;
@@ -22,6 +23,7 @@ class AnalyzedType;
 class FunctionArguments;
 class VirtualMachine;
 class AbstractVmInstance;
+class AbstractType;
 
 class MethodDeclare : public CodeElement {
 public:
@@ -50,13 +52,16 @@ public:
 	const UnicodeString* getCallSignature() noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	void init(VirtualMachine* vm);
 	void interpret(FunctionArguments* args, VirtualMachine* vm);
 
 	const UnicodeString* toString();
+
+	MethodDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
 	AccessControlDeclare* ctrl;
 	AbstractType* type;

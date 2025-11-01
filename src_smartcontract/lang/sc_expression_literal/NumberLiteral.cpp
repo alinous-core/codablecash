@@ -74,7 +74,7 @@ int NumberLiteral::binarySize() const {
 	return total;
 }
 
-void NumberLiteral::toBinary(ByteBuffer* out) {
+void NumberLiteral::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->str);
 
 	out->putShort(CodeElement::EXP_NUMBER_LITERAL);
@@ -98,6 +98,16 @@ void NumberLiteral::init(VirtualMachine* vm) {
 
 AbstractVmInstance* NumberLiteral::interpret(VirtualMachine* vm) {
 	return this->referene;
+}
+
+AbstractExpression* NumberLiteral::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	NumberLiteral* inst = new NumberLiteral();
+	inst->copyCodePositions(this);
+
+	inst->setValue(new UnicodeString(this->str));
+
+	return inst;
+
 }
 
 } /* namespace alinous */

@@ -7,10 +7,19 @@
 
 #include "lang/sc_declare_types/ObjectType.h"
 #include "lang/sc_declare/PackageNameDeclare.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
+
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
 
 
 namespace alinous {
+
+ObjectType::ObjectType(short kind) : AbstractType(kind) {
+	this->packageName = nullptr;
+	this->className = nullptr;
+	this->str = nullptr;
+}
 
 ObjectType::ObjectType() : AbstractType(CodeElement::TYPE_OBJECT){
 	this->packageName = nullptr;
@@ -43,7 +52,7 @@ int ObjectType::binarySize() const {
 }
 
 void ObjectType::toBinary(ByteBuffer* out) {
-	out->putShort(CodeElement::TYPE_OBJECT);
+	out->putShort(this->kind);
 
 	bool bl = this->packageName != nullptr;
 	out->put(bl ? 1 : 0);
@@ -75,7 +84,7 @@ const UnicodeString* ObjectType::toString() noexcept {
 			this->str->append(L".");
 		}
 
-		this->str->append(this->className);
+		this->str->append(getClassName());
 	}
 
 	return this->str;
@@ -91,6 +100,47 @@ PackageNameDeclare* ObjectType::getPackageName() const noexcept {
 
 const UnicodeString* ObjectType::getClassName() const noexcept {
 	return this->className;
+}
+
+AbstractType* ObjectType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	{
+		AbstractType* inst = getAbstractTypeFromMember(input);
+		if(inst != nullptr){
+			return inst;
+		}
+	}
+
+	ObjectType* inst = new ObjectType();
+	inst->copyCodePositions(this);
+
+	PackageNameDeclare* pname = this->packageName != nullptr ? this->packageName->generateGenericsImplement(input) : nullptr;
+	inst->setPackageName(pname);
+
+	inst->setName(new UnicodeString(this->className));
+
+	return inst;
+}
+
+AbstractType* ObjectType::getAbstractTypeFromMember(HashMap<UnicodeString, AbstractType> *input) const {
+	AbstractType* inst = nullptr;
+	if(this->packageName == nullptr){
+		Iterator<UnicodeString>* it = input->keySet()->iterator(); __STP(it);
+		while(it->hasNext()){
+			const UnicodeString* key = it->next();
+			if(this->className->equals(key)){
+				AbstractType* type = input->get(key);
+				inst = type->generateGenericsImplement(input);
+				break;
+			}
+		}
+	}
+
+	return inst;
+}
+
+void ObjectType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
 }
 
 } /* namespace alinous */

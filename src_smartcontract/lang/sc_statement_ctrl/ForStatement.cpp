@@ -156,7 +156,7 @@ int ForStatement::binarySize() const {
 	return total;
 }
 
-void ForStatement::toBinary(ByteBuffer* out) {
+void ForStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->stmt);
 	checkNotNull(this->initStatement);
 	checkNotNull(this->cond);
@@ -275,6 +275,25 @@ bool ForStatement::hasConstructor() const noexcept {
 		ret = ret || this->postLoop->hasConstructor();
 	}
 	return ret;
+}
+
+AbstractStatement* ForStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ForStatement* inst = new ForStatement();
+	inst->copyCodePositions(this);
+
+	AbstractStatement* copiedStmt = this->initStatement->generateGenericsImplement(input);
+	inst->setInit(copiedStmt);
+
+	AbstractExpression* copiedExp = this->cond->generateGenericsImplement(input);
+	inst->setCondition(copiedExp);
+
+	copiedStmt = this->postLoop->generateGenericsImplement(input);
+	inst->setPostLoop(copiedStmt);
+
+	copiedStmt = this->stmt->generateGenericsImplement(input);
+	inst->setStatement(copiedStmt);
+
+	return inst;
 }
 
 } /* namespace alinous */

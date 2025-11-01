@@ -65,7 +65,7 @@ ZeroDivisionExceptionClassDeclare::~ZeroDivisionExceptionClassDeclare() {
 
 }
 
-const UnicodeString* ZeroDivisionExceptionClassDeclare::getName() noexcept {
+const UnicodeString* ZeroDivisionExceptionClassDeclare::getName() const noexcept {
 	return &NAME;
 }
 

@@ -5,6 +5,9 @@ set(__src
 	AnalyzedClass.cpp
 	AnalyzedThisClassStackPopper.cpp
 	AnalyzedType.cpp
+	GeneratedGenericsTypeHolder.cpp
+	GeneratedGenericsTypeNaming.cpp
+	GenericsTypeRefChecker.cpp
 	IVmInstanceFactory.cpp
 	NameSegments.cpp
 	PackageSpace.cpp

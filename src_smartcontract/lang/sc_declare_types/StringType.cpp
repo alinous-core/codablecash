@@ -6,6 +6,7 @@
  */
 
 #include "lang/sc_declare_types/StringType.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
 
 #include "base/UnicodeString.h"
 
@@ -40,5 +41,15 @@ const UnicodeString* StringType::toString() noexcept {
 	return &TYPE_NAME;
 }
 
+AbstractType* StringType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	StringType* inst = new StringType();
+	inst->copyCodePositions(this);
+	return inst;
+}
+
+void StringType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
+}
 
 } /* namespace alinous */

@@ -6,8 +6,10 @@
  */
 
 #include "lang/sc_declare_types/ByteType.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
 
 #include "base/UnicodeString.h"
+
 
 namespace alinous {
 
@@ -26,7 +28,7 @@ int ByteType::binarySize() const {
 	return total;
 }
 
-void ByteType::toBinary(ByteBuffer* out) {
+void ByteType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_BYTE);
 	AbstractType::toBinary(out);
 }
@@ -37,6 +39,17 @@ void ByteType::fromBinary(ByteBuffer* in) {
 
 const UnicodeString* ByteType::toString() noexcept {
 	return &TYPE_NAME;
+}
+
+AbstractType* ByteType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ByteType* inst = new ByteType();
+	inst->copyCodePositions(this);
+	return inst;
+}
+
+void ByteType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
 }
 
 } /* namespace alinous */

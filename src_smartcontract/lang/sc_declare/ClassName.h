@@ -16,6 +16,7 @@ class UnicodeString;
 
 class ClassName : public CodeElement {
 public:
+	ClassName(const ClassName& inst);
 	ClassName();
 	virtual ~ClassName();
 
@@ -24,7 +25,7 @@ public:
 	const UnicodeString* getName() noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 private:
 	UnicodeString* fqn;

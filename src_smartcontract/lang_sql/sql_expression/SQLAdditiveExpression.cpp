@@ -50,7 +50,7 @@ int SQLAdditiveExpression::binarySize() const {
 	return total;
 }
 
-void SQLAdditiveExpression::toBinary(ByteBuffer* out) {
+void SQLAdditiveExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_ADDITIVE);
 	AbstractSQLBinaryExpression::toBinary(out);
 

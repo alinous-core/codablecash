@@ -31,13 +31,16 @@ public:
 	virtual bool hasCtrlStatement() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	void setBlock(StatementBlock* block) noexcept;
 	void setVariableDeclare(VariableDeclareStatement* variableDeclare) noexcept;
 
 	virtual bool hasConstructor() const noexcept;
+
+	virtual AbstractStatement* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
 	StatementBlock* block;
 	VariableDeclareStatement* variableDeclare;

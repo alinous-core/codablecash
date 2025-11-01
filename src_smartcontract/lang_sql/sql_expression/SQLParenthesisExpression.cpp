@@ -49,7 +49,7 @@ int SQLParenthesisExpression::binarySize() const {
 	return total;
 }
 
-void SQLParenthesisExpression::toBinary(ByteBuffer* out) {
+void SQLParenthesisExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::SQL_EXP_PARENTHESIS);

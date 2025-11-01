@@ -50,7 +50,7 @@ int AlterRenameTableCommand::binarySize() const {
 	return total;
 }
 
-void AlterRenameTableCommand::toBinary(ByteBuffer* out) {
+void AlterRenameTableCommand::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->newName);
 
 	out->putShort(CodeElement::DDL_ALTER_RENAME_TABLE);

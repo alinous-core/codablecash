@@ -17,13 +17,14 @@
 #include "lang/sc_declare/ImportDeclare.h"
 #include "lang/sc_declare/PackageNameDeclare.h"
 #include "lang/sc_declare/ClassDeclare.h"
+#include "lang/sc_declare/GenericsClassDeclare.h"
+#include "lang/sc_declare_types/GenericsObjectType.h"
 
 #include "lang/sc_declare_types/AbstractType.h"
 #include "lang/sc_declare_types/ObjectType.h"
 
 #include "base/StackRelease.h"
 #include "base/ArrayList.h"
-
 
 
 namespace alinous {
@@ -45,7 +46,6 @@ TypeResolver::TypeResolver(AnalyzeContext* ctx) : ctx(ctx) {
 TypeResolver::~TypeResolver() {
 
 }
-
 
 AnalyzedType* TypeResolver::getClassType(CodeElement* element) const {
 	ClassDeclare* cls = element->getClassDeclare();
@@ -88,9 +88,10 @@ AnalyzedType* TypeResolver::resolveType(CodeElement* element, AbstractType* type
 		result = new AnalyzedType(AnalyzedType::TYPE_VOID);
 		break;
 	case CodeElement::TYPE_OBJECT:
+	case CodeElement::TYPE_GENERICS_OBJECT:
 		{
 			ObjectType* otype = dynamic_cast<ObjectType*>(type);
-			result = resolveType(element, otype);
+			result = resolveClassType(element, otype);
 			break;
 		}
 	case CodeElement::TYPE_DOM:
@@ -108,9 +109,27 @@ AnalyzedType* TypeResolver::resolveType(CodeElement* element, AbstractType* type
 	return result;
 }
 
-AnalyzedType* TypeResolver::resolveType(CodeElement* element, ObjectType* type) const {
+AnalyzedType* TypeResolver::resolveClassType(CodeElement* element, ObjectType* type) const {
 	PackageNameDeclare* pkg = type->getPackageName();
 	const UnicodeString* name = type->getClassName();
+
+	// generics type
+	ClassDeclare* clazz = element->getClassDeclare();
+	if(clazz->isGenerics() && pkg == nullptr){
+		GenericsClassDeclare* gclazz = dynamic_cast<GenericsClassDeclare*>(clazz);
+
+		const GenericsParameter* result = gclazz->findGenericsType(name);
+		if(result != nullptr){
+			PackageSpace* space = this->ctx->getPackegeSpace(gclazz->getPackageName());
+			AnalyzedClass* dec = space->getClass(gclazz->getName());
+
+			AnalyzedType* atype = new AnalyzedType(AnalyzedType::TYPE_GENERICS_TYPE);
+			atype->setAnalyzedClass(dec);
+			atype->setGenericsType(name);
+
+			return atype;
+		}
+	}
 
 	if(pkg != nullptr){
 		const UnicodeString* pkgname = pkg->getName();
@@ -120,7 +139,7 @@ AnalyzedType* TypeResolver::resolveType(CodeElement* element, ObjectType* type) 
 	return findClassType(element, name);
 }
 
-AnalyzedType* TypeResolver::findBaseType(const UnicodeString* name) const {
+AnalyzedType* TypeResolver::findBasicType(const UnicodeString* name) const {
 	AnalyzedType* result = nullptr;
 
 	if(name->equals(BOOLEAN)){
@@ -151,6 +170,24 @@ AnalyzedType* TypeResolver::findBaseType(const UnicodeString* name) const {
 AnalyzedType* TypeResolver::findClassType(const CodeElement* element, const UnicodeString* name) const {
 	if(!isFqn(name)){
 		CompilationUnit* unit = element->getCompilationUnit();
+		ClassDeclare* clazz = element->getClassDeclare();
+
+		// find from generitics params, like T
+		if(clazz->isGenerics()) {
+			GenericsClassDeclare* gclazz = dynamic_cast<GenericsClassDeclare*>(clazz);
+
+			const GenericsParameter* result = gclazz->findGenericsType(name);
+			if(result != nullptr){
+				PackageSpace* space = this->ctx->getPackegeSpace(gclazz->getPackageName());
+				AnalyzedClass* dec = space->getClass(gclazz->getName());
+
+				AnalyzedType* atype = new AnalyzedType(AnalyzedType::TYPE_GENERICS_TYPE);
+				atype->setAnalyzedClass(dec);
+				atype->setGenericsType(name);
+
+				return atype;
+			}
+		}
 
 		// find import section
 		ImportsDeclare* imports = unit->getImportDeclare();
@@ -225,7 +262,7 @@ UnicodeString* TypeResolver::getPackageName(const UnicodeString* name) noexcept 
 UnicodeString* TypeResolver::getClassName(const UnicodeString* name) noexcept {
 	int index = name->lastIndexOf(&DOT);
 	if(index < 0){
-		return nullptr;
+		return new UnicodeString(name);
 	}
 
 	return name->substring(index + 1);
@@ -237,7 +274,7 @@ AnalyzedType* TypeResolver::testFindClassType(const UnicodeString* packageName, 
 }
 
 AnalyzedType* TypeResolver::testResolveType(CodeElement* element, ObjectType* type) const {
-	return resolveType(element, type);
+	return resolveClassType(element, type);
 }
 #endif
 

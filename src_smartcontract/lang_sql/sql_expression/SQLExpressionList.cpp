@@ -54,7 +54,7 @@ int SQLExpressionList::binarySize() const {
 	return total;
 }
 
-void SQLExpressionList::toBinary(ByteBuffer* out) {
+void SQLExpressionList::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_EXP_LIST);
 
 	int maxLoop = this->list.size();

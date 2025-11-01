@@ -11,6 +11,8 @@
 #include "engine/sc/CodeElement.h"
 
 #include "base/ArrayList.h"
+#include "base/HashMap.h"
+
 
 namespace alinous {
 
@@ -27,20 +29,26 @@ class AnalyzedClass;
 class VTableRegistory;
 class VTableClassEntry;
 class IVmInstanceFactory;
+class AbstractType;
 
 class ClassDeclare : public CodeElement {
 public:
 	ClassDeclare();
+	ClassDeclare(short kind);
 	virtual ~ClassDeclare();
 
 	void setInterface(bool interface) noexcept;
 	bool isInterface() const noexcept;
 
+	virtual bool isGenerics() const noexcept {
+		return false;
+	}
+
 	virtual void preAnalyze(AnalyzeContext* actx);
 	virtual void analyzeTypeRef(AnalyzeContext* actx);
 	virtual void analyze(AnalyzeContext* actx);
 
-	void init(VirtualMachine* vm);
+	virtual void init(VirtualMachine* vm);
 
 	void setBlock(ClassDeclareBlock* block) noexcept;
 	void setName(UnicodeString* name) noexcept;
@@ -49,13 +57,23 @@ public:
 
 	ClassExtends* getExtends() const noexcept;
 
-	virtual const UnicodeString* getName() noexcept;
+	virtual const UnicodeString* getName() const noexcept;
 	virtual const UnicodeString* getFullQualifiedName() noexcept;
+	virtual const UnicodeString* getConstructorName() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
+	virtual ClassDeclare* generateClassDeclare(HashMap<UnicodeString, AbstractType>* input);
+
+
+protected:
+	void toBinaryCheck(ByteBuffer* out) const;
+	void toBinaryHead(ByteBuffer* out) const;
+	void toBinaryBody(ByteBuffer* out) const;
+
+public:
 	virtual ClassDeclare* getBaseClass() const noexcept;
 	int getInheritIndex() const noexcept;
 	void setInheritIndex(int inheritIndex) noexcept;

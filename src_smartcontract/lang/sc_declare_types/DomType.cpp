@@ -6,8 +6,10 @@
  */
 
 #include "lang/sc_declare_types/DomType.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
 
 #include "base/UnicodeString.h"
+
 
 namespace alinous {
 
@@ -39,6 +41,17 @@ void DomType::fromBinary(ByteBuffer* in) {
 
 const UnicodeString* DomType::toString() noexcept {
 	return &TYPE_NAME;
+}
+
+AbstractType* DomType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	DomType* inst = new DomType();
+	inst->copyCodePositions(this);
+	return inst;
+}
+
+void DomType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
 }
 
 } /* namespace alinous */

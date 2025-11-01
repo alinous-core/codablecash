@@ -34,7 +34,7 @@ int AbstractSQLBinaryExpression::binarySize() const {
 	return total;
 }
 
-void AbstractSQLBinaryExpression::toBinary(ByteBuffer* out) {
+void AbstractSQLBinaryExpression::toBinary(ByteBuffer* out) const {
 	int maxLoop = this->operands.size();
 	out->putInt(maxLoop);
 

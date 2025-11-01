@@ -44,7 +44,7 @@ AnalyzedClass* ExceptionClassDeclare::createAnalyzedClass() noexcept {
 	return aclass;
 }
 
-const UnicodeString* ExceptionClassDeclare::getName() noexcept {
+const UnicodeString* ExceptionClassDeclare::getName() const noexcept {
 	return &NAME;
 }
 

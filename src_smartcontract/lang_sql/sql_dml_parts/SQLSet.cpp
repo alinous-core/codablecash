@@ -87,7 +87,7 @@ int SQLSet::binarySize() const {
 	return total;
 }
 
-void SQLSet::toBinary(ByteBuffer* out) {
+void SQLSet::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_PART_SET);
 
 	int maxLoop = this->list.size();

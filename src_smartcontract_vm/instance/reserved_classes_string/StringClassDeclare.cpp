@@ -22,7 +22,7 @@ StringClassDeclare::StringClassDeclare() : AbstractReservedClassDeclare() {
 StringClassDeclare::~StringClassDeclare() {
 }
 
-const UnicodeString* StringClassDeclare::getName() noexcept {
+const UnicodeString* StringClassDeclare::getName() const noexcept {
 	return &NAME;
 }
 

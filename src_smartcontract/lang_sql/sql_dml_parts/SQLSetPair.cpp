@@ -55,7 +55,7 @@ int SQLSetPair::binarySize() const {
 	return total;
 }
 
-void SQLSetPair::toBinary(ByteBuffer* out) {
+void SQLSetPair::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->colId);
 	checkNotNull(this->exp);
 

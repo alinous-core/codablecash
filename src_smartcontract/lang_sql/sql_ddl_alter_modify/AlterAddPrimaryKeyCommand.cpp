@@ -61,7 +61,7 @@ int AlterAddPrimaryKeyCommand::binarySize() const {
 	return total;
 }
 
-void AlterAddPrimaryKeyCommand::toBinary(ByteBuffer* out) {
+void AlterAddPrimaryKeyCommand::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::DDL_ALTER_ADD_PRIMARY_KEY);
 
 	int maxLoop = this->list.size();

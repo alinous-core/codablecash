@@ -8,6 +8,7 @@ set(testsrc
 	test_dom_binary.cpp
 	test_exceptions.cpp
 	test_exp.cpp
+	test_generics_class.cpp
 	test_exp_arithmetic.cpp
 	test_exp_bit.cpp
 	test_exp_logical.cpp

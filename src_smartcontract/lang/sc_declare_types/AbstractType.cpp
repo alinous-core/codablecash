@@ -30,12 +30,21 @@ int AbstractType::binarySize() const {
 	return 1;
 }
 
-void AbstractType::toBinary(ByteBuffer* out) {
+void AbstractType::toBinary(ByteBuffer* out) const {
 	out->put(this->dimension);
 }
 
 void AbstractType::fromBinary(ByteBuffer* in) {
 	this->dimension = in->get();
+}
+
+void AbstractType::preAnalyze(AnalyzeContext *actx) {
+}
+
+void AbstractType::analyzeTypeRef(AnalyzeContext *actx) {
+}
+
+void AbstractType::analyze(AnalyzeContext *actx) {
 }
 
 } /* namespace alinous */

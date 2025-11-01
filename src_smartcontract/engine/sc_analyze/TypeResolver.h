@@ -41,7 +41,7 @@ public:
 	AnalyzedType* resolveType(CodeElement* element, AbstractType* type) const;
 	AnalyzedType* findClassType(const CodeElement* element, const UnicodeString* name) const;
 
-	AnalyzedType* findBaseType(const UnicodeString* name) const;
+	AnalyzedType* findBasicType(const UnicodeString* name) const;
 	AnalyzedType* findClassType(const UnicodeString* packageName, const UnicodeString* name) const;
 
 	static bool isFqn(const UnicodeString* name) noexcept;
@@ -49,7 +49,7 @@ public:
 	static UnicodeString* getClassName(const UnicodeString* name) noexcept;
 
 private:
-	AnalyzedType* resolveType(CodeElement* element, ObjectType* type) const;
+	AnalyzedType* resolveClassType(CodeElement* element, ObjectType* type) const;
 
 	AnalyzedType* findFromImports(const UnicodeString* name, ImportsDeclare* imports) const;
 

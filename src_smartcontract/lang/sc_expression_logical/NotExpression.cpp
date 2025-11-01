@@ -58,7 +58,7 @@ int NotExpression::binarySize() const {
 	return total;
 }
 
-void NotExpression::toBinary(ByteBuffer* out) {
+void NotExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::EXP_CND_NOT);
@@ -91,6 +91,16 @@ AbstractVmInstance* NotExpression::interpret(VirtualMachine* vm) {
 	bool blvalue = !(blRef->getIntValue() == 1);
 
 	return PrimitiveReference::createBoolReference(vm, blvalue ? 1 : 0);
+}
+
+AbstractExpression* NotExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	NotExpression* inst = new NotExpression();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedExp =this->exp->generateGenericsImplement(input);
+	inst->setExpression(copiedExp);
+
+	return inst;
 }
 
 } /* namespace alinous */

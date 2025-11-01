@@ -9,13 +9,16 @@
 #define SC_DECLARE_CLASSIMPLEMENTS_H_
 
 #include "engine/sc/CodeElement.h"
+
 #include "base/ArrayList.h"
+#include "base/HashMap.h"
 
 namespace alinous {
 
 class ClassName;
 class AnalyzeContext;
 class AnalyzedType;
+class AbstractType;
 
 class ClassImplements : public CodeElement {
 public:
@@ -29,8 +32,11 @@ public:
 	const ArrayList<AnalyzedType>* getAnalyzedTypes() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	ClassImplements* generateGenericsImplement(HashMap<UnicodeString, AbstractType>* input) const;
+
 private:
 	ArrayList<ClassName> list;
 	ArrayList<AnalyzedType> typelist;

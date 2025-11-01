@@ -44,7 +44,7 @@ int SQLLimitOffset::binarySize() const {
 	return total;
 }
 
-void SQLLimitOffset::toBinary(ByteBuffer* out) {
+void SQLLimitOffset::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_PART_LIMIT_OFFSET);
 
 	out->put(this->limit != nullptr ? 1 : 0);

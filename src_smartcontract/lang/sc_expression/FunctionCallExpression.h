@@ -40,7 +40,7 @@ public:
 	void addArgument(AbstractExpression* exp) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual AnalyzedType getType(AnalyzeContext* actx);
@@ -48,6 +48,8 @@ public:
 	virtual void init(VirtualMachine* vm);
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm);
 	AbstractVmInstance* interpret(VirtualMachine* vm, VmClassInstance* classInst);
+
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 	bool isSuperConstructorCall() const noexcept;
 private:

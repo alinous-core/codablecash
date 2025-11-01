@@ -39,7 +39,7 @@ int RollbackStatement::binarySize() const {
 	return total;
 }
 
-void RollbackStatement::toBinary(ByteBuffer* out) {
+void RollbackStatement::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::DML_STMT_ROLLBACK);
 }
 

@@ -22,6 +22,8 @@
 #include "instance/instance_dom/DomRuntimeReference.h"
 
 #include "instance/instance_string/VmStringInstance.h"
+
+
 namespace alinous {
 
 JsonInitializerExpression::JsonInitializerExpression() : AbstractJsonExpression(CodeElement::EXP_JSON_INITIALIZER) {
@@ -116,7 +118,7 @@ int JsonInitializerExpression::binarySize() const {
 	return total;
 }
 
-void JsonInitializerExpression::toBinary(ByteBuffer* out) {
+void JsonInitializerExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_JSON_INITIALIZER);
 
 	int maxLoop = this->elements->size();
@@ -138,6 +140,21 @@ void JsonInitializerExpression::fromBinary(ByteBuffer* in) {
 		JsonKeyValuePairExpression* exp = dynamic_cast<JsonKeyValuePairExpression*>(element);
 		addElement(exp);
 	}
+}
+
+AbstractExpression* JsonInitializerExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	JsonInitializerExpression* inst = new JsonInitializerExpression();
+	inst->copyCodePositions(this);
+
+	int maxLoop = this->elements->size();
+	for(int i = 0; i != maxLoop; ++i){
+		JsonKeyValuePairExpression* exp = this->elements->get(i);
+		AbstractExpression* copiedExp = exp->generateGenericsImplement(input);
+
+		inst->elements->addElement(dynamic_cast<JsonKeyValuePairExpression*>(copiedExp));
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

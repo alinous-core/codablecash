@@ -48,7 +48,7 @@ int ExclusiveOrExpression::binarySize() const {
 	return total;
 }
 
-void ExclusiveOrExpression::toBinary(ByteBuffer* out) {
+void ExclusiveOrExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_EX_OR);
 	AbstractBinaryExpression::toBinary(out);
 }
@@ -169,6 +169,15 @@ AbstractVmInstance* ExclusiveOrExpression::interpret64Bit(VirtualMachine* vm) {
 	}
 
 	return PrimitiveReference::createLongReference(vm, result);
+}
+
+AbstractExpression* ExclusiveOrExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ExclusiveOrExpression* inst = new ExclusiveOrExpression();
+	inst->copyCodePositions(this);
+	inst->copyExpressionList(this, input);
+	inst->copyOperationList(this, input);
+
+	return inst;
 }
 
 } /* namespace alinous */

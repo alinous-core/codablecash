@@ -38,7 +38,7 @@ int SQLOrExpression::binarySize() const {
 	return total;
 }
 
-void SQLOrExpression::toBinary(ByteBuffer* out) {
+void SQLOrExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_OR);
 	AbstractSQLBinaryExpression::toBinary(out);
 }

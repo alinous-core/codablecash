@@ -43,7 +43,7 @@ int TableList::binarySize() const {
 	return total;
 }
 
-void TableList::toBinary(ByteBuffer* out) {
+void TableList::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_TABLE_LIST);
 
 	int maxLoop = this->list.size();

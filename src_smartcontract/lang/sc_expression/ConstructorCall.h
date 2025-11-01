@@ -18,18 +18,19 @@ class StackVariableAccess;
 class FunctionArguments;
 class VmClassInstance;
 class StackFloatingVariableHandler;
+class AbstractType;
 
 class ConstructorCall : public AbstractExpression {
 public:
 	ConstructorCall();
 	virtual ~ConstructorCall();
 
-	void setName(AbstractExpression* exp) noexcept;
+	void setName(AbstractType* exp) noexcept;
 	const UnicodeString* getName() noexcept;
 	void addArgument(AbstractExpression* exp) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual void preAnalyze(AnalyzeContext* actx);
@@ -40,11 +41,13 @@ public:
 	virtual void init(VirtualMachine* vm);
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm);
 
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
 	void interpretArguments(VirtualMachine* vm, FunctionArguments* args, VmClassInstance* classInst, StackFloatingVariableHandler* releaser);
 
 private:
-	AbstractExpression* name;
+	AbstractType* name;
 	ArrayList<AbstractExpression> args;
 
 	UnicodeString* strName;

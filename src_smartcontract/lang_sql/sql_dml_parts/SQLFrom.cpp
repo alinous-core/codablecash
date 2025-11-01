@@ -36,7 +36,7 @@ int SQLFrom::binarySize() const {
 	return total;
 }
 
-void SQLFrom::toBinary(ByteBuffer* out) {
+void SQLFrom::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->tableId);
 
 	out->putShort(CodeElement::SQL_PART_FROM);

@@ -32,6 +32,10 @@
 #include "lang/sc_declare_types/StringType.h"
 
 #include "lang/sc_declare/PackageNameDeclare.h"
+
+#include "lang/sc_declare_types/DomType.h"
+#include "TestVisitor.h"
+
 using namespace alinous;
 
 TEST_GROUP(TestScDeclareTypesGroup) {
@@ -44,6 +48,10 @@ TEST(TestScDeclareTypesGroup, BoolType){
 
 	const UnicodeString* str = type.toString();
 	CHECK(str->equals(&BoolType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 TEST(TestScDeclareTypesGroup, ByteType){
@@ -51,6 +59,10 @@ TEST(TestScDeclareTypesGroup, ByteType){
 
 	const UnicodeString* str = type.toString();
 	CHECK(str->equals(&ByteType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 TEST(TestScDeclareTypesGroup, CharType){
@@ -58,6 +70,10 @@ TEST(TestScDeclareTypesGroup, CharType){
 
 	const UnicodeString* str = type.toString();
 	CHECK(str->equals(&CharType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 TEST(TestScDeclareTypesGroup, ShortType){
@@ -65,6 +81,10 @@ TEST(TestScDeclareTypesGroup, ShortType){
 
 	const UnicodeString* str = type.toString();
 	CHECK(str->equals(&ShortType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 TEST(TestScDeclareTypesGroup, IntType){
@@ -72,6 +92,10 @@ TEST(TestScDeclareTypesGroup, IntType){
 
 	const UnicodeString* str = type.toString();
 	CHECK(str->equals(&IntType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 TEST(TestScDeclareTypesGroup, LongType){
@@ -79,6 +103,10 @@ TEST(TestScDeclareTypesGroup, LongType){
 
 	const UnicodeString* str = type.toString();
 	CHECK(str->equals(&LongType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 TEST(TestScDeclareTypesGroup, VoidType){
@@ -86,6 +114,10 @@ TEST(TestScDeclareTypesGroup, VoidType){
 
 	const UnicodeString* str = type.toString();
 	CHECK(str->equals(&VoidType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 TEST(TestScDeclareTypesGroup, StringType){
@@ -93,6 +125,21 @@ TEST(TestScDeclareTypesGroup, StringType){
 
 	const UnicodeString* str = type.toString();
 	CHECK(str->equals(&StringType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
+}
+
+TEST(TestScDeclareTypesGroup, DomType){
+	DomType type;
+
+	const UnicodeString* str = type.toString();
+	CHECK(str->equals(&DomType::TYPE_NAME));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 TEST(TestScDeclareTypesGroup, ObjectType){
@@ -110,6 +157,10 @@ TEST(TestScDeclareTypesGroup, ObjectType){
 
 	UnicodeString ans(L"test.fw.SmartContract");
 	CHECK(ans.equals(str));
+
+	TestVisitor visitor;
+	type.visit(&visitor);
+	CHECK(visitor.getCount() == 0);
 }
 
 

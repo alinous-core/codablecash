@@ -226,7 +226,7 @@ int StatementBlock::binarySize() const {
 	return total;
 }
 
-void StatementBlock::toBinary(ByteBuffer* out) {
+void StatementBlock::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::STMT_BLOCK);
 
 	int maxLoop = this->statements.size();
@@ -337,6 +337,21 @@ void StatementBlock::interpretFunctionArguments(VirtualMachine* vm) {
 			stack->addInnerReference(ref);
 		}
 	}
+}
+
+AbstractStatement* StatementBlock::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	StatementBlock* inst = new StatementBlock();
+	inst->copyCodePositions(this);
+
+	int maxLoop = this->statements.size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractStatement* stmt = this->statements.get(i);
+
+		AbstractStatement* copied = stmt->generateGenericsImplement(input);
+		inst->addStatement(copied);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

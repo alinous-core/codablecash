@@ -54,7 +54,7 @@ int SQLIsNullExpression::binarySize() const {
 	return total;
 }
 
-void SQLIsNullExpression::toBinary(ByteBuffer* out) {
+void SQLIsNullExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::SQL_EXP_IS_NULL);

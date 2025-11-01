@@ -104,7 +104,7 @@ int MemberReferenceExpression::binarySize() const {
 	return total;
 }
 
-void MemberReferenceExpression::toBinary(ByteBuffer* out) {
+void MemberReferenceExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_MEMBER_REF);
 	AbstractBinaryExpression::toBinary(out);
 }
@@ -127,5 +127,12 @@ AbstractVmInstance* MemberReferenceExpression::interpret(VirtualMachine* vm) {
 	return holder->interpret(vm);
 }
 
+AbstractExpression* MemberReferenceExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	MemberReferenceExpression* inst = new MemberReferenceExpression();
+	inst->copyCodePositions(this);
+	inst->copyExpressionList(this, input);
+
+	return inst;
+}
 
 } /* namespace alinous */

@@ -82,7 +82,7 @@ int SQLWhere::binarySize() const {
 	return total;
 }
 
-void SQLWhere::toBinary(ByteBuffer* out) {
+void SQLWhere::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::SQL_PART_WHERE);

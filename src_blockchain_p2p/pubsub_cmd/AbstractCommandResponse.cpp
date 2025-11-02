@@ -17,6 +17,9 @@
 
 #include "bc_p2p_cmd_client/PingNodeCommandResponse.h"
 #include "bc_p2p_cmd_client/DownloadDnsInfoCommandResponse.h"
+#include "bc_p2p_cmd_client/ClientListStakingNodeIdsCommandResponse.h"
+#include "bc_p2p_cmd_client/ClientFetchMempoolTrxCommandResponse.h"
+#include "bc_p2p_cmd_client/ClientFetchHeaderTransactionsCommandResponse.h"
 
 #include "bc_p2p_cmd_node/SyncMempoolNodeCommandResponse.h"
 #include "bc_p2p_cmd_node/SyncHeaderNodeCommandResponse.h"
@@ -25,6 +28,8 @@
 #include "bc_p2p_cmd_node/DownloadTransactionsNodeCommandResponse.h"
 #include "bc_p2p_cmd_node/NodeCommandValidationErrorResponse.h"
 
+#include "bc_p2p_cmd_client/ClientSyncHeaderCommandResponse.h"
+
 #include "pubsub/PubsubCommandException.h"
 
 #include "base_io/ByteBuffer.h"
@@ -32,6 +37,7 @@
 #include "base/StackRelease.h"
 
 #include "ipconnect/IClientSocket.h"
+
 
 
 namespace codablecash {
@@ -73,6 +79,15 @@ AbstractCommandResponse* AbstractCommandResponse::createFromBinary(ByteBuffer *b
 	case TYPE_RES_DOWNLOAD_DNS_INFO:
 		ret = new DownloadDnsInfoCommandResponse();
 		break;
+	case TYPE_RES_CLIENT_LIST_STAKING_IDS:
+		ret = new ClientListStakingNodeIdsCommandResponse();
+		break;
+	case TYPE_RES_CLIENT_FETCH_MEMPOOL_TRX:
+		ret = new ClientFetchMempoolTrxCommandResponse();
+		break;
+	case TYPE_RES_CLIENT_FETCH_HEADER_TRX:
+		ret = new ClientFetchHeaderTransactionsCommandResponse();
+		break;
 	case TYPE_NODE_COMMAND_VALIDATION_ERROR:
 		ret = new NodeCommandValidationErrorResponse();
 		break;
@@ -90,6 +105,9 @@ AbstractCommandResponse* AbstractCommandResponse::createFromBinary(ByteBuffer *b
 		break;
 	case TYPE_RES_DOWNLOAD_TRANSACTIONS:
 		ret = new DownloadTransactionsNodeCommandResponse();
+		break;
+	case TYPE_RES_CLIENT_SYNC_HEADER:
+		ret = new ClientSyncHeaderCommandResponse();
 		break;
 	default:
 		throw new PubsubCommandException(L"Wrong command response type.", __FILE__, __LINE__);

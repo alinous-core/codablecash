@@ -18,6 +18,10 @@ class P2pRequestProcessor;
 class BlockchainController;
 class MemoryPool;
 
+
+/**
+ * Send transaction from client to node server
+ */
 class SendTransactionClientCommand : public AbstractClientRequestCommand {
 public:
 	SendTransactionClientCommand(const SendTransactionClientCommand& inst);

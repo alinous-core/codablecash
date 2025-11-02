@@ -1,0 +1,17 @@
+{
+	"libraryName" : "module_01",
+	"sourceFolders" : ["src/"],
+	"version" : "1.0.0",
+	
+	"instance" : {
+		"mainPackage": "sample",
+		"mainClass" : "Module01",
+		"initializer" : {
+			"method" : "main",
+			"args" : []
+		},
+		"exportMethods" : []
+	},
+	
+	"dependencies": []
+}

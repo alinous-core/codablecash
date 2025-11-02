@@ -24,25 +24,24 @@
 
 #include "bc_p2p_cmd/LoginErrorResponse.h"
 
-#include "bc_wallet_filter/BloomFilter512.h"
-
 #include "bc_base/BinaryUtils.h"
+#include "bc_wallet_filter/BloomFilter1024.h"
 namespace codablecash {
 
 LoginClientCommand::LoginClientCommand(const LoginClientCommand &inst)
 		: AbstractBlockchainLoginCommand(inst) {
-	this->filterList = new ArrayList<BloomFilter512>();
+	this->filterList = new ArrayList<BloomFilter1024>();
 
 	int maxLoop = inst.filterList->size();
 	for(int i = 0; i != maxLoop; ++i){
-		const BloomFilter512* f = inst.filterList->get(i);
+		const BloomFilter1024* f = inst.filterList->get(i);
 		addBloomFilter(f);
 	}
 }
 
 LoginClientCommand::LoginClientCommand(uint16_t zone)
 		: AbstractBlockchainLoginCommand(AbstractPubSubCommand::TYPE_CLIENT_LOGIN, zone, nullptr){
-	this->filterList = new ArrayList<BloomFilter512>();
+	this->filterList = new ArrayList<BloomFilter1024>();
 }
 
 LoginClientCommand::~LoginClientCommand() {
@@ -57,7 +56,7 @@ int LoginClientCommand::binarySize() const {
 
 	int maxLoop = this->filterList->size();
 	for(int i = 0; i != maxLoop; ++i){
-		const BloomFilter512* f = this->filterList->get(i);
+		const BloomFilter1024* f = this->filterList->get(i);
 
 		total += f->binarySize();
 	}
@@ -72,7 +71,7 @@ void LoginClientCommand::toBinary(ByteBuffer *buff) const {
 	buff->putShort(maxLoop);
 
 	for(int i = 0; i != maxLoop; ++i){
-		const BloomFilter512* f = this->filterList->get(i);
+		const BloomFilter1024* f = this->filterList->get(i);
 		f->toBinary(buff);
 	}
 }
@@ -84,7 +83,7 @@ void LoginClientCommand::fromBinary(ByteBuffer *buff) {
 	BinaryUtils::checkUShortRange(maxLoop, 0, 32);
 
 	for(int i = 0; i != maxLoop; ++i){
-		BloomFilter512* f = BloomFilter512::createFromBinary(buff);
+		BloomFilter1024* f = BloomFilter1024::createFromBinary(buff);
 		this->filterList->addElement(f);
 	}
 }
@@ -132,7 +131,7 @@ ByteBuffer* LoginClientCommand::getSignBinary() const {
 
 	int maxLoop = this->filterList->size();
 	for(int i = 0; i != maxLoop; ++i){
-		const BloomFilter512* f = this->filterList->get(i);
+		const BloomFilter1024* f = this->filterList->get(i);
 		cap += f->binarySize();
 	}
 
@@ -142,7 +141,7 @@ ByteBuffer* LoginClientCommand::getSignBinary() const {
 
 
 	for(int i = 0; i != maxLoop; ++i){
-		const BloomFilter512* f = this->filterList->get(i);
+		const BloomFilter1024* f = this->filterList->get(i);
 		f->toBinary(buff);
 	}
 
@@ -150,8 +149,8 @@ ByteBuffer* LoginClientCommand::getSignBinary() const {
 	return buff;
 }
 
-void LoginClientCommand::addBloomFilter(const BloomFilter512 *f) {
-	BloomFilter512* filter = dynamic_cast<BloomFilter512*>(f->copyData());
+void LoginClientCommand::addBloomFilter(const BloomFilter1024 *f) {
+	BloomFilter1024* filter = dynamic_cast<BloomFilter1024*>(f->copyData());
 	this->filterList->addElement(filter);
 }
 

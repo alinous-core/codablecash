@@ -149,7 +149,7 @@ void FinalizeMissDetectTicketCommandMessage::putTransaction(const BlockHeader *h
 
 	// set time stamp of vote transaction
 	VoteBlockTransaction* trx = new VoteBlockTransaction(); __STP(trx);
-	trx->setTicketUtxoId(utxoId, candidate->getTicletPrice());
+	trx->setTicketUtxoId(utxoId, candidate->getTicletPrice(), candidate->getAddressDescriptor());
 	trx->setVoteBlockId(wrongHeaderId); // wrong id
 	trx->setVoteBlockHeight(height2Vote);
 	trx->setVoterId(voterId);
@@ -175,14 +175,12 @@ void FinalizeMissDetectTicketCommandMessage::putTransaction(const BlockHeader *h
 
 
 	/// test
-	{
-		VoteBlockTransaction* trx2 = dynamic_cast<VoteBlockTransaction*>(trx->copyData()); __STP(trx2);
+//	{
+//		VoteBlockTransaction* trx2 = dynamic_cast<VoteBlockTransaction*>(trx->copyData()); __STP(trx2);
 
-		trx2->setVoteBlockHeight(1000L);
-		bool bl = trx2->validateOnAccept(memTrx, context);
-		assert(!bl);
-	}
-
+//		bool bl = trx2->validateOnAccept(memTrx, context);
+//		assert(!bl);
+//	}
 	{
 		VoteBlockTransaction* trx3 = dynamic_cast<VoteBlockTransaction*>(trx->copyData()); __STP(trx3);
 

@@ -35,6 +35,8 @@ class RevokeMissVotedTicket;
 class RevokeMissedTicket;
 class AbstractInterChainCommunicationTansaction;
 class AbstractSmartcontractTransaction;
+class ITransactionVisitor;
+class Block;
 
 class BlockBody : public alinous::IBlockObject {
 public:
@@ -66,7 +68,8 @@ public:
 		return this->merkleRoot;
 	}
 
-	MerkleCertificate* makeCertificate(const Abstract32BytesId* b) noexcept;
+	MerkleCertificate* makeCertificate(const Abstract32BytesId* b) const noexcept;
+	MerkleCertificate* makeCertificate(const char* hash, int size) const noexcept;
 
 	const ArrayList<AbstractBalanceTransaction>* getBalanceTransactions() const noexcept {
 		return this->balanceTransactions;
@@ -102,6 +105,8 @@ public:
 	UnicodeString* toStatString() const noexcept;
 
 	OmittedBlockBody* toOmittedBlockBody() const;
+
+	void visitTransactions(ITransactionVisitor* visitor, const Block* block) const;
 
 #ifdef __DEBUG__
 	bool checkTransaction(const AbstractBlockchainTransaction* trx);

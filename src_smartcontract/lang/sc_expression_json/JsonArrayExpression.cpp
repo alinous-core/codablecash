@@ -108,7 +108,7 @@ int JsonArrayExpression::binarySize() const {
 	return total;
 }
 
-void JsonArrayExpression::toBinary(ByteBuffer* out) {
+void JsonArrayExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_JSON_ARRAY);
 
 	int maxLoop = this->elements->size();
@@ -130,6 +130,21 @@ void JsonArrayExpression::fromBinary(ByteBuffer* in) {
 		AbstractExpression* exp = dynamic_cast<AbstractExpression*>(element);
 		addElement(exp);
 	}
+}
+
+AbstractExpression* JsonArrayExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	JsonArrayExpression* inst = new JsonArrayExpression();
+	inst->copyCodePositions(this);
+
+	int maxLoop = this->elements->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractExpression* exp = this->elements->get(i);
+		AbstractExpression* copiedExp = exp->generateGenericsImplement(input);
+
+		inst->addElement(copiedExp);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

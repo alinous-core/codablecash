@@ -9,6 +9,9 @@
 #include "bc_trx/TransactionId.h"
 #include "bc_trx/AbstractUtxoReference.h"
 #include "bc_trx/NopInterChainCommunicationTransaction.h"
+#include "bc_trx/IUtxoRefChecker.h"
+#include "bc_trx/IAddressChecker.h"
+#include "bc_trx/UtxoId.h"
 
 #include "bc_trx_genesis/GenesisTransaction.h"
 
@@ -32,9 +35,11 @@
 #include "bc_block_body/CoinbaseTransaction.h"
 #include "bc_block_body/StakeBaseTransaction.h"
 
-#include "bc_smartcontract/NopSmartcontractTransaction.h"
+#include "transaction/NopSmartcontractTransaction.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+
+#include "bc_wallet_filter/BloomFilter1024.h"
 
 using alinous::Os;
 
@@ -103,15 +108,22 @@ AbstractBlockchainTransaction* AbstractBlockchainTransaction::createFromBinary(B
 	return ret;
 }
 
-UtxoValidationResult AbstractBlockchainTransaction::validateUtxos(MemPoolTransaction *memTrx,	IStatusCacheContext *context, BalanceUnit fee) const {
+UtxoValidationResult AbstractBlockchainTransaction::validateUtxos(MemPoolTransaction *memTrx, IStatusCacheContext *context, const BalanceUnit& fee) const {
 	UtxoValidationResult result = UtxoValidationResult::ON_CHAIN;
 
 	BalanceUnit leftBalance(0L);
 	{
+		ArrayList<const UtxoId> usedUtxo;
+
 		int maxLoop = getUtxoReferenceSize();
 		for(int i = 0; i != maxLoop; ++i){
 			const AbstractUtxoReference* ref = getUtxoReference(i);
 			const UtxoId* utxoId = ref->getUtxoId();
+
+			if(hasUsedUtxo(&usedUtxo, utxoId)){
+				return UtxoValidationResult::INVALID;
+			}
+			usedUtxo.addElement(utxoId);
 
 			// on chain
 			{
@@ -155,8 +167,125 @@ UtxoValidationResult AbstractBlockchainTransaction::validateUtxos(MemPoolTransac
 	return result;
 }
 
+bool AbstractBlockchainTransaction::checkUtxoRefs() const noexcept {
+	bool ret = true;
+
+	ArrayList<const UtxoId> usedUtxo;
+	int maxLoop = getUtxoReferenceSize();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractUtxoReference* ref = getUtxoReference(i);
+		const UtxoId* utxoId = ref->getUtxoId();
+
+		if(hasUsedUtxo(&usedUtxo, utxoId)){
+			ret = false;
+			break;
+		}
+		usedUtxo.addElement(utxoId);
+	}
+
+	return ret;
+}
+
+
+bool AbstractBlockchainTransaction::hasUsedUtxo(ArrayList<const UtxoId>* usedUtxo, const UtxoId *utxoId) const {
+	bool ret = false;
+
+	int maxLoop = usedUtxo->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const UtxoId* id = usedUtxo->get(i);
+		if(utxoId->equals(id)){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
+}
+
 TrxValidationResult AbstractBlockchainTransaction::validateReported(const BlockHeader *header, IStatusCacheContext *context) const {
 	return validateFinal(header, nullptr, context);
+}
+
+bool AbstractBlockchainTransaction::checkFilter(const ArrayList<BloomFilter1024> *filtersList) const {
+	bool ret = false;
+
+	{
+		int maxLoop = getUtxoReferenceSize();
+		for(int i = 0; i != maxLoop; ++i){
+			const AbstractUtxoReference* ref = getUtxoReference(i);
+
+			if(ref->checkFilter(filtersList)){
+				ret = true;
+				break;
+			}
+		}
+	}
+
+	if(!ret){
+		int maxLoop = getUtxoSize();
+		for(int i = 0; i != maxLoop; ++i){
+			const AbstractUtxo* utxo = getUtxo(i);
+			const AddressDescriptor* desc = utxo->getAddress();
+
+			bool bl = checkFilters(filtersList, desc);
+			if(bl){
+				ret = true;
+				break;
+			}
+		}
+	}
+
+	return ret;
+}
+
+bool AbstractBlockchainTransaction::checkFilters(const ArrayList<BloomFilter1024> *filtersList, const AddressDescriptor *desc) const {
+	bool ret = false;
+
+	int maxLoop = filtersList->size();
+	for(int i = 0; i != maxLoop; ++i){
+		BloomFilter1024* filter = filtersList->get(i);
+
+		bool bl = filter->checkBytes(desc);
+		if(bl){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+bool AbstractBlockchainTransaction::checkFilteredUxtoRef(const IUtxoRefChecker *utxoRefChecker) const {
+	bool ret = false;
+
+	int maxLoop = getUtxoReferenceSize();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractUtxoReference* ref = getUtxoReference(i);
+
+		if(utxoRefChecker->checkUtxo(ref)){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+bool AbstractBlockchainTransaction::checkFilteredAddress(const IAddressChecker *addressChecker) const {
+	bool ret = false;
+
+	int maxLoop = getUtxoSize();
+	for(int i = 0; i != maxLoop; ++i){
+		const AbstractUtxo* utxo = getUtxo(i);
+		const AddressDescriptor* desc = utxo->getAddress();
+
+		if(addressChecker->checkAddress(desc)){
+			ret = true;
+			break;
+		}
+	}
+
+	return ret;
 }
 
 } /* namespace codablecash */

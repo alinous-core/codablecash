@@ -36,7 +36,7 @@ bool ZoneBlockValidator::validate(AbstractCommandResponse *response) {
 
 		uint16_t z = header->getZone();
 		uint64_t h = header->getHeight();
-		BlockHeaderId* id = header->getId();
+		const BlockHeaderId* id = header->getId();
 
 		ret = (this->zone == z && this->height == h && this->headerId->equals(id));
 	}

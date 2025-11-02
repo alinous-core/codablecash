@@ -80,7 +80,7 @@ int RelationalExpression::binarySize() const {
 	return total;
 }
 
-void RelationalExpression::toBinary(ByteBuffer* out) {
+void RelationalExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->left);
 	checkNotNull(this->right);
 
@@ -146,6 +146,20 @@ AbstractVmInstance* RelationalExpression::interpret(VirtualMachine* vm) {
 
 PrimitiveReference* RelationalExpression::makeBoolInst(VirtualMachine* vm, bool value) const noexcept {
 	return PrimitiveReference::createBoolReference(vm, value ? 1 : 0);
+}
+
+AbstractExpression* RelationalExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	RelationalExpression* inst = new RelationalExpression();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedleft = this->left->generateGenericsImplement(input);
+	inst->setLeft(copiedleft);
+	AbstractExpression* copiedRight = this->right->generateGenericsImplement(input);
+	inst->setRight(copiedRight);
+
+	inst->setOp(this->op);
+
+	return inst;
 }
 
 } /* namespace alinous */

@@ -65,7 +65,7 @@ int ClassImplements::binarySize() const {
 	return total;
 }
 
-void ClassImplements::toBinary(ByteBuffer* out) {
+void ClassImplements::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::CLASS_IMPLEMENTS);
 
 	int maxLoop = this->list.size();
@@ -86,6 +86,23 @@ void ClassImplements::fromBinary(ByteBuffer* in) {
 		ClassName* n = dynamic_cast<ClassName*>(element);
 		this->list.addElement(n);
 	}
+}
+
+ClassImplements* ClassImplements::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ClassImplements* inst = new ClassImplements();
+	inst->copyCodePositions(this);
+
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		ClassName* n = this->list.get(i);
+
+		ClassName* copy = new ClassName(*n);
+		copy->copyCodePositions(n);
+
+		inst->addClassName(copy);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

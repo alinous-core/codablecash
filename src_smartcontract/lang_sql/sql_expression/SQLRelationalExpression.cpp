@@ -62,7 +62,7 @@ int SQLRelationalExpression::binarySize() const {
 	return total;
 }
 
-void SQLRelationalExpression::toBinary(ByteBuffer* out) {
+void SQLRelationalExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->left);
 	checkNotNull(this->right);
 

@@ -17,6 +17,10 @@ public:
 	AbstractWalletAccount(uint16_t zone, int accountIndex);
 	virtual ~AbstractWalletAccount();
 
+	uint16_t getZone() const noexcept {
+		return this->zone;
+	}
+
 protected:
 	int accountIndex;
 	uint16_t zone;

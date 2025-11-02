@@ -49,6 +49,8 @@ public:
 	virtual bool validateOnAccept(MemPoolTransaction *memTrx, IStatusCacheContext* context) const;
 	virtual TrxValidationResult validateFinal(const BlockHeader* header, MemPoolTransaction *memTrx, IStatusCacheContext* context) const;
 
+	virtual void addInternalMerkleTreeElement(MerkleTree* tree);
+
 private:
 	NodeIdentifier* nodeId;
 	AddressDescriptor* addressDesc; // voter address

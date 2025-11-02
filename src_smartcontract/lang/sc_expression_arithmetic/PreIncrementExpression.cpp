@@ -39,7 +39,7 @@ void PreIncrementExpression::analyze(AnalyzeContext* actx) {
 	AbstractArithmeticExpression::analyze(actx);
 
 	AnalyzedType type = getType(actx);
-	if(!type.isPrimitiveInteger()){
+	if(!type.isPrimitiveInteger() && !type.isGenericsType()){
 		actx->addValidationError(ValidationError::CODE_ARITHMETIC_NON_INTEGER, this, L"Can not use arithmetic operator to non integer value.", {});
 	}
 }
@@ -57,7 +57,7 @@ int PreIncrementExpression::binarySize() const {
 	return total;
 }
 
-void PreIncrementExpression::toBinary(ByteBuffer* out) {
+void PreIncrementExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::EXP_PRE_INC);
@@ -183,6 +183,14 @@ AbstractVmInstance* PreIncrementExpression::interpret64Bit(VirtualMachine* vm) {
 	ref->setLongValue(val);
 
 	return ref;
+}
+
+AbstractExpression* PreIncrementExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	PreIncrementExpression* inst = new PreIncrementExpression();
+	inst->copyCodePositions(this);
+	inst->importMembers(this, input);
+
+	return inst;
 }
 
 } /* namespace alinous */

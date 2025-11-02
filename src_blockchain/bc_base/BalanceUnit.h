@@ -48,6 +48,7 @@ public:
 
 	virtual IBlockObject* copyData() const noexcept;
 
+	int compareTo(const BalanceUnit& other) const noexcept;
 	int compareTo(const BalanceUnit* other) const noexcept;
 	bool isZero() const noexcept {
 		return this->amount == 0;

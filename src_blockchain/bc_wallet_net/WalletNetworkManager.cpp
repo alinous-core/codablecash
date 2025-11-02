@@ -53,7 +53,7 @@ void WalletNetworkManager::setSeeder(INetworkSeeder *seeder) noexcept {
 	this->seeder = seeder;
 }
 
-void WalletNetworkManager::maintainNetwork(const ArrayList<BloomFilter512>* filters) {
+void WalletNetworkManager::maintainNetwork(const ArrayList<BloomFilter1024>* filters) {
 	// make candodates list
 	{
 		ArrayList<P2pNodeRecord>* list = this->seeder->getSeedNodes(); __STP(list);
@@ -149,5 +149,24 @@ void WalletNetworkManager::doInitNodeCandidates(uint16_t zone, const UnicodeStri
 	}
 }
 
+ArrayList<NodeIdentifier>* WalletNetworkManager::getNodeIdList() const noexcept {
+	return this->connectionManager->getNodeIdList();
+}
+
+const NodeIdentifierSource* WalletNetworkManager::getNodeIdentifierSource() const noexcept {
+	return this->connectionManager->getNodeIdentifierSource();
+}
+
+ClientNodeHandshake* WalletNetworkManager::getClientHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept {
+	return this->connectionManager->getClientHandshakeByNodeId(nodeId);
+}
+
+const NodeIdentifier* WalletNetworkManager::pubsubId2NodeId(const PubSubId *pubsubId) const noexcept {
+	return this->connectionManager->pubsubId2NodeId(pubsubId);
+}
+
+void WalletNetworkManager::shutdownNetwork() {
+	this->connectionManager->dispose();
+}
 
 } /* namespace codablecash */

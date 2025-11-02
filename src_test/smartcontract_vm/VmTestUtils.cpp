@@ -101,7 +101,7 @@ bool VmTestUtils::loadAllFiles() {
 	this->sc = sc;
 	this->vm->loadSmartContract(sc);
 
-	compile_errors = this->sc->getCompileErrors();
+	this->compile_errors = this->sc->getCompileErrors();
 
 	return compile_errors->isEmpty();
 }

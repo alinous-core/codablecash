@@ -59,7 +59,7 @@ int AlterRenameColumnCommand::binarySize() const {
 	return total;
 }
 
-void AlterRenameColumnCommand::toBinary(ByteBuffer* out) {
+void AlterRenameColumnCommand::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->lastName);
 	checkNotNull(this->newName);
 

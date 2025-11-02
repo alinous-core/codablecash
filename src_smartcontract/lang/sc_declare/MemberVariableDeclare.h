@@ -10,6 +10,9 @@
 
 #include "engine/sc/CodeElement.h"
 
+#include "base/HashMap.h"
+
+
 namespace alinous {
 
 class AbstractType;
@@ -20,6 +23,7 @@ class AnalyzedType;
 class VirtualMachine;
 class AbstractExpression;
 class AbstractReference;
+class AbstractType;
 
 class MemberVariableDeclare : public CodeElement {
 public:
@@ -48,10 +52,12 @@ public:
 	AbstractExpression* getExp() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	AnalyzedType getAnalyzedType() const noexcept;
+
+	MemberVariableDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 private:
 	void doOnAllocate(VirtualMachine* vm, AbstractReference* ref);

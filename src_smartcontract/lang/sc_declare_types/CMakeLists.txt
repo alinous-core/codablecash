@@ -7,7 +7,9 @@ set(__src
 	ByteType.cpp
 	CharType.cpp
 	DomType.cpp
+	GenericsObjectType.cpp
 	IntType.cpp
+	ITypeVisitor.cpp
 	LongType.cpp
 	ObjectType.cpp
 	ShortType.cpp

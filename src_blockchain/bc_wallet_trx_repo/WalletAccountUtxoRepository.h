@@ -14,6 +14,7 @@ class File;
 class UnicodeString;
 class DiskCacheManager;
 class Btree;
+class BtreeScanner;
 }
 using namespace alinous;
 
@@ -23,6 +24,7 @@ class BalanceUtxo;
 class BalanceUnit;
 class AddressDescriptor;
 class UtxoId;
+class AbstractUtxo;
 
 class WalletAccountUtxoRepository {
 public:
@@ -37,13 +39,19 @@ public:
 	void open();
 	void close() noexcept;
 
-	void importUtxo(const BalanceUtxo* utxo);
+	void importUtxo(const AbstractUtxo* utxo);
 	BalanceUtxo* getBalanceUtxo(const UtxoId* utxoId);
+	AbstractUtxo* getUtxo(const UtxoId* utxoId);
+	ArrayList<AbstractUtxo>* getUtxos(const AddressDescriptor* desc);
+
 	void removeUtxo(const UtxoId* utxoId);
 
 	BalanceUnit getTotalAmount() const noexcept;
 	ArrayList<BalanceUtxo>* getBalanceUtxos(const AddressDescriptor* desc);
 
+
+
+	BtreeScanner* getScanner() const;
 
 private:
 	const File* accountBaseDir;

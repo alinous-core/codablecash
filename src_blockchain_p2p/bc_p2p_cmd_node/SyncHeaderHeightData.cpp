@@ -99,7 +99,7 @@ UnicodeString* SyncHeaderHeightData::toString() const noexcept {
 		BlockHeaderTransferData* data = this->list->get(i);
 		const BlockHeader* header = data->getHeader();
 		uint64_t height = header->getHeight();
-		BlockHeaderId* id = header->getId();
+		const BlockHeaderId* id = header->getId();
 
 		if(i != 0){
 			ret->append(L", ");

@@ -136,6 +136,14 @@ public:
 		this->numArray = this->numArray - length;
 	}
 
+	inline T pop() noexcept {
+		int pos = this->numArray - 1;
+		T ret = get(pos);
+
+		remove(pos);
+
+		return ret;
+	}
 
 };
 

@@ -38,7 +38,7 @@ void PostIncrementExpression::analyze(AnalyzeContext* actx) {
 	AbstractArithmeticExpression::analyze(actx);
 
 	AnalyzedType type = getType(actx);
-	if(!type.isPrimitiveInteger()){
+	if(!type.isPrimitiveInteger() && !type.isGenericsType()){
 		actx->addValidationError(ValidationError::CODE_ARITHMETIC_NON_INTEGER, this, L"Can not use arithmetic operator to non integer value.", {});
 	}
 }
@@ -56,7 +56,7 @@ int PostIncrementExpression::binarySize() const {
 	return total;
 }
 
-void PostIncrementExpression::toBinary(ByteBuffer* out) {
+void PostIncrementExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::EXP_POST_INC);
@@ -185,6 +185,14 @@ AbstractVmInstance* PostIncrementExpression::interpret64Bit(VirtualMachine* vm) 
 	ref->setLongValue(val);
 
 	return lastValue;
+}
+
+AbstractExpression* PostIncrementExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	PostIncrementExpression* inst = new PostIncrementExpression();
+	inst->copyCodePositions(this);
+	inst->importMembers(this, input);
+
+	return inst;
 }
 
 } /* namespace alinous */

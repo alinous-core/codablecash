@@ -149,7 +149,7 @@ int UpdateStatement::binarySize() const {
 	return total;
 }
 
-void UpdateStatement::toBinary(ByteBuffer* out) {
+void UpdateStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->tableId);
 	checkNotNull(this->set);
 

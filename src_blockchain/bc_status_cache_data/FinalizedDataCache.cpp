@@ -43,7 +43,7 @@
 
 #include "bc_status_cache_lockin/LockinManager.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 
 namespace codablecash {
@@ -166,7 +166,7 @@ void FinalizedDataCache::importRegisterVotePoolTransaction(	const BlockHeader *h
 		const RegisterVotePoolTransaction *trx, IStatusCacheContext* context) {
 
 	uint64_t height = header->getHeight();
-	context->registerVoterPool(trx, height);
+	context->registerVoterPool(trx, height, header, body);
 }
 
 void FinalizedDataCache::importRegisterTicketTransaction(const BlockHeader *header, const BlockBody *body,

@@ -3,9 +3,16 @@
 set(__src
 	AbstractWalletTransactionHandler.cpp
 	BalanceTransactionWalletHandler.cpp
+	CoinbaseTransactionWalletHandler.cpp
 	GenesisTransactionHandler.cpp
+	IccNopTransactionWalletHandler.cpp
 	RegisterTicketTransactionWalletHandler.cpp
 	RegisterVotePoolTransactionWalletHandler.cpp
+	RevokeMissedTicketWalletHandler.cpp
+	RevokeMissVotedTicketWalletHandler.cpp
+	SmartcontractNopTransactionWalletHandler.cpp
+	StakeBaseTransactionWalletHandler.cpp
+	VoteBlockTransactionWalletHandler.cpp
 )
 handle_sub(codablecashlib "${__src}" blockchain bc_wallet_trx)
 

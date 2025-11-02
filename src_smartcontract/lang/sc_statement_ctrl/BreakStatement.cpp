@@ -40,7 +40,7 @@ int BreakStatement::binarySize() const {
 	return total;
 }
 
-void BreakStatement::toBinary(ByteBuffer* out) {
+void BreakStatement::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::STMT_BREAK);
 }
 
@@ -56,6 +56,13 @@ void BreakStatement::interpret(VirtualMachine* vm) {
 
 bool BreakStatement::hasCtrlStatement() const noexcept {
 	return true;
+}
+
+AbstractStatement* BreakStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	BreakStatement* inst = new BreakStatement();
+	inst->copyCodePositions(this);
+
+	return inst;
 }
 
 } /* namespace alinous */

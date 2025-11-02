@@ -52,7 +52,7 @@ int SqlMultiplicativeExpression::binarySize() const {
 	return total;
 }
 
-void SqlMultiplicativeExpression::toBinary(ByteBuffer* out) {
+void SqlMultiplicativeExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_MULTIPLICATIVE);
 	AbstractSQLBinaryExpression::toBinary(out);
 

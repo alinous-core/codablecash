@@ -10,13 +10,17 @@
 
 #include "engine/sc/CodeElement.h"
 
+#include "base/HashMap.h"
+
 namespace alinous {
 
 class UnicodeString;
 class AnalyzeContext;
+class AbstractType;
 
 class ImportDeclare : public CodeElement {
 public:
+	ImportDeclare(const ImportDeclare& inst);
 	ImportDeclare();
 	virtual ~ImportDeclare();
 
@@ -27,8 +31,15 @@ public:
 	void preAnalyze(AnalyzeContext* actx);
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	ImportDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType>* input) const;
+
+	void setClassName(UnicodeString* str);
+	const UnicodeString* getClassName() const noexcept {
+		return this->className;
+	}
 
 private:
 	UnicodeString* className;

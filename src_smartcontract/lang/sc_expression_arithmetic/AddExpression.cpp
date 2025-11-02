@@ -164,4 +164,13 @@ AbstractVmInstance* AddExpression::interpret64Bit(VirtualMachine* vm) {
 	return PrimitiveReference::createLongReference(vm, result);
 }
 
+AbstractExpression* AddExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	AddExpression* inst = new AddExpression();
+	inst->copyCodePositions(this);
+	inst->copyExpressionList(this, input);
+	inst->copyOperationList(this, input);
+
+	return inst;
+}
+
 } /* namespace alinous */

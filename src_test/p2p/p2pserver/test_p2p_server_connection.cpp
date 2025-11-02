@@ -146,7 +146,7 @@ TEST(P2PServerConnectionTestGroup, ConnectPublisherCommand01){
 		server->stopListning();
 		server->close();
 
-		printf("IPV6 is disabled %d\n");
+		printf("IPV6 is disabled \n");
 		CHECK(false);
 		return;
 	}
@@ -195,7 +195,7 @@ TEST(P2PServerConnectionTestGroup, ConnectSubscriberCommand01){
 		server->stopListning();
 		server->close();
 
-		printf("IPV6 is disabled %d\n");
+		printf("IPV6 is disabled \n");
 		CHECK(false);
 		return;
 	}
@@ -238,7 +238,7 @@ TEST(P2PServerConnectionTestGroup, ConnectSubscriberCommand02) {
 		server->stopListning();
 		server->close();
 
-		printf("IPV6 is disabled %d\n");
+		printf("IPV6 is disabled \n");
 		CHECK(false);
 		return;
 	}
@@ -271,7 +271,7 @@ TEST(P2PServerConnectionTestGroup, P2pConnectionAcceptThread01) {
 		server->stopListning();
 		server->close();
 
-		printf("IPV6 is disabled %d\n");
+		printf("IPV6 is disabled \n");
 		CHECK(false);
 		return;
 	}
@@ -303,7 +303,7 @@ TEST(P2PServerConnectionTestGroup, P2pConnectionAcceptThread02) {
 		server->stopListning();
 		server->close();
 
-		printf("IPV6 is disabled %d\n");
+		printf("IPV6 is disabled \n");
 		CHECK(false);
 		return;
 	}
@@ -347,7 +347,7 @@ TEST(P2PServerConnectionTestGroup, P2pServerConnectionManager01){
 		server->stopListning();
 		server->close();
 
-		printf("IPV6 is disabled %d\n");
+		printf("IPV6 is disabled \n");
 		CHECK(false);
 		return;
 	}

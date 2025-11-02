@@ -15,6 +15,9 @@ using namespace alinous;
 namespace codablecash {
 
 class UtxoId;
+class BloomHash1024;
+class AddressDescriptor;
+class BloomFilter1024;
 
 class AbstractUtxoReference : public alinous::IBlockObject {
 public:
@@ -36,13 +39,16 @@ public:
 	virtual uint8_t getType() const noexcept = 0;
 	virtual void fromBinary(ByteBuffer* in) = 0;
 
+	virtual bool checkFilter(const ArrayList<BloomFilter1024> *filtersList) const;
+
 	const UtxoId* getUtxoId() const noexcept {
 		return this->utxoId;
 	}
-	void setUtxoId(const UtxoId* utxoId) noexcept;
+	void setUtxoId(const UtxoId* utxoId, const AddressDescriptor* addressDesc) noexcept;
 
 protected:
 	UtxoId* utxoId;
+	BloomHash1024* bloomHash;
 };
 
 } /* namespace codablecash */

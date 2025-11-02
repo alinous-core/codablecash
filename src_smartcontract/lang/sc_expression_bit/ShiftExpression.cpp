@@ -65,7 +65,7 @@ int ShiftExpression::binarySize() const {
 	return total;
 }
 
-void ShiftExpression::toBinary(ByteBuffer* out) {
+void ShiftExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_SHIFT);
 	AbstractBinaryExpression::toBinary(out);
 
@@ -221,6 +221,15 @@ AbstractVmInstance* ShiftExpression::interpret64Bit(VirtualMachine* vm) {
 	}
 
 	return PrimitiveReference::createLongReference(vm, result);
+}
+
+AbstractExpression* ShiftExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ShiftExpression* inst = new ShiftExpression();
+	inst->copyCodePositions(this);
+	inst->copyExpressionList(this, input);
+	inst->copyOperationList(this, input);
+
+	return inst;
 }
 
 } /* namespace alinous */

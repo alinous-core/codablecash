@@ -15,7 +15,8 @@ using namespace alinous;
 namespace codablecash {
 
 class AbstractTransferedData;
-class AbstractClientCommand;
+class AbstractClientQueueCommand;
+class NodeIdentifier;
 
 class ClientCommandsQueueData : public IBlockObject {
 public:
@@ -30,11 +31,13 @@ public:
 	virtual IBlockObject* copyData() const noexcept;
 
 	void setData(const AbstractTransferedData* dt);
+	void setSourceNodeId(const NodeIdentifier* nodeId);
 
-	AbstractClientCommand* toClientCommand() const;
+	AbstractClientQueueCommand* toClientCommand() const;
 
 private:
 	AbstractTransferedData* data;
+	NodeIdentifier* sourceNodeId;
 };
 
 } /* namespace codablecash */

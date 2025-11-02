@@ -68,6 +68,8 @@ public:
 	const SystemTimestamp* getTimestamp() const noexcept;
 	void setNonceGeneratedTimestamp(const SystemTimestamp* tm) const noexcept;
 
+	bool isScheduledBlock() const noexcept;
+
 #ifdef __DEBUG__
 	bool checkMerkleRoot() const noexcept;
 #endif

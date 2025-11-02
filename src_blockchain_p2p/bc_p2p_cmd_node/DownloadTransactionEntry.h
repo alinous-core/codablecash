@@ -20,8 +20,13 @@ class TransactionId;
 
 class DownloadTransactionEntry : public IBlockObject {
 public:
+	static const constexpr uint8_t TYPE_CONTROL{1};
+	static const constexpr uint8_t TYPE_ICC{2};
+	static const constexpr uint8_t TYPE_BALANCE{3};
+	static const constexpr uint8_t TYPE_SMARTCONTRACT{4};
+
 	DownloadTransactionEntry(const DownloadTransactionEntry& inst) = delete;
-	DownloadTransactionEntry(uint64_t height, const TransactionId* trxId);
+	DownloadTransactionEntry(uint64_t height, const TransactionId* trxId, uint8_t trxType);
 	virtual ~DownloadTransactionEntry();
 
 	virtual int binarySize() const;
@@ -34,9 +39,14 @@ public:
 		return this->trxId;
 	}
 
+	uint8_t getTrxType() const noexcept {
+		return this->trxType;
+	}
+
 private:
 	uint64_t height;
 	TransactionId* trxId;
+	uint8_t trxType;
 };
 
 } /* namespace codablecash */

@@ -44,7 +44,7 @@ int ParenthesisExpression::binarySize() const {
 	return total;
 }
 
-void ParenthesisExpression::toBinary(ByteBuffer* out) {
+void ParenthesisExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::EXP_PARENTHESIS);
@@ -67,6 +67,16 @@ void ParenthesisExpression::init(VirtualMachine* vm) {
 
 AbstractVmInstance* ParenthesisExpression::interpret(VirtualMachine* vm) {
 	return this->exp->interpret(vm);
+}
+
+AbstractExpression* ParenthesisExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ParenthesisExpression* inst = new ParenthesisExpression();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copied = this->exp->generateGenericsImplement(input);
+	inst->setExp(copied);
+
+	return inst;
 }
 
 } /* namespace alinous */

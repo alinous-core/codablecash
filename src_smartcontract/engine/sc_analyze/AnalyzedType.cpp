@@ -27,6 +27,7 @@ AnalyzedType::AnalyzedType(uint8_t type) {
 	this->aclazz = nullptr;
 	this->str = nullptr;
 	this->dim = 0;
+	this->genericsType = nullptr;
 }
 
 AnalyzedType::AnalyzedType(AnalyzedClass* clazz) {
@@ -34,6 +35,7 @@ AnalyzedType::AnalyzedType(AnalyzedClass* clazz) {
 	this->aclazz = clazz;
 	this->str = nullptr;
 	this->dim = 0;
+	this->genericsType = nullptr;
 }
 
 AnalyzedType::AnalyzedType(const AnalyzedType& obj) {
@@ -41,6 +43,7 @@ AnalyzedType::AnalyzedType(const AnalyzedType& obj) {
 	this->aclazz = obj.aclazz;
 	this->str = nullptr;
 	this->dim = obj.dim;
+	this->genericsType = obj.genericsType != nullptr ? new UnicodeString(obj.genericsType) : nullptr;
 }
 
 AnalyzedType::AnalyzedType() {
@@ -48,11 +51,14 @@ AnalyzedType::AnalyzedType() {
 	this->aclazz = nullptr;
 	this->str = nullptr;
 	this->dim = 0;
+	this->genericsType = nullptr;
 }
 
 AnalyzedType::~AnalyzedType() {
 	this->aclazz = nullptr;
 	delete this->str;
+
+	delete this->genericsType;
 }
 
 AnalyzedClass* AnalyzedType::getAnalyzedClass() const noexcept {
@@ -204,5 +210,17 @@ bool AnalyzedType::equals(AnalyzedType* other) const noexcept {
 	return true;
 }
 
+void AnalyzedType::setAnalyzedClass(AnalyzedClass *aclass) noexcept {
+	this->aclazz = aclass;
+}
+
+void AnalyzedType::setGenericsType(const UnicodeString *genericsType) {
+	delete this->genericsType;
+	this->genericsType = new UnicodeString(genericsType);
+}
+
+bool AnalyzedType::isGenericsType() const noexcept {
+	return this->type == TYPE_GENERICS_TYPE;
+}
 
 } /* namespace alinous */

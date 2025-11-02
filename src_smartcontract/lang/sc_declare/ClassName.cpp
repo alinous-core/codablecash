@@ -11,6 +11,10 @@
 
 namespace alinous {
 
+ClassName::ClassName(const ClassName &inst) : CodeElement(CodeElement::CLASS_NAME) {
+	this->fqn = new UnicodeString(inst.fqn);
+}
+
 ClassName::ClassName() : CodeElement(CodeElement::CLASS_NAME) {
 	this->fqn = nullptr;
 }
@@ -48,7 +52,7 @@ int ClassName::binarySize() const {
 	return total;
 }
 
-void ClassName::toBinary(ByteBuffer* out) {
+void ClassName::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::CLASS_NAME);
 	putString(out, this->fqn);
 }

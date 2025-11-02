@@ -65,7 +65,7 @@ int SQLEqualityExpression::binarySize() const {
 	return total;
 }
 
-void SQLEqualityExpression::toBinary(ByteBuffer* out) {
+void SQLEqualityExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->left);
 	checkNotNull(this->right);
 

@@ -134,6 +134,14 @@ void SmartContract::analyze(VirtualMachine* vm) {
 		return;
 	}
 
+	// generics
+	this->actx->generateGenericsClasses();
+	this->actx->preAnalyzeGenerics();
+
+	if(this->actx->hasError()){
+		return;
+	}
+
 	maxLoop = this->progs.size();
 	for(int i = 0; i != maxLoop; ++i){
 		CompilationUnit* unit = this->progs.get(i);
@@ -148,6 +156,7 @@ void SmartContract::analyze(VirtualMachine* vm) {
 		dec->analyzeTypeRef(actx);
 	}
 
+	this->actx->analyzeTypeRefGenerics();
 
 	if(this->actx->hasError()){
 		return;
@@ -158,6 +167,7 @@ void SmartContract::analyze(VirtualMachine* vm) {
 
 	// inheritance
 	this->actx->analyzeClassInheritance();
+
 
 	if(this->actx->hasError()){
 		return;
@@ -182,6 +192,8 @@ void SmartContract::analyze(VirtualMachine* vm) {
 
 			dec->analyze(actx);
 		}
+
+		this->actx->analyzeGenerics();
 	}
 
 }

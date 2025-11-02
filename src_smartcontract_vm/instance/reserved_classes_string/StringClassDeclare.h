@@ -24,10 +24,16 @@ public:
 	StringClassDeclare();
 	virtual ~StringClassDeclare();
 
-	virtual const UnicodeString* getName() noexcept;
+	virtual uint16_t getClassType() const noexcept {
+		return TYPE_STRING_CLASS;
+	}
+
+	virtual const UnicodeString* getName() const noexcept;
 	virtual const UnicodeString* getFullQualifiedName() noexcept;
 
 	virtual ClassDeclare* getBaseClass() const noexcept;
+
+
 };
 
 } /* namespace alinous */

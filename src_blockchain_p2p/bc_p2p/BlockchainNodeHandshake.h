@@ -22,6 +22,7 @@ class NodeIdentifier;
 class AbstractNodeCommand;
 class AbstractCommandResponse;
 class AbstractClientNotifyCommand;
+class AbstractClientRequestCommand;
 
 class BlockchainNodeHandshake {
 public:
@@ -47,6 +48,7 @@ public:
 
 	AbstractCommandResponse* sendCommnad(const AbstractNodeCommand *command);
 	AbstractCommandResponse* sendCommnad(const AbstractClientNotifyCommand *command);
+	AbstractCommandResponse* sendCommnad(const AbstractClientRequestCommand *command);
 
 protected:
 	int zone;

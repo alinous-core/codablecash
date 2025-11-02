@@ -15,6 +15,8 @@ class PackageNameDeclare;
 class UnicodeString;
 
 class ObjectType : public AbstractType {
+protected:
+	ObjectType(short kind);
 public:
 	ObjectType();
 	virtual ~ObjectType();
@@ -24,14 +26,20 @@ public:
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual const UnicodeString* toString() noexcept;
+	virtual AbstractType* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 	void setPackageName(PackageNameDeclare* packageName) noexcept;
 	void setName(UnicodeString* className) noexcept;
 
 	PackageNameDeclare* getPackageName() const noexcept;
-	const UnicodeString* getClassName() const noexcept;
+	virtual const UnicodeString* getClassName() const noexcept;
 
-private:
+	virtual void visit(ITypeVisitor* visitor);
+
+protected:
+	AbstractType* getAbstractTypeFromMember(HashMap<UnicodeString, AbstractType> *input) const;
+
+protected:
 	PackageNameDeclare* packageName;
 	UnicodeString* className;
 

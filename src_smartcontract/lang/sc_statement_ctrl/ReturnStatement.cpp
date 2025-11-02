@@ -54,7 +54,7 @@ int alinous::ReturnStatement::binarySize() const {
 	return total;
 }
 
-void alinous::ReturnStatement::toBinary(ByteBuffer* out) {
+void alinous::ReturnStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::STMT_RETURN);
@@ -103,5 +103,14 @@ void ReturnStatement::interpretExpression(VirtualMachine* vm) {
 	}
 }
 
+AbstractStatement* ReturnStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ReturnStatement* inst = new ReturnStatement();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedExp = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copiedExp);
+
+	return inst;
+}
 
 } /* namespace alinous */

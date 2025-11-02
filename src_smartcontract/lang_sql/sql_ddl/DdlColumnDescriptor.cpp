@@ -48,7 +48,7 @@ int DdlColumnDescriptor::binarySize() const {
 	return total;
 }
 
-void DdlColumnDescriptor::toBinary(ByteBuffer* out) {
+void DdlColumnDescriptor::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 	checkNotNull(this->typeDesc);
 

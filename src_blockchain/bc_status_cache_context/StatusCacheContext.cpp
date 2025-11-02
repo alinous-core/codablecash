@@ -64,7 +64,7 @@
 
 #include "bc_block/BlockHeaderId.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "bc_status_cache_lockin/ILockinManager.h"
 #include "bc_status_cache_lockin/LockInOperationData.h"
@@ -72,6 +72,14 @@
 #include "bc_status_cache/ZoneStatusCache.h"
 
 #include "bc_status_cache_data/FinalizedDataCache.h"
+
+#include "bc_network/NodeIdentifier.h"
+
+#include "numeric/BigInteger.h"
+
+#include "merkletree/MerkleCertificate.h"
+
+
 namespace codablecash {
 
 uint64_t StatusCacheContext::getSerial() noexcept {
@@ -110,6 +118,8 @@ StatusCacheContext::StatusCacheContext(const CodablecashSystemParam* config, con
 	this->trxCache = nullptr;
 	this->utxoCache = nullptr;
 	this->voterCache = nullptr;
+
+	this->topHeight = 0;
 }
 
 StatusCacheContext::~StatusCacheContext() {
@@ -147,17 +157,17 @@ void StatusCacheContext::init() {
 	this->ticketPrice = this->statusCache->getFinalizedTicketPrice(zone);
 }
 
-void StatusCacheContext::importBlock(const BlockHeader *header, const BlockBody *blockBody) {
+void StatusCacheContext::importBlock(const BlockHeader *header, const BlockBody *blockBody, ISystemLogger* logger) {
 	LockinManager* liManager = this->statusCache->getLockInManager(this->zone);
 	NullLockinManager lockinManager(liManager);
 
 	beginBlock(header, &lockinManager);
 
-	importControlTransactions(header, blockBody);
-	importInterChainCommunicationTransactions(header, blockBody);
-	importBalanceTransactions(header, blockBody);
-	importSmartcontractTransactions(header, blockBody);
-	importRewordTransactions(header, blockBody);
+	importControlTransactions(header, blockBody, logger);
+	importInterChainCommunicationTransactions(header, blockBody, logger);
+	importBalanceTransactions(header, blockBody, logger);
+	importSmartcontractTransactions(header, blockBody, logger);
+	importRewordTransactions(header, blockBody, logger);
 
 	endBlock(header, &lockinManager);
 }
@@ -255,58 +265,58 @@ void StatusCacheContext::calcTicketPrice(const BlockHeader *header) {
 	this->ticketPrice = price;
 }
 
-void StatusCacheContext::importBalanceTransactions(const BlockHeader *header, const BlockBody *blockBody) {
+void StatusCacheContext::importBalanceTransactions(const BlockHeader *header, const BlockBody *blockBody, ISystemLogger* logger) {
 	const ArrayList<AbstractBalanceTransaction>* list = blockBody->getBalanceTransactions();
 
 	int maxLoop = list->size();
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractBalanceTransaction* trx = list->get(i);
 
-		importBalanceTransaction(header, trx);
+		importBalanceTransaction(header, trx, logger);
 	}
 }
 
-void StatusCacheContext::importInterChainCommunicationTransactions(const BlockHeader *header, const BlockBody *blockBody) {
+void StatusCacheContext::importInterChainCommunicationTransactions(const BlockHeader *header, const BlockBody *blockBody, ISystemLogger* logger) {
 	ArrayList<AbstractInterChainCommunicationTansaction>* list = blockBody->getInterChainCommunicationTransactions();
 
 	int maxLoop = list->size();
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractInterChainCommunicationTansaction* trx = list->get(i);
 
-		importInterChainCommunicationTransaction(header, trx);
+		importInterChainCommunicationTransaction(header, trx, logger);
 	}
 }
 
-void StatusCacheContext::importSmartcontractTransactions(const BlockHeader *header, const BlockBody *blockBody) {
+void StatusCacheContext::importSmartcontractTransactions(const BlockHeader *header, const BlockBody *blockBody, ISystemLogger* logger) {
 	ArrayList<AbstractSmartcontractTransaction>* list = blockBody->getSmartcontractTransactions();
 
 	int maxLoop = list->size();
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractSmartcontractTransaction* trx = list->get(i);
 
-		importSmartcontractTransaction(header, trx);
+		importSmartcontractTransaction(header, trx, logger);
 	}
 }
 
-void StatusCacheContext::importBalanceTransaction(const BlockHeader *header,	const AbstractBalanceTransaction *trx) {
+void StatusCacheContext::importBalanceTransaction(const BlockHeader *header, const AbstractBalanceTransaction *trx, ISystemLogger* logger) {
 	this->trxCache->putTransaction(trx);
 
 	importUtxo(trx, header);
 }
 
-void StatusCacheContext::importControlTransactions(const BlockHeader *header, const BlockBody *blockBody) {
+void StatusCacheContext::importControlTransactions(const BlockHeader *header, const BlockBody *blockBody, ISystemLogger* logger) {
 	const ArrayList<AbstractControlTransaction>* list = blockBody->getControlTransactions();
 
 	int maxLoop = list->size();
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractControlTransaction* trx = list->get(i);
 
-		importControlTransaction(header, trx);
+		importControlTransaction(header, blockBody, trx, logger);
 	}
 }
 
 
-void StatusCacheContext::importRewordTransactions(const BlockHeader *header,	const BlockBody *blockBody) {
+void StatusCacheContext::importRewordTransactions(const BlockHeader *header,	const BlockBody *blockBody, ISystemLogger* logger) {
 	const BlockRewordBase* rewardBase = blockBody->getBlockRewordBase();
 
 	const CoinbaseTransaction* coinbaseTrx = rewardBase->getCoinbaseTransaction();
@@ -324,7 +334,7 @@ void StatusCacheContext::importRewordTransactions(const BlockHeader *header,	con
 	}
 }
 
-void StatusCacheContext::importInterChainCommunicationTransaction(	const BlockHeader *header, const AbstractInterChainCommunicationTansaction *trx) {
+void StatusCacheContext::importInterChainCommunicationTransaction(	const BlockHeader *header, const AbstractInterChainCommunicationTansaction *trx, ISystemLogger* logger) {
 #ifdef __DEBUG__
 	bool bl = this->trxCache->hasTransaction(trx->getTransactionId());
 	assert(bl == false);
@@ -335,7 +345,7 @@ void StatusCacheContext::importInterChainCommunicationTransaction(	const BlockHe
 	importUtxo(trx, header);
 }
 
-void StatusCacheContext::importSmartcontractTransaction(const BlockHeader *header, const AbstractSmartcontractTransaction *trx) {
+void StatusCacheContext::importSmartcontractTransaction(const BlockHeader *header, const AbstractSmartcontractTransaction *trx, ISystemLogger* logger) {
 #ifdef __DEBUG__
 	bool bl = this->trxCache->hasTransaction(trx->getTransactionId());
 	assert(bl == false);
@@ -346,7 +356,7 @@ void StatusCacheContext::importSmartcontractTransaction(const BlockHeader *heade
 	importUtxo(trx, header);
 }
 
-void StatusCacheContext::importControlTransaction(const BlockHeader *header,	const AbstractControlTransaction *trx) {
+void StatusCacheContext::importControlTransaction(const BlockHeader *header,  const BlockBody* body, const AbstractControlTransaction *trx, ISystemLogger* logger) {
 #ifdef __DEBUG__
 	bool bl = this->trxCache->hasTransaction(trx->getTransactionId());
 	assert(bl == false);
@@ -359,7 +369,7 @@ void StatusCacheContext::importControlTransaction(const BlockHeader *header,	con
 	uint8_t type = trx->getType();
 	if(type == AbstractBlockchainTransaction::TRX_TYPE_REGISTER_VOTE_POOL){
 		const RegisterVotePoolTransaction* registerTrx = dynamic_cast<const RegisterVotePoolTransaction*>(trx);
-		registerVoterPool(registerTrx, header->getHeight());
+		registerVoterPool(registerTrx, header->getHeight(), header, body);
 	}
 	else if(type == AbstractBlockchainTransaction::TRX_TYPE_REGISTER_TICKET){
 		const RegisterTicketTransaction* ticketTrx = dynamic_cast<const RegisterTicketTransaction*>(trx);
@@ -459,7 +469,7 @@ ArrayList<VoterEntry, VoterEntry::VoteCompare>* StatusCacheContext::getVoterEntr
 	return list;
 }
 
-void StatusCacheContext::registerVoterPool(const RegisterVotePoolTransaction *trx, uint64_t blockHeight) {
+void StatusCacheContext::registerVoterPool(const RegisterVotePoolTransaction *trx, uint64_t blockHeight, const BlockHeader *header, const BlockBody* body) {
 	const NodeIdentifier* nodeId = trx->getNodeId();
 
 	// voter address
@@ -470,6 +480,16 @@ void StatusCacheContext::registerVoterPool(const RegisterVotePoolTransaction *tr
 
 	int cap = this->config->getVoteDefaultCapacity(blockHeight);
 	entry->setCapacity(cap);
+
+
+	const BlockMerkleRoot* root = body->getMerkleRoot();
+	if(root != nullptr){
+		const BigInteger* pub = nodeId->getPublicKey();
+		ByteBuffer* buff = pub->toBinary(); __STP(buff);
+
+		MerkleCertificate* merkleCert = body->makeCertificate((const char*)buff->array(), buff->capacity()); __STP(merkleCert);
+		entry->setNodeIdMerkleCert(merkleCert);
+	}
 }
 
 void StatusCacheContext::registerTicket(const BlockHeader *header, const RegisterTicketTransaction *trx) {
@@ -596,7 +616,7 @@ VotingBlockStatus* StatusCacheContext::getVotingBlockStatus(const BlockHeader *h
 	return __STP_MV(status);
 }
 
-uint64_t StatusCacheContext::getAnalyzedHeight() const noexcept {
+uint64_t StatusCacheContext::getPreAnalyzedHeight() const noexcept {
 	return this->statusCache->getFinalizedHeight(this->zone);
 }
 

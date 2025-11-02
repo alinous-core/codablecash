@@ -34,6 +34,13 @@
 #include "ecda/Secp256k1CompressedPoint.h"
 
 #include "bc_wallet/HdWalleMuSigSignerProvidor.h"
+
+#include "bc_wallet_trx_base/IUtxoCollector.h"
+#include "bc_wallet_trx_base/HdWalletAccountTrxBuilderContext.h"
+#include "bc_wallet_trx_base/ArrayUtxoFinder.h"
+
+#include "bc/ExceptionThrower.h"
+
 namespace codablecash {
 
 RegisterTicketTransactionWalletHandler::RegisterTicketTransactionWalletHandler(WalletAccount* account)
@@ -45,77 +52,114 @@ RegisterTicketTransactionWalletHandler::~RegisterTicketTransactionWalletHandler(
 
 }
 
-RegisterTicketTransaction* RegisterTicketTransactionWalletHandler::createTransaction(
-		const NodeIdentifier *nodeId, const BalanceUnit stakeAmount, const BalanceUnit feeRate,
-		const AddressDescriptor *addressDesc,
-		const IWalletDataEncoder *encoder) {
-	WalletAccountTrxRepository* trxRepo = this->account->getWalletAccountTrxRepository();
-	ReceivingAddressStore* receivingAddresses = this->account->getReceivingAddresses();
-	ChangeAddressStore* changeAddresses = this->account->getChangeAddresses();
+RegisterTicketTransaction* RegisterTicketTransactionWalletHandler::createTransaction(const NodeIdentifier *nodeId, const BalanceUnit& stakeAmount,
+		const BalanceUnit& feeRate, const AddressDescriptor *ticketReturnaddressDesc, const IWalletDataEncoder *encoder, ITransactionBuilderContext *context) {
+	IUtxoCollector* collector = context->getUtxoCollector(); __STP(collector);
+	ArrayUtxoFinder utxoFinder;
+
+	HdWalleMuSigSignerProvidor* musigProvidor = context->getMusigSignProvidor(encoder); __STP(musigProvidor);
 
 	RegisterTicketTransaction* trx = new RegisterTicketTransaction(); __STP(trx);
 	trx->setNodeId(nodeId);
-	trx->setAddressDescriptor(addressDesc);
+	trx->setAddressDescriptor(ticketReturnaddressDesc);
 	trx->setAmounst(stakeAmount);
 
-	ArrayList<BalanceUtxo> utxoList;
-	utxoList.setDeleteOnExit();
-	BalanceUnit remain = stakeAmount + (feeRate * BalanceUnit(137+4));
-
-	remain = receivingAddresses->collectUtxos(trxRepo, &utxoList, remain, feeRate);
-	if(!remain.isZero()){
-		remain = changeAddresses->collectUtxos(trxRepo, &utxoList, remain, feeRate);
-	}
-	if(!remain.isZero()){
-		throw new BalanceShortageException(__FILE__, __LINE__);
-	}
-
-	BalanceUnit balanceAll(0L);
-	{
-		int maxLoop = utxoList.size();
-		for(int i = 0; i != maxLoop; ++i){
-			BalanceUtxo* utxo = utxoList.get(i);
-			const AddressDescriptor* desc = utxo->getAddress();
-			const BalanceAddress* addr = this->account->getAddress(desc);
-
-			BalanceUtxoReference ref;
-			ref.setUtxoId(utxo->getId());
-
-			IMuSigSigner* signer = this->account->getSigner(desc, encoder); __STP(signer);
-			Secp256k1Point pt = signer->getxG();
-			Secp256k1CompressedPoint xi = Secp256k1CompressedPoint::compress(&pt);
-			ref.setXi(&xi);
-
-			trx->addInputUtxoRef(&ref);
-
-			balanceAll += utxo->getAmount();
-		}
-	}
-
-	// uxto
-	{
-		BalanceUtxo utxo(balanceAll - stakeAmount);
-		AddressDescriptor* dest = changeAddresses->getNextChangeAddress(encoder); __STP(dest);
-		utxo.setAddress(dest);
-		trx->addBalanceUtxo(&utxo);
-	}
 	trx->build();
+	trx->sign(musigProvidor, &utxoFinder);
 
-	int binSize = trx->binarySize() + 65;
-	BalanceUnit fee = BalanceUnit(binSize) * feeRate;
-	trx->setFeeAmount(&fee);
+	{
+		BalanceUnit amount(stakeAmount);
+		collectUtxoRefs(trx, amount, feeRate, collector, &utxoFinder, musigProvidor, encoder);
+	}
 
 	trx->build();
-
-	// sign
-	{
-		HdWalleMuSigSignerProvidor providor(this->account, encoder);
-
-		trx->sign(&providor, trxRepo);
-	}
+	trx->sign(musigProvidor, &utxoFinder);
 
 	return __STP_MV(trx);
 }
+
+void RegisterTicketTransactionWalletHandler::collectUtxoRefs(RegisterTicketTransaction *trx, BalanceUnit& amount,
+		const BalanceUnit& feeRate, IUtxoCollector *collector, ArrayUtxoFinder *utxoFinder, HdWalleMuSigSignerProvidor *musigProvidor, const IWalletDataEncoder *encoder) {
+	int binSize = trx->binarySize();
+	BalanceUnit fee = BalanceUnit(binSize) * feeRate;
+
+	BalanceUnit required = fee + amount;
+	BalanceUnit totalIn = utxoFinder->getTotalAmount();
+
+	while(collector->hasNext() && totalIn.compareTo(&required) < 0){
+		BalanceUtxo* utxo = collector->next(); __STP(utxo);
+		const AddressDescriptor* desc = utxo->getAddress();
+
+		BalanceUtxoReference ref;
+		ref.setUtxoId(utxo->getId(), desc);
+
+		IMuSigSigner* signer = musigProvidor->getSigner(desc); __STP(signer);
+		Secp256k1Point pt = signer->getxG();
+		Secp256k1CompressedPoint xi = Secp256k1CompressedPoint::compress(&pt);
+		ref.setXi(&xi);
+
+		trx->addInputUtxoRef(&ref);
+
+		utxoFinder->addUtxo(utxo);
+
+		// calc addfee
+		int refbinSize = ref.binarySize();
+		binSize += refbinSize;
+
+		fee = BalanceUnit(binSize) * feeRate;
+		required = fee + amount;
+		totalIn = utxoFinder->getTotalAmount();
+
+		trx->setFeeAmount(&fee);
+
+		// add exchange address
+		if(totalIn.compareTo(&required) > 0){
+			if(trx->getUtxoSize() == 1){
+				// add
+				ChangeAddressStore* changeAddresses = this->account->getChangeAddresses();
+				AddressDescriptor* changeDesc = changeAddresses->getNextChangeAddress(encoder); __STP(changeDesc);
+
+				int utxobinSize = 0;
+				{
+					BalanceUnit tmp(0L);
+					BalanceUtxo utxo(tmp);
+					utxo.setAddress(changeDesc);
+					trx->addBalanceUtxo(&utxo);
+
+					utxo.build();
+					utxobinSize = utxo.binarySize();
+				}
+				binSize += utxobinSize;
+
+				// recalc
+				fee = BalanceUnit(binSize) * feeRate;
+
+				required = fee + amount;
+				totalIn = utxoFinder->getTotalAmount();
+
+				// setup
+				trx->setFeeAmount(&fee);
+
+				BalanceUnit diff = totalIn - required;
+				{
+					AbstractUtxo* u = trx->getUtxo(0);
+					BalanceUtxo* utxo = dynamic_cast<BalanceUtxo*>(u);
+					utxo->setAmount(diff);
+				}
+			}
+			else {
+				BalanceUnit diff = totalIn - required;
+				AbstractUtxo* u = trx->getUtxo(0);
+				BalanceUtxo* utxo = dynamic_cast<BalanceUtxo*>(u);
+
+				utxo->setAmount(diff);
+			}
+		}
+	}
+
+	ExceptionThrower<BalanceShortageException>::throwExceptionIfCondition(totalIn.compareTo(&required) < 0, L"Wallet don't have enough balance.", __FILE__, __LINE__);
+}
+
 
 void RegisterTicketTransactionWalletHandler::importTransaction(const AbstractBlockchainTransaction *__trx) {
 	const RegisterTicketTransaction* trx = dynamic_cast<const RegisterTicketTransaction*>(__trx);
@@ -144,8 +188,8 @@ void RegisterTicketTransactionWalletHandler::importTransaction(const AbstractBlo
 		AbstractUtxo* utxo = trx->getUtxo(i);
 
 		const AddressDescriptor* addressDesc = utxo->getAddress();
-		if(this->account->hasAddress(addressDesc) && dynamic_cast<BalanceUtxo*>(utxo) != nullptr){
-			trxRepo->importUtxo(dynamic_cast<BalanceUtxo*>(utxo));
+		if(this->account->hasAddress(addressDesc)){
+			trxRepo->importUtxo(utxo);
 			imported = true;
 		}
 	}

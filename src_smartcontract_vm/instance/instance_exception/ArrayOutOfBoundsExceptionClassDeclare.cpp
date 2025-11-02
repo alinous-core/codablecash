@@ -61,7 +61,7 @@ ArrayOutOfBoundsExceptionClassDeclare::~ArrayOutOfBoundsExceptionClassDeclare() 
 
 }
 
-const UnicodeString* ArrayOutOfBoundsExceptionClassDeclare::getName() noexcept {
+const UnicodeString* ArrayOutOfBoundsExceptionClassDeclare::getName() const noexcept {
 	return &NAME;
 }
 

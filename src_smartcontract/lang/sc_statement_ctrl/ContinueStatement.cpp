@@ -37,7 +37,7 @@ int ContinueStatement::binarySize() const {
 	return total;
 }
 
-void ContinueStatement::toBinary(ByteBuffer* out) {
+void ContinueStatement::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::STMT_CONTINUE);
 }
 
@@ -56,6 +56,13 @@ void ContinueStatement::interpret(VirtualMachine* vm) {
 
 bool ContinueStatement::hasCtrlStatement() const noexcept {
 	return true;
+}
+
+AbstractStatement* ContinueStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ContinueStatement* inst = new ContinueStatement();
+	inst->copyCodePositions(this);
+
+	return inst;
 }
 
 } /* namespace alinous */

@@ -20,6 +20,7 @@ public:
 	AbstractBalanceTransaction(const AbstractBalanceTransaction& inst);
 	AbstractBalanceTransaction();
 	virtual ~AbstractBalanceTransaction();
+
 };
 
 } /* namespace codablecash */

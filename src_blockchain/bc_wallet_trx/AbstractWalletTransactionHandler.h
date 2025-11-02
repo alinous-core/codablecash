@@ -12,6 +12,11 @@ namespace codablecash {
 
 class WalletAccount;
 class AbstractBlockchainTransaction;
+class IUtxoCollector;
+class ArrayUtxoFinder;
+class BalanceUnit;
+class HdWalleMuSigSignerProvidor;
+class IWalletDataEncoder;
 
 class AbstractWalletTransactionHandler {
 public:
@@ -19,6 +24,9 @@ public:
 	virtual ~AbstractWalletTransactionHandler();
 
 	virtual void importTransaction(const AbstractBlockchainTransaction *trx) = 0;
+
+protected:
+	void __importTransaction(const AbstractBlockchainTransaction *__trx);
 
 protected:
 	WalletAccount* account;

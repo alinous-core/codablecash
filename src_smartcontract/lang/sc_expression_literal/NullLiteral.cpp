@@ -34,7 +34,7 @@ int NullLiteral::binarySize() const {
 	return total;
 }
 
-void NullLiteral::toBinary(ByteBuffer* out) {
+void NullLiteral::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_NULL_LITERAL);
 }
 
@@ -51,6 +51,13 @@ void NullLiteral::init(VirtualMachine* vm) {
 
 AbstractVmInstance* NullLiteral::interpret(VirtualMachine* vm) {
 	return nullptr;
+}
+
+AbstractExpression* NullLiteral::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	NullLiteral* inst = new NullLiteral();
+	inst->copyCodePositions(this);
+
+	return inst;
 }
 
 } /* namespace alinous */

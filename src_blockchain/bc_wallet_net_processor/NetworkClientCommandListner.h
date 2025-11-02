@@ -20,6 +20,7 @@ public:
 	virtual ~NetworkClientCommandListner();
 
 	virtual void onNewTransaction(const PubSubId *pubsubId, const TransactionTransferData* data);
+	virtual void onBlockMined(const PubSubId *pubsubId, const BlockHeaderTransferData *data);
 
 private:
 	NetworkClientCommandProcessor* processor;

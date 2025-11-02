@@ -106,7 +106,7 @@ AbstractCommandResponse* DownloadOmittedBlockBodyNodeCommand::executeAsNode(Bloc
 	DownloadOmittedBlockBodyNodeCommandResponse* response = new DownloadOmittedBlockBodyNodeCommandResponse(); __STP(response);
 	{
 		BlockchainController* ctrl = inst->getController();
-		Block* block = ctrl->getBlocksHeightAt(this->zone, this->height, this->headerId); __STP(block);
+		Block* block = ctrl->getBlockHeightAt(this->zone, this->height, this->headerId); __STP(block);
 
 		if(block != nullptr){
 			BlockBody* body = block->getBody();

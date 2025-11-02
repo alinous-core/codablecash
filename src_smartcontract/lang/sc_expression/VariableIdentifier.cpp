@@ -123,7 +123,7 @@ int VariableIdentifier::binarySize() const {
 	return total;
 }
 
-void VariableIdentifier::toBinary(ByteBuffer* out) {
+void VariableIdentifier::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 
 	out->putShort(CodeElement::EXP_VARIABLE_ID);
@@ -175,6 +175,15 @@ bool VariableIdentifier::isThis() const noexcept {
 
 bool VariableIdentifier::isSuper() const noexcept {
 	return __SUPER.equals(this->name);
+}
+
+AbstractExpression* VariableIdentifier::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	VariableIdentifier* inst = new VariableIdentifier();
+	inst->copyCodePositions(this);
+
+	inst->setName(new UnicodeString(this->name));
+
+	return inst;
 }
 
 } /* namespace alinous */

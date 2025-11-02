@@ -28,7 +28,7 @@ public:
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm);
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	void setName(UnicodeString* name) noexcept;
@@ -36,6 +36,9 @@ public:
 	void setValue(AbstractExpression* value) noexcept;
 
 	const UnicodeString* getName() const noexcept;
+
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
 	UnicodeString* name;
 	AbstractExpression* value;

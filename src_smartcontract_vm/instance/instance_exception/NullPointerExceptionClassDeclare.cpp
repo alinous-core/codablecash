@@ -63,7 +63,7 @@ NullPointerExceptionClassDeclare::~NullPointerExceptionClassDeclare() {
 
 }
 
-const UnicodeString* NullPointerExceptionClassDeclare::getName() noexcept {
+const UnicodeString* NullPointerExceptionClassDeclare::getName() const noexcept {
 	return &NAME;
 }
 

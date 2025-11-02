@@ -41,6 +41,7 @@ void ArgumentsListDeclare::preAnalyze(AnalyzeContext* actx) {
 	for(int i = 0; i != maxLoop; ++i){
 		ArgumentDeclare* arg = this->list.get(i);
 		arg->setParent(this);
+		arg->preAnalyze(actx);
 	}
 }
 
@@ -53,7 +54,11 @@ void ArgumentsListDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 }
 
 void ArgumentsListDeclare::analyze(AnalyzeContext* actx) {
-
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		ArgumentDeclare* arg = this->list.get(i);
+		arg->analyze(actx);
+	}
 }
 
 int ArgumentsListDeclare::getSize() const noexcept {
@@ -113,7 +118,7 @@ int ArgumentsListDeclare::binarySize() const {
 	return total;
 }
 
-void ArgumentsListDeclare::toBinary(ByteBuffer* out) {
+void ArgumentsListDeclare::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::ARGUMENTS_LIST_DECLARE);
 
 	int maxLoop = this->list.size();
@@ -166,5 +171,19 @@ void ArgumentsListDeclare::makeString() noexcept {
 
 }
 
+ArgumentsListDeclare* ArgumentsListDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ArgumentsListDeclare* inst = new ArgumentsListDeclare();
+	inst->copyCodePositions(this);
+
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		ArgumentDeclare* argDec = this->list.get(i);
+		ArgumentDeclare* copiedArg = argDec->generateGenericsImplement(input);
+
+		inst->addArgument(copiedArg);
+	}
+
+	return inst;
+}
 
 } /* namespace alinous */

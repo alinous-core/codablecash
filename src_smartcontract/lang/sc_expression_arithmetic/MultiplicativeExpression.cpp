@@ -229,4 +229,13 @@ void MultiplicativeExpression::checkZeroDiv(int64_t val, VirtualMachine* vm) con
 	}
 }
 
+AbstractExpression* MultiplicativeExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	MultiplicativeExpression* inst = new MultiplicativeExpression();
+	inst->copyCodePositions(this);
+	inst->copyExpressionList(this, input);
+	inst->copyOperationList(this, input);
+
+	return inst;
+}
+
 } /* namespace alinous */

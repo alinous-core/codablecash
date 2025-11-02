@@ -36,7 +36,7 @@
 #include "bc_trx/AbstractBalanceTransaction.h"
 #include "bc_trx/AbstractInterChainCommunicationTansaction.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "bc_finalizer_trx/VoteBlockTransaction.h"
 
@@ -88,6 +88,12 @@ Block* HeadBlockDetector::fetchScheduledBlock() {
 		delete this->scheduledBlock;
 		this->scheduledBlock = nullptr;
 	}
+
+	return ret;
+}
+
+Block* HeadBlockDetector::getScheduledBlock() {
+	Block* ret = new Block(*this->scheduledBlock);
 
 	return ret;
 }
@@ -284,17 +290,17 @@ void HeadBlockDetector::selectChain() {
 
 }
 
-void HeadBlockDetector::evaluate(uint16_t zone, MemPoolTransaction *memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam *config, const File *tmpCacheBaseDir, bool headerOnly) {
+void HeadBlockDetector::evaluate(uint16_t zone, MemPoolTransaction *memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam *config, bool headerOnly) {
 
 	int maxLoop = this->headsList.size();
 	for(int i = 0; i != maxLoop; ++i){
 		BlockHead* head = this->headsList.get(i);
-		evaluateHead(zone, head, memTrx, chain, config, tmpCacheBaseDir, headerOnly);
+		evaluateHead(zone, head, memTrx, chain, config, headerOnly);
 	}
 }
 
 void HeadBlockDetector::evaluateHead(uint16_t zone, BlockHead *head,
-		MemPoolTransaction *memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam *config, const File *tmpCacheBaseDir, bool headerOnly) {
+		MemPoolTransaction *memTrx, IBlockchainStoreProvider *chain, const CodablecashSystemParam *config, bool headerOnly) {
 	MemPoolTransaction* memTransaction = nullptr;
 	if(!headerOnly){
 		memTransaction = memTrx->newSubTransaction();

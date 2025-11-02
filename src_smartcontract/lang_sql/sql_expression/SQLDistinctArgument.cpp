@@ -45,7 +45,7 @@ int SQLDistinctArgument::binarySize() const {
 	return total;
 }
 
-void SQLDistinctArgument::toBinary(ByteBuffer* out) {
+void SQLDistinctArgument::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::SQL_EXP_DISTINCT_ARGUMENT);

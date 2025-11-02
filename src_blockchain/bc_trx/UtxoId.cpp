@@ -8,6 +8,10 @@
 #include "bc_trx/UtxoId.h"
 
 #include "base/StackRelease.h"
+
+#include "numeric/BigInteger.h"
+
+
 namespace codablecash {
 
 UtxoId::UtxoId() {

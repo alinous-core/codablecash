@@ -369,6 +369,11 @@ int BigInteger::binarySize() const {
 }
 
 ByteBuffer* BigInteger::toBinary() const {
+	/**
+	 * order = 1 :1 for most significant word first
+	 * endian = 1 : 1 for most significant byte first(Big endian)
+	 */
+
 	size_t count;
 	uint8_t* data =  (uint8_t*)mpz_export(NULL, &count, 1, 1, 1, 0, this->value);
 

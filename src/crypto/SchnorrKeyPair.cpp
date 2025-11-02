@@ -35,27 +35,57 @@ IKeyPair* SchnorrKeyPair::clone() const noexcept {
 }
 
 int SchnorrKeyPair::binarySize() const {
-	ByteBuffer* p = this->publicKey->toBinary(); __STP(p);
+	int total = sizeof(int8_t);
 
-	return sizeof(int8_t) + sizeof(int16_t) + p->capacity();
+	{
+		ByteBuffer* p = this->publicKey->toBinary(); __STP(p);
+		total += sizeof(int16_t);
+		total +=  p->capacity();
+	}
+
+	{
+		ByteBuffer* p = this->secretKey->toBinary(); __STP(p);
+		total += sizeof(int16_t);
+		total +=  p->capacity();
+	}
+
+	return total;
 }
 
 void SchnorrKeyPair::toBinary(ByteBuffer* out) const {
 	out->put(IKeyPair::PAIR_SCHNORR);
 
-	ByteBuffer* p = this->publicKey->toBinary(); __STP(p);
+	{
+		ByteBuffer* p = this->publicKey->toBinary(); __STP(p);
 
-	out->putShort(p->capacity());
-	out->put(p);
+		out->putShort(p->capacity());
+		out->put(p);
+	}
+
+	{
+		ByteBuffer* p = this->secretKey->toBinary(); __STP(p);
+
+		out->putShort(p->capacity());
+		out->put(p);
+	}
 }
 
 void SchnorrKeyPair::fromBinary(ByteBuffer* in) {
-	int length = in->getShort();
-	int position = in->position();
+	{
+		int length = in->getShort();
+		int position = in->position();
 
-	this->publicKey = BigInteger::fromBinary((const char*)in->array() + position, length);
+		this->publicKey = BigInteger::fromBinary((const char*)in->array() + position, length);
+		in->position(position + length);
+	}
 
-	in->position(position + length);
+	{
+		int length = in->getShort();
+		int position = in->position();
+
+		this->secretKey = BigInteger::fromBinary((const char*)in->array() + position, length);
+		in->position(position + length);
+	}
 }
 
 const BigInteger* SchnorrKeyPair::getPubKey() const noexcept {

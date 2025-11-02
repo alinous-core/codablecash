@@ -205,7 +205,7 @@ int SelectStatement::binarySize() const {
 	return total;
 }
 
-void SelectStatement::toBinary(ByteBuffer* out) {
+void SelectStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->list);
 	checkNotNull(this->from);
 

@@ -46,11 +46,11 @@ int Integer::bitCount(int i) {
     return (i & 0x0000003F);
 }
 */
-int Integer::parseInt(UnicodeString* string)
+int Integer::parseInt(const UnicodeString* string)
 {
 	return parseInt(string, 10);
 }
-int Integer::parseInt(UnicodeString* string, int radix)
+int Integer::parseInt(const UnicodeString* string, int radix)
 {
 	if(string == nullptr || radix < Integer::MIN_RADIX || radix > Integer::MAX_RADIX)
 	{
@@ -69,7 +69,7 @@ int Integer::parseInt(UnicodeString* string, int radix)
 	return parse(string, i, radix, negative);
 }
 
-int Integer::parse(UnicodeString* string, int offset, int radix, bool negative)
+int Integer::parse(const UnicodeString* string, int offset, int radix, bool negative)
 {
 	int max = Integer::MIN_VALUE / radix;
 	int result = 0;int length = string->length();

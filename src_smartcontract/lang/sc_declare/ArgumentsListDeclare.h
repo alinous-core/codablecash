@@ -9,7 +9,9 @@
 #define SC_DECLARE_ARGUMENTSLISTDECLARE_H_
 
 #include "engine/sc/CodeElement.h"
+
 #include "base/ArrayList.h"
+#include "base/HashMap.h"
 
 namespace alinous {
 
@@ -17,6 +19,7 @@ class ArgumentDeclare;
 class AnalyzeContext;
 class UnicodeString;
 class AnalyzedType;
+class AbstractType;
 
 class ArgumentsListDeclare : public CodeElement {
 public:
@@ -34,17 +37,19 @@ public:
 	const UnicodeString* getCallSignature() noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	const UnicodeString* toString() noexcept;
+
+	ArgumentsListDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 
 private:
 	void makeString() noexcept;
 private:
 	ArrayList<ArgumentDeclare> list;
-	UnicodeString* callSig;
 
+	UnicodeString* callSig;
 	ArrayList<AnalyzedType>* typelist;
 
 	UnicodeString* str;

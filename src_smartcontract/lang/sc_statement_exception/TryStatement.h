@@ -35,12 +35,15 @@ public:
 	virtual bool hasConstructor() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	void setBlock(StatementBlock* block) noexcept;
 	void addCatchStatement(CatchStatement* catchStmt) noexcept;
 	void setFinallyStatement(FinallyStatement* finallyStmt) noexcept;
+
+	virtual AbstractStatement* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
 	StatementBlock* block;
 	ArrayList<CatchStatement> catchStmts;

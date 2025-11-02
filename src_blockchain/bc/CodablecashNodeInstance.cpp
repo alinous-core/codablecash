@@ -313,11 +313,15 @@ void CodablecashNodeInstance::shutdown() {
 }
 
 void CodablecashNodeInstance::suspendBlockGenerator() {
-	this->powManager->suspend();
+	if(this->powManager != nullptr){
+		this->powManager->suspend();
+	}
 }
 
 void CodablecashNodeInstance::resumeBlockGenerator() {
-	this->powManager->resume();
+	if(this->powManager != nullptr){
+		this->powManager->resume();
+	}
 }
 
 bool CodablecashNodeInstance::isBlockGeneratorSuspendStatus() const noexcept {

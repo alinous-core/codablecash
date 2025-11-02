@@ -15,6 +15,9 @@
 #include "ext_binary/ExtClassObject.h"
 #include "ext_binary/ExtArrayObject.h"
 
+#include "engine/compiler/SmartContractParser.h"
+
+#include "../../../src_gen/alinous_lang/AlinousLang.h"
 using namespace alinous;
 
 
@@ -136,6 +139,18 @@ TEST(TestAllocationStmtGroup, primitiveArrayAllocation05){
 	result = util.createInstance();
 	CHECK(result)
 }
+
+TEST(TestAllocationStmtGroup, primitiveArrayAllocation05_1){
+	const File* projectFolder = this->env->getProjectRoot();
+	_ST(File, sourceFile, projectFolder->get(L"src_test/smartcontract_vm/variables/resources/new/new05_1/main.alns"))
+
+	SmartContractParser parser(sourceFile);
+	AlinousLang* lang = parser.getDebugAlinousLang();
+
+	AllocationExpression* exp = lang->allocationExpression(); __STP(exp);
+	CHECK(!parser.hasError());
+}
+
 
 TEST(TestAllocationStmtGroup, primitiveArrayAllocation06){
 	const File* projectFolder = this->env->getProjectRoot();

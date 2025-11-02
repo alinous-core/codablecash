@@ -39,4 +39,7 @@ void DummyClientListner::waitUntilCount(int trxCount) {
 	}
 }
 
+void DummyClientListner::onBlockMined(const PubSubId *pubsubId, const BlockHeaderTransferData *blockcheader) {
+}
+
 } /* namespace codablecash */

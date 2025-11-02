@@ -14,12 +14,16 @@
 #include "engine/sc_analyze/AnalyzeContext.h"
 #include "engine/sc_analyze/TypeResolver.h"
 #include "engine/sc_analyze/AnalyzedType.h"
+#include "engine/sc_analyze/ValidationError.h"
 
 #include "engine/sc_analyze_stack/AnalyzeStack.h"
 #include "engine/sc_analyze_stack/AnalyzeStackManager.h"
 #include "engine/sc_analyze_stack/AnalyzedStackReference.h"
 
 #include "vm/stack/VmStack.h"
+#include "vm/type_check/AnalyzedTypeChecker.h"
+#include "vm/variable_access/StackVariableAccess.h"
+#include "vm/type_check/InternalTypeChecker.h"
 
 #include "instance/instance_ref/RefereceFactory.h"
 
@@ -28,15 +32,9 @@
 
 #include "instance/instance_exception/ExceptionInterrupt.h"
 
-#include "vm/type_check/AnalyzedTypeChecker.h"
-
-#include "engine/sc_analyze/ValidationError.h"
-
-#include "vm/type_check/InternalTypeChecker.h"
-
 #include "base/StackRelease.h"
 
-#include "vm/variable_access/StackVariableAccess.h"
+
 namespace alinous {
 
 VariableDeclareStatement::VariableDeclareStatement() : AbstractStatement(CodeElement::STMT_VARIABLE_DECLARE) {
@@ -63,12 +61,17 @@ void VariableDeclareStatement::preAnalyze(AnalyzeContext* actx) {
 		this->exp->setParent(this);
 		this->exp->preAnalyze(actx);
 	}
+
+	this->type->preAnalyze(actx);
+	actx->detectGenericsType(this->type);
 }
 
 void VariableDeclareStatement::analyzeTypeRef(AnalyzeContext* actx) {
 	if(this->exp != nullptr){
 		this->exp->analyzeTypeRef(actx);
 	}
+
+	this->type->analyzeTypeRef(actx);
 }
 
 void VariableDeclareStatement::analyze(AnalyzeContext* actx) {
@@ -80,6 +83,7 @@ void VariableDeclareStatement::analyze(AnalyzeContext* actx) {
 		this->bctrl = this->exp->throwsException();
 	}
 
+	// check type
 	this->atype = resolver->resolveType(this, this->type);
 	if(this->atype == nullptr){
 		actx->addValidationError(ValidationError::CODE_TYPE_DOES_NOT_EXISTS, this, L"Declared type does not exists.", {});
@@ -111,6 +115,8 @@ void VariableDeclareStatement::analyze(AnalyzeContext* actx) {
 			actx->addValidationError(ValidationError::CODE_TYPE_INCOMPATIBLE, this, L"Initial variable is incompatible with variable declare .", {});
 		}
 	}
+
+	this->type->analyze(actx);
 }
 
 void VariableDeclareStatement::setType(AbstractType* type) noexcept {
@@ -144,7 +150,7 @@ int VariableDeclareStatement::binarySize() const {
 	return total;
 }
 
-void VariableDeclareStatement::toBinary(ByteBuffer* out) {
+void VariableDeclareStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->type);
 	checkNotNull(this->variableId);
 	//checkNotNull(this->exp);
@@ -217,6 +223,24 @@ bool VariableDeclareStatement::hasCtrlStatement() const noexcept {
 
 AnalyzedType VariableDeclareStatement::getType() const noexcept {
 	return *this->atype;
+}
+
+AbstractStatement* VariableDeclareStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	VariableDeclareStatement* inst = new VariableDeclareStatement();
+	inst->copyCodePositions(this);
+
+	AbstractType* copiedType = this->type->generateGenericsImplement(input);
+	inst->setType(copiedType);
+
+	VariableIdentifier* copiedId = dynamic_cast<VariableIdentifier*>(this->variableId->generateGenericsImplement(input));
+	inst->setVariableId(copiedId);
+
+	if(this->exp != nullptr){
+		AbstractExpression* copiedExp = this->exp->generateGenericsImplement(input);
+		inst->setInitExpression(copiedExp);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

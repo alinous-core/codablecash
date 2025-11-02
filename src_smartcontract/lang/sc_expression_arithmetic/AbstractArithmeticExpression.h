@@ -22,6 +22,9 @@ public:
 	virtual void analyze(AnalyzeContext* actx);
 
 	void setExpression(AbstractExpression* exp) noexcept;
+
+	void importMembers(const AbstractArithmeticExpression* arithmeticExp, HashMap<UnicodeString, AbstractType> *input) noexcept;
+
 protected:
 	AbstractExpression* exp;
 	AnalyzedType* atype;

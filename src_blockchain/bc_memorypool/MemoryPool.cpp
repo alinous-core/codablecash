@@ -31,7 +31,7 @@
 
 #include "bc_base_trx_index/TransactionIdsListData.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 namespace codablecash {
 
@@ -214,7 +214,20 @@ AbstractSmartcontractTransaction* MemoryPool::__getSmartcontractTransaction(cons
 TransactionId* MemoryPool::getTransactionIdFromUtxoId(const UtxoId *utxoId) const {
 	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
-	return this->balancePool->getTransactionIdFromUtxoId(utxoId);
+	TransactionId* trx = nullptr;
+
+	trx = this->balancePool->getTransactionIdFromUtxoId(utxoId);
+	if(trx == nullptr){
+		trx = this->controlPool->getTransactionIdFromUtxoId(utxoId);
+	}
+	if(trx == nullptr){
+		trx = this->iccPool->getTransactionIdFromUtxoId(utxoId);
+	}
+	if(trx == nullptr){
+		trx = this->smartcontractPool->getTransactionIdFromUtxoId(utxoId);
+	}
+
+	return trx;
 }
 
 ArrayList<TransactionId>* MemoryPool::countVotes(uint64_t targetHeight) const noexcept {
@@ -279,6 +292,12 @@ MempoolUtxoFindResult* MemoryPool::__findUtxo(const UtxoId *utxoId) const {
 	MempoolUtxoFindResult* utxo = this->balancePool->getUtxo(utxoId);
 	if(utxo == nullptr){
 		utxo = this->controlPool->getUtxo(utxoId);
+	}
+	if(utxo == nullptr){
+		utxo = this->iccPool->getUtxo(utxoId);
+	}
+	if(utxo == nullptr){
+		utxo = this->smartcontractPool->getUtxo(utxoId);
 	}
 
 	return utxo;

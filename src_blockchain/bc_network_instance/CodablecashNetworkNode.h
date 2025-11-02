@@ -60,6 +60,8 @@ public:
 
 	void broadCastShutdownCommand();
 
+
+
 private:
 	void initDatabase(ArrayList<P2pNodeRecord>* seedList);
 	void maintainNetwork();

@@ -161,7 +161,7 @@ void BalanceTransferTransaction::addInputUtxoRef(const BalanceUtxoReference *ref
 	this->inputs->addReference(ref);
 }
 
-void BalanceTransferTransaction::setFeeAmount(const BalanceUnit *fee,	const AddressDescriptor *skipfeedesc) {
+void BalanceTransferTransaction::setFeeAmount(const BalanceUnit *fee, const AddressDescriptor *skipfeedesc) {
 	setFeeAmount(fee);
 
 	bool discounted = false;
@@ -317,6 +317,22 @@ TrxValidationResult BalanceTransferTransaction::validateFinal(
 
 BalanceUnit BalanceTransferTransaction::getFee() const noexcept {
 	return this->fee;
+}
+
+BalanceUnit BalanceTransferTransaction::getTotalOutputBalance() const {
+	BalanceUnit total(0L);
+
+	int maxLoop = getUtxoSize();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractUtxo* utxo = getUtxo(i);
+		BalanceUnit amount = utxo->getAmount();
+
+		total += amount;
+	}
+
+	total += this->fee;
+
+	return total;
 }
 
 } /* namespace codablecash */

@@ -80,7 +80,7 @@ int JsonKeyValuePairExpression::binarySize() const {
 	return total;
 }
 
-void JsonKeyValuePairExpression::toBinary(ByteBuffer* out) {
+void JsonKeyValuePairExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 	checkNotNull(this->value);
 
@@ -100,6 +100,16 @@ void JsonKeyValuePairExpression::fromBinary(ByteBuffer* in) {
 
 const UnicodeString* JsonKeyValuePairExpression::getName() const noexcept {
 	return this->name;
+}
+
+AbstractExpression* JsonKeyValuePairExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	JsonKeyValuePairExpression* inst = new JsonKeyValuePairExpression();
+	inst->copyCodePositions(this);
+
+	inst->setName(new UnicodeString(this->name));
+	inst->setValue(this->value != nullptr ? this->value->generateGenericsImplement(input) : nullptr);
+
+	return inst;
 }
 
 } /* namespace alinous */

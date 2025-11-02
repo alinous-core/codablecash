@@ -54,7 +54,7 @@ int SQLNotExpression::binarySize() const {
 	return total;
 }
 
-void SQLNotExpression::toBinary(ByteBuffer* out) {
+void SQLNotExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::SQL_EXP_NOT);

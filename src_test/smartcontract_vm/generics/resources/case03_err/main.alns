@@ -1,0 +1,20 @@
+
+package test.fw;
+
+import test.fw.SampleObject;
+import sample.HelloWorld;
+import sample2.Konnichiwa;
+
+class SmartContract {
+	public SmartContract() {
+
+	}
+	
+	public int main(){
+		HelloWorld<Konnichiwa<HelloWorld<SampleObject> > > obj = new HelloWorld<Konnichiwa<HelloWorld<SampleObject> > >();
+		
+	}
+	
+	private int count = 0;
+	private SampleObject obj = null;
+}

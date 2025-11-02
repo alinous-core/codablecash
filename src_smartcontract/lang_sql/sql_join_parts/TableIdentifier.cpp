@@ -70,7 +70,7 @@ int TableIdentifier::binarySize() const {
 	return total;
 }
 
-void TableIdentifier::toBinary(ByteBuffer* out) {
+void TableIdentifier::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->tableName);
 
 	out->putShort(CodeElement::SQL_EXP_TABLE_ID);

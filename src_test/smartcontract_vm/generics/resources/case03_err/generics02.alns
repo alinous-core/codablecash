@@ -1,0 +1,14 @@
+
+package sample2;
+
+class Konnichiwa<T> {
+	public Konnichiwa() {
+		value = new T();
+	}
+
+	public T getValue(){
+		return value;
+	}
+
+	private T value;
+}

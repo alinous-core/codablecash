@@ -12,7 +12,6 @@
 #include "vm/VirtualMachine.h"
 
 #include "scan_select/scan_planner/base/SelectScanPlanner.h"
-
 #include "scan_select/scan_planner/base/ConditionsHolderStackMarker.h"
 
 #include "scan_select/scan_condition/params/NullScanParam.h"
@@ -20,6 +19,8 @@
 #include "scan_select/scan_columns/ScanColumnHolder.h"
 
 #include "scan_select/scan_columns/scan_columns_params/NullLiteralColumnParam.h"
+
+
 namespace alinous {
 
 SQLNullLiteral::SQLNullLiteral() : AbstractSQLExpression(CodeElement::SQL_EXP_NULL_LITERAL){
@@ -36,7 +37,7 @@ int SQLNullLiteral::binarySize() const {
 	return total;
 }
 
-void SQLNullLiteral::toBinary(ByteBuffer* out) {
+void SQLNullLiteral::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_NULL_LITERAL);
 }
 

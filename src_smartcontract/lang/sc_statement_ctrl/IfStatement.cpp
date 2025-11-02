@@ -164,7 +164,7 @@ int IfStatement::binarySize() const {
 	return total;
 }
 
-void IfStatement::toBinary(ByteBuffer* out) {
+void IfStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 	checkNotNull(this->stmt);
 
@@ -295,6 +295,35 @@ bool IfStatement::hasConstructor() const noexcept {
 	}
 
 	return ret;
+}
+
+AbstractStatement* IfStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	IfStatement* inst = new IfStatement();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedExp = nullptr;
+	AbstractStatement* copiedStmt = nullptr;
+
+	copiedExp = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copiedExp);
+
+	copiedStmt = this->stmt->generateGenericsImplement(input);
+	inst->setStatement(copiedStmt);
+
+	int maxLoop = this->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		IfStatement* ifstmt = this->list.get(i);
+		copiedStmt = ifstmt->generateGenericsImplement(input);
+
+		inst->addElseIf(dynamic_cast<IfStatement*>(copiedStmt));
+	}
+
+	if(this->elseStmt != nullptr){
+		copiedStmt = this->elseStmt->generateGenericsImplement(input);
+		inst->setElseStatement(copiedStmt);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

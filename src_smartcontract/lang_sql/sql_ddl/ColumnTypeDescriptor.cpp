@@ -52,7 +52,7 @@ int ColumnTypeDescriptor::binarySize() const {
 	return total;
 }
 
-void ColumnTypeDescriptor::toBinary(ByteBuffer* out) {
+void ColumnTypeDescriptor::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->typeName);
 
 	out->putShort(CodeElement::DDL_TYPE_DESC);

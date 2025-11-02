@@ -46,10 +46,14 @@ void CastExpression::preAnalyze(AnalyzeContext* actx) {
 
 	this->exp->setParent(this);
 	this->exp->preAnalyze(actx);
+
+	this->type->preAnalyze(actx);
+	actx->detectGenericsType(this->type);
 }
 
 void CastExpression::analyzeTypeRef(AnalyzeContext* actx) {
 	this->exp->analyzeTypeRef(actx);
+	this->type->analyzeTypeRef(actx);
 }
 
 void CastExpression::analyze(AnalyzeContext* actx) {
@@ -83,6 +87,7 @@ void CastExpression::analyze(AnalyzeContext* actx) {
 		}
 	}
 
+	this->type->analyze(actx);
 }
 
 void CastExpression::setType(AbstractType* type) noexcept {
@@ -104,7 +109,7 @@ int CastExpression::binarySize() const {
 	return total;
 }
 
-void CastExpression::toBinary(ByteBuffer* out) {
+void CastExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 	checkNotNull(this->type);
 
@@ -207,6 +212,19 @@ AbstractVmInstance* CastExpression::interpretPrimitive(VirtualMachine* vm, Primi
 	}
 
 	return ref;
+}
+
+AbstractExpression* CastExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	CastExpression* inst = new CastExpression();
+	inst->copyCodePositions(this);
+
+	AbstractType* copiedType = this->type->generateGenericsImplement(input);
+	inst->setType(copiedType);
+
+	AbstractExpression* copiedExp = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copiedExp);
+
+	return inst;
 }
 
 } /* namespace alinous */

@@ -41,7 +41,7 @@ int SQLBooleanLiteral::binarySize() const {
 	return total;
 }
 
-void SQLBooleanLiteral::toBinary(ByteBuffer* out) {
+void SQLBooleanLiteral::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_BOOL_LITERAL);
 	out->put(this->value ? 1 : 0);
 }

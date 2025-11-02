@@ -66,7 +66,7 @@ int AbstractBinaryExpression::binarySize() const {
 	return total;
 }
 
-void AbstractBinaryExpression::toBinary(ByteBuffer* out) {
+void AbstractBinaryExpression::toBinary(ByteBuffer* out) const {
 	int maxLoop = this->list.size();
 	out->putInt(maxLoop);
 
@@ -84,6 +84,16 @@ void AbstractBinaryExpression::fromBinary(ByteBuffer* in) {
 		AbstractExpression* exp = dynamic_cast<AbstractExpression*>(element);
 
 		this->list.addElement(exp);
+	}
+}
+
+void AbstractBinaryExpression::copyExpressionList(const AbstractBinaryExpression *source, HashMap<UnicodeString, AbstractType> *input) noexcept {
+	int maxLoop = source->list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractExpression* exp = source->list.get(i);
+		AbstractExpression* copiedEx = exp->generateGenericsImplement(input);
+
+		addExp(copiedEx);
 	}
 }
 

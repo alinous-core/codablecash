@@ -86,7 +86,7 @@ TEST(TestTypeResolveGroup, findBaseTypeBool){
 	TypeResolver* resolver = actx->getTypeResolver();
 
 	UnicodeString typestr(L"boolean");
-	AnalyzedType* atype = resolver->findBaseType(&typestr); __STP(atype);
+	AnalyzedType* atype = resolver->findBasicType(&typestr); __STP(atype);
 
 	CHECK(atype->getType() == AnalyzedType::TYPE_BOOL);
 }
@@ -105,7 +105,7 @@ TEST(TestTypeResolveGroup, findBaseTypeByte){
 	TypeResolver* resolver = actx->getTypeResolver();
 
 	UnicodeString typestr(L"byte");
-	AnalyzedType* atype = resolver->findBaseType(&typestr); __STP(atype);
+	AnalyzedType* atype = resolver->findBasicType(&typestr); __STP(atype);
 
 	CHECK(atype->getType() == AnalyzedType::TYPE_BYTE);
 }
@@ -124,7 +124,7 @@ TEST(TestTypeResolveGroup, findBaseTypeShort){
 	TypeResolver* resolver = actx->getTypeResolver();
 
 	UnicodeString typestr(L"short");
-	AnalyzedType* atype = resolver->findBaseType(&typestr); __STP(atype);
+	AnalyzedType* atype = resolver->findBasicType(&typestr); __STP(atype);
 
 	CHECK(atype->getType() == AnalyzedType::TYPE_SHORT);
 }
@@ -143,7 +143,7 @@ TEST(TestTypeResolveGroup, findBaseTypeChar){
 	TypeResolver* resolver = actx->getTypeResolver();
 
 	UnicodeString typestr(L"char");
-	AnalyzedType* atype = resolver->findBaseType(&typestr); __STP(atype);
+	AnalyzedType* atype = resolver->findBasicType(&typestr); __STP(atype);
 
 	CHECK(atype->getType() == AnalyzedType::TYPE_CHAR);
 }
@@ -162,7 +162,7 @@ TEST(TestTypeResolveGroup, findBaseTypeLong){
 	TypeResolver* resolver = actx->getTypeResolver();
 
 	UnicodeString typestr(L"long");
-	AnalyzedType* atype = resolver->findBaseType(&typestr); __STP(atype);
+	AnalyzedType* atype = resolver->findBasicType(&typestr); __STP(atype);
 
 	CHECK(atype->getType() == AnalyzedType::TYPE_LONG);
 }
@@ -181,7 +181,7 @@ TEST(TestTypeResolveGroup, findBaseTypeString){
 	TypeResolver* resolver = actx->getTypeResolver();
 
 	UnicodeString typestr(L"String");
-	AnalyzedType* atype = resolver->findBaseType(&typestr); __STP(atype);
+	AnalyzedType* atype = resolver->findBasicType(&typestr); __STP(atype);
 
 	CHECK(atype->getType() == AnalyzedType::TYPE_STRING);
 }

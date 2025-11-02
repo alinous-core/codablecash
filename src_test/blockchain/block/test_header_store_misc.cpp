@@ -69,7 +69,7 @@ TEST(TestBlockHeaderStoreMiscGroup, headerCppy01){
 	header.buildHeaderId();
 
 	BlockHeader* header2 = dynamic_cast<BlockHeader*>(header.copyData()); __STP(header2);
-	BlockHeaderId* id2 = header2->getId();
+	const BlockHeaderId* id2 = header2->getId();
 
 	CHECK(id2->equals(header.getId()));
 }

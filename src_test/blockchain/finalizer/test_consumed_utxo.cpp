@@ -69,7 +69,9 @@ TEST(TestConsumedUtxoGroup, case01){
 	{
 		BlockchainController* ctrl = driver.getBlockchainController();
 		WalletDriver* wallet = driver.getWallet();
-		WalletAccount* account = wallet->getAccount(0);
+		WalletAccount* account = wallet->getAccount(0, 0);
+
+		ISystemLogger* logger = ctrl->getLogger();
 
 		ArrayList<AbstractBlockchainTransaction>* list = account->getTransactions(); __STP(list);
 		list->setDeleteOnExit();
@@ -89,8 +91,9 @@ TEST(TestConsumedUtxoGroup, case01){
 
 			Block block(0, 2);
 			BlockHeader* header = block.getHeader();
+			BlockBody* body = block.getBody();
 
-			context->importControlTransaction(header, trx);
+			context->importControlTransaction(header, body, trx, logger);
 
 			const UtxoId* utxoId = ref->getUtxoId();
 			AbstractUtxo* utxo = context->getUtxo(utxoId);
@@ -101,8 +104,9 @@ TEST(TestConsumedUtxoGroup, case01){
 
 			Block block(0, 2);
 			BlockHeader* header = block.getHeader();
+			BlockBody* body = block.getBody();
 
-			context->importControlTransaction(header, trx);
+			context->importControlTransaction(header, body, trx, logger);
 
 			const UtxoId* utxoId = ref->getUtxoId();
 			AbstractUtxo* utxo = context->getUtxo(utxoId);
@@ -114,8 +118,9 @@ TEST(TestConsumedUtxoGroup, case01){
 
 			Block block(0, 2);
 			BlockHeader* header = block.getHeader();
+			BlockBody* body = block.getBody();
 
-			context->importControlTransaction(header, trx);
+			context->importControlTransaction(header, body, trx, logger);
 
 			//
 			RegisterVotePoolTransaction* regTrx = dynamic_cast<RegisterVotePoolTransaction*>(trx);

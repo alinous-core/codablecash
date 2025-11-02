@@ -70,7 +70,7 @@ TicketVotedUtxoReference* BlockRewardStakeBase::toTicketVotedUtxoReference() con
 	TicketVotedUtxoReference* ref = new TicketVotedUtxoReference(); __STP(ref);
 
 	const UtxoId* utxoId = this->ticketVotedUtxo->getId();
-	ref->setUtxoId(utxoId);
+	ref->setUtxoId(utxoId, this->addressDesc);
 
 	return __STP_MV(ref);
 }

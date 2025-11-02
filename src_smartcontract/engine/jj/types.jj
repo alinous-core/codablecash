@@ -6,11 +6,31 @@ AbstractType* typeDeclare() : {
 	Token* t2 = nullptr;
 }
 {
+	dec=typeBody()
+	(
+		t1="[" t2="]"
+		{
+			dec->addDimension();
+		}
+	)*
+	{
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+AbstractType* typeBody() : {
+	AbstractType* dec = nullptr;
+}
+{
 	(
 		dec=boolType()
 		|
 		dec=byteType()
-		|		dec=charType()
+		|
+		dec=charType()
 		|
 		dec=shortType()
 		|
@@ -26,14 +46,6 @@ AbstractType* typeDeclare() : {
 		|
 		dec=objectType()
 	)
-	(
-		t1="[" t2="]"
-		{
-			dec->addDimension();
-		}
-	)*
-	{
-	}
 	{
 		__ONERROR(dec);
 		return dec;
@@ -44,6 +56,8 @@ ObjectType* objectType() : {
 	ObjectType* dec = new ObjectType();
 	PackageNameDeclare* packageName = nullptr;
 	Token* t=nullptr;
+	GenericsObjectType* geneticsObject = nullptr;
+	AbstractType* genericsType = nullptr;
 }
 {
 	(LOOKAHEAD(2)
@@ -65,6 +79,32 @@ ObjectType* objectType() : {
 	 	dec->setName(_STR(t));
 	 	dec->setPosition(t);
 	 }
+	 [LOOKAHEAD(2)
+	 	t=<LT> {
+	 		geneticsObject = new GenericsObjectType(dec);
+	 		delete dec;
+	 		dec = geneticsObject;
+	 	}
+	 	genericsType=typeDeclare() {
+	 		geneticsObject->addGenericsType(genericsType);
+	 	}
+	 	
+	 	(
+	 		t=<COMMA> {
+	 			geneticsObject->setPosition(t);
+	 		}
+		 	genericsType=typeDeclare() {
+		 		geneticsObject->addGenericsType(genericsType);
+		 	}		
+	 	)*
+	 	
+	 	
+	 	t=<GT> {
+	 		geneticsObject->setPosition(t);
+	 	}
+	 ]
+	 
+	 
 	 {
 		__ONERROR(dec);
 		return dec;

@@ -87,6 +87,10 @@ const BalanceAddress* AbstractAddressStore::getAddress(const AddressDescriptor *
 	return ret;
 }
 
+bool AbstractAddressStore::hasAddress(const AddressDescriptor *dest) const noexcept {
+	return getAddress(dest) != nullptr;
+}
+
 AddressAndPrivateKey* AbstractAddressStore::createNewAddressAndPrivateKey(const IWalletDataEncoder *encoder, uint64_t serial) {
 	HdWalletSeed* seed = encoder->decode(this->encryptedSeed); __STP(seed);
 
@@ -121,40 +125,6 @@ IMuSigSigner* AbstractAddressStore::getSigner(const AddressDescriptor *desc, con
 	}
 
 	return ret;
-}
-
-BalanceUnit AbstractAddressStore::collectUtxos(
-		WalletAccountTrxRepository *trxRepo, ArrayList<BalanceUtxo> *list,
-		const BalanceUnit max, const BalanceUnit feeRate) noexcept {
-	BalanceUnit remain = max;
-
-	BalanceUnit oneUtxoFee(70 * feeRate.getAmount());
-
-	int maxLoop = this->list->size();
-	for(int i = 0; i != maxLoop && !remain.isZero(); ++i){
-		AddressAndPrivateKey* addr = this->list->get(i);
-		AddressDescriptor* desc = addr->getAddress()->toAddressDescriptor(); __STP(desc);
-
-		ArrayList<BalanceUtxo>* butxoList = trxRepo->getBalanceUtxos(desc); __STP(butxoList);
-		if(butxoList != nullptr){
-			butxoList->setDeleteOnExit();
-
-			int max = butxoList->size();
-			for(int j = 0; j != max; ++j){
-				const BalanceUtxo* utxo = butxoList->get(j);
-
-				list->addElement(dynamic_cast<BalanceUtxo*>(utxo->copyData()));
-
-				remain += oneUtxoFee;
-				remain -= utxo->getAmount();
-				if(remain.isZero()){
-					break;
-				}
-			}
-		}
-	}
-
-	return remain;
 }
 
 

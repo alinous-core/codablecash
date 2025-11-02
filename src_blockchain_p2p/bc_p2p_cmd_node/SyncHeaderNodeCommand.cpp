@@ -98,8 +98,8 @@ void SyncHeaderNodeCommand::setZone(uint16_t zone) noexcept {
 	this->zone = zone;
 }
 
-void SyncHeaderNodeCommand::setNumRequestHeight(uint32_t numRequestTrx) noexcept {
-	this->numRequestHeight = numRequestTrx;
+void SyncHeaderNodeCommand::setNumRequestHeight(uint32_t numRequestHeight) noexcept {
+	this->numRequestHeight = numRequestHeight;
 }
 
 void SyncHeaderNodeCommand::setStartHeight(uint32_t offset) noexcept {

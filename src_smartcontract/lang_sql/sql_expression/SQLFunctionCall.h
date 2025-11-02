@@ -23,7 +23,7 @@ public:
 	void addArgument(AbstractSQLExpression* arg) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual void preAnalyze(AnalyzeContext* actx);

@@ -64,7 +64,7 @@ UnicodeString* DownloadBlockNodeCommandResponse::toString() const noexcept {
 	ret->append((int)height);
 	ret->append(L" id: [");
 
-	BlockHeaderId* id = header->getId();
+	const BlockHeaderId* id = header->getId();
 	UnicodeString* idstr = id->toString(); __STP(idstr);
 	ret->append(idstr);
 

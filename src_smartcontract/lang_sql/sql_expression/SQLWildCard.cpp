@@ -39,7 +39,7 @@ int SQLWildCard::binarySize() const {
 	return total;
 }
 
-void SQLWildCard::toBinary(ByteBuffer* out) {
+void SQLWildCard::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_WILDCARD);
 }
 

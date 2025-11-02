@@ -51,8 +51,8 @@ public:
 	virtual void save() = 0;
 	virtual void load(const IWalletDataEncoder *encoder) = 0;
 
-	BalanceUnit collectUtxos(WalletAccountTrxRepository* trxRepo, ArrayList<BalanceUtxo>* list, const BalanceUnit max, const BalanceUnit feeRate) noexcept;
 	const BalanceAddress* getAddress(const AddressDescriptor *dest) const noexcept;
+	bool hasAddress(const AddressDescriptor *dest) const noexcept;
 
 protected:
 	void __save();

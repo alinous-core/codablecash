@@ -39,12 +39,23 @@
 
 #include "bc_memorypool/MemPoolTransaction.h"
 #include "bc_memorypool/MemoryPool.h"
+#include "bc_memorypool/FeeBananceTransactionScanner.h"
+#include "bc_memorypool/ControlTransactionScanner.h"
+#include "bc_memorypool/SmartcontractTansactionScanner.h"
+#include "bc_memorypool/InterChainCommunicationTransactionScanner.h"
 
 #include "bc/ISystemLogger.h"
 
 #include "numeric/BigInteger.h"
 
 #include "bc_block_vote/VotePart.h"
+
+#include "bc_trx/AbstractBlockchainTransaction.h"
+#include "bc_trx/AbstractBalanceTransaction.h"
+#include "bc_trx/AbstractControlTransaction.h"
+#include "bc_trx/AbstractInterChainCommunicationTansaction.h"
+
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 
 namespace codablecash {
@@ -227,6 +238,7 @@ IStatusCacheContext* BlockchainController::doGetStatusCacheContext(uint16_t zone
 			context->init();
 
 			context->loadInitialVotersData(); // load Initial Voters Data
+			context->setTopHeight(height);
 
 			return __STP_MV(context);
 		}
@@ -243,7 +255,18 @@ IStatusCacheContext* BlockchainController::doGetStatusCacheContext(uint16_t zone
 
 		while(finalizedHeight < currentHeight){
 			__STP(currentHeaderId);
-			BlockHeader* header = headerManager->getHeader(currentHeaderId, currentHeight); __STP(header);
+
+			BlockHeader* header = headerManager->getHeader(currentHeaderId, currentHeight);
+			// if the header is scheduled block
+			if(header == nullptr){
+				Block* scblock = __getScheduledBlock(); __STP(scblock);
+				assert(scblock != nullptr);
+
+				const BlockHeader* scHeader = scblock->getHeader();
+				header = dynamic_cast<BlockHeader*>(scHeader->copyData());
+			}
+			__STP(header);
+
 			assert(header != nullptr);
 
 			// check cache
@@ -283,7 +306,7 @@ IStatusCacheContext* BlockchainController::doGetStatusCacheContext(uint16_t zone
 void BlockchainController::initCacehContext(uint16_t zone, StatusCacheContext *context,	const BlockHeaderId *headerId, uint64_t height) {
 	context->init();
 
-	uint64_t analyzedHeight = context->getAnalyzedHeight(); // finalyzed or cached
+	uint64_t analyzedHeight = context->getPreAnalyzedHeight(); // finalyzed or cached
 	BlockHeaderStoreManager* headerManager = this->blockchain->getHeaderManager(zone);
 	BlockBodyStoreManager* bodyManager = this->blockchain->getBlockBodyStoreManager(zone);
 
@@ -295,8 +318,18 @@ void BlockchainController::initCacehContext(uint16_t zone, StatusCacheContext *c
 
 	while(analyzedHeight < currentHeight){
 		__STP(currentHeaderId);
-		BlockHeader* header = headerManager->getHeader(currentHeaderId, currentHeight); __STP(header);
+
+		BlockHeader* header = headerManager->getHeader(currentHeaderId, currentHeight);
+		if(header == nullptr){
+			Block* scblock = __getScheduledBlock(); __STP(scblock);
+			assert(scblock != nullptr);
+
+			const BlockHeader* scHeader = scblock->getHeader();
+			header = dynamic_cast<BlockHeader*>(scHeader->copyData());
+		}
+
 		assert(header != nullptr);
+		__STP(header);
 
 		list.addElement(__STP_MV(header));
 
@@ -319,11 +352,23 @@ void BlockchainController::initCacehContext(uint16_t zone, StatusCacheContext *c
 		currentHeight = header->getHeight();
 
 		const BlockMerkleRoot* root = header->getMerkleRoot();
-		BlockBody* blockBody = bodyManager->getBlockBody(root, currentHeight); __STP(blockBody);
+		BlockBody* blockBody = bodyManager->getBlockBody(root, currentHeight);
+		if(blockBody == nullptr){
+			Block* scblock = __getScheduledBlock(); __STP(scblock);
+			assert(scblock != nullptr);
+
+			const BlockBody* scBody = scblock->getBody();
+			blockBody = dynamic_cast<BlockBody*>(scBody->copyData());
+		}
+		__STP(blockBody);
+
 		assert(blockBody != nullptr);
 
-		context->importBlock(header, blockBody);
+		context->importBlock(header, blockBody, this->logger);
 	}
+
+	// set Top height
+	context->setTopHeight(height);
 }
 
 /*
@@ -435,6 +480,55 @@ int BlockchainController::getMempoolTrxCount() const noexcept {
 	return count;
 }
 
+ArrayList<AbstractBlockchainTransaction>* BlockchainController::fetchMempoolTrx(const ArrayList<BloomFilter1024> *filters) {
+	ArrayList<AbstractBlockchainTransaction>* ret = new ArrayList<AbstractBlockchainTransaction>(); __STP(ret);
+
+	MemPoolTransaction* memTrx = this->memoryPool->begin(); __STP(memTrx);
+
+	{
+		ControlTransactionScanner* scanner = memTrx->beginScanControlTransaction(); __STP(scanner);
+		while(scanner->hasNext()){
+			AbstractControlTransaction* trx = scanner->next(); __STP(trx);
+			if(trx->checkFilter(filters)){
+				ret->addElement(__STP_MV(trx));
+			}
+		}
+	}
+
+	{
+		FeeBananceTransactionScanner* scanner = memTrx->beginScanBalanceTransaction(); __STP(scanner);
+		while(scanner->hasNext()){
+			AbstractBalanceTransaction* trx = scanner->next(); __STP(trx);
+			if(trx->checkFilter(filters)){
+				ret->addElement(__STP_MV(trx));
+			}
+		}
+	}
+
+	{
+		InterChainCommunicationTransactionScanner* scanner = memTrx->beginScanInterChainCommunicationTransaction(); __STP(scanner);
+		while(scanner->hasNext()){
+			AbstractInterChainCommunicationTansaction* trx = scanner->next(); __STP(trx);
+			if(trx->checkFilter(filters)){
+				ret->addElement(__STP_MV(trx));
+			}
+		}
+	}
+
+	{
+		SmartcontractTansactionScanner* scanner = memTrx->beginScanSmartcontractTansaction(); __STP(scanner);
+		while(scanner->hasNext()){
+			AbstractSmartcontractTransaction* trx = scanner->next(); __STP(trx);
+			if(trx->checkFilter(filters)){
+				ret->addElement(__STP_MV(trx));
+			}
+		}
+	}
+
+
+	return __STP_MV(ret);
+}
+
 void BlockchainController::getSyncHeaderData(uint16_t zone, uint64_t offsetHeight, int limit, IBlockDetectCallback* callback) {
 	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
@@ -459,7 +553,7 @@ ArrayList<Block>* BlockchainController::getBlocksHeightAt(uint16_t zone, uint64_
 	return this->blockchain->getBlocksHeightAt(zone, height);
 }
 
-Block* BlockchainController::getBlocksHeightAt(uint16_t zone, uint64_t height, const BlockHeaderId *headerId) const {
+Block* BlockchainController::getBlockHeightAt(uint16_t zone, uint64_t height, const BlockHeaderId *headerId) const {
 	ArrayList<Block>* list = getBlocksHeightAt(zone, height); __STP(list);
 	if(list != nullptr){
 		list->setDeleteOnExit();
@@ -509,7 +603,7 @@ void BlockchainController::requestMiningBlock(MemPoolTransaction* memTrx) {
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 	ZoneStatusCache* cache = this->statusCache->getZoneStatusCache(zoneSelf);
 
-	cache->updateBlockStatus(memTrx, this->blockchain, this->config, this->tmpCacheBaseDir);
+	cache->updateBlockStatus(memTrx, this->blockchain, this->config);
 
 	this->statusCache->report2PowManager(this->blockchain, cache);
 }
@@ -586,10 +680,19 @@ void BlockchainController::setScheduledBlock(const Block *block) {
 }
 
 Block* BlockchainController::fetechScheduledBlock() {
-	StackWriteLock __lock(this->rwLock, __FILE__, __LINE__);
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
+	return __fetechScheduledBlock();
+}
+
+Block* BlockchainController::__fetechScheduledBlock() {
 	uint16_t zoneSelf = this->blockchain->getZoneSelf();
 	return this->statusCache->fetchScheduledBlock(zoneSelf);
+}
+
+Block* BlockchainController::__getScheduledBlock() {
+	uint16_t zoneSelf = this->blockchain->getZoneSelf();
+	return this->statusCache->getScheduledBlock(zoneSelf);
 }
 
 bool BlockchainController::registerBlockHeader4Limit(uint16_t zone,	const BlockHeader *header, const CodablecashSystemParam *param) {

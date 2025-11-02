@@ -21,7 +21,11 @@ public:
 	TypeCastExceptionClassDeclare();
 	virtual ~TypeCastExceptionClassDeclare();
 
-	virtual const UnicodeString* getName() noexcept;
+	virtual uint16_t getClassType() const noexcept {
+		return TYPE_TYPE_CAST_EXCEPTION;
+	}
+
+	virtual const UnicodeString* getName() const noexcept;
 	virtual const UnicodeString* getFullQualifiedName() noexcept;
 
 	virtual ClassDeclare* getBaseClass() const noexcept;

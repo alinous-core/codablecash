@@ -8,9 +8,12 @@ set(__src
 	ClassDeclareBlock.cpp
 	ClassExtends.cpp
 	ClassImplements.cpp
+	ClassName.cpp
+	GenericsClassDeclare.cpp
+	GenericsGeneratedClassDeclare.cpp
+	GenericsParameter.cpp
 	ImportDeclare.cpp
 	ImportsDeclare.cpp
-	ClassName.cpp
 	MemberVariableDeclare.cpp
 	MethodDeclare.cpp
 	PackageNameDeclare.cpp

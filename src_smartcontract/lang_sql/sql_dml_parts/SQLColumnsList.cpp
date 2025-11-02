@@ -76,7 +76,7 @@ int SQLColumnsList::numColumns() const noexcept {
 	return this->list.size();
 }
 
-void SQLColumnsList::toBinary(ByteBuffer* out) {
+void SQLColumnsList::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_PART_COLUMN_LIST);
 
 	int maxLoop = this->list.size();

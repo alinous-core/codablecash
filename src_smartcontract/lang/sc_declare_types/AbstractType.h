@@ -11,9 +11,14 @@
 #include "engine/sc/CodeElement.h"
 #include <cstdint>
 
+#include "base/HashMap.h"
+
 namespace alinous {
 
 class ByteBuffer;
+class TypeResolver;
+class AnalyzeContext;
+class ITypeVisitor;
 
 class AbstractType : public CodeElement {
 public:
@@ -26,8 +31,20 @@ public:
 	int getDimension() const noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	virtual bool isGenericsType() const noexcept {
+		return false;
+	}
+
+	virtual void preAnalyze(AnalyzeContext *actx);
+	virtual void analyzeTypeRef(AnalyzeContext* actx);
+	virtual void analyze(AnalyzeContext* actx);
+
+	virtual AbstractType* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const = 0;
+
+	virtual void visit(ITypeVisitor* visitor) = 0;
 
 private:
 	uint8_t dimension;

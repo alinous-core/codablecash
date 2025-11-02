@@ -11,14 +11,13 @@
 
 #include "bc_wallet_encoder/IWalletDataEncoder.h"
 
-#include "bc_wallet_filter/BloomFilter512.h"
-
 #include "base_io/File.h"
 #include "base_io/ByteBuffer.h"
 
 #include "bc_base_conf_store/StatusStore.h"
 
 #include "base/StackRelease.h"
+#include "bc_wallet_filter/BloomFilter1024.h"
 
 namespace codablecash {
 
@@ -106,18 +105,34 @@ HdWalletSeed* HdWallet::getRootSeed(const IWalletDataEncoder* encoder) const {
 	return rootSeed;
 }
 
-ArrayList<BloomFilter512>* HdWallet::getBloomFilters(const IWalletDataEncoder* encoder) const noexcept {
-	ArrayList<BloomFilter512>* list = new ArrayList<BloomFilter512>();
+ArrayList<BloomFilter1024>* HdWallet::getBloomFilters(const IWalletDataEncoder* encoder) const noexcept {
+	ArrayList<BloomFilter1024>* list = new ArrayList<BloomFilter1024>();
 
 	int maxLoop = this->accounts->size();
 	for(int i = 0; i != maxLoop; ++i){
 		WalletAccount* account = this->accounts->get(i);
-		const BloomFilter512* f = account->getBloomFilter(encoder);
+		const BloomFilter1024* f = account->getBloomFilter(encoder);
 
-		list->addElement(dynamic_cast<BloomFilter512*>(f->copyData()));
+		list->addElement(dynamic_cast<BloomFilter1024*>(f->copyData()));
 	}
 
 	return list;
+}
+
+WalletAccount* HdWallet::getZoneAccount(uint16_t zone) const noexcept {
+	WalletAccount* retaccount = nullptr;
+
+	int maxLoop = this->accounts->size();
+	for(int i = 0; i != maxLoop; ++i){
+		WalletAccount* account = this->accounts->get(i);
+		uint16_t z = account->getZone();
+
+		if(z == zone){
+			retaccount = account;
+		}
+	}
+
+	return retaccount;
 }
 
 } /* namespace codablecash */

@@ -241,7 +241,7 @@ int CreateTableStatement::binarySize() const {
 	return total;
 }
 
-void CreateTableStatement::toBinary(ByteBuffer* out) {
+void CreateTableStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 
 	out->putShort(CodeElement::DDL_CREATE_TABLE);

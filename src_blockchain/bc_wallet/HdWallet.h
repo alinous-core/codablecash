@@ -22,7 +22,7 @@ class HdWalletSeed;
 class WalletAccount;
 class IWalletDataEncoder;
 class StatusStore;
-class BloomFilter512;
+class BloomFilter1024;
 
 class HdWallet {
 public:
@@ -45,6 +45,8 @@ public:
 	WalletAccount* getAccount(int i) const noexcept {
 		return this->accounts->get(i);
 	}
+	WalletAccount* getZoneAccount(uint16_t zone) const noexcept;
+
 
 	void setDefaultZone(uint16_t defaultZone) noexcept {
 		this->defaultZone = defaultZone;
@@ -56,7 +58,7 @@ public:
 	void save();
 	void load(const IWalletDataEncoder* encoder);
 
-	ArrayList<BloomFilter512>* getBloomFilters(const IWalletDataEncoder* encoder) const noexcept;
+	ArrayList<BloomFilter1024>* getBloomFilters(const IWalletDataEncoder* encoder) const noexcept;
 
 
 private:

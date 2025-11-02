@@ -39,6 +39,9 @@ class TransactionId;
 class BlockchainStatusCache;
 class ILockinManager;
 class VoterStatusMappedCacheContext;
+class ISystemLogger;
+class BlockBody;
+
 
 class IStatusCacheContext {
 public:
@@ -47,10 +50,10 @@ public:
 
 	virtual void close() = 0;
 
-	virtual void importBalanceTransaction(const BlockHeader* header, const AbstractBalanceTransaction* trx) = 0;
-	virtual void importControlTransaction(const BlockHeader* header, const AbstractControlTransaction* trx) = 0;
-	virtual void importInterChainCommunicationTransaction(const BlockHeader* header, const AbstractInterChainCommunicationTansaction* trx) = 0;
-	virtual void importSmartcontractTransaction(const BlockHeader* header, const AbstractSmartcontractTransaction* trx) = 0;
+	virtual void importBalanceTransaction(const BlockHeader* header, const AbstractBalanceTransaction* trx, ISystemLogger* logger) = 0;
+	virtual void importControlTransaction(const BlockHeader* header, const BlockBody *body, const AbstractControlTransaction* trx, ISystemLogger* logger) = 0;
+	virtual void importInterChainCommunicationTransaction(const BlockHeader* header, const AbstractInterChainCommunicationTansaction* trx, ISystemLogger* logger) = 0;
+	virtual void importSmartcontractTransaction(const BlockHeader* header, const AbstractSmartcontractTransaction* trx, ISystemLogger* logger) = 0;
 
 	virtual ArrayList<VoterEntry, VoterEntry::VoteCompare>* getVoterEntries() const = 0;
 
@@ -66,7 +69,7 @@ public:
 
 	virtual void loadInitialVotersData() = 0;
 
-	virtual void registerVoterPool(const RegisterVotePoolTransaction* trx, uint64_t blockHeight) = 0;
+	virtual void registerVoterPool(const RegisterVotePoolTransaction* trx, uint64_t blockHeight, const BlockHeader *header, const BlockBody* body) = 0;
 	virtual void registerTicket(const BlockHeader *header, const RegisterTicketTransaction* trx) = 0;
 	virtual void registerVote(const BlockHeader *header, const VoteBlockTransaction* trx) = 0;
 
@@ -79,6 +82,7 @@ public:
 	virtual AbstractUtxo* getUtxo(const UtxoId* utxoId) const = 0;
 	virtual void removeUtxo(const AbstractUtxoReference *utxoref, const AbstractBlockchainTransaction *trx) = 0;
 
+	virtual uint64_t getTopHeight() const noexcept = 0;
 };
 
 } /* namespace codablecash */

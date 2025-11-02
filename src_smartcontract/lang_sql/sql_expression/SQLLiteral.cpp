@@ -61,7 +61,7 @@ int SQLLiteral::binarySize() const {
 	return total;
 }
 
-void SQLLiteral::toBinary(ByteBuffer* out) {
+void SQLLiteral::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->value);
 
 	out->putShort(CodeElement::SQL_EXP_LITERAL);

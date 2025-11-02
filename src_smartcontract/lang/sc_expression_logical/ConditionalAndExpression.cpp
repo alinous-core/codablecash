@@ -43,7 +43,7 @@ void ConditionalAndExpression::analyze(AnalyzeContext* actx) {
 		AbstractExpression* expression = this->list.get(i);
 		AnalyzedType at = expression->getType(actx);
 
-		if(!at.isBool()){
+		if(!at.isBool() && !at.isGenericsType()){
 			actx->addValidationError(ValidationError::CODE_LOGICAL_EXP_NON_BOOL, this, L"Logical expression requires boolean parameter.", {});
 		}
 	}
@@ -56,7 +56,7 @@ int ConditionalAndExpression::binarySize() const {
 	return total;
 }
 
-void ConditionalAndExpression::toBinary(ByteBuffer* out) {
+void ConditionalAndExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_CND_AND);
 	AbstractBinaryExpression::toBinary(out);
 }
@@ -90,6 +90,14 @@ AbstractVmInstance* ConditionalAndExpression::interpret(VirtualMachine* vm) {
 	}
 
 	return PrimitiveReference::createBoolReference(vm, 1);
+}
+
+AbstractExpression* ConditionalAndExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ConditionalAndExpression* inst = new ConditionalAndExpression();
+	inst->copyCodePositions(this);
+	inst->copyExpressionList(this, input);
+
+	return inst;
 }
 
 } /* namespace alinous */

@@ -30,7 +30,7 @@ public:
 	void setPostLoop(AbstractStatement* postLoop) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual void init(VirtualMachine* vm);
@@ -38,6 +38,9 @@ public:
 
 	virtual bool hasCtrlStatement() const noexcept;
 	virtual bool hasConstructor() const noexcept;
+
+	virtual AbstractStatement* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
 	AbstractStatement* initStatement;
 	AbstractExpression* cond;

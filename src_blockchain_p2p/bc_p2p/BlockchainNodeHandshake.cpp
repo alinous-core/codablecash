@@ -18,6 +18,9 @@
 
 #include "bc_p2p_cmd_client_notify/AbstractClientNotifyCommand.h"
 
+#include "bc_p2p_cmd_client/AbstractClientRequestCommand.h"
+
+
 namespace codablecash {
 
 BlockchainNodeHandshake::BlockchainNodeHandshake(P2pHandshake *handshake, int zone, const NodeIdentifier* nodeId, const UnicodeString* canonicalName) {
@@ -79,6 +82,12 @@ AbstractCommandResponse* BlockchainNodeHandshake::sendCommnad(const AbstractNode
 }
 
 AbstractCommandResponse* BlockchainNodeHandshake::sendCommnad(const AbstractClientNotifyCommand *command) {
+	StackUnlocker __lock(this->trxmutex, __FILE__, __LINE__);
+
+	return this->handshake->publishCommand(command);
+}
+
+AbstractCommandResponse* BlockchainNodeHandshake::sendCommnad(const AbstractClientRequestCommand *command) {
 	StackUnlocker __lock(this->trxmutex, __FILE__, __LINE__);
 
 	return this->handshake->publishCommand(command);

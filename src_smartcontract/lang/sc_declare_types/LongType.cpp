@@ -6,8 +6,10 @@
  */
 
 #include "lang/sc_declare_types/LongType.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
 
 #include "base/UnicodeString.h"
+
 
 namespace alinous {
 
@@ -39,5 +41,15 @@ const UnicodeString* LongType::toString() noexcept {
 	return &TYPE_NAME;
 }
 
+AbstractType* LongType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	LongType* inst = new LongType();
+	inst->copyCodePositions(this);
+	return inst;
+}
+
+void LongType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
+}
 
 } /* namespace alinous */

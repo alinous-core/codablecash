@@ -25,12 +25,11 @@ public:
 	virtual void analyzeTypeRef(AnalyzeContext* actx);
 	virtual void analyze(AnalyzeContext* actx);
 
-	void setPackage(PackageNameDeclare* packageName) noexcept;
 	void setExpression(ConstructorCall* exp) noexcept;
 	void setConstructorArray(ConstructorArray* array) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual AnalyzedType getType(AnalyzeContext* actx);
@@ -38,12 +37,14 @@ public:
 	virtual void init(VirtualMachine* vm);
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm);
 
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
 	void analyzeArray(AnalyzeContext* actx);
 	AnalyzedType* findType(AnalyzeContext* actx, const UnicodeString* className) const;
 	AbstractVmInstance* interpretArray(VirtualMachine* vm);
+
 private:
-	PackageNameDeclare* packageName;
 	ConstructorCall* constructorCall;
 	ConstructorArray* array;
 

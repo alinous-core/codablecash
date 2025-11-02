@@ -25,6 +25,8 @@ class AddressDescriptor;
 class AbstractAddress : public alinous::IBlockObject {
 public:
 	static const constexpr uint8_t ADDRESS_TYPE_BALANCE{1};
+	static const constexpr uint8_t ADDRESS_TYPE_SMARTCONTRACT_MODULE{2};
+	static const constexpr uint8_t ADDRESS_TYPE_SMARTCONTRACT_INSTANCE{3};
 
 	static AbstractAddress* createFromBinary(ByteBuffer* in);
 

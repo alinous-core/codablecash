@@ -73,6 +73,8 @@ public:
 	virtual bool validateOnAccept(MemPoolTransaction *memTrx, IStatusCacheContext* context) const;
 	virtual TrxValidationResult validateFinal(const BlockHeader* header, MemPoolTransaction *memTrx, IStatusCacheContext* context) const;
 
+	BalanceUnit getTotalOutputBalance() const;
+
 private:
 	void setUtxoNonce() noexcept;
 

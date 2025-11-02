@@ -95,37 +95,48 @@ void WalletConnectionManager::__disconnect(const PubSubId *pubsubId) {
 	ClientNodeHandshake* handshake = this->clientHandshakeHash.get(pubsubId);
 	this->clientHandshakeHash.remove(pubsubId);
 
-	this->list.addElement(handshake);
+	this->dellist.addElement(handshake);
 }
 
 void WalletConnectionManager::clearDeleteList() {
-	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
+	// make delete list
+	ArrayList<ClientNodeHandshake> list;
 
-	int pos = 0;
-	int maxLoop = this->list.size();
-	for(int i = 0; i != maxLoop; ++i){
-		ClientNodeHandshake* clientHandshake = this->list.get(pos);
+	{
+		StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
 
-		if(clientHandshake->isDeletable()){
-			this->list.remove(pos);
+		int pos = 0;
+		int maxLoop = this->dellist.size();
+		for(int i = 0; i != maxLoop; ++i){
+			ClientNodeHandshake* clientHandshake = this->dellist.get(pos);
 
-			// get inner handshake
-			P2pHandshake* handshake = clientHandshake->getHandshake();
+			if(clientHandshake->isDeletable()){
+				this->dellist.remove(pos);
 
-			// delete wrapper client handshake
-			clientHandshake->dispose(true);
-			delete clientHandshake;
-
-			// delete inner
-			assert(handshake->is2Delete());
-			handshake->dispose();
-			delete handshake;
-		}
-		else{
-			++pos;
+				list.addElement(clientHandshake);
+			}
+			else{
+				++pos;
+			}
 		}
 	}
 
+	int maxLoop = list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		ClientNodeHandshake* clientHandshake = list.get(i);
+
+		// get inner handshake
+		P2pHandshake* handshake = clientHandshake->getHandshake();
+
+		// delete wrapper client handshake
+		clientHandshake->dispose(true);
+		delete clientHandshake;
+
+		// delete inner
+		assert(handshake->is2Delete());
+		handshake->dispose();
+		delete handshake;
+	}
 }
 
 int WalletConnectionManager::getNumConnection() const noexcept {
@@ -138,7 +149,7 @@ int WalletConnectionManager::getNumConnection() const noexcept {
 bool WalletConnectionManager::isClearedAll() const noexcept {
 	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
 
-	return this->list.isEmpty();
+	return this->dellist.isEmpty();
 }
 
 void WalletConnectionManager::addClientHandshake(ClientNodeHandshake* handshake) {
@@ -169,7 +180,7 @@ bool WalletConnectionManager::hasNodeId(const NodeIdentifier *nodeId) const noex
 	return ret;
 }
 
-bool WalletConnectionManager::connect(int protocol, const UnicodeString *host, uint32_t port, const NodeIdentifier* nodeId, uint16_t zone, ISystemLogger* logger, const ArrayList<BloomFilter512>* filters) {
+bool WalletConnectionManager::connect(int protocol, const UnicodeString *host, uint32_t port, const NodeIdentifier* nodeId, uint16_t zone, ISystemLogger* logger, const ArrayList<BloomFilter1024>* filters) {
 	int ret = false;
 	try{
 		PubSubId* psId = PubSubId::createNewId(); __STP(psId);
@@ -184,7 +195,7 @@ bool WalletConnectionManager::connect(int protocol, const UnicodeString *host, u
 			{
 				int maxLoop = filters->size();
 				for(int i = 0; i != maxLoop; ++i){
-					BloomFilter512* f = filters->get(i);
+					BloomFilter1024* f = filters->get(i);
 					cmd.addBloomFilter(f);
 				}
 			}
@@ -208,6 +219,53 @@ bool WalletConnectionManager::connect(int protocol, const UnicodeString *host, u
 	}
 
 	return ret;
+}
+
+ArrayList<NodeIdentifier>* WalletConnectionManager::getNodeIdList() const noexcept {
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
+
+	ArrayList<NodeIdentifier>* list = new ArrayList<NodeIdentifier>();
+
+	Iterator<PubSubId>* it = this->clientHandshakeHash.keySet()->iterator(); __STP(it);
+	while(it->hasNext()){
+		const PubSubId* pubsubId = it->next();
+		ClientNodeHandshake* handshake = this->clientHandshakeHash.get(pubsubId);
+
+		const NodeIdentifier* nodeId = handshake->getNodeId();
+		list->addElement(dynamic_cast<NodeIdentifier*>(nodeId->copyData()));
+	}
+
+	return list;
+}
+
+ClientNodeHandshake* WalletConnectionManager::getClientHandshakeByNodeId(const NodeIdentifier *nodeId) const noexcept {
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
+
+	ClientNodeHandshake* ret = nullptr;
+
+	Iterator<PubSubId>* it = this->clientHandshakeHash.keySet()->iterator(); __STP(it);
+
+	while(it->hasNext()){
+		const PubSubId* key = it->next();
+		ClientNodeHandshake* handshake = this->clientHandshakeHash.get(key);
+
+		const NodeIdentifier* id = handshake->getNodeId();
+		if(nodeId->compareTo(id) == 0){
+			ret = handshake;
+			ret->incRef();
+			break;
+		}
+	}
+
+	return ret;
+}
+
+const NodeIdentifier* WalletConnectionManager::pubsubId2NodeId(const PubSubId *pubsubId) const noexcept {
+	StackUnlocker __unlock(this->mutex, __FILE__, __LINE__);
+
+	ClientNodeHandshake* handshake = this->clientHandshakeHash.get(pubsubId);
+
+	return handshake != nullptr ? handshake->getNodeId() : nullptr;
 }
 
 } /* namespace codablecash */

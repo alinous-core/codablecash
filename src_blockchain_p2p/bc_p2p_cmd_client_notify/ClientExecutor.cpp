@@ -37,6 +37,12 @@ IClientNotifyListner* ClientExecutor::removeListner(IClientNotifyListner *listne
 	return this->listners->remove(index);
 }
 
+void ClientExecutor::clearAllListners() noexcept {
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
+
+	this->listners->reset();
+}
+
 AbstractCommandResponse* ClientExecutor::fireOnNewTransaction(const PubSubId *pubsubId, const TransactionTransferData *data) {
 	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
 	int maxLoop = this->listners->size();
@@ -44,6 +50,18 @@ AbstractCommandResponse* ClientExecutor::fireOnNewTransaction(const PubSubId *pu
 		IClientNotifyListner* listner = this->listners->get(i);
 
 		listner->onNewTransaction(pubsubId, data);
+	}
+
+	return new OkPubsubResponse();
+}
+
+AbstractCommandResponse* ClientExecutor::fireOnBlockMined(const PubSubId *pubsubId, const BlockHeaderTransferData *blockcheaderData) {
+	StackUnlocker lock(this->mutex, __FILE__, __LINE__);
+	int maxLoop = this->listners->size();
+	for(int i = 0; i != maxLoop; ++i){
+		IClientNotifyListner* listner = this->listners->get(i);
+
+		listner->onBlockMined(pubsubId, blockcheaderData);
 	}
 
 	return new OkPubsubResponse();

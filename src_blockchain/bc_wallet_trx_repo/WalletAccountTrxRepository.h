@@ -30,6 +30,7 @@ class BalanceUnit;
 class AddressDescriptor;
 class UtxoId;
 class TransactionId;
+class AbstractUtxo;
 
 
 class WalletAccountTrxRepository : public IUtxoFinder {
@@ -43,7 +44,7 @@ public:
 	void open();
 	void close();
 
-	void importUtxo(const BalanceUtxo* utxo);
+	void importUtxo(const AbstractUtxo* utxo);
 	void removeUtxo(const UtxoId* utxoId);
 
 	void importTransaction(const AbstractBlockchainTransaction *trx);
@@ -55,7 +56,13 @@ public:
 	virtual BalanceUtxo* getBalanceUtxo(const UtxoId* utxoId);
 	ArrayList<BalanceUtxo>* getBalanceUtxos(const AddressDescriptor* desc);
 
+	AbstractUtxo* getUtxo(const UtxoId* utxoId);
+
 	BtreeScanner* getScanner() const;
+
+	WalletAccountUtxoRepository* getUtxoRepo() const noexcept {
+		return this->utxoRepo;
+	}
 
 private:
 	void initSelf();

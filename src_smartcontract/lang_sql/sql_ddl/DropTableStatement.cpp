@@ -60,7 +60,7 @@ int DropTableStatement::binarySize() const {
 	return total;
 }
 
-void DropTableStatement::toBinary(ByteBuffer* out) {
+void DropTableStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->tableId);
 
 	out->putShort(CodeElement::DDL_DROP_TABLE);

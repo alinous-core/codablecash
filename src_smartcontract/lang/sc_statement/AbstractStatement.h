@@ -10,10 +10,14 @@
 
 #include "engine/sc/CodeElement.h"
 
+#include "base/HashMap.h"
+
+
 namespace alinous {
 
 class AnalyzeContext;
 class VirtualMachine;
+class AbstractType;
 
 class AbstractStatement : public CodeElement {
 public:
@@ -31,6 +35,8 @@ public:
 	virtual bool hasCtrlStatement() const noexcept = 0;
 
 	virtual bool hasConstructor() const noexcept;
+
+	virtual AbstractStatement* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const = 0;
 };
 
 } /* namespace alinous */

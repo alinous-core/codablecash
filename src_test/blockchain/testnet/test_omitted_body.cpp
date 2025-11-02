@@ -27,7 +27,7 @@
 
 #include "bc_trx/NopInterChainCommunicationTransaction.h"
 
-#include "bc_smartcontract/NopSmartcontractTransaction.h"
+#include "transaction/NopSmartcontractTransaction.h"
 
 #include "bc_block/Block.h"
 #include "bc_block/BlockHeader.h"
@@ -44,6 +44,8 @@
 #include "bc_p2p_cmd_node/DownloadOmittedBlockBodyNodeCommandResponse.h"
 
 #include "../utils/DebugCodablecashSystemParamSetup.h"
+#include "bc_block_body/OmittedBlockBodyFixer.h"
+
 
 
 using namespace codablecash;
@@ -134,6 +136,7 @@ TEST(TestOmittedBodyGroup, case01){
 		NodeConnectionSimulator sim(driver.getLogger(), simDir);
 		sim.connectIpv6Node(0, &host, port01);
 
+
 		BlockchainController* ctrl = driver.getBlockchainController();
 		uint64_t maxH = wheight + 1;
 		for(uint64_t h = 1; h != maxH; h++){
@@ -160,7 +163,8 @@ TEST(TestOmittedBodyGroup, case01){
 
 					const OmittedBlockBody* obody = response->getBody();
 
-					BlockBody* body2 = obody->toBlockBody(height, headerId, &sim); __STP(body2);
+					sim.setCommandData(height, headerId);
+					BlockBody* body2 = obody->toBlockBody(height, headerId, &sim, logger); __STP(body2);
 
 					{
 						const BlockMerkleRoot* root2 = body2->getMerkleRoot();

@@ -49,6 +49,7 @@ TEST(TestCallMainInstGroup, extArguments){
 
 TEST(TestCallMainInstGroup, testException01){
 	testException<VmMethodNotFoundException>();
+	testException<VmClassNotFoundException>();
 }
 
 TEST(TestCallMainInstGroup, callMainMethod){

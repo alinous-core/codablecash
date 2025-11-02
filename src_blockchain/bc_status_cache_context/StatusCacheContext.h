@@ -59,15 +59,15 @@ public:
 	void init();
 	virtual void close();
 
-	void importBlock(const BlockHeader* header, const BlockBody* blockBody);
+	void importBlock(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
 
 	virtual void beginBlock(const BlockHeader* header, ILockinManager* lockinManager);
 	virtual void endBlock(const BlockHeader* header, ILockinManager* lockinManager);
 
-	virtual void importBalanceTransaction(const BlockHeader* header, const AbstractBalanceTransaction* trx);
-	virtual void importControlTransaction(const BlockHeader* header, const AbstractControlTransaction* trx);
-	virtual void importInterChainCommunicationTransaction(const BlockHeader* header, const AbstractInterChainCommunicationTansaction* trx);
-	virtual void importSmartcontractTransaction(const BlockHeader* header, const AbstractSmartcontractTransaction* trx);
+	virtual void importBalanceTransaction(const BlockHeader* header, const AbstractBalanceTransaction* trx, ISystemLogger* logger);
+	virtual void importControlTransaction(const BlockHeader* header, const BlockBody* body, const AbstractControlTransaction* trx, ISystemLogger* logger);
+	virtual void importInterChainCommunicationTransaction(const BlockHeader* header, const AbstractInterChainCommunicationTansaction* trx, ISystemLogger* logger);
+	virtual void importSmartcontractTransaction(const BlockHeader* header, const AbstractSmartcontractTransaction* trx, ISystemLogger* logger);
 
 	virtual ArrayList<VoterEntry, VoterEntry::VoteCompare>* getVoterEntries() const;
 
@@ -98,7 +98,7 @@ public:
 
 	virtual void loadInitialVotersData();
 
-	virtual void registerVoterPool(const RegisterVotePoolTransaction* trx, uint64_t blockHeight);
+	virtual void registerVoterPool(const RegisterVotePoolTransaction* trx, uint64_t blockHeight, const BlockHeader *header, const BlockBody* body);
 	virtual void registerTicket(const BlockHeader *header, const RegisterTicketTransaction* trx);
 	virtual void registerVote(const BlockHeader *header, const VoteBlockTransaction* trx);
 
@@ -115,15 +115,23 @@ public:
 	virtual const CachedStatusCache* getCachedStatusCache() const noexcept {
 		return nullptr;
 	}
-	virtual uint64_t getAnalyzedHeight() const noexcept;
+	virtual uint64_t getPreAnalyzedHeight() const noexcept;
+
+
+	virtual uint64_t getTopHeight() const noexcept {
+		return this->topHeight;
+	}
+	void setTopHeight(uint64_t height) noexcept {
+		this->topHeight = height;
+	}
 
 protected:
-	void importBalanceTransactions(const BlockHeader* header, const BlockBody* blockBody);
-	void importControlTransactions(const BlockHeader* header, const BlockBody* blockBody);
-	void importInterChainCommunicationTransactions(const BlockHeader* header, const BlockBody* blockBody);
-	void importSmartcontractTransactions(const BlockHeader* header, const BlockBody* blockBody);
+	void importBalanceTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
+	void importControlTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
+	void importInterChainCommunicationTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
+	void importSmartcontractTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
 
-	void importRewordTransactions(const BlockHeader* header, const BlockBody* blockBody);
+	void importRewordTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
 
 	void importUtxo(const AbstractBlockchainTransaction* trx, const BlockHeader *header);
 	virtual void putUtxo(const AbstractUtxo* utxo, const AbstractBlockchainTransaction *trx, const BlockHeader *header);
@@ -152,6 +160,8 @@ protected:
 	VoterStatusMappedCacheContext* voterCache;
 
 	const CodablecashSystemParam* config;
+
+	uint64_t topHeight;
 };
 
 } /* namespace codablecash */

@@ -9,7 +9,7 @@ AbstractStatement* statement() : {
 {
 	(
 		LOOKAHEAD(3) stmt=statementBlock() |
-		LOOKAHEAD(2) stmt=substitutionStatement() |
+		LOOKAHEAD(4) stmt=substitutionStatement() |
 		stmt=variableDeclareStatement() |
 		//stmt=expressionStatement() |
 		stmt=ctrlStatement() |

@@ -26,6 +26,8 @@
 
 #include "bc_status_cache_context/IStatusCacheContext.h"
 
+#include "merkletree/MerkleTree.h"
+
 namespace codablecash {
 
 RegisterVotePoolTransaction::RegisterVotePoolTransaction() : AbstractFinalizerTransaction() {
@@ -160,6 +162,7 @@ TrxValidationResult RegisterVotePoolTransaction::validateFinal(
 
 void RegisterVotePoolTransaction::voterSign(const NodeIdentifierSource *source) noexcept {
 	delete this->voterSig;
+	this->voterSig = nullptr;
 
 	const char* data = this->trxId->toArray();
 	int length = this->trxId->size();
@@ -175,5 +178,10 @@ bool RegisterVotePoolTransaction::verifyVoterSign() const noexcept {
 	return result;
 }
 
+void RegisterVotePoolTransaction::addInternalMerkleTreeElement(MerkleTree *tree) {
+	const BigInteger* pub = nodeId->getPublicKey();
+	ByteBuffer* buff = pub->toBinary(); __STP(buff);
+	tree->addElement(buff);
+}
 
 } /* namespace codablecash */

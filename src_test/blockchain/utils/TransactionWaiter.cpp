@@ -51,4 +51,7 @@ void TransactionWaiter::wait() {
 	}
 }
 
+void TransactionWaiter::onBlockMined(const PubSubId *pubsubId, const BlockHeaderTransferData *blockcheader) {
+}
+
 } /* namespace codablecash */

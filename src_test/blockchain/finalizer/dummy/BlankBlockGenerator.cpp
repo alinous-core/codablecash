@@ -111,10 +111,10 @@ void BlankBlockGenerator::doNonceCalculated(uint64_t lastBlockHeight, const Bloc
 
 	// wait for block to registered
 	{
-		BlockHeaderId* headerId = header->getId();
+		const BlockHeaderId* headerId = header->getId();
 
 		while(true){
-			Block* blk = this->ctrl->getBlocksHeightAt(zoneSelf, height, headerId); __STP(blk);
+			Block* blk = this->ctrl->getBlockHeightAt(zoneSelf, height, headerId); __STP(blk);
 
 			if(blk != nullptr){
 				break;

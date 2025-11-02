@@ -42,5 +42,9 @@ void AbstractArithmeticExpression::setExpression(AbstractExpression* exp) noexce
 	this->exp = exp;
 }
 
+void AbstractArithmeticExpression::importMembers(const AbstractArithmeticExpression *source, HashMap<UnicodeString, AbstractType> *input) noexcept {
+	AbstractExpression* ex = source->exp->generateGenericsImplement(input);
+	setExpression(ex);
+}
 
 } /* namespace alinous */

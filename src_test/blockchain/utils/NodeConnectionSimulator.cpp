@@ -19,6 +19,8 @@
 #include "bc_p2p_cmd/LoginPubSubCommand.h"
 #include "bc_p2p_cmd/P2pHandshakeAuthenticationException.h"
 
+#include "bc_p2p_cmd_node/DownloadTransactionEntry.h"
+
 #include "base/StackRelease.h"
 
 #include "bc/ISystemLogger.h"
@@ -31,6 +33,15 @@
 
 #include "bc_processor_cmd/TransferedMinedReportCommandMessage.h"
 
+#include "bc_block/BlockHeaderId.h"
+
+#include "bc_p2p_cmd_node/DownloadTransactionsNodeCommand.h"
+
+#include "bc_p2p_cmd_node/DownloadTransactionsNodeCommandResponse.h"
+
+#include "bc_trx/AbstractBlockchainTransaction.h"
+
+#include "bc_trx/TransactionId.h"
 namespace codablecash {
 
 NodeConnectionSimulator::NodeConnectionSimulator(ISystemLogger* logger, const File* baseDir) {
@@ -45,12 +56,32 @@ NodeConnectionSimulator::NodeConnectionSimulator(ISystemLogger* logger, const Fi
 	this->memPool = new MemoryPool(mempoolBaseDir);
 	this->memPool->createBlankPool();
 	this->memPool->open();
+
+	this->entrylist = new ArrayList<DownloadTransactionEntry>();
+	this->height = 0;
+	this->headerId = nullptr;
+
+	this->map = new HashMap<TransactionId, AbstractBlockchainTransaction>();
 }
 
 NodeConnectionSimulator::~NodeConnectionSimulator() {
 	close();
 	this->logger = nullptr;
 	delete this->source;
+
+	this->entrylist->deleteElements();
+	delete this->entrylist;
+	delete this->headerId;
+
+	Iterator<TransactionId>* it = this->map->keySet()->iterator(); __STP(it);
+	while(it->hasNext()){
+		const TransactionId* trxId = it->next();
+		AbstractBlockchainTransaction* trx = this->map->get(trxId);
+
+		delete trx;
+	}
+
+	delete this->map;
 }
 
 void NodeConnectionSimulator::fireExecuteCommand(const PubSubId* pubsubId, const AbstractPubSubCommand *cmd) {
@@ -135,12 +166,66 @@ MemPoolTransaction* NodeConnectionSimulator::begin() {
 	return this->memPool->begin();
 }
 
-DownloadTransactionsNodeCommandResponse* NodeConnectionSimulator::downloadTransactions(const DownloadTransactionsNodeCommand *command) const {
-	return TransferedMinedReportCommandMessage::__downloadTransactions(command, this->handshake, this->logger);
-}
 
 NodeIdentifierSource* NodeConnectionSimulator::getNetworkKey() const noexcept {
 	return this->source;
+}
+
+
+void NodeConnectionSimulator::addDownloadTransactionEntry(const DownloadTransactionEntry *entry) {
+	this->entrylist->addElement(dynamic_cast<DownloadTransactionEntry*>(entry->copyData()));
+}
+
+void NodeConnectionSimulator::downloadTransactions(ISystemLogger *logger) {
+	DownloadTransactionsNodeCommand command;
+	command.setHeight(this->height);
+	command.setBlockHeaderId(this->headerId);
+
+	{
+		int maxLoop = this->entrylist->size();
+		for(int i = 0; i != maxLoop; ++i){
+			DownloadTransactionEntry* entry = this->entrylist->get(i);
+			command.addTrxId(entry);
+		}
+	}
+
+	{
+		AbstractCommandResponse* rs = signAndAbstractNodeCommand(&command); __STP(rs);
+		DownloadTransactionsNodeCommandResponse* response = dynamic_cast<DownloadTransactionsNodeCommandResponse*>(rs);
+
+		int maxLoop = response->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractBlockchainTransaction* trx = response->get(i);
+			const TransactionId* trxId = trx->getTransactionId();
+
+			this->map->put(trxId, dynamic_cast<AbstractBlockchainTransaction*>(trx->copyData()));
+		}
+	}
+}
+
+const AbstractBlockchainTransaction* NodeConnectionSimulator::get(const TransactionId *trxId) const noexcept {
+	return this->map->get(trxId);
+}
+
+void NodeConnectionSimulator::setCommandData(uint64_t height, const BlockHeaderId *headerId) {
+	delete this->headerId;
+
+	this->height = height;
+	this->headerId = dynamic_cast<BlockHeaderId*>(headerId->copyData());
+
+	// reset map
+	Iterator<TransactionId>* it = this->map->keySet()->iterator(); __STP(it);
+	while(it->hasNext()){
+		const TransactionId* trxId = it->next();
+		AbstractBlockchainTransaction* trx = this->map->get(trxId);
+
+		delete trx;
+	}
+	this->map->clear();
+
+	// reset entry list
+	this->entrylist->deleteElements();
+	this->entrylist->reset();
 }
 
 } /* namespace codablecash */

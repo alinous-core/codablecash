@@ -7,8 +7,6 @@
 
 #include "bc_wallet_net_cmd_queue/ClientCommandsQueue.h"
 
-#include "bc_wallet_net_cmd/AbstractClientCommand.h"
-
 #include "bc_wallet_net_cmd_queue/ClientCommandsQueueFactory.h"
 
 #include "random_access_file/DiskCacheManager.h"
@@ -17,6 +15,7 @@
 #include "base/UnicodeString.h"
 
 #include "base_io/File.h"
+#include "bc_wallet_net_cmd/AbstractClientQueueCommand.h"
 
 #include "btree/Btree.h"
 #include "btree/BtreeConfig.h"
@@ -80,21 +79,21 @@ void ClientCommandsQueue::close() {
 	}
 }
 
-void ClientCommandsQueue::addCommand(const AbstractClientCommand *cmd) {
+void ClientCommandsQueue::addCommand(const AbstractClientQueueCommand *cmd) {
 	ULongKey key(this->serial++);
 
 	this->dataStore->putData(&key, cmd);
 }
 
-AbstractClientCommand* ClientCommandsQueue::getFirst() const {
-	AbstractClientCommand* ret = nullptr;
+AbstractClientQueueCommand* ClientCommandsQueue::getFirst() const {
+	AbstractClientQueueCommand* ret = nullptr;
 	BtreeScanner* scanner = this->dataStore->getScanner(); __STP(scanner);
 
 	scanner->begin();
 
 	if(scanner->hasNext()){
 		const IBlockObject* obj = scanner->next();
-		ret = dynamic_cast<AbstractClientCommand*>(obj->copyData());
+		ret = dynamic_cast<AbstractClientQueueCommand*>(obj->copyData());
 	}
 
 	return ret;
@@ -114,15 +113,15 @@ ULongKey* ClientCommandsQueue::getFirstKey() const {
 	return ret;
 }
 
-AbstractClientCommand* ClientCommandsQueue::getLast() const {
-	AbstractClientCommand* ret = nullptr;
+AbstractClientQueueCommand* ClientCommandsQueue::getLast() const {
+	AbstractClientQueueCommand* ret = nullptr;
 	BtreeReverseScanner* scanner = this->dataStore->getReverseScanner(); __STP(scanner);
 
 	scanner->begin();
 
 	if(scanner->hasPrevious()){
 		const IBlockObject* obj = scanner->previous();
-		ret = dynamic_cast<AbstractClientCommand*>(obj->copyData());
+		ret = dynamic_cast<AbstractClientQueueCommand*>(obj->copyData());
 	}
 
 	return ret;
@@ -135,13 +134,13 @@ bool ClientCommandsQueue::isEmpty() const {
 	return !scanner->hasNext();
 }
 
-AbstractClientCommand* ClientCommandsQueue::fetchFirst() const {
+AbstractClientQueueCommand* ClientCommandsQueue::fetchFirst() const {
 	ULongKey* key = getFirstKey(); __STP(key);
 
 	IBlockObject* obj = this->dataStore->findByKey(key);
 	this->dataStore->remove(key);
 
-	return dynamic_cast<AbstractClientCommand*>(obj);
+	return dynamic_cast<AbstractClientQueueCommand*>(obj);
 }
 
 } /* namespace codablecash */

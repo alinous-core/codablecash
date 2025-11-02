@@ -785,12 +785,11 @@ AbstractExpression* primitive() : {
 
 AllocationExpression* allocationExpression() : {
 	AllocationExpression* exp = nullptr;
-	PackageNameDeclare* packageName = nullptr;
 	ConstructorCall* func = nullptr;
 	ConstructorArray* ar = nullptr;
 	Token* t = nullptr;
 	
-	PackageNameDeclare* names = nullptr;
+	AbstractType* type = nullptr;
 }
 {
 	t="new" {
@@ -798,32 +797,19 @@ AllocationExpression* allocationExpression() : {
 		exp->setPosition(t);
 	}
 	
-	(LOOKAHEAD(2)
-		 t=< IDENTIFIER > {
-		 	if(packageName == nullptr){
-		 		packageName = new PackageNameDeclare();
-		 		exp->setPackage(packageName);
-		 	}
-		 	
-		 	exp->setPosition(t);
-		 	packageName->setPosition(t);
-		 	packageName->addSegment(_STR(t));
-		 }
-		 t="." {
-		 	exp->setPosition(t);
-		 }
-	)*
-	
-	(LOOKAHEAD(2)
+	type=typeBody() {
+		exp->setPosition(type);
+	}
+	(
 		(
-			func=constructorCallExpression() {
+			func=constructorCallExpression(type) {
 				exp->setExpression(func);
 				exp->setPosition(func);
 			}
 		)
 		|
 		(
-			ar=constructorArray() {
+			ar=constructorArray(type) {
 				exp->setPosition(ar);
 				exp->setConstructorArray(ar);
 			}
@@ -837,18 +823,15 @@ AllocationExpression* allocationExpression() : {
 }
 
 
-ConstructorArray* constructorArray() : {
+ConstructorArray* constructorArray(AbstractType* type) : {
 	ConstructorArray* exp = new ConstructorArray();
 	Token* t = nullptr;
-	VariableIdentifier* valId = nullptr;
 	AbstractExpression* dim = nullptr;
+	
+	exp->setValId(type);
+	exp->setPosition(type);
 }
 {
-	valId=typeIdentifier() {
-		exp->setPosition(valId);
-		exp->setValId(valId);
-	}
-	
 	(LOOKAHEAD(2)
 		t="[" {
 			exp->setPosition(t);
@@ -872,17 +855,15 @@ ConstructorArray* constructorArray() : {
 	}
 }
 
-ConstructorCall* constructorCallExpression() : {
+ConstructorCall* constructorCallExpression(AbstractType* type) : {
 	ConstructorCall* exp = new ConstructorCall();
 	Token* t = nullptr;
-	AbstractExpression* left = nullptr;
+
+	exp->setName(type);
+	exp->setPosition(type);
 }
 {
-	left=variableIdentifier()
-
 	t="(" {
-		exp->setName(left);
-		exp->setPosition(left);
 		exp->setPosition(t);
 	}
 	
@@ -975,21 +956,6 @@ Token* identifierName() : {
 		| t=<REPLACE> | t=<INDEX> | t=<USING> )
 	{
 		return t;
-	}
-}
-
-
-VariableIdentifier* typeIdentifier() : {
-	VariableIdentifier* valId = new VariableIdentifier();
-	Token* t = nullptr;
-}
-{
-	(t=<IDENTIFIER> | t="boolean" | t="byte" | t="char" | t="short" | t="int" | t="long" | t="String") {
-		valId->setName(_STR(t));
-	}
-	{
-		 __ONERROR(valId);
-		return valId;
 	}
 }
 

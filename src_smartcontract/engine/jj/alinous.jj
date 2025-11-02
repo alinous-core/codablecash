@@ -492,8 +492,11 @@ PackageNameDeclare* packageNameDeclare() :
 ClassDeclare* classDeclare() :
 {
 	ClassDeclare* clazz = nullptr;
+	GenericsClassDeclare* gclazz = nullptr;
+	GenericsParameter* param = nullptr;
 	Token* cls = nullptr;
 	Token* name = nullptr;
+	ClassName* genericsExtendsName = nullptr;
 	ClassDeclareBlock* block = nullptr;
 	Token* t = nullptr;
 	ClassExtends* clsextends = nullptr;
@@ -514,6 +517,62 @@ ClassDeclare* classDeclare() :
 	name=<IDENTIFIER> {
 		 clazz->setName(_STR(name));
 	}
+	
+	[
+		t=<LT>{
+			gclazz = new GenericsClassDeclare();
+			gclazz->setName(new UnicodeString(clazz->getName())); // copy class name
+			
+			delete clazz;
+			clazz = gclazz;
+		}
+		
+		name=<IDENTIFIER>{
+			param = new GenericsParameter();
+			param->setPosition(name);
+			param->setGenericsName(_STR(name));
+			
+			gclazz->addGenericsParameter(param);
+		}
+		
+		[
+			t=<EXTENDS> {
+				param->setPosition(t);
+			}
+			
+			genericsExtendsName=className()	{
+				param->setGenericsExtendsName(genericsExtendsName);
+				param->setPosition(genericsExtendsName);
+			}
+		]
+		
+		(
+			t=<COMMA>{
+				param = new GenericsParameter();
+				param->setPosition(t);
+			}
+
+			
+			name=<IDENTIFIER>{
+				param->setPosition(name);
+				param->setGenericsName(_STR(name));
+				
+				gclazz->addGenericsParameter(param);
+			}
+			
+			[
+				t=<EXTENDS> {
+					param->setPosition(t);
+				}
+				
+				genericsExtendsName=className()	{
+					param->setGenericsExtendsName(genericsExtendsName);
+					param->setPosition(genericsExtendsName);
+				}
+			]
+		)*
+		t=<GT>
+	]
 	
 	[
 		clsextends=classExtends() {
@@ -846,11 +905,31 @@ AbstractType* typeDeclare() : {
 	Token* t2 = nullptr;
 }
 {
+	dec=typeBody()
+	(
+		t1="[" t2="]"
+		{
+			dec->addDimension();
+		}
+	)*
+	{
+	}
+	{
+		__ONERROR(dec);
+		return dec;
+	}
+}
+
+AbstractType* typeBody() : {
+	AbstractType* dec = nullptr;
+}
+{
 	(
 		dec=boolType()
 		|
 		dec=byteType()
-		|		dec=charType()
+		|
+		dec=charType()
 		|
 		dec=shortType()
 		|
@@ -866,14 +945,6 @@ AbstractType* typeDeclare() : {
 		|
 		dec=objectType()
 	)
-	(
-		t1="[" t2="]"
-		{
-			dec->addDimension();
-		}
-	)*
-	{
-	}
 	{
 		__ONERROR(dec);
 		return dec;
@@ -884,6 +955,8 @@ ObjectType* objectType() : {
 	ObjectType* dec = new ObjectType();
 	PackageNameDeclare* packageName = nullptr;
 	Token* t=nullptr;
+	GenericsObjectType* geneticsObject = nullptr;
+	AbstractType* genericsType = nullptr;
 }
 {
 	(LOOKAHEAD(2)
@@ -905,6 +978,32 @@ ObjectType* objectType() : {
 	 	dec->setName(_STR(t));
 	 	dec->setPosition(t);
 	 }
+	 [LOOKAHEAD(2)
+	 	t=<LT> {
+	 		geneticsObject = new GenericsObjectType(dec);
+	 		delete dec;
+	 		dec = geneticsObject;
+	 	}
+	 	genericsType=typeDeclare() {
+	 		geneticsObject->addGenericsType(genericsType);
+	 	}
+	 	
+	 	(
+	 		t=<COMMA> {
+	 			geneticsObject->setPosition(t);
+	 		}
+		 	genericsType=typeDeclare() {
+		 		geneticsObject->addGenericsType(genericsType);
+		 	}		
+	 	)*
+	 	
+	 	
+	 	t=<GT> {
+	 		geneticsObject->setPosition(t);
+	 	}
+	 ]
+	 
+	 
 	 {
 		__ONERROR(dec);
 		return dec;
@@ -1050,7 +1149,7 @@ AbstractStatement* statement() : {
 {
 	(
 		LOOKAHEAD(3) stmt=statementBlock() |
-		LOOKAHEAD(2) stmt=substitutionStatement() |
+		LOOKAHEAD(4) stmt=substitutionStatement() |
 		stmt=variableDeclareStatement() |
 		//stmt=expressionStatement() |
 		stmt=ctrlStatement() |
@@ -2419,12 +2518,11 @@ AbstractExpression* primitive() : {
 
 AllocationExpression* allocationExpression() : {
 	AllocationExpression* exp = nullptr;
-	PackageNameDeclare* packageName = nullptr;
 	ConstructorCall* func = nullptr;
 	ConstructorArray* ar = nullptr;
 	Token* t = nullptr;
 	
-	PackageNameDeclare* names = nullptr;
+	AbstractType* type = nullptr;
 }
 {
 	t="new" {
@@ -2432,32 +2530,19 @@ AllocationExpression* allocationExpression() : {
 		exp->setPosition(t);
 	}
 	
-	(LOOKAHEAD(2)
-		 t=< IDENTIFIER > {
-		 	if(packageName == nullptr){
-		 		packageName = new PackageNameDeclare();
-		 		exp->setPackage(packageName);
-		 	}
-		 	
-		 	exp->setPosition(t);
-		 	packageName->setPosition(t);
-		 	packageName->addSegment(_STR(t));
-		 }
-		 t="." {
-		 	exp->setPosition(t);
-		 }
-	)*
-	
-	(LOOKAHEAD(2)
+	type=typeBody() {
+		exp->setPosition(type);
+	}
+	(
 		(
-			func=constructorCallExpression() {
+			func=constructorCallExpression(type) {
 				exp->setExpression(func);
 				exp->setPosition(func);
 			}
 		)
 		|
 		(
-			ar=constructorArray() {
+			ar=constructorArray(type) {
 				exp->setPosition(ar);
 				exp->setConstructorArray(ar);
 			}
@@ -2471,18 +2556,15 @@ AllocationExpression* allocationExpression() : {
 }
 
 
-ConstructorArray* constructorArray() : {
+ConstructorArray* constructorArray(AbstractType* type) : {
 	ConstructorArray* exp = new ConstructorArray();
 	Token* t = nullptr;
-	VariableIdentifier* valId = nullptr;
 	AbstractExpression* dim = nullptr;
+	
+	exp->setValId(type);
+	exp->setPosition(type);
 }
 {
-	valId=typeIdentifier() {
-		exp->setPosition(valId);
-		exp->setValId(valId);
-	}
-	
 	(LOOKAHEAD(2)
 		t="[" {
 			exp->setPosition(t);
@@ -2506,17 +2588,15 @@ ConstructorArray* constructorArray() : {
 	}
 }
 
-ConstructorCall* constructorCallExpression() : {
+ConstructorCall* constructorCallExpression(AbstractType* type) : {
 	ConstructorCall* exp = new ConstructorCall();
 	Token* t = nullptr;
-	AbstractExpression* left = nullptr;
+
+	exp->setName(type);
+	exp->setPosition(type);
 }
 {
-	left=variableIdentifier()
-
 	t="(" {
-		exp->setName(left);
-		exp->setPosition(left);
 		exp->setPosition(t);
 	}
 	
@@ -2609,21 +2689,6 @@ Token* identifierName() : {
 		| t=<REPLACE> | t=<INDEX> | t=<USING> )
 	{
 		return t;
-	}
-}
-
-
-VariableIdentifier* typeIdentifier() : {
-	VariableIdentifier* valId = new VariableIdentifier();
-	Token* t = nullptr;
-}
-{
-	(t=<IDENTIFIER> | t="boolean" | t="byte" | t="char" | t="short" | t="int" | t="long" | t="String") {
-		valId->setName(_STR(t));
-	}
-	{
-		 __ONERROR(valId);
-		return valId;
 	}
 }
 

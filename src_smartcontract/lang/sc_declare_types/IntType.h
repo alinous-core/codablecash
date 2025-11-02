@@ -24,6 +24,9 @@ public:
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual const UnicodeString* toString() noexcept;
+	virtual AbstractType* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
+	virtual void visit(ITypeVisitor* visitor);
 };
 
 } /* namespace alinous */

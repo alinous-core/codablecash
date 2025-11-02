@@ -10,9 +10,13 @@
 
 #include "engine/sc/CodeElement.h"
 
+#include "base/HashMap.h"
+
+
 namespace alinous {
 
 class PackageNameDeclare;
+class AbstractType;
 
 class PackageDeclare : public CodeElement {
 public:
@@ -23,8 +27,11 @@ public:
 	const UnicodeString* getPackageName() noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	PackageDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType>* input);
+
 private:
 	PackageNameDeclare* name;
 };

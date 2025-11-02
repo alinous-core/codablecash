@@ -20,6 +20,8 @@ class AbstractTransferedData : public IBlockObject {
 public:
 	static const constexpr uint8_t DATA_TRANSACTION{1};
 	static const constexpr uint8_t DATA_BLOCKHEADER{2};
+	static const constexpr uint8_t DATA_CLIENT_BLOCKHEADER{3};
+	static const constexpr uint8_t DATA_BLOCK_TRANSACTION{4};
 
 	static const constexpr uint8_t DATA_LIVEDATA{10};
 

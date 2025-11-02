@@ -39,11 +39,12 @@
 
 #include "bc_base_trx_index/TransactionData.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "bc_memorypool/InterChainCommunicationTransactionScanner.h"
-
 #include "bc_memorypool/SmartcontractTansactionScanner.h"
+
+
 namespace codablecash {
 
 MemPoolTransaction::MemPoolTransaction(MemoryPool* pool, ConcurrentGate* rwLock) {

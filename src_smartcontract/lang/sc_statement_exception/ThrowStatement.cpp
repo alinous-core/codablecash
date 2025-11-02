@@ -116,7 +116,7 @@ int ThrowStatement::binarySize() const {
 	return total;
 }
 
-void ThrowStatement::toBinary(ByteBuffer* out) {
+void ThrowStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::STMT_THROW);
@@ -133,6 +133,16 @@ void ThrowStatement::fromBinary(ByteBuffer* in) {
 
 void ThrowStatement::setExpression(AbstractExpression* exp) noexcept {
 	this->exp = exp;
+}
+
+AbstractStatement* ThrowStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ThrowStatement* inst = new ThrowStatement();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copied = this->exp->generateGenericsImplement(input);
+	inst->setExpression(copied);
+
+	return inst;
 }
 
 } /* namespace alinous */

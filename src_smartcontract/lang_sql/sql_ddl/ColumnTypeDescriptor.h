@@ -29,7 +29,7 @@ public:
 	virtual ~ColumnTypeDescriptor();
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	void analyze(AnalyzeContext* actx);

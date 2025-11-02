@@ -58,7 +58,7 @@ int SQLPlaceHolder::binarySize() const {
 	return total;
 }
 
-void SQLPlaceHolder::toBinary(ByteBuffer* out) {
+void SQLPlaceHolder::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->exp);
 
 	out->putShort(CodeElement::SQL_EXP_PLACE_HOLDER);

@@ -86,8 +86,8 @@ void RegisterTicketTransaction::setNodeId(const NodeIdentifier *nodeId) noexcept
 	this->ticketUtxo->setNodeIndentifier(nodeId);
 }
 
-void RegisterTicketTransaction::setAddressDescriptor(const AddressDescriptor *addressDesc) noexcept {
-	this->ticketUtxo->setAddressDescriptor(addressDesc);
+void RegisterTicketTransaction::setAddressDescriptor(const AddressDescriptor *ticketReturnaddressDesc) noexcept {
+	this->ticketUtxo->setAddressDescriptor(ticketReturnaddressDesc);
 }
 
 void RegisterTicketTransaction::setAmounst(BalanceUnit amount) noexcept {

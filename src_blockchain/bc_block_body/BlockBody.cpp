@@ -8,6 +8,7 @@
 #include "bc_block_body/BlockBody.h"
 #include "bc_block_body/BlockRewordBase.h"
 #include "bc_block_body/OmittedBlockBody.h"
+#include "bc_block_body/ITransactionVisitor.h"
 
 #include "bc_trx/AbstractBalanceTransaction.h"
 #include "bc_trx/AbstractControlTransaction.h"
@@ -32,8 +33,7 @@
 
 #include "osenv/funcs.h"
 
-#include "bc_smartcontract/AbstractSmartcontractTransaction.h"
-
+#include "transaction/AbstractSmartcontractTransaction.h"
 
 
 namespace codablecash {
@@ -111,6 +111,7 @@ void BlockBody::build() {
 		for(int i = 0; i != maxLoop; ++i){
 			AbstractControlTransaction* trx = this->controlTransactions->get(i);
 			this->tree->addElement(trx);
+			trx->addInternalMerkleTreeElement(this->tree);
 		}
 	}
 	{
@@ -118,6 +119,7 @@ void BlockBody::build() {
 		for(int i = 0; i != maxLoop; ++i){
 			AbstractInterChainCommunicationTansaction* trx = this->iccTransactions->get(i);
 			this->tree->addElement(trx);
+			trx->addInternalMerkleTreeElement(this->tree);
 		}
 	}
 	{
@@ -125,6 +127,7 @@ void BlockBody::build() {
 		for(int i = 0; i != maxLoop; ++i){
 			AbstractBalanceTransaction* trx = this->balanceTransactions->get(i);
 			this->tree->addElement(trx);
+			trx->addInternalMerkleTreeElement(this->tree);
 		}
 	}
 	{
@@ -132,6 +135,7 @@ void BlockBody::build() {
 		for(int i = 0; i != maxLoop; ++i){
 			AbstractSmartcontractTransaction* trx = this->smartcontractTransactions->get(i);
 			this->tree->addElement(trx);
+			trx->addInternalMerkleTreeElement(this->tree);
 		}
 	}
 
@@ -547,8 +551,13 @@ ArrayList<const RevokeMissedTicket>* BlockBody::findRevokeMissedTicket(const Utx
 	return __STP_MV(ret);
 }
 
-MerkleCertificate* BlockBody::makeCertificate(const Abstract32BytesId *b) noexcept {
+MerkleCertificate* BlockBody::makeCertificate(const Abstract32BytesId *b) const noexcept {
 	return this->tree->makeCertificate(b->toArray(), b->size());
+}
+
+MerkleCertificate* BlockBody::makeCertificate(const char *hash, int size) const noexcept {
+	return this->tree->makeCertificate(hash, size);
+
 }
 
 OmittedBlockBody* BlockBody::toOmittedBlockBody() const {
@@ -605,6 +614,44 @@ void BlockBody::setBlockRewordBase(const BlockRewordBase *rewardBase) {
 	delete this->rewardBase;
 	this->rewardBase = new BlockRewordBase(*rewardBase);
 }
+
+void BlockBody::visitTransactions(ITransactionVisitor *visitor, const Block* block) const {
+	{
+		int maxLoop = this->controlTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractControlTransaction* trx = this->controlTransactions->get(i);
+
+			visitor->visit(trx, block);
+		}
+	}
+	{
+		int maxLoop = this->iccTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractInterChainCommunicationTansaction* trx = this->iccTransactions->get(i);
+
+			visitor->visit(trx, block);
+		}
+	}
+	{
+		int maxLoop = this->balanceTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractBalanceTransaction* trx = this->balanceTransactions->get(i);
+
+			visitor->visit(trx, block);
+		}
+	}
+	{
+		int maxLoop = this->smartcontractTransactions->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractSmartcontractTransaction* trx = this->smartcontractTransactions->get(i);
+
+			visitor->visit(trx, block);
+		}
+	}
+
+	this->rewardBase->visitTransactions(visitor, block);
+}
+
 
 #ifdef __DEBUG__
 
@@ -668,6 +715,5 @@ bool BlockBody::checkTransaction(const AbstractBlockchainTransaction *trx) {
 }
 
 #endif
-
 
 } /* namespace codablecash */

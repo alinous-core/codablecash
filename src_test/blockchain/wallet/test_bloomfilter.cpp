@@ -6,8 +6,6 @@
  */
 #include "test_utils/t_macros.h"
 
-#include "bc_wallet_filter/BloomFilter512.h"
-
 #include "bc_wallet/HdWalletSeed.h"
 
 #include "ecda/ScPrivateKey.h"
@@ -16,6 +14,7 @@
 #include "bc_base/BalanceAddress.h"
 
 #include "base_io/ByteBuffer.h"
+#include "bc_wallet_filter/BloomFilter1024.h"
 
 using namespace codablecash;
 
@@ -27,7 +26,7 @@ TEST_GROUP(TestBloomFilterGroup) {
 };
 
 TEST(TestBloomFilterGroup, case01){
-	BloomFilter512 filter;
+	BloomFilter1024 filter;
 	ArrayList<BalanceAddress> list;
 	list.setDeleteOnExit();
 
@@ -60,7 +59,7 @@ TEST(TestBloomFilterGroup, case01){
 }
 
 TEST(TestBloomFilterGroup, copy01) {
-	BloomFilter512 filter;
+	BloomFilter1024 filter;
 	ArrayList<BalanceAddress> list;
 	list.setDeleteOnExit();
 
@@ -80,7 +79,7 @@ TEST(TestBloomFilterGroup, copy01) {
 
 	// copy constructor
 	{
-		BloomFilter512* filter2 = dynamic_cast<BloomFilter512*>(filter.copyData()); __STP(filter2);
+		BloomFilter1024* filter2 = dynamic_cast<BloomFilter1024*>(filter.copyData()); __STP(filter2);
 		bool bl = filter2->equals(&filter);
 		CHECK(bl == true)
 
@@ -101,7 +100,7 @@ TEST(TestBloomFilterGroup, copy01) {
 		filter.toBinary(buff);
 		buff->position(0);
 
-		BloomFilter512* filter2 = BloomFilter512::createFromBinary(buff); __STP(filter2);
+		BloomFilter1024* filter2 = BloomFilter1024::createFromBinary(buff); __STP(filter2);
 
 		// check
 		for(int i = 0; i != maxLoop; ++i){
@@ -114,7 +113,7 @@ TEST(TestBloomFilterGroup, copy01) {
 }
 
 TEST(TestBloomFilterGroup, copy02) {
-	BloomFilter512 filter;
+	BloomFilter1024 filter;
 	ArrayList<BalanceAddress> list;
 	list.setDeleteOnExit();
 
@@ -140,7 +139,7 @@ TEST(TestBloomFilterGroup, copy02) {
 		filter.toBinary(buff);
 		buff->position(0);
 
-		BloomFilter512* filter2 = BloomFilter512::createFromBinary(buff); __STP(filter2);
+		BloomFilter1024* filter2 = BloomFilter1024::createFromBinary(buff); __STP(filter2);
 
 		// check
 		for(int i = 0; i != maxLoop; ++i){

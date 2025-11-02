@@ -62,7 +62,7 @@ int SQLJoin::binarySize() const {
 	return total;
 }
 
-void SQLJoin::toBinary(ByteBuffer* out) {
+void SQLJoin::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->first);
 
 	out->putShort(CodeElement::SQL_EXP_JOIN);

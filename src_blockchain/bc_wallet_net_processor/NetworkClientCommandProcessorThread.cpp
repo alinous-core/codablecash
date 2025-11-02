@@ -8,12 +8,11 @@
 #include "bc_wallet_net_processor/NetworkClientCommandProcessorThread.h"
 #include "bc_wallet_net_processor/ClientCommandsQueueProcessor.h"
 
-#include "bc_wallet_net_cmd/AbstractClientCommand.h"
-
 #include "base_thread/SynchronizedLock.h"
 #include "base_thread/StackUnlocker.h"
 
 #include "base/StackRelease.h"
+#include "bc_wallet_net_cmd/AbstractClientQueueCommand.h"
 
 
 namespace codablecash {
@@ -38,7 +37,7 @@ NetworkClientCommandProcessorThread::~NetworkClientCommandProcessorThread() {
 
 void NetworkClientCommandProcessorThread::process() noexcept {
 	while(isRunning() || !this->queue->isEmpty()){
-		AbstractClientCommand* cmd = nullptr;
+		AbstractClientQueueCommand* cmd = nullptr;
 
 		{
 			StackUnlocker unlocker(lock, __FILE__, __LINE__);
@@ -67,7 +66,7 @@ void NetworkClientCommandProcessorThread::process() noexcept {
 	}
 }
 
-void NetworkClientCommandProcessorThread::processCommand(const AbstractClientCommand *cmd) const {
+void NetworkClientCommandProcessorThread::processCommand(const AbstractClientQueueCommand *cmd) const {
 	cmd->process(this->wallet);
 }
 
@@ -101,7 +100,7 @@ bool NetworkClientCommandProcessorThread::isSuspend() const {
 	return __isSuspended();
 }*/
 
-void NetworkClientCommandProcessorThread::putCommnad(const AbstractClientCommand *cmd) {
+void NetworkClientCommandProcessorThread::putCommnad(const AbstractClientQueueCommand *cmd) {
 	StackUnlocker unlocker(this->lock, __FILE__, __LINE__);
 
 	this->queue->addCommand(cmd);

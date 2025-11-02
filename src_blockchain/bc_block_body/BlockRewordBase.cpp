@@ -8,12 +8,14 @@
 #include "bc_block_body/BlockRewordBase.h"
 #include "bc_block_body/StakeBaseTransaction.h"
 #include "bc_block_body/CoinbaseTransaction.h"
+#include "bc_block_body/ITransactionVisitor.h"
 
 #include "bc_base/BinaryUtils.h"
 
 #include "base/StackRelease.h"
 
 #include "merkletree/MerkleTree.h"
+
 
 namespace codablecash {
 
@@ -124,6 +126,19 @@ void BlockRewordBase::buildMerkleTree(MerkleTree *tree) {
 		const StakeBaseTransaction* trx = this->stakeBases->get(i);
 
 		tree->addElement(trx);
+	}
+}
+
+void BlockRewordBase::visitTransactions(ITransactionVisitor *visitor, const Block* block) const {
+	if(this->coinbase != nullptr){
+		visitor->visit(this->coinbase, block);
+	}
+
+	int maxLoop = this->stakeBases->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const StakeBaseTransaction* trx = this->stakeBases->get(i);
+
+		visitor->visit(trx, block);
 	}
 }
 

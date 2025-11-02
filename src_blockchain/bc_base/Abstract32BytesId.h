@@ -49,6 +49,12 @@ public:
 
 	UnicodeString* toString() const;
 
+	int hashCode() const;
+	class ValueCompare {
+	public:
+		int operator () (const Abstract32BytesId* const a, const Abstract32BytesId* const b) const;
+	};
+
 protected:
 	ByteBuffer* id; // 32 bytes
 };

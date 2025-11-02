@@ -96,4 +96,14 @@ void MultizoneTestnet::waitForHeaderHeight(uint16_t zoneSelf, uint16_t zone, int
 
 }
 
+void MultizoneTestnet::suspendMining(uint16_t zone) {
+	ZoneTestnet* testnet = this->zones.get(zone);
+	testnet->suspendMining();
+}
+
+void MultizoneTestnet::resumeMining(uint16_t zone) {
+	ZoneTestnet* testnet = this->zones.get(zone);
+	testnet->resumeMining();
+}
+
 } /* namespace codablecash */

@@ -10,12 +10,14 @@
 #include "lang/sc_declare/MethodDeclare.h"
 #include "lang/sc_declare/ArgumentsListDeclare.h"
 #include "lang/sc_declare/AccessControlDeclare.h"
+#include "lang/sc_declare/ClassDeclare.h"
+
+#include "lang/sc_statement/StatementBlock.h"
 
 #include "vm/VirtualMachine.h"
 
 #include "base/UnicodeString.h"
 
-#include "lang/sc_statement/StatementBlock.h"
 
 namespace alinous {
 
@@ -46,7 +48,9 @@ void ClassDeclareBlock::preAnalyze(AnalyzeContext* actx) {
 
 void ClassDeclareBlock::addDefaultConstructor(const UnicodeString* className) noexcept {
 	// add default constructor
-	if(hasDefaultConstructor(className)){
+	ClassDeclare* dec = getClassDeclare();
+	const UnicodeString* constructorName = dec->getConstructorName();
+	if(hasDefaultConstructor(constructorName)){
 		return;
 	}
 
@@ -57,7 +61,7 @@ void ClassDeclareBlock::addDefaultConstructor(const UnicodeString* className) no
 	ctrl->setCtrl(AccessControlDeclare::PUBLIC);
 	m->setAccessControl(ctrl);
 
-	UnicodeString* name = new UnicodeString(className);
+	UnicodeString* name = new UnicodeString(constructorName);
 	m->setName(name);
 
 	ArgumentsListDeclare* argDeclare = new ArgumentsListDeclare();
@@ -163,7 +167,7 @@ int ClassDeclareBlock::binarySize() const {
 	return total;
 }
 
-void ClassDeclareBlock::toBinary(ByteBuffer* out) {
+void ClassDeclareBlock::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::CLASS_DECLARE_BLOCK);
 
 	uint32_t maxLoop = this->variables.size();
@@ -205,5 +209,27 @@ bool ClassDeclareBlock::hasCtrlStatement() const noexcept {
 	return false;
 }
 
+ClassDeclareBlock* ClassDeclareBlock::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ClassDeclareBlock* inst = new ClassDeclareBlock();
+	inst->copyCodePositions(this);
+
+	int maxLoop = this->variables.size();
+	for(int i = 0; i != maxLoop; ++i){
+		MemberVariableDeclare* val = this->variables.get(i);
+
+		MemberVariableDeclare* v = val->generateGenericsImplement(input);
+		inst->addVariable(v);
+	}
+
+	maxLoop = this->methods.size();
+	for(int i = 0; i != maxLoop; ++i){
+		MethodDeclare* method = this->methods.get(i);
+
+		MethodDeclare* m = method->generateGenericsImplement(input);
+		inst->addMethod(m);
+	}
+
+	return inst;
+}
 
 } /* namespace alinous */

@@ -35,6 +35,9 @@ public:
 
 	TestnetInstanceWrapper* getInstance(int index) const noexcept;
 
+	void suspendMining();
+	void resumeMining();
+
 private:
 	uint16_t zone;
 	File* zoneFolder;

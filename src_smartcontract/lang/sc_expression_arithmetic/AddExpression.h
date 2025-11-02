@@ -30,6 +30,8 @@ public:
 
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm);
 
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
 	AbstractVmInstance* interpret8Bit(VirtualMachine* vm);
 	AbstractVmInstance* interpret16Bit(VirtualMachine* vm);

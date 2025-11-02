@@ -30,7 +30,7 @@ protected:
 	virtual void doProcess();
 
 private:
-	void syncHeader(BlochchainP2pManager *p2pManager, const NodeIdentifierSource *source, uint64_t finalizedHeight);
+	void syncHeader(BlochchainP2pManager *p2pManager, const NodeIdentifierSource *source, uint64_t startHeight);
 
 private:
 	NodeIdentifier* nodeId;

@@ -20,6 +20,8 @@ public:
 
 	virtual void init(VirtualMachine* vm);
 	virtual bool hasCtrlStatement() const noexcept;
+
+	virtual AbstractStatement* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
 };
 
 } /* namespace alinous */

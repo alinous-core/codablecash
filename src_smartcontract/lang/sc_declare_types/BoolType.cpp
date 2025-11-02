@@ -6,8 +6,10 @@
  */
 
 #include "lang/sc_declare_types/BoolType.h"
+#include "lang/sc_declare_types/ITypeVisitor.h"
 
 #include "base/UnicodeString.h"
+
 
 namespace alinous {
 
@@ -28,7 +30,7 @@ int BoolType::binarySize() const {
 	return total;
 }
 
-void BoolType::toBinary(ByteBuffer* out) {
+void BoolType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_BOOL);
 	AbstractType::toBinary(out);
 }
@@ -43,6 +45,17 @@ const UnicodeString* BoolType::toString() noexcept {
 
 void BoolType::setType(short kind) noexcept {
 	this->kind = kind;
+}
+
+AbstractType* BoolType::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	BoolType* inst = new BoolType();
+	inst->copyCodePositions(this);
+	return inst;
+}
+
+void BoolType::visit(ITypeVisitor *visitor) {
+	visitor->visit(this);
+	visitor->exit(this);
 }
 
 } /* namespace alinous */

@@ -6,6 +6,9 @@
  */
 
 #include "instance/reserved_classes/AbstractReservedClassDeclare.h"
+#include "instance/reserved_classes/ReservedClassRegistory.h"
+
+#include "instance/reserved_classes_string/StringClassDeclare.h"
 
 #include "lang/sc_declare/MethodDeclare.h"
 #include "lang/sc_declare/MemberVariableDeclare.h"
@@ -16,22 +19,32 @@
 #include "lang/sc_declare/AccessControlDeclare.h"
 #include "lang/sc_declare/ArgumentsListDeclare.h"
 #include "lang/sc_declare/ClassExtends.h"
+#include "lang/sc_declare/ClassDeclareBlock.h"
+#include "lang/sc_declare/ClassImplements.h"
 
 #include "lang/sc_statement/StatementBlock.h"
+
+#include "engine/sc/CompilationUnit.h"
 
 #include "engine/sc_analyze/PackageSpace.h"
 #include "engine/sc_analyze/AnalyzedType.h"
 #include "engine/sc_analyze/AnalyzeContext.h"
 #include "engine/sc_analyze/AnalyzedClass.h"
 
-#include "instance/reserved_classes/ReservedClassRegistory.h"
+#include "filestore_block/exceptions.h"
 
-#include "engine/sc/CompilationUnit.h"
+#include "instance/instance_exception/ArrayOutOfBoundsExceptionClassDeclare.h"
+#include "instance/instance_exception_class/ExceptionClassDeclare.h"
+#include "instance/instance_exception/NullPointerExceptionClassDeclare.h"
+#include "instance/instance_exception/TypeCastExceptionClassDeclare.h"
+#include "instance/instance_exception/ZeroDivisionExceptionClassDeclare.h"
+
+#include "trx/transaction_exception/DatabaseExceptionClassDeclare.h"
 
 
 namespace alinous {
 
-AbstractReservedClassDeclare::AbstractReservedClassDeclare() : ClassDeclare() {
+AbstractReservedClassDeclare::AbstractReservedClassDeclare() : ClassDeclare(RESERVED_CLASS_DECLARE) {
 	this->methods = new ArrayList<MethodDeclare>();
 	this->members = new ArrayList<MemberVariableDeclare>();
 }
@@ -143,6 +156,61 @@ void AbstractReservedClassDeclare::addDefaultConstructor(const UnicodeString* cl
 
 	StatementBlock* block = new StatementBlock();
 	m->setBlock(block);
+}
+
+AbstractReservedClassDeclare* AbstractReservedClassDeclare::createFromBinary(ByteBuffer *in) {
+	AbstractReservedClassDeclare* ret = nullptr;
+
+	uint16_t classType = in->getShort();
+
+	switch(classType){
+	case TYPE_STRING_CLASS:
+		ret = new StringClassDeclare();
+		break;
+	case TYPE_ARRAY_OUT_OF_BOUNDS_EXCEPTION:
+		ret = new ArrayOutOfBoundsExceptionClassDeclare();
+		break;
+	case TYPE_DATABASE_EXCEPTION:
+		ret = new DatabaseExceptionClassDeclare();
+		break;
+	case TYPE_EXCEPTION:
+		ret = new ExceptionClassDeclare();
+		break;
+	case TYPE_NULL_POINTER_EXCEPTION:
+		ret = new NullPointerExceptionClassDeclare();
+		break;
+	case TYPE_TYPE_CAST_EXCEPTION:
+		ret = new TypeCastExceptionClassDeclare();
+		break;
+	case TYPE_ZERO_DIVISION_EXCEPTION:
+		ret = new ZeroDivisionExceptionClassDeclare();
+		break;
+	default:
+		throw new BinaryFormatException(__FILE__, __LINE__);
+	}
+
+	ret->fromBinary(in);
+
+	return ret;
+}
+
+int AbstractReservedClassDeclare::binarySize() const {
+	int total = ClassDeclare::binarySize();
+	total += sizeof(uint16_t);
+
+	return total;
+}
+
+void AbstractReservedClassDeclare::toBinary(ByteBuffer *out) {
+	toBinaryCheck(out);
+	toBinaryHead(out);
+	out->putShort(getClassType());
+
+	toBinaryBody(out);
+}
+
+void AbstractReservedClassDeclare::fromBinary(ByteBuffer *in) {
+	ClassDeclare::fromBinary(in);
 }
 
 } /* namespace alinous */

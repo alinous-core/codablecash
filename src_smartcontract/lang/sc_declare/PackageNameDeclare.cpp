@@ -7,9 +7,23 @@
 
 #include "lang/sc_declare/PackageNameDeclare.h"
 
+#include "lang/sc_declare_types/AbstractType.h"
+
 #include "base/UnicodeString.h"
 
+
 namespace alinous {
+
+PackageNameDeclare::PackageNameDeclare(const PackageNameDeclare &inst) : CodeElement(inst) {
+	this->strName = nullptr;
+
+	int maxLoop = inst.list.size();
+	for(int i = 0; i != maxLoop; ++i){
+		const UnicodeString* seg = inst.list.get(i);
+
+		this->list.addElement(new UnicodeString(seg));
+	}
+}
 
 PackageNameDeclare::PackageNameDeclare() : CodeElement(CodeElement::PACKAGE_NAME_DECLARE) {
 	this->strName = nullptr;
@@ -55,7 +69,7 @@ int PackageNameDeclare::binarySize() const {
 	return total;
 }
 
-void PackageNameDeclare::toBinary(ByteBuffer* out) {
+void PackageNameDeclare::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::PACKAGE_NAME_DECLARE);
 
 	uint8_t maxLoop = this->list.size();
@@ -73,6 +87,10 @@ void PackageNameDeclare::fromBinary(ByteBuffer* in) {
 		UnicodeString* str = getString(in);
 		this->list.addElement(str);
 	}
+}
+
+PackageNameDeclare* PackageNameDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	return new PackageNameDeclare(*this);
 }
 
 } /* namespace alinous */

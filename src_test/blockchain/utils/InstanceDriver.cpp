@@ -39,6 +39,7 @@
 #include "bc_status_cache_context/IStatusCacheContext.h"
 
 #include "bc_trx/AbstractBlockchainTransaction.h"
+#include "bc_trx/UtxoId.h"
 
 #include "bc_p2p_cmd_client/SendTransactionClientCommand.h"
 
@@ -47,7 +48,10 @@
 #include "pubsub_cmd/AbstractCommandResponse.h"
 
 #include "bc_p2p_client/StackClientListnerRemover.h"
+
+
 #include "TransactionWaiter.h"
+
 namespace codablecash {
 
 InstanceDriver::InstanceDriver(const File* baseDir) {
@@ -157,6 +161,19 @@ void InstanceDriver::registerVotingNode() {
 
 		MemoryPool* pool = this->inst->getMemoryPool();
 		pool->putTransaction(trx);
+
+		// debug
+		{
+			AbstractUtxo* utxo = trx->getUtxo(0);
+			const UtxoId* utxoId = utxo->getId();
+
+			TransactionId* trxId = pool->getTransactionIdFromUtxoId(utxoId); __STP(trxId);
+			assert(trxId != nullptr);
+			assert(trxId->equals(trx->getTransactionId()));
+
+			UnicodeString* utxoIdstr = utxoId->toString(); __STP(utxoIdstr);
+			this->logger->debugLog(ISystemLogger::DEBUG_UTXO_ID, utxoIdstr, __FILE__, __LINE__);
+		}
 	}
 }
 
@@ -202,7 +219,7 @@ RegisterVotePoolTransaction* InstanceDriver::createRegisterVotePoolTransaction()
 	return __STP_MV(trx);
 }
 
-void InstanceDriver::registerTicket(const BalanceUnit stakeAmount) {
+void InstanceDriver::registerTicket(const BalanceUnit& stakeAmount) {
 	if(this->source == nullptr){
 		this->source = NodeIdentifierSource::create();
 	}

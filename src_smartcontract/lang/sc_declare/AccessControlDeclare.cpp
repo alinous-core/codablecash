@@ -27,13 +27,22 @@ int AccessControlDeclare::binarySize() const {
 	return total;
 }
 
-void AccessControlDeclare::toBinary(ByteBuffer* out) {
+void AccessControlDeclare::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::ACCESS_CONTROL_DECLARE);
 	out->put(this->accessCtrl);
 }
 
 void AccessControlDeclare::fromBinary(ByteBuffer* in) {
 	this->accessCtrl = in->get();
+}
+
+AccessControlDeclare* AccessControlDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	AccessControlDeclare* inst = new AccessControlDeclare();
+	inst->copyCodePositions(this);
+
+	inst->setCtrl(this->accessCtrl);
+
+	return inst;
 }
 
 } /* namespace alinous */

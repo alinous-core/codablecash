@@ -23,6 +23,8 @@ class IClientNotifyListner;
 class AbstractCommandResponse;
 class PubSubId;
 class TransactionTransferData;
+class BlockHeader;
+class BlockHeaderTransferData;
 
 class ClientExecutor : public IPubsubCommandExecutor {
 public:
@@ -31,8 +33,10 @@ public:
 
 	void addListner(IClientNotifyListner* listner) noexcept;
 	IClientNotifyListner* removeListner(IClientNotifyListner* listner) noexcept;
+	void clearAllListners() noexcept;
 
 	AbstractCommandResponse* fireOnNewTransaction(const PubSubId *pubsubId, const TransactionTransferData* data);
+	AbstractCommandResponse* fireOnBlockMined(const PubSubId *pubsubId, const BlockHeaderTransferData *blockcheaderData);
 
 private:
 	SysMutex* mutex;

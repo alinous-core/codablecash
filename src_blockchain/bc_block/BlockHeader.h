@@ -55,7 +55,7 @@ public:
 		return this->zone;
 	}
 
-	BlockHeaderId* getId() const noexcept {
+	const BlockHeaderId* getId() const noexcept {
 		return this->id;
 	}
 	void setHeaderId(BlockHeaderId* id) noexcept;

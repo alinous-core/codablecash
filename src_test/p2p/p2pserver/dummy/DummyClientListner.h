@@ -22,6 +22,7 @@ public:
 	virtual ~DummyClientListner();
 
 	virtual void onNewTransaction(const PubSubId *pubsubId, const TransactionTransferData* data);
+	virtual void onBlockMined(const PubSubId *pubsubId, const BlockHeaderTransferData *blockcheader);
 
 	int size() const noexcept;
 

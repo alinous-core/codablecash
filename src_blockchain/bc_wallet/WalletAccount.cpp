@@ -41,6 +41,11 @@
 #include "bc_wallet_trx/BalanceTransactionWalletHandler.h"
 #include "bc_wallet_trx/RegisterVotePoolTransactionWalletHandler.h"
 #include "bc_wallet_trx/RegisterTicketTransactionWalletHandler.h"
+#include "bc_wallet_trx/CoinbaseTransactionWalletHandler.h"
+#include "bc_wallet_trx/VoteBlockTransactionWalletHandler.h"
+#include "bc_wallet_trx/RevokeMissedTicketWalletHandler.h"
+#include "bc_wallet_trx/RevokeMissVotedTicketWalletHandler.h"
+#include "bc_wallet_trx/StakeBaseTransactionWalletHandler.h"
 
 #include "bc_network/NodeIdentifier.h"
 
@@ -48,11 +53,19 @@
 
 #include "bc_base_trx_index/TransactionData.h"
 
+#include "bc_wallet_filter/BloomFilter1024.h"
+
 #include "filestore_block/IBlockObject.h"
 
-#include "bc_wallet_filter/BloomFilter512.h"
+#include "bc_wallet_trx_base/HdWalletAccountTrxBuilderContext.h"
 
+#include "bc/ExceptionThrower.h"
 
+#include "bc_p2p_cmd_node/InvalidTransactionException.h"
+
+#include "bc_wallet_trx/IccNopTransactionWalletHandler.h"
+
+#include "bc_wallet_trx/SmartcontractNopTransactionWalletHandler.h"
 namespace codablecash {
 
 WalletAccount::WalletAccount(const File* accountBaseDir) : AbstractWalletAccount(0, 0) {
@@ -193,44 +206,96 @@ GenesisTransaction* WalletAccount::createGenesisTransaction(const BalanceUnit am
 }
 
 BalanceTransferTransaction* WalletAccount::createBalanceTransferTransaction(
-				const AddressDescriptor *dest, const BalanceUnit amount
-				, const BalanceUnit feeRate, bool feeIncluded, const IWalletDataEncoder* encoder) {
+				const AddressDescriptor *dest, const BalanceUnit amount, const BalanceUnit feeRate, bool feeIncluded, const IWalletDataEncoder* encoder) {
+	HdWalletAccountTrxBuilderContext context(this, encoder);
+
+	return createBalanceTransferTransaction(dest, amount, feeRate, feeIncluded, encoder, &context);
+}
+
+BalanceTransferTransaction* WalletAccount::createBalanceTransferTransaction(
+		const AddressDescriptor *dest, const BalanceUnit amount, const BalanceUnit feeRate, bool feeIncluded, const IWalletDataEncoder *encoder,
+		ITransactionBuilderContext *context) {
 	BalanceTransactionWalletHandler handler(this);
-	return handler.createTransaction(dest, amount, feeRate, feeIncluded, encoder);
+
+	return handler.createTransaction(dest, amount, feeRate, feeIncluded, encoder, context);
 }
 
 RegisterVotePoolTransaction* WalletAccount::createRegisterVotePoolTransaction(
-		const NodeIdentifierSource *source, const BalanceUnit feeRate, const AddressDescriptor* addressDesc,
-		const IWalletDataEncoder *encoder) {
+		const NodeIdentifierSource *source, const BalanceUnit& feeRate, const AddressDescriptor* addressDesc, const IWalletDataEncoder *encoder) {
+	HdWalletAccountTrxBuilderContext context(this, encoder);
+
+	return createRegisterVotePoolTransaction(source, feeRate, addressDesc, encoder, &context);
+}
+
+
+RegisterVotePoolTransaction* WalletAccount::createRegisterVotePoolTransaction(
+		const NodeIdentifierSource *source, const BalanceUnit &feeRate, const AddressDescriptor *addressDesc, const IWalletDataEncoder *encoder,
+		ITransactionBuilderContext *context) {
 	RegisterVotePoolTransactionWalletHandler handler(this);
-	return handler.createTransaction(source, feeRate, addressDesc, encoder);
+	return handler.createTransaction(source, feeRate, addressDesc, encoder, context);
 }
 
 RegisterTicketTransaction* WalletAccount::createRegisterTicketTransaction(
-		const NodeIdentifier *nodeId, const BalanceUnit stakeAmount, const BalanceUnit feeRate, const AddressDescriptor *addressDesc,
+		const NodeIdentifier *nodeId, const BalanceUnit& stakeAmount, const BalanceUnit& feeRate, const AddressDescriptor *addressDesc,
 		const IWalletDataEncoder *encoder) {
+	HdWalletAccountTrxBuilderContext context(this, encoder);
+
+	return createRegisterTicketTransaction(nodeId, stakeAmount, feeRate, addressDesc, encoder, &context);
+}
+
+RegisterTicketTransaction* WalletAccount::createRegisterTicketTransaction(
+		const NodeIdentifier *nodeId, const BalanceUnit &stakeAmount, const BalanceUnit &feeRate, const AddressDescriptor *addressDesc, const IWalletDataEncoder *encoder,
+		ITransactionBuilderContext *context) {
 	RegisterTicketTransactionWalletHandler handler(this);
-	return handler.createTransaction(nodeId, stakeAmount, feeRate, addressDesc, encoder);
+
+	return handler.createTransaction(nodeId, stakeAmount, feeRate, addressDesc, encoder, context);
 }
 
 void WalletAccount::importTransaction(const AbstractBlockchainTransaction *trx) {
 	uint8_t type = trx->getType();
 
 	AbstractWalletTransactionHandler* handler = nullptr;
-	if(type == AbstractBlockchainTransaction::TRX_TYPE_GENESIS){
+
+	switch(type){
+	case AbstractBlockchainTransaction::TRX_TYPE_GENESIS:
 		handler = new GenesisTransactionHandler(this);
-	}
-	else if(type == AbstractBlockchainTransaction::TRX_TYPE_BANANCE_TRANSFER) {
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_BANANCE_TRANSFER:
 		handler = new BalanceTransactionWalletHandler(this);
-	}
-	else if(type == AbstractBlockchainTransaction::TRX_TYPE_REGISTER_VOTE_POOL) {
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_REGISTER_VOTE_POOL:
 		handler = new RegisterVotePoolTransactionWalletHandler(this);
-	}
-	else if(type == AbstractBlockchainTransaction::TRX_TYPE_REGISTER_TICKET){
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_REGISTER_TICKET:
 		handler = new RegisterTicketTransactionWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_VOTE_BLOCK:
+		handler = new VoteBlockTransactionWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_REVOKE_MISSED_TICKET:
+		handler = new RevokeMissedTicketWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_REVOKE_MISS_VOTED_TICKET:
+		handler = new RevokeMissVotedTicketWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_COIN_BASE:
+		handler = new CoinbaseTransactionWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_STAKE_BASE:
+		handler = new StakeBaseTransactionWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_SMARTCONTRACT_NOP:
+		handler = new SmartcontractNopTransactionWalletHandler(this);
+		break;
+	case AbstractBlockchainTransaction::TRX_TYPE_ICC_NOP:
+		handler = new IccNopTransactionWalletHandler(this);
+		break;
+	default:
+		break;
 	}
 	__STP(handler);
-	assert(handler != nullptr);
+
+	ExceptionThrower<InvalidTransactionException>::throwExceptionIfCondition(handler == nullptr, L"invalid transaction type.", __FILE__, __LINE__);
 
 	handler->importTransaction(trx);
 }
@@ -310,7 +375,7 @@ ArrayList<AbstractBlockchainTransaction>* WalletAccount::getTransactions() const
 	return list;
 }
 
-const BloomFilter512* WalletAccount::getBloomFilter(const IWalletDataEncoder* encoder) {
+const BloomFilter1024* WalletAccount::getBloomFilter(const IWalletDataEncoder* encoder) {
 	if(this->bloomFilter == nullptr){
 		createBloomFilter(encoder);
 	}
@@ -321,10 +386,14 @@ const BloomFilter512* WalletAccount::getBloomFilter(const IWalletDataEncoder* en
 void WalletAccount::createBloomFilter(const IWalletDataEncoder* encoder) {
 	delete this->bloomFilter;
 
-	this->bloomFilter = new BloomFilter512();
+	this->bloomFilter = new BloomFilter1024();
 
 	this->receivingAddresses->exportAddress2Filger(this->bloomFilter);
-	this->changeAddresses->exportAddress2Filger(this->bloomFilter, encoder);
+	this->changeAddresses->exportAddress2Filter(this->bloomFilter, encoder);
+}
+
+bool WalletAccount::checkAddress(const AddressDescriptor *desc) const {
+	return this->receivingAddresses->hasAddress(desc) || this->changeAddresses->hasAddress(desc);
 }
 
 } /* namespace codablecash */

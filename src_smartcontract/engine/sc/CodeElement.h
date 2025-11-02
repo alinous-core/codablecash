@@ -41,6 +41,10 @@ public:
 	static const constexpr short CLASS_EXTENDS{12};
 	static const constexpr short CLASS_IMPLEMENTS{13};
 	static const constexpr short CLASS_NAME{14};
+	static const constexpr short GENERICS_CLASS_DECLARE{15};
+	static const constexpr short GENERICS_PARAM{16};
+	static const constexpr short GENERICS_GENERATED_CLASS_DECLARE{17};
+	static const constexpr short RESERVED_CLASS_DECLARE{18};
 
 
 	static const constexpr short TYPE_BOOL{20};
@@ -53,6 +57,7 @@ public:
 	static const constexpr short TYPE_VOID{27};
 	static const constexpr short TYPE_OBJECT{28};
 	static const constexpr short TYPE_DOM{29};
+	static const constexpr short TYPE_GENERICS_OBJECT{30};
 
 	static const constexpr short STMT_BLOCK{50};
 	static const constexpr short STMT_VARIABLE_DECLARE{51};
@@ -175,7 +180,7 @@ public:
 	static const constexpr short SQL_PART_SET_PAIR{229};
 	static const constexpr short SQL_PART_WHERE{230};
 
-
+	CodeElement(const CodeElement& inst);
 	explicit CodeElement(short kind);
 	virtual ~CodeElement();
 
@@ -185,8 +190,12 @@ public:
 	void setPosition(CodeElement* element);
 	void setPosition(Token* token);
 
+	virtual CodeElement* getCanonicalCodeElement() noexcept {
+		return this;
+	}
+
 	virtual int binarySize() const = 0;
-	virtual void toBinary(ByteBuffer* out) = 0;
+	virtual void toBinary(ByteBuffer* out) const = 0;
 	virtual void fromBinary(ByteBuffer* in) = 0;
 
 	virtual bool isExecutable();
@@ -216,6 +225,9 @@ public:
 	CompilationUnit* getCompilationUnit() const;
 	ClassDeclare* getClassDeclare() const;
 	const UnicodeString* getPackageName() const noexcept;
+
+	void copyCodePositions(const CodeElement* other) noexcept;
+
 protected:
 	short kind;
 

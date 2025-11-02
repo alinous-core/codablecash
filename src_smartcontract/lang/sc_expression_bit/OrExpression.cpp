@@ -49,7 +49,7 @@ int OrExpression::binarySize() const {
 	return total;
 }
 
-void OrExpression::toBinary(ByteBuffer* out) {
+void OrExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_OR);
 	AbstractBinaryExpression::toBinary(out);
 }
@@ -170,6 +170,15 @@ AbstractVmInstance* OrExpression::interpret64Bit(VirtualMachine* vm) {
 	}
 
 	return PrimitiveReference::createLongReference(vm, result);
+}
+
+AbstractExpression* OrExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	OrExpression* inst = new OrExpression();
+	inst->copyCodePositions(this);
+	inst->copyExpressionList(this, input);
+	inst->copyOperationList(this, input);
+
+	return inst;
 }
 
 } /* namespace alinous */

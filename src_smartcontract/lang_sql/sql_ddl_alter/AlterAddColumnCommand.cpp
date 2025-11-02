@@ -56,7 +56,7 @@ int AlterAddColumnCommand::binarySize() const {
 	return total;
 }
 
-void AlterAddColumnCommand::toBinary(ByteBuffer* out) {
+void AlterAddColumnCommand::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->columnDescriptor);
 
 	out->putShort(CodeElement::DDL_ALTER_ADD_COLUMN);

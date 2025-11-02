@@ -49,7 +49,7 @@ public:
 
 	virtual void loadInitialVotersData();
 
-	virtual uint64_t getAnalyzedHeight() const noexcept;
+	virtual uint64_t getPreAnalyzedHeight() const noexcept;
 
 protected:
 	virtual void putUtxo(const AbstractUtxo* utxo, const AbstractBlockchainTransaction *trx, const BlockHeader *header);

@@ -16,6 +16,11 @@
 
 namespace alinous {
 
+ImportDeclare::ImportDeclare(const ImportDeclare &inst) : CodeElement(inst) {
+	this->className = new UnicodeString(inst.className);
+	this->namePart = nullptr;
+}
+
 ImportDeclare::ImportDeclare() : CodeElement(CodeElement::IMPORT_DECLARE) {
 	this->className = nullptr;
 	this->namePart = nullptr;
@@ -63,13 +68,30 @@ int ImportDeclare::binarySize() const {
 	return total;
 }
 
-void ImportDeclare::toBinary(ByteBuffer* out) {
+void ImportDeclare::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::IMPORT_DECLARE);
 	putString(out, this->className);
 }
 
 void ImportDeclare::fromBinary(ByteBuffer* in) {
 	this->className = getString(in);
+}
+
+ImportDeclare* ImportDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ImportDeclare* inst = new ImportDeclare();
+	inst->copyCodePositions(this);
+
+	inst->setClassName(new UnicodeString(this->className));
+
+	return inst;
+}
+
+void ImportDeclare::setClassName(UnicodeString *str) {
+	delete this->className;
+	this->className = str;
+
+	delete this->namePart;
+	this->namePart = nullptr;
 }
 
 } /* namespace alinous */

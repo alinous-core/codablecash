@@ -1,0 +1,5 @@
+{
+	"project:" : "Sample01",
+	"executable" : true,
+	"numthread" : 10
+}

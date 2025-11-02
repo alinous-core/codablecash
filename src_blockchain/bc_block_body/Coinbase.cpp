@@ -56,4 +56,8 @@ bool Coinbase::equals(const Coinbase *other) const noexcept {
 	return this->amount->compareTo(other->amount) == 0;
 }
 
+bool Coinbase::checkFilter(const ArrayList<BloomFilter1024> *filtersList) const {
+	return false;
+}
+
 } /* namespace codablecash */

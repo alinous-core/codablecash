@@ -77,7 +77,7 @@ int EqualityExpression::binarySize() const {
 	return total;
 }
 
-void EqualityExpression::toBinary(ByteBuffer* out) {
+void EqualityExpression::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->left);
 	checkNotNull(this->right);
 
@@ -126,6 +126,21 @@ AbstractVmInstance* EqualityExpression::interpret(VirtualMachine* vm) {
 	PrimitiveReference* ret = PrimitiveReference::createBoolReference(vm, bl ? 1 : 0);
 
 	return ret;
+}
+
+AbstractExpression* EqualityExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	EqualityExpression* inst = new EqualityExpression();
+	inst->copyCodePositions(this);
+
+	AbstractExpression* copiedExp = this->left->generateGenericsImplement(input);
+	inst->setLeft(copiedExp);
+
+	copiedExp = this->right->generateGenericsImplement(input);
+	inst->setRight(copiedExp);
+
+	inst->setOp(this->op);
+
+	return inst;
 }
 
 } /* namespace alinous */

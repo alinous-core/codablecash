@@ -12,12 +12,14 @@
 #include "engine/sc_analyze/AnalyzedClass.h"
 #include "engine/sc_analyze/ValidationError.h"
 #include "engine/sc_analyze/AnalyzedThisClassStackPopper.h"
+#include "engine/sc_analyze/TypeResolver.h"
 
 #include "lang/sc_expression/VariableIdentifier.h"
 
 #include "instance/VmClassInstance.h"
 
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
 
 #include "lang/sc_declare/ClassDeclare.h"
 
@@ -33,6 +35,7 @@
 #include "lang/sc_declare/MethodDeclare.h"
 
 #include "instance/instance_ref/ObjectReference.h"
+#include "instance/instance_ref/VmRootReference.h"
 
 #include "instance/instance_gc/StackFloatingVariableHandler.h"
 
@@ -40,7 +43,10 @@
 
 #include "engine/sc/SmartContract.h"
 
-#include "instance/instance_ref/VmRootReference.h"
+#include "lang/sc_declare_types/AbstractType.h"
+#include "lang/sc_declare_types/ObjectType.h"
+
+
 namespace alinous {
 
 ConstructorCall::ConstructorCall() : AbstractExpression(CodeElement::EXP_CONSTRUCTORCALL) {
@@ -58,14 +64,15 @@ ConstructorCall::~ConstructorCall() {
 	delete this->atype;
 }
 
-void ConstructorCall::setName(AbstractExpression* exp) noexcept {
+void ConstructorCall::setName(AbstractType* exp) noexcept {
 	this->name = exp;
 }
 
 const UnicodeString* ConstructorCall::getName() noexcept {
 	if(this->strName == nullptr){
-		VariableIdentifier* valId = dynamic_cast<VariableIdentifier*>(this->name);
-		const UnicodeString* n = valId->getName();
+		ObjectType* otype = dynamic_cast<ObjectType*>(this->name);
+		const UnicodeString* n = otype->getClassName();
+
 		this->strName = new UnicodeString(n);
 	}
 
@@ -101,7 +108,7 @@ int ConstructorCall::binarySize() const {
 	return total;
 }
 
-void ConstructorCall::toBinary(ByteBuffer* out) {
+void ConstructorCall::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 
 	out->putShort(CodeElement::EXP_CONSTRUCTORCALL);
@@ -119,7 +126,7 @@ void ConstructorCall::toBinary(ByteBuffer* out) {
 void ConstructorCall::fromBinary(ByteBuffer* in) {
 	CodeElement* element = createFromBinary(in);
 	checkIsExp(element);
-	this->name = dynamic_cast<AbstractExpression*>(element);
+	this->name = dynamic_cast<AbstractType*>(element);
 
 	int maxLoop = in->getInt();
 	for(int i = 0; i != maxLoop; ++i){
@@ -133,7 +140,6 @@ void ConstructorCall::fromBinary(ByteBuffer* in) {
 
 void ConstructorCall::preAnalyze(AnalyzeContext* actx) {
 	this->name->setParent(this);
-	this->name->preAnalyze(actx);
 
 	int maxLoop = this->args.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -142,6 +148,9 @@ void ConstructorCall::preAnalyze(AnalyzeContext* actx) {
 		exp->setParent(this);
 		exp->preAnalyze(actx);
 	}
+
+	this->name->preAnalyze(actx);
+	actx->detectGenericsType(this->name);
 }
 
 void ConstructorCall::analyzeTypeRef(AnalyzeContext* actx) {
@@ -151,6 +160,8 @@ void ConstructorCall::analyzeTypeRef(AnalyzeContext* actx) {
 
 		exp->analyzeTypeRef(actx);
 	}
+
+	this->name->analyzeTypeRef(actx);
 }
 
 void ConstructorCall::analyze(AnalyzeContext* actx) {
@@ -188,13 +199,16 @@ void ConstructorCall::analyze(AnalyzeContext* actx) {
 	}
 
 	actx->setCurrentElement(this);
-	const UnicodeString* funcName = getName();
+
+	const UnicodeString* funcName = classDec->getConstructorName();
 	this->methodEntry = classEntry->findEntry(actx, funcName, &typeList);
 	if(this->methodEntry == nullptr){
 		// has no functions to call
 		actx->addValidationError(ValidationError::CODE_WRONG_FUNC_CALL_NAME, actx->getCurrentElement(), L"The method '{0}()' does not exists.", {this->strName});
 		return;
 	}
+
+	this->name->analyze(actx);
 }
 
 AnalyzedType ConstructorCall::getType(AnalyzeContext* actx) {
@@ -245,6 +259,23 @@ void ConstructorCall::interpretArguments(VirtualMachine* vm, FunctionArguments* 
 			args->addSubstance(clazzInst);
 		}
 	}
+}
+
+AbstractExpression* ConstructorCall::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ConstructorCall* inst = new ConstructorCall();
+
+	AbstractType* nameType = this->name->generateGenericsImplement(input);
+	inst->setName(nameType);
+
+	int maxLoop = this->args.size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractExpression* exp = this->args.get(i);
+		AbstractExpression* copied = exp->generateGenericsImplement(input);
+
+		inst->addArgument(copied);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

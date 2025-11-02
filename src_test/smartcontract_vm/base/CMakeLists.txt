@@ -10,6 +10,7 @@ set(testsrc
 	test_main_vm.cpp
 	test_sc_declare_types.cpp
 	test_type_resolver.cpp
+	TestVisitor.cpp
 )
 handle_sub(testall "${testsrc}" test smartcontract_vm/base)
 

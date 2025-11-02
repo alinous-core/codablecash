@@ -3,6 +3,7 @@
 set(__src
 	AbstractClientNotifyCommand.cpp
 	ClientExecutor.cpp
+	ClientNotifyBlockMinedCommand.cpp
 	ClientNotifyNewTransactionCommand.cpp
 	IClientNotifyListner.cpp
 )

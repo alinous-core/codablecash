@@ -3,6 +3,7 @@
 set(__src
 	BlockHeaderTransferData.cpp
 	BlockHeaderTransferDataValidator.cpp
+	BlockTransactionTransferData.cpp
 	DataStructureException.cpp
 	TransactionTransferData.cpp
 	VoteTransactionIdCertificate.cpp

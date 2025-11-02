@@ -22,7 +22,11 @@ public:
 	ExceptionClassDeclare();
 	virtual ~ExceptionClassDeclare();
 
-	virtual const UnicodeString* getName() noexcept;
+	virtual uint16_t getClassType() const noexcept {
+		return TYPE_EXCEPTION;
+	}
+
+	virtual const UnicodeString* getName() const noexcept;
 	virtual const UnicodeString* getFullQualifiedName() noexcept;
 
 	virtual ClassDeclare* getBaseClass() const noexcept;

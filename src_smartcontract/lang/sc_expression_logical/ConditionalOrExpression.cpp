@@ -43,7 +43,7 @@ void ConditionalOrExpression::analyze(AnalyzeContext* actx) {
 		AbstractExpression* expression = this->list.get(i);
 		AnalyzedType at = expression->getType(actx);
 
-		if(!at.isBool()){
+		if(!at.isBool() && !at.isGenericsType()){
 			actx->addValidationError(ValidationError::CODE_LOGICAL_EXP_NON_BOOL, this, L"Logical expression requires boolean parameter.", {});
 		}
 	}
@@ -56,7 +56,7 @@ int ConditionalOrExpression::binarySize() const {
 	return total;
 }
 
-void ConditionalOrExpression::toBinary(ByteBuffer* out) {
+void ConditionalOrExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_CND_OR);
 	AbstractBinaryExpression::toBinary(out);
 }
@@ -89,6 +89,14 @@ AbstractVmInstance* ConditionalOrExpression::interpret(VirtualMachine* vm) {
 	}
 
 	return PrimitiveReference::createBoolReference(vm, 0);
+}
+
+AbstractExpression* ConditionalOrExpression::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ConditionalOrExpression* inst = new ConditionalOrExpression();
+	inst->copyCodePositions(this);
+	inst->copyExpressionList(this, input);
+
+	return inst;
 }
 
 } /* namespace alinous */

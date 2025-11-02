@@ -38,7 +38,7 @@ int BeginStatement::binarySize() const {
 	return total;
 }
 
-void BeginStatement::toBinary(ByteBuffer* out) {
+void BeginStatement::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::DML_STMT_BEGIN);
 }
 

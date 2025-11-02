@@ -70,7 +70,7 @@ int AbstractArithmeticBinaryExpresson::binarySize() const {
 	return total;
 }
 
-void AbstractArithmeticBinaryExpresson::toBinary(ByteBuffer* out) {
+void AbstractArithmeticBinaryExpresson::toBinary(ByteBuffer* out) const {
 	out->putShort(this->kind);
 	AbstractBinaryExpression::toBinary(out);
 
@@ -90,6 +90,15 @@ void AbstractArithmeticBinaryExpresson::fromBinary(ByteBuffer* in) {
 	for(int i = 0; i != maxLoop; ++i){
 		uint8_t op = in->get();
 		this->operations.addElement(op);
+	}
+}
+
+void AbstractArithmeticBinaryExpresson::copyOperationList(const AbstractArithmeticBinaryExpresson *source, HashMap<UnicodeString, AbstractType> *input) noexcept {
+	int maxLoop = source->operations.size();
+	for(int i = 0; i != maxLoop; ++i){
+		uint8_t op = source->operations.get(i);
+
+		addOpe(op);
 	}
 }
 

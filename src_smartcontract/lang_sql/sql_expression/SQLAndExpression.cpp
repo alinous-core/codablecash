@@ -40,7 +40,7 @@ int SQLAndExpression::binarySize() const {
 	return total;
 }
 
-void SQLAndExpression::toBinary(ByteBuffer* out) {
+void SQLAndExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_EXP_AND);
 	AbstractSQLBinaryExpression::toBinary(out);
 }

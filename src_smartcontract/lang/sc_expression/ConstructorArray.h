@@ -13,7 +13,7 @@
 
 namespace alinous {
 
-class VariableIdentifier;
+class AbstractType;
 class AbstractExpression;
 
 class ConstructorArray : public AbstractExpression {
@@ -22,7 +22,7 @@ public:
 	virtual ~ConstructorArray();
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	virtual void preAnalyze(AnalyzeContext* actx);
@@ -33,12 +33,15 @@ public:
 	virtual void init(VirtualMachine* vm);
 	virtual AbstractVmInstance* interpret(VirtualMachine* vm);
 
-	void setValId(VariableIdentifier* valId) noexcept;
+	void setValId(AbstractType* valId) noexcept;
 	void addDim(AbstractExpression* dim) noexcept;
 
 	const UnicodeString* getName() const noexcept;
+
+	virtual AbstractExpression* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const;
+
 private:
-	VariableIdentifier* valId;
+	AbstractType* valId;
 	ArrayList<AbstractExpression> dims;
 
 	AnalyzedType* atype;

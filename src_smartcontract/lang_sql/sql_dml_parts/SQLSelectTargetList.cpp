@@ -45,7 +45,7 @@ int SQLSelectTargetList::binarySize() const {
 	return total;
 }
 
-void SQLSelectTargetList::toBinary(ByteBuffer* out) {
+void SQLSelectTargetList::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::SQL_PART_SELECT_TARGET_LIST);
 
 	int maxLoop = this->list.size();

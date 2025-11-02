@@ -27,11 +27,6 @@ class BlockBody;
 
 class DownloadTransactionsNodeCommand : public AbstractNodeCommand {
 public:
-	static const constexpr uint8_t TYPE_CONTROL{1};
-	static const constexpr uint8_t TYPE_ICC{2};
-	static const constexpr uint8_t TYPE_BALANCE{3};
-	static const constexpr uint8_t TYPE_SMARTCONTRACT{4};
-
 	DownloadTransactionsNodeCommand(const DownloadTransactionsNodeCommand& inst);
 	DownloadTransactionsNodeCommand();
 	virtual ~DownloadTransactionsNodeCommand();
@@ -48,7 +43,6 @@ public:
 	virtual AbstractCommandResponse* executeAsNode(BlockchainNodeHandshake* nodeHandShake, CodablecashNodeInstance* inst, bool suspend) const;
 
 	void addTrxId(const DownloadTransactionEntry* trxEntry);
-	void setTransactionType(uint8_t trxType) noexcept;
 	void setHeight(uint64_t height) noexcept {
 		this->height = height;
 	}
@@ -64,7 +58,6 @@ private:
 private:
 	uint64_t height;
 	BlockHeaderId *headerId;
-	uint8_t trxType;
 	ArrayList<DownloadTransactionEntry>* list;
 };
 

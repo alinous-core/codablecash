@@ -106,6 +106,7 @@ void DetectVotingTicketCommandMessage::putTransaction(const BlockHeader *header2
 		, IStatusCacheContext* context, MemPoolTransaction* memTrx, const CodablecashSystemParam* config, FinalizerPool *pool) {
 	const NodeIdentifier* voterId = candidate->getNodeIdentifier();
 	const UtxoId* utxoId = candidate->getUtxoId();
+	const AddressDescriptor* desc = candidate->getAddressDescriptor();
 
 	// zone to mine trx
 	uint16_t voteBeforeNBlocks = config->getVoteBeforeNBlocks(this->height);
@@ -120,7 +121,7 @@ void DetectVotingTicketCommandMessage::putTransaction(const BlockHeader *header2
 
 	// set time stamp of vote transaction
 	VoteBlockTransaction* trx = new VoteBlockTransaction(); __STP(trx);
-	trx->setTicketUtxoId(utxoId, candidate->getTicletPrice());
+	trx->setTicketUtxoId(utxoId, candidate->getTicletPrice(), desc);
 	trx->setVoteBlockId(headerId);
 	trx->setVoteBlockHeight(height2Vote);
 	trx->setVoterId(voterId);
@@ -156,6 +157,10 @@ void DetectVotingTicketCommandMessage::putTransaction(const BlockHeader *header2
 			NodeIdentifierSource* networkKey = p2pRequestProcessor->getNetworkKey();
 			command.sign(networkKey);
 
+			// add into the history
+			p2pRequestProcessor->addHistory(&data);
+
+			// broad cast
 			uint16_t zone = header2vote->getZone();
 			p2pManager->broadCastWithinZone(zone, &command, p2pRequestProcessor);
 		}

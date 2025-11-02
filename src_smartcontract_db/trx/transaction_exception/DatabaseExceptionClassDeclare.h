@@ -21,7 +21,11 @@ public:
 	DatabaseExceptionClassDeclare();
 	virtual ~DatabaseExceptionClassDeclare();
 
-	virtual const UnicodeString* getName() noexcept;
+	virtual uint16_t getClassType() const noexcept {
+		return TYPE_DATABASE_EXCEPTION;
+	}
+
+	virtual const UnicodeString* getName() const noexcept;
 	virtual const UnicodeString* getFullQualifiedName() noexcept;
 
 	virtual ClassDeclare* getBaseClass() const noexcept;

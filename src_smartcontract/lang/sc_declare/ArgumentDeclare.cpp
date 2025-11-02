@@ -38,11 +38,20 @@ void ArgumentDeclare::setName(UnicodeString* name) noexcept {
 	this->name = name;
 }
 
-const UnicodeString* alinous::ArgumentDeclare::getName() const noexcept {
+const UnicodeString* ArgumentDeclare::getName() const noexcept {
 	return this->name;
 }
 
+void ArgumentDeclare::preAnalyze(AnalyzeContext *actx) {
+	this->type->setParent(this);
+	this->type->preAnalyze(actx);
+
+	actx->detectGenericsType(this->type);
+}
+
 void ArgumentDeclare::analyzeTypeRef(AnalyzeContext* actx) {
+	this->type->analyzeTypeRef(actx);
+
 	TypeResolver* typeResolver = actx->getTypeResolver();
 
 	this->atype = typeResolver->resolveType(this, this->type);
@@ -52,7 +61,10 @@ void ArgumentDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 	else if(this->atype->getType() == AnalyzedType::TYPE_VOID){
 		actx->addValidationError(ValidationError::CODE_WRONG_TYPE_NAME, this, L"Cannot use void for type declare.", {});
 	}
+}
 
+void ArgumentDeclare::analyze(AnalyzeContext *actx) {
+	this->type->analyze(actx);
 }
 
 int alinous::ArgumentDeclare::binarySize() const {
@@ -66,7 +78,7 @@ int alinous::ArgumentDeclare::binarySize() const {
 	return total;
 }
 
-void alinous::ArgumentDeclare::toBinary(ByteBuffer* out) {
+void alinous::ArgumentDeclare::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->type);
 	checkNotNull(this->name);
 
@@ -86,6 +98,18 @@ void alinous::ArgumentDeclare::fromBinary(ByteBuffer* in) {
 	this->type = dynamic_cast<AbstractType*>(element);
 
 	this->name = getString(in);
+}
+
+ArgumentDeclare* ArgumentDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	ArgumentDeclare* inst = new ArgumentDeclare();
+	inst->copyCodePositions(this);
+
+	AbstractType* copiedType = this->type->generateGenericsImplement(input);
+	inst->setType(copiedType);
+
+	inst->setName(new UnicodeString(this->name));
+
+	return inst;
 }
 
 } /* namespace alinous */

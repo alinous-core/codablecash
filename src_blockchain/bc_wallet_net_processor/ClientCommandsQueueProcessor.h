@@ -18,7 +18,7 @@ using namespace alinous;
 namespace codablecash {
 
 class ClientCommandsQueue;
-class AbstractClientCommand;
+class AbstractClientQueueCommand;
 class NetworkClientCommandProcessorThread;
 class ISystemLogger;
 class NetworkWallet;
@@ -35,14 +35,14 @@ public:
 	void close();
 
 	bool isEmpty() const;
-	AbstractClientCommand* fetchFirst() const;
+	AbstractClientQueueCommand* fetchFirst() const;
 
 	bool __isSuspended() const;
 	void __setSuspend(bool suspend);
 
 	SynchronizedLock* getSynchrinizedLock() const noexcept;
 
-	void addCommand(const AbstractClientCommand *cmd);
+	void addCommand(const AbstractClientQueueCommand *cmd);
 
 private:
 	ISystemLogger* logger;

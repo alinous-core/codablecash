@@ -48,14 +48,4 @@ IBlockObject* BlockHeaderId::copyData() const noexcept {
 	return new BlockHeaderId(*this);
 }
 
-int BlockHeaderId::hashCode() const {
-	BigInteger* bint = BigInteger::fromBinary((const char*)this->id->array(), this->id->limit()); __STP(bint);
-	int32_t hash = (int32_t)bint->longValue();
-	return hash;
-}
-
-int BlockHeaderId::ValueCompare::operator ()(	const BlockHeaderId *const a, const BlockHeaderId *const b) const {
-	return a->compareTo(b);
-}
-
 } /* namespace codablecash */

@@ -61,7 +61,7 @@ public:
 
 	AddressDescriptor* getAddressDesc(int destIndex, int destAddressIndex) const;
 
-	WalletAccount* getAccount(int index);
+	WalletAccount* getAccount(int walletIndex, int accountIndex);
 
 	AbstractCommandResponse* registerVotingNode(P2pClient *client);
 	AbstractCommandResponse* registerTicket(P2pClient *client, const BalanceUnit& stakeAmount);

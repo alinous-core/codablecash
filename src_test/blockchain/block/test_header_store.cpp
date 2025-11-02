@@ -42,7 +42,7 @@ TEST(TestBlockHeaderStoreGroup, case01){
 	CHECK(list->size() == 1);
 
 	BlockHeader* header2 = list->get(0);
-	BlockHeaderId* id = header2->getId();
+	const BlockHeaderId* id = header2->getId();
 
 	bool bl = id->equals(header.getId());
 	CHECK(bl);
@@ -137,7 +137,7 @@ TEST(TestBlockHeaderStoreGroup, remove01){
 	BlockHeader header;
 	header.setHeight(2);
 	header.buildHeaderId();
-	BlockHeaderId* headerId = header.getId();
+	const BlockHeaderId* headerId = header.getId();
 
 	manager->addHeader(&header);
 

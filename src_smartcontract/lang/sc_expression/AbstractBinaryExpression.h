@@ -26,8 +26,11 @@ public:
 	void addExp(AbstractExpression* exp) noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
+
+	void copyExpressionList(const AbstractBinaryExpression* source, HashMap<UnicodeString, AbstractType> *input) noexcept;
+
 protected:
 	ArrayList<AbstractExpression> list;
 };

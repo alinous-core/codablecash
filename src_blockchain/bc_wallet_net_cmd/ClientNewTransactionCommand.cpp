@@ -13,14 +13,18 @@
 
 #include "base/StackRelease.h"
 
+#include "bc_wallet_net/NetworkWallet.h"
+
+#include "bc_wallet_net_data/NetworkWalletData.h"
+
 namespace codablecash {
 
 ClientNewTransactionCommand::ClientNewTransactionCommand(const ClientNewTransactionCommand &inst)
-		: AbstractClientCommand(*this) {
+		: AbstractClientQueueCommand(*this) {
 	this->data = inst.data != nullptr ? dynamic_cast<TransactionTransferData*>(inst.data->copyData()) : nullptr;
 }
 
-ClientNewTransactionCommand::ClientNewTransactionCommand() : AbstractClientCommand(AbstractClientCommand::CLIENT_NEW_TRANSACTION) {
+ClientNewTransactionCommand::ClientNewTransactionCommand() : AbstractClientQueueCommand(AbstractClientQueueCommand::CLIENT_NEW_TRANSACTION) {
 	this->data = nullptr;
 }
 
@@ -31,7 +35,7 @@ ClientNewTransactionCommand::~ClientNewTransactionCommand() {
 int ClientNewTransactionCommand::binarySize() const {
 	BinaryUtils::checkNotNull(this->data);
 
-	int total = AbstractClientCommand::binarySize();
+	int total = AbstractClientQueueCommand::binarySize();
 
 	total += this->data->binarySize();
 
@@ -41,7 +45,7 @@ int ClientNewTransactionCommand::binarySize() const {
 void ClientNewTransactionCommand::toBinary(ByteBuffer *out) const {
 	BinaryUtils::checkNotNull(this->data);
 
-	AbstractClientCommand::toBinary(out);
+	AbstractClientQueueCommand::toBinary(out);
 
 	this->data->toBinary(out);
 }
@@ -66,7 +70,8 @@ void ClientNewTransactionCommand::setData(const TransactionTransferData *d) {
 }
 
 void ClientNewTransactionCommand::process(NetworkWallet *wallet) const {
-	// TODO ClientNewTransactionCommand
+	NetworkWalletData* walletData = wallet->getWalletData();
+	walletData->addTransactionDataToMempool(this->data);
 }
 
 } /* namespace codablecash */

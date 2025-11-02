@@ -77,4 +77,14 @@ UnicodeString* Abstract32BytesId::toString() const {
 	return new UnicodeString(str);
 }
 
+int Abstract32BytesId::hashCode() const {
+	BigInteger* bint = BigInteger::fromBinary((const char*)this->id->array(), this->id->limit()); __STP(bint);
+	int32_t hash = (int32_t)bint->longValue();
+	return hash;
+}
+
+int Abstract32BytesId::ValueCompare::operator ()(const Abstract32BytesId *const a, const Abstract32BytesId *const b) const {
+	return a->compareTo(b);
+}
+
 } /* namespace codablecash */

@@ -152,7 +152,7 @@ int TryStatement::binarySize() const {
 	return total;
 }
 
-void TryStatement::toBinary(ByteBuffer* out) {
+void TryStatement::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->block);
 
 	out->putShort(CodeElement::STMT_TRY);
@@ -225,6 +225,28 @@ bool TryStatement::hasConstructor() const noexcept {
 
 void TryStatement::setFinallyStatement(FinallyStatement* finallyStmt) noexcept {
 	this->finallyStmt = finallyStmt;
+}
+
+AbstractStatement* TryStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	TryStatement* inst = new TryStatement();
+	inst->copyCodePositions(this);
+
+	StatementBlock* copiedBlock = dynamic_cast<StatementBlock*>(this->block->generateGenericsImplement(input));
+	inst->setBlock(copiedBlock);
+
+	int maxLoop = this->catchStmts.size();
+	for(int i = 0; i != maxLoop; ++i){
+		const CatchStatement* catchStmt = this->catchStmts.get(i);
+		CatchStatement* copiedCatch = dynamic_cast<CatchStatement*>(catchStmt->generateGenericsImplement(input));
+		inst->addCatchStatement(copiedCatch);
+	}
+
+	if(this->finallyStmt != nullptr){
+		FinallyStatement* copiedFinally = dynamic_cast<FinallyStatement*>(this->finallyStmt->generateGenericsImplement(input));
+		inst->setFinallyStatement(copiedFinally);
+	}
+
+	return inst;
 }
 
 } /* namespace alinous */

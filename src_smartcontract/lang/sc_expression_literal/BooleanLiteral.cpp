@@ -41,7 +41,7 @@ int BooleanLiteral::binarySize() const {
 	return total;
 }
 
-void BooleanLiteral::toBinary(ByteBuffer* out) {
+void BooleanLiteral::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_BOOLEAN_LITERAL);
 	out->put(this->value ? 1 : 0);
 }
@@ -60,6 +60,15 @@ void BooleanLiteral::init(VirtualMachine* vm) {
 
 AbstractVmInstance* BooleanLiteral::interpret(VirtualMachine* vm) {
 	return PrimitiveReference::createBoolReference(vm, this->value ? 1 : 0);
+}
+
+AbstractExpression* BooleanLiteral::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
+	BooleanLiteral* inst = new BooleanLiteral();
+	inst->copyCodePositions(this);
+
+	inst->setValue(this->value);
+
+	return inst;
 }
 
 } /* namespace alinous */

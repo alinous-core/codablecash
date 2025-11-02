@@ -31,7 +31,7 @@ public:
 	void init(VirtualMachine* vm);
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
 	const ArrayList<SQLColumnIdentifier>* getList() const {

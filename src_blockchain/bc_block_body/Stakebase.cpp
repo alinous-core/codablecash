@@ -51,4 +51,8 @@ void Stakebase::setAmount(const BalanceUnit *amount) noexcept {
 	this->amount = dynamic_cast<BalanceUnit*>(amount->copyData());
 }
 
+bool Stakebase::checkFilter(const ArrayList<BloomFilter1024> *filtersList) const {
+	return false;
+}
+
 } /* namespace codablecash */

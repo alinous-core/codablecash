@@ -25,7 +25,8 @@ class PendingClientCommandsQueue;
 class ClientCommandsQueueProcessor;
 class ClientCommandsQueueData;
 class ISystemLogger;
-class AbstractClientCommand;
+class AbstractClientQueueCommand;
+class WalletNetworkManager;
 
 class NetworkClientCommandProcessor : public IPubsubCommandListner {
 public:
@@ -39,6 +40,7 @@ public:
 
 	void startProcessors(bool suspend);
 	void resumeRequestProcessor();
+	void shurdownProcessors() noexcept;
 
 	SynchronizedLock* getQueueSynchrinizedLock() const noexcept;
 	bool __isSuspended() const;
@@ -50,7 +52,9 @@ public:
 	virtual IPubsubCommandExecutor* getExecutor() const noexcept;
 
 	void addPendingQueue(const ClientCommandsQueueData* queueData);
-	void addClientCommand(const AbstractClientCommand* clientCommnad);
+	void addClientCommand(const AbstractClientQueueCommand* clientCommnad);
+
+	WalletNetworkManager* getWalletNetworkManager() const noexcept;
 
 private:
 	ClientCommandsQueueData* fetchFirstPendingData(SynchronizedLock* lock) const;
@@ -63,7 +67,7 @@ private:
 	NetworkWallet* networkWallet;
 
 	ClientExecutor* clientExec;
-	NetworkClientCommandListner* listner;
+	NetworkClientCommandListner* listner; // extends public IClientNotifyListner
 
 	ClientCommandsQueueProcessor* queueProcessor;
 	PendingClientCommandsQueue* pendingQueue;

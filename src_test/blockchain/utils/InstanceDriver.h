@@ -67,7 +67,7 @@ public:
 
 
 	RegisterVotePoolTransaction* createRegisterVotePoolTransaction();
-	void registerTicket(const BalanceUnit stakeAmount);
+	void registerTicket(const BalanceUnit& stakeAmount);
 	void registerTicket(P2pClient* client, const BalanceUnit stakeAmount);
 	void registerTicket(P2pClient* client, const BalanceUnit stakeAmount, MemoryPool* pool);
 

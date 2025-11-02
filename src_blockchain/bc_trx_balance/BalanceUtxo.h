@@ -37,12 +37,15 @@ public:
 	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
+	int tmpBinarySize() const;
+
 	virtual IBlockObject* copyData() const noexcept;
 
 	virtual void build();
 	virtual BalanceUnit getAmount() const noexcept {
 		return this->amount;
 	}
+	void setAmount(const BalanceUnit amount) noexcept;
 
 	void discountFee(const BalanceUnit& feeRemain);
 

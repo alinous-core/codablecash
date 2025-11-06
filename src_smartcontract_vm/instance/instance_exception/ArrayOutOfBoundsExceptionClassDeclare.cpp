@@ -31,6 +31,8 @@ UnicodeString ArrayOutOfBoundsExceptionClassDeclare::NAME{L"ArrayOutOfBoundsExce
 ArrayOutOfBoundsExceptionClassDeclare::ArrayOutOfBoundsExceptionClassDeclare() : AbstractExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);
 
+	this->name = new UnicodeString(&NAME);
+
 	this->extends = new ClassExtends();
 	this->extends->setClassName(&ExceptionClassDeclare::NAME);
 }
@@ -59,14 +61,6 @@ void ArrayOutOfBoundsExceptionClassDeclare::throwException(VirtualMachine* vm, c
 
 ArrayOutOfBoundsExceptionClassDeclare::~ArrayOutOfBoundsExceptionClassDeclare() {
 
-}
-
-const UnicodeString* ArrayOutOfBoundsExceptionClassDeclare::getName() const noexcept {
-	return &NAME;
-}
-
-const UnicodeString* ArrayOutOfBoundsExceptionClassDeclare::getFullQualifiedName() noexcept {
-	return &NAME;
 }
 
 ClassDeclare* ArrayOutOfBoundsExceptionClassDeclare::getBaseClass() const noexcept {

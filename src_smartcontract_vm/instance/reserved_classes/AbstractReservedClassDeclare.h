@@ -23,6 +23,8 @@ public:
 	static constexpr const uint16_t TYPE_TYPE_CAST_EXCEPTION = 6;
 	static constexpr const uint16_t TYPE_ZERO_DIVISION_EXCEPTION = 7;
 
+	static constexpr const uint16_t TYPE_OBJECT = 8;
+
 
 	AbstractReservedClassDeclare();
 	virtual ~AbstractReservedClassDeclare();
@@ -37,10 +39,14 @@ public:
 	virtual ArrayList<MemberVariableDeclare>* getMemberVariables() noexcept;
 
 	virtual int binarySize() const;
-	virtual void toBinary(ByteBuffer* out);
+	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
+	virtual ClassDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input);
+
 	virtual uint16_t getClassType() const noexcept = 0;
+
+	void addMethod(MethodDeclare* method) noexcept;
 
 protected:
 	void addDefaultConstructor(const UnicodeString* className) noexcept;

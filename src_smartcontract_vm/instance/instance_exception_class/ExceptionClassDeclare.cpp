@@ -25,6 +25,8 @@ UnicodeString ExceptionClassDeclare::NAME{L"Exception"};
 ExceptionClassDeclare::ExceptionClassDeclare() : AbstractExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);
 
+	this->name = new UnicodeString(&NAME);
+
 	MemberVariableDeclare* message = new MemberVariableDeclare();
 	message->setAccessControl(AccessControlDeclare::PROTECTED);
 	message->setType(new StringType());
@@ -42,14 +44,6 @@ AnalyzedClass* ExceptionClassDeclare::createAnalyzedClass() noexcept {
 	AnalyzedClass* aclass = new AnalyzedClass(classDec);
 
 	return aclass;
-}
-
-const UnicodeString* ExceptionClassDeclare::getName() const noexcept {
-	return &NAME;
-}
-
-const UnicodeString* ExceptionClassDeclare::getFullQualifiedName() noexcept {
-	return &NAME;
 }
 
 ClassDeclare* ExceptionClassDeclare::getBaseClass() const noexcept {

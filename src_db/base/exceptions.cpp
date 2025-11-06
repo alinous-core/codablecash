@@ -51,4 +51,24 @@ IllegalArgumentException::IllegalArgumentException(const wchar_t* message, Excep
 IllegalArgumentException::~IllegalArgumentException() {
 }
 
+const wchar_t* UnsupportedFunctionException::defaultMessage = L"Unsupported Function is called. ";
+
+UnsupportedFunctionException::UnsupportedFunctionException(const char* srcfile, int srcline) noexcept : Exception(srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+}
+UnsupportedFunctionException::UnsupportedFunctionException(Exception* cause, const char* srcfile, int srcline) noexcept : Exception(cause, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+}
+UnsupportedFunctionException::UnsupportedFunctionException(const wchar_t* message, const char* srcfile, int srcline) noexcept : Exception(message, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+	this->message->append(message);
+}
+UnsupportedFunctionException::UnsupportedFunctionException(const wchar_t* message, Exception* cause, const char* srcfile, int srcline) noexcept : Exception(message, cause, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+	this->message->append(message);
+}
+UnsupportedFunctionException::~UnsupportedFunctionException() {
+}
+
+
 } /* namespace alinous */

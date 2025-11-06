@@ -9,6 +9,10 @@
 
 namespace alinous {
 
+AccessControlDeclare::AccessControlDeclare(char accessCtrl) : CodeElement(CodeElement::ACCESS_CONTROL_DECLARE) {
+	this->accessCtrl = accessCtrl;
+}
+
 AccessControlDeclare::AccessControlDeclare() : CodeElement(CodeElement::ACCESS_CONTROL_DECLARE) {
 	this->accessCtrl = 0;
 }

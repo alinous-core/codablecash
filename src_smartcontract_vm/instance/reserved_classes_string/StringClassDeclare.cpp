@@ -16,18 +16,10 @@ namespace alinous {
 UnicodeString StringClassDeclare::NAME{L"String"};
 
 StringClassDeclare::StringClassDeclare() : AbstractReservedClassDeclare() {
-
+	this->name = new UnicodeString(&NAME);
 }
 
 StringClassDeclare::~StringClassDeclare() {
-}
-
-const UnicodeString* StringClassDeclare::getName() const noexcept {
-	return &NAME;
-}
-
-const UnicodeString* StringClassDeclare::getFullQualifiedName() noexcept {
-	return &NAME;
 }
 
 AnalyzedClass* StringClassDeclare::createAnalyzedClass() noexcept {
@@ -38,6 +30,10 @@ AnalyzedClass* StringClassDeclare::createAnalyzedClass() noexcept {
 }
 
 ClassDeclare* StringClassDeclare::getBaseClass() const noexcept {
+	return nullptr;
+}
+
+const UnicodeString* StringClassDeclare::getPackageName() const noexcept {
 	return nullptr;
 }
 

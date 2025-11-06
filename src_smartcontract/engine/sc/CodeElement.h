@@ -45,19 +45,21 @@ public:
 	static const constexpr short GENERICS_PARAM{16};
 	static const constexpr short GENERICS_GENERATED_CLASS_DECLARE{17};
 	static const constexpr short RESERVED_CLASS_DECLARE{18};
+	static const constexpr short RESERVED_METHOD_DECLARE{19};
+	static const constexpr short RESERVED_GENERICS_CLASS_DECLARE{20};
 
 
-	static const constexpr short TYPE_BOOL{20};
-	static const constexpr short TYPE_BYTE{21};
-	static const constexpr short TYPE_CHAR{22};
-	static const constexpr short TYPE_SHORT{23};
-	static const constexpr short TYPE_INT{24};
-	static const constexpr short TYPE_LONG{25};
-	static const constexpr short TYPE_STRING{26};
-	static const constexpr short TYPE_VOID{27};
-	static const constexpr short TYPE_OBJECT{28};
-	static const constexpr short TYPE_DOM{29};
-	static const constexpr short TYPE_GENERICS_OBJECT{30};
+	static const constexpr short TYPE_BOOL{30};
+	static const constexpr short TYPE_BYTE{31};
+	static const constexpr short TYPE_CHAR{32};
+	static const constexpr short TYPE_SHORT{33};
+	static const constexpr short TYPE_INT{34};
+	static const constexpr short TYPE_LONG{35};
+	static const constexpr short TYPE_STRING{36};
+	static const constexpr short TYPE_VOID{37};
+	static const constexpr short TYPE_OBJECT{38};
+	static const constexpr short TYPE_DOM{39};
+	static const constexpr short TYPE_GENERICS_OBJECT{40};
 
 	static const constexpr short STMT_BLOCK{50};
 	static const constexpr short STMT_VARIABLE_DECLARE{51};
@@ -224,7 +226,8 @@ public:
 
 	CompilationUnit* getCompilationUnit() const;
 	ClassDeclare* getClassDeclare() const;
-	const UnicodeString* getPackageName() const noexcept;
+
+	virtual const UnicodeString* getPackageName() const noexcept;
 
 	void copyCodePositions(const CodeElement* other) noexcept;
 

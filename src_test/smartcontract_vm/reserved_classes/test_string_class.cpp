@@ -18,6 +18,7 @@
 #include "instance/instance_string/VmString.h"
 
 #include "instance/instance_string/VmStringInstance.h"
+
 using namespace alinous;
 
 TEST_GROUP(TestStringClassGroup) {

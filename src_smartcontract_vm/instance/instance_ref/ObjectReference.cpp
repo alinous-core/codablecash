@@ -9,14 +9,18 @@
 
 #include "instance/VmClassInstance.h"
 #include "instance/VmInstanceTypesConst.h"
+#include "instance/AbstractVmInstance.h"
+
 #include "instance/instance_gc/GcManager.h"
 
 #include "instance/instance_string/VmStringInstance.h"
 
+#include "instance/reserved_classes/AbstractVmReservedInstance.h"
+
 #include "ext_binary/ExtStringClass.h"
 #include "ext_binary/ExtNullPtrObject.h"
 
-#include "instance/AbstractVmInstance.h"
+
 namespace alinous {
 
 ObjectReference::ObjectReference(IAbstractVmInstanceSubstance* owner, uint8_t type, uint8_t instanceType) : AbstractReference(owner, type) {
@@ -41,6 +45,14 @@ ObjectReference* ObjectReference::createStringReference(IAbstractVmInstanceSubst
 
 	return ref;
 }
+
+ObjectReference* ObjectReference::createReservedClassObjectReference(IAbstractVmInstanceSubstance *owner, AbstractVmReservedInstance *clazzInst, VirtualMachine *vm) {
+	ObjectReference* ref = new(vm) ObjectReference(owner, VmInstanceTypesConst::REF_OBJ, ObjectReference::CLASS_INSTANCE);
+	ref->setInstance(clazzInst);
+
+	return ref;
+}
+
 
 bool ObjectReference::isPrimitive() const noexcept {
 	return false;

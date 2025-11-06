@@ -31,6 +31,7 @@ public:
 	void add(AbstractExtObject* obj) noexcept;
 	ExtPrimitiveObject* getExtPrimitiveObject(const UnicodeString* name) const noexcept;
 	ExtClassObject* getExtClassObject(const UnicodeString* name) const noexcept;
+	ExtClassObject* getExtClassObject(const wchar_t* name) const noexcept;
 	ExtArrayObject* getExtArrayObject(const UnicodeString* name) const noexcept;
 	ExtStringClass* getExtStringObject(const UnicodeString* name)const noexcept;
 	ExtExceptionObject* getExtExceptionObject(const UnicodeString* name)const noexcept;

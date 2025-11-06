@@ -32,6 +32,8 @@ UnicodeString TypeCastExceptionClassDeclare::NAME{L"TypeCastException"};
 TypeCastExceptionClassDeclare::TypeCastExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);
 
+	this->name = new UnicodeString(&NAME);
+
 	this->extends = new ClassExtends();
 	this->extends->setClassName(&ExceptionClassDeclare::NAME);
 }
@@ -59,14 +61,6 @@ void TypeCastExceptionClassDeclare::throwException(VirtualMachine* vm, const Cod
 }
 
 TypeCastExceptionClassDeclare::~TypeCastExceptionClassDeclare() {
-}
-
-const UnicodeString* TypeCastExceptionClassDeclare::getName() const noexcept {
-	return &NAME;
-}
-
-const UnicodeString* TypeCastExceptionClassDeclare::getFullQualifiedName() noexcept {
-	return &NAME;
 }
 
 ClassDeclare* TypeCastExceptionClassDeclare::getBaseClass() const noexcept {

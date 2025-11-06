@@ -167,6 +167,9 @@
 #include "lang_sql/sql_expression/SQLDistinctArgument.h"
 
 #include "instance/reserved_classes/AbstractReservedClassDeclare.h"
+#include "instance/reserved_classes/AbstractReservedMethodDeclare.h"
+
+#include "instance/reserved_generics/AbstractReservedGenericsClassDeclare.h"
 
 
 namespace alinous {
@@ -300,7 +303,12 @@ CodeElement* CodeElement::createFromBinary(ByteBuffer* in) {
 	case RESERVED_CLASS_DECLARE:
 		element = AbstractReservedClassDeclare::createFromBinary(in);
 		break;
-
+	case RESERVED_METHOD_DECLARE:
+		element = AbstractReservedMethodDeclare::createMethodFromBinary(in);
+		break;
+	case RESERVED_GENERICS_CLASS_DECLARE:
+		element =AbstractReservedGenericsClassDeclare::createFromBinary(in);
+		break;
 
 	case TYPE_BOOL:
 		element = new BoolType();
@@ -801,10 +809,20 @@ short CodeElement::getKind() const noexcept {
 }
 
 ClassDeclare* CodeElement::getClassDeclare() const {
+	if(this->kind == CodeElement::CLASS_DECLARE || this->kind == CodeElement::GENERICS_CLASS_DECLARE ||
+			this->kind == CodeElement::RESERVED_CLASS_DECLARE ||
+			this->kind == CodeElement::RESERVED_GENERICS_CLASS_DECLARE ||
+			this->kind == CodeElement::GENERICS_GENERATED_CLASS_DECLARE
+			){
+		CodeElement* element = const_cast<CodeElement*>(this);
+		return dynamic_cast<ClassDeclare*>(element);
+	}
+
 	CodeElement* element = this->parent;
 	while(element != nullptr &&
 			(element->kind != CodeElement::CLASS_DECLARE && element->kind != CodeElement::GENERICS_CLASS_DECLARE
 					&& element->kind != CodeElement::RESERVED_CLASS_DECLARE
+					&& element->kind != CodeElement::RESERVED_GENERICS_CLASS_DECLARE
 					&& element->kind != CodeElement::GENERICS_GENERATED_CLASS_DECLARE)){
 		element = element->getParent();
 	}

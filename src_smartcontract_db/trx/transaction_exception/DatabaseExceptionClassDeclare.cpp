@@ -55,20 +55,14 @@ void DatabaseExceptionClassDeclare::throwException(const UnicodeString* msg, Vir
 DatabaseExceptionClassDeclare::DatabaseExceptionClassDeclare() : AbstractExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);
 
+	this->name = new UnicodeString(&NAME);
+
 	this->extends = new ClassExtends();
 	this->extends->setClassName(&ExceptionClassDeclare::NAME);
 }
 
 DatabaseExceptionClassDeclare::~DatabaseExceptionClassDeclare() {
 
-}
-
-const UnicodeString* DatabaseExceptionClassDeclare::getName() const noexcept {
-	return &NAME;
-}
-
-const UnicodeString* DatabaseExceptionClassDeclare::getFullQualifiedName() noexcept {
-	return &NAME;
 }
 
 ClassDeclare* DatabaseExceptionClassDeclare::getBaseClass() const noexcept {

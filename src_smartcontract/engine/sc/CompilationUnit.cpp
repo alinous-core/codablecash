@@ -185,7 +185,7 @@ CompilationUnit* CompilationUnit::generateGenericsImplement(HashMap<UnicodeStrin
 	int maxLoop = this->classes.size();
 	for(int i = 0; i != maxLoop; ++i){
 		ClassDeclare* clazz = this->classes.get(i);
-		ClassDeclare* copied = clazz->generateClassDeclare(input);
+		ClassDeclare* copied = clazz->generateGenericsImplement(input);
 
 		inst->addClassDeclare(copied);
 	}

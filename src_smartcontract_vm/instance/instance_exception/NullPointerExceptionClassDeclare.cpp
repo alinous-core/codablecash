@@ -33,6 +33,8 @@ UnicodeString NullPointerExceptionClassDeclare::NAME{L"NullPointerException"};
 NullPointerExceptionClassDeclare::NullPointerExceptionClassDeclare() : AbstractExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);
 
+	this->name = new UnicodeString(&NAME);
+
 	this->extends = new ClassExtends();
 	this->extends->setClassName(&ExceptionClassDeclare::NAME);
 }
@@ -61,14 +63,6 @@ void NullPointerExceptionClassDeclare::throwException(VirtualMachine* vm, const 
 
 NullPointerExceptionClassDeclare::~NullPointerExceptionClassDeclare() {
 
-}
-
-const UnicodeString* NullPointerExceptionClassDeclare::getName() const noexcept {
-	return &NAME;
-}
-
-const UnicodeString* NullPointerExceptionClassDeclare::getFullQualifiedName() noexcept {
-	return &NAME;
 }
 
 ClassDeclare* NullPointerExceptionClassDeclare::getBaseClass() const noexcept {

@@ -26,6 +26,7 @@
 #include "base/StackRelease.h"
 #include "base/ArrayList.h"
 
+#include "instance/reserved_classes/object/ObjectClassDeclare.h"
 
 namespace alinous {
 
@@ -110,7 +111,7 @@ AnalyzedType* TypeResolver::resolveType(CodeElement* element, AbstractType* type
 }
 
 AnalyzedType* TypeResolver::resolveClassType(CodeElement* element, ObjectType* type) const {
-	PackageNameDeclare* pkg = type->getPackageName();
+	PackageNameDeclare* pkg = type->getPackageNameDeclare();
 	const UnicodeString* name = type->getClassName();
 
 	// generics type
@@ -171,6 +172,11 @@ AnalyzedType* TypeResolver::findClassType(const CodeElement* element, const Unic
 	if(!isFqn(name)){
 		CompilationUnit* unit = element->getCompilationUnit();
 		ClassDeclare* clazz = element->getClassDeclare();
+
+		// is Object
+		if(name->equals(&ObjectClassDeclare::NAME)){
+			return findClassType(&ObjectClassDeclare::PACKAGE, &ObjectClassDeclare::NAME);
+		}
 
 		// find from generitics params, like T
 		if(clazz->isGenerics()) {

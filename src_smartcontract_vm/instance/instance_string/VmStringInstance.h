@@ -24,6 +24,7 @@ public:
 	VmStringInstance(VirtualMachine* vm, const UnicodeString* str);
 	virtual ~VmStringInstance();
 
+	// AbstractVmInstance
 	virtual IAbstractVmInstanceSubstance* getInstance() noexcept;
 	virtual int valueCompare(const IAbstractVmInstanceSubstance* right) const noexcept;
 	virtual AbstractReference* wrap(IAbstractVmInstanceSubstance* owner, VirtualMachine* vm);
@@ -31,6 +32,7 @@ public:
 	virtual AnalyzedType getRuntimeType() const noexcept;
 	virtual int hashCode() const noexcept;
 
+	// IAbstractVmInstanceSubstance
 	virtual const VMemList<AbstractReference>* getInstReferences() const noexcept;
 	virtual int instHashCode() const noexcept;
 	virtual bool instIsPrimitive() const noexcept;

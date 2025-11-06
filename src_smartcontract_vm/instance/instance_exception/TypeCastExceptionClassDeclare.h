@@ -25,9 +25,6 @@ public:
 		return TYPE_TYPE_CAST_EXCEPTION;
 	}
 
-	virtual const UnicodeString* getName() const noexcept;
-	virtual const UnicodeString* getFullQualifiedName() noexcept;
-
 	virtual ClassDeclare* getBaseClass() const noexcept;
 
 	virtual IVmInstanceFactory* getFactory() const noexcept;

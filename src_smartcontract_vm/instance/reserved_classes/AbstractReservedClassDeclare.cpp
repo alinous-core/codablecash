@@ -15,6 +15,7 @@
 
 #include "base/ArrayList.h"
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
 
 #include "lang/sc_declare/AccessControlDeclare.h"
 #include "lang/sc_declare/ArgumentsListDeclare.h"
@@ -41,6 +42,8 @@
 
 #include "trx/transaction_exception/DatabaseExceptionClassDeclare.h"
 
+#include "instance/reserved_classes/object/ObjectClassDeclare.h"
+
 
 namespace alinous {
 
@@ -62,6 +65,10 @@ AbstractReservedClassDeclare::~AbstractReservedClassDeclare() {
 
 ArrayList<MethodDeclare>* AbstractReservedClassDeclare::getMethods() noexcept {
 	return this->methods;
+}
+
+ArrayList<MemberVariableDeclare>* AbstractReservedClassDeclare::getMemberVariables() noexcept {
+	return this->members;
 }
 
 void AbstractReservedClassDeclare::preAnalyze(AnalyzeContext* actx) {
@@ -106,11 +113,9 @@ void AbstractReservedClassDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 		member->analyzeTypeRef(actx);
 	}
 
-	ReservedClassRegistory* reg = actx->getReservedClassRegistory();
-	CompilationUnit* unit = reg->getUnit();
-	PackageSpace* space = actx->getPackegeSpace(unit->getPackageName());
+	PackageSpace* space = actx->getPackegeSpace(this->getPackageName());
 
-	const UnicodeString* fqn = getFullQualifiedName();
+	const UnicodeString* fqn = getName();
 	AnalyzedClass* dec = space->getClass(fqn);
 
 	// set analyzed class
@@ -134,10 +139,6 @@ void AbstractReservedClassDeclare::analyze(AnalyzeContext* actx) {
 
 		member->analyze(actx);
 	}
-}
-
-ArrayList<MemberVariableDeclare>* AbstractReservedClassDeclare::getMemberVariables() noexcept {
-	return this->members;
 }
 
 void AbstractReservedClassDeclare::addDefaultConstructor(const UnicodeString* className) noexcept {
@@ -185,6 +186,9 @@ AbstractReservedClassDeclare* AbstractReservedClassDeclare::createFromBinary(Byt
 	case TYPE_ZERO_DIVISION_EXCEPTION:
 		ret = new ZeroDivisionExceptionClassDeclare();
 		break;
+	case TYPE_OBJECT:
+		ret = new ObjectClassDeclare();
+		break;
 	default:
 		throw new BinaryFormatException(__FILE__, __LINE__);
 	}
@@ -195,22 +199,132 @@ AbstractReservedClassDeclare* AbstractReservedClassDeclare::createFromBinary(Byt
 }
 
 int AbstractReservedClassDeclare::binarySize() const {
-	int total = ClassDeclare::binarySize();
+	checkNotNull(this->block);
+
+	int total = sizeof(uint16_t); // toBinaryHead(out);
+
+	total += sizeof(uint16_t); // out->putShort(getClassType());
+
+	total += stringSize(this->name);
+
+	total += sizeof(uint8_t);
+	if(this->extends != nullptr){
+		total += this->extends->binarySize();
+	}
+
+	total += sizeof(uint8_t);
+	if(this->implements != nullptr){
+		total += this->implements->binarySize();
+	}
+
 	total += sizeof(uint16_t);
+	int maxLoop = this->methods->size();
+	for(int i = 0; i != maxLoop; ++i){
+		MethodDeclare* method = this->methods->get(i);
+
+		total += method->binarySize();
+	}
+
+	total += sizeof(uint16_t);
+	maxLoop = this->members->size();
+	for(int i = 0; i != maxLoop; ++i){
+		MemberVariableDeclare* member = this->members->get(i);
+
+		total += member->binarySize();
+	}
 
 	return total;
 }
 
-void AbstractReservedClassDeclare::toBinary(ByteBuffer *out) {
-	toBinaryCheck(out);
+void AbstractReservedClassDeclare::toBinary(ByteBuffer *out) const {
+	checkNotNull(this->name);
+
 	toBinaryHead(out);
 	out->putShort(getClassType());
 
-	toBinaryBody(out);
+	putString(out, this->name);
+
+	out->put(this->extends != nullptr ? (uint8_t)1 : (uint8_t)0);
+	if(this->extends != nullptr){
+		this->extends->toBinary(out);
+	}
+
+	out->put(this->implements != nullptr ? (uint8_t)1 : (uint8_t)0);
+	if(this->implements != nullptr){
+		this->implements->toBinary(out);
+	}
+
+	int maxLoop = this->methods->size();
+	out->putShort(maxLoop);
+	for(int i = 0; i != maxLoop; ++i){
+		MethodDeclare* method = this->methods->get(i);
+
+		method->toBinary(out);
+	}
+
+	maxLoop = this->members->size();
+	out->putShort(maxLoop);
+	for(int i = 0; i != maxLoop; ++i){
+		MemberVariableDeclare* member = this->members->get(i);
+
+		member->toBinary(out);
+	}
 }
 
 void AbstractReservedClassDeclare::fromBinary(ByteBuffer *in) {
-	ClassDeclare::fromBinary(in);
+	this->name = getString(in);
+
+	bool bl = in->get();
+	if(bl == 1){
+		CodeElement* element = CodeElement::createFromBinary(in);
+		checkKind(element, CodeElement::CLASS_EXTENDS);
+		this->extends = dynamic_cast<ClassExtends*>(element);
+	}
+
+	bl = in->get();
+	if(bl == 1){
+		CodeElement* element = CodeElement::createFromBinary(in);
+		checkKind(element, CodeElement::CLASS_IMPLEMENTS);
+		this->implements = dynamic_cast<ClassImplements*>(element);
+	}
+
+	int maxLoop = in->getShort();
+	for(int i = 0; i != maxLoop; ++i){
+		CodeElement* element = CodeElement::createFromBinary(in); __STP(element);
+		MethodDeclare* method = dynamic_cast<MethodDeclare*>(element);
+
+		checkNotNull(method);
+		__STP_MV(element);
+
+		this->methods->addElement(method);
+	}
+
+	maxLoop = in->getShort();
+	for(int i = 0; i != maxLoop; ++i){
+		CodeElement* element = CodeElement::createFromBinary(in); __STP(element);
+		MemberVariableDeclare* member = dynamic_cast<MemberVariableDeclare*>(element);
+
+		checkNotNull(member);
+		__STP_MV(element);
+
+		this->members->addElement(member);
+	}
+}
+
+void AbstractReservedClassDeclare::addMethod(MethodDeclare *method) noexcept {
+	this->methods->addElement(method);
+}
+
+ClassDeclare* AbstractReservedClassDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) {
+	int cap = binarySize();
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(cap, true);
+
+	toBinary(buff);
+	buff->position(0);
+
+	CodeElement* element = CodeElement::createFromBinary(buff);
+
+	return dynamic_cast<ClassDeclare*>(element);
 }
 
 } /* namespace alinous */

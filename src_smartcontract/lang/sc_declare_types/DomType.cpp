@@ -30,7 +30,7 @@ int DomType::binarySize() const {
 	return total;
 }
 
-void DomType::toBinary(ByteBuffer* out) {
+void DomType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_DOM);
 	AbstractType::toBinary(out);
 }

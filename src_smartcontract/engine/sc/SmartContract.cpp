@@ -109,7 +109,6 @@ void SmartContract::addCompilationUnit(File* file, const File* base) {
 
 void SmartContract::analyze(VirtualMachine* vm) {
 	const ArrayList<AnalyzedClass>* list = this->reservedClassRegistory->getReservedClassesList();
-	CompilationUnit* reservedUnit = this->reservedClassRegistory->getUnit();
 
 	this->actx = new AnalyzeContext(this);
 	this->actx->setVm(vm);
@@ -125,6 +124,9 @@ void SmartContract::analyze(VirtualMachine* vm) {
 	for(int i = 0; i != maxLoop; ++i){
 		AnalyzedClass* cls = list->get(i);
 		ClassDeclare* dec = cls->getClassDeclare();
+
+		const UnicodeString* packageName = dec->getPackageName();
+		CompilationUnit* reservedUnit = this->reservedClassRegistory->makeCompilantUnit(packageName);
 
 		dec->setParent(reservedUnit);
 		dec->preAnalyze(actx);

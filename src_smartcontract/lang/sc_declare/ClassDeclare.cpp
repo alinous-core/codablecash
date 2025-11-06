@@ -222,6 +222,8 @@ int ClassDeclare::binarySize() const {
 
 	int total = sizeof(uint16_t);
 
+	total += sizeof(uint8_t);
+
 	total += stringSize(this->name);
 	total += sizeof(uint8_t);
 	if(this->block != nullptr){
@@ -257,6 +259,8 @@ void ClassDeclare::toBinaryHead(ByteBuffer *out) const {
 }
 
 void ClassDeclare::toBinaryBody(ByteBuffer *out) const {
+	out->put(this->interface ? 1 : 0);
+
 	putString(out, this->name);
 
 	out->put(this->block != nullptr ? (uint8_t)1 : (uint8_t)0);
@@ -275,27 +279,9 @@ void ClassDeclare::toBinaryBody(ByteBuffer *out) const {
 	}
 }
 
-void ClassDeclare::setExtends(ClassExtends* extends) noexcept {
-	this->extends = extends;
-}
-
-ClassExtends* ClassDeclare::getExtends() const noexcept {
-	return this->extends;
-}
-
-void ClassDeclare::setImplements(ClassImplements* implements) noexcept {
-	this->implements = implements;
-}
-
-void ClassDeclare::setInterface(bool interface) noexcept {
-	this->interface = interface;
-}
-
-bool ClassDeclare::isInterface() const noexcept {
-	return this->interface;
-}
-
 void ClassDeclare::fromBinary(ByteBuffer* in) {
+	this->interface = (in->get() > 0 ? 1 : 0);
+
 	this->name = getString(in);
 
 	uint8_t bl = in->get();
@@ -318,6 +304,26 @@ void ClassDeclare::fromBinary(ByteBuffer* in) {
 		checkKind(element, CodeElement::CLASS_IMPLEMENTS);
 		this->implements = dynamic_cast<ClassImplements*>(element);
 	}
+}
+
+void ClassDeclare::setExtends(ClassExtends* extends) noexcept {
+	this->extends = extends;
+}
+
+ClassExtends* ClassDeclare::getExtends() const noexcept {
+	return this->extends;
+}
+
+void ClassDeclare::setImplements(ClassImplements* implements) noexcept {
+	this->implements = implements;
+}
+
+void ClassDeclare::setInterface(bool interface) noexcept {
+	this->interface = interface;
+}
+
+bool ClassDeclare::isInterface() const noexcept {
+	return this->interface;
 }
 
 ClassDeclare* ClassDeclare::getBaseClass() const noexcept {
@@ -346,11 +352,11 @@ ArrayList<MemberVariableDeclare>* ClassDeclare::getMemberVariables() noexcept {
 	return this->block->getMemberVariables();
 }
 
-IVmInstanceFactory* alinous::ClassDeclare::getFactory() const noexcept {
+IVmInstanceFactory* ClassDeclare::getFactory() const noexcept {
 	return nullptr;
 }
 
-ClassDeclare* ClassDeclare::generateClassDeclare(HashMap<UnicodeString, AbstractType> *input) {
+ClassDeclare* ClassDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) {
 	ClassDeclare* clazz = new ClassDeclare();
 	clazz->copyCodePositions(this);
 

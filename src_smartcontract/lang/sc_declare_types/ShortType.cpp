@@ -28,7 +28,7 @@ int ShortType::binarySize() const {
 	return total;
 }
 
-void ShortType::toBinary(ByteBuffer* out) {
+void ShortType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_SHORT);
 	AbstractType::toBinary(out);
 }

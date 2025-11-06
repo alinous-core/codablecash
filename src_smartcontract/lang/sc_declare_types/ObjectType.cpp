@@ -39,7 +39,6 @@ void ObjectType::setPackageName(PackageNameDeclare* packageName) noexcept {
 
 int ObjectType::binarySize() const {
 	int total = sizeof(uint16_t);
-	total += AbstractType::binarySize();
 
 	total += sizeof(uint8_t);
 	if(this->packageName != nullptr){
@@ -48,10 +47,12 @@ int ObjectType::binarySize() const {
 
 	total += stringSize(this->className);
 
+	total += AbstractType::binarySize();
+
 	return total;
 }
 
-void ObjectType::toBinary(ByteBuffer* out) {
+void ObjectType::toBinary(ByteBuffer* out) const {
 	out->putShort(this->kind);
 
 	bool bl = this->packageName != nullptr;
@@ -94,7 +95,7 @@ void ObjectType::setName(UnicodeString* className) noexcept {
 	this->className = className;
 }
 
-PackageNameDeclare* ObjectType::getPackageName() const noexcept {
+PackageNameDeclare* ObjectType::getPackageNameDeclare() const noexcept {
 	return this->packageName;
 }
 

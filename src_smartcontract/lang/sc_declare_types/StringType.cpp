@@ -28,7 +28,7 @@ int StringType::binarySize() const {
 	return total;
 }
 
-void StringType::toBinary(ByteBuffer* out) {
+void StringType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_STRING);
 	AbstractType::toBinary(out);
 }

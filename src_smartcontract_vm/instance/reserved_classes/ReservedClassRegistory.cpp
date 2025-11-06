@@ -22,11 +22,18 @@
 #include "trx/transaction_exception/DatabaseExceptionClassDeclare.h"
 
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
+
+#include "instance/reserved_classes/object/ObjectClassDeclare.h"
+
+#include "lang/sc_declare/PackageDeclare.h"
+#include "lang/sc_declare/PackageNameDeclare.h"
+
 
 namespace alinous {
 
 ReservedClassRegistory::ReservedClassRegistory() {
-	this->unit = new CompilationUnit();
+	this->unitlist = new ArrayList<CompilationUnit>();
 
 	AnalyzedClass* aclass = StringClassDeclare::createAnalyzedClass();
 	addAnalyzedClass(aclass);
@@ -47,6 +54,10 @@ ReservedClassRegistory::ReservedClassRegistory() {
 	addAnalyzedClass(aclass);
 
 	aclass = DatabaseExceptionClassDeclare::createAnalyzedClass();
+	addAnalyzedClass(aclass);
+
+	// Object Class
+	aclass = ObjectClassDeclare::createAnalyzedClass();
 	addAnalyzedClass(aclass);
 }
 
@@ -73,16 +84,40 @@ ReservedClassRegistory::~ReservedClassRegistory() {
 
 	this->list.deleteElements();
 
-	delete this->unit;
+	this->unitlist->deleteElements();
+	delete this->unitlist;
 }
 
 const ArrayList<AnalyzedClass>* ReservedClassRegistory::getReservedClassesList() const noexcept {
 	return &this->list;
 }
 
-CompilationUnit* ReservedClassRegistory::getUnit() const noexcept {
-	return this->unit;
-}
+CompilationUnit* ReservedClassRegistory::makeCompilantUnit(const UnicodeString *packageName) noexcept {
+	CompilationUnit* unit = new CompilationUnit();
+	this->unitlist->addElement(unit);
 
+	if(packageName != nullptr){
+		PackageDeclare* packageDec = new PackageDeclare();
+
+		PackageNameDeclare* nameDec = new PackageNameDeclare();
+		nameDec->setParent(packageDec);
+
+		UnicodeString pattern(L"\\.");
+		ArrayList<UnicodeString>* list = packageName->split(&pattern); __STP(list);
+		list->setDeleteOnExit();
+
+		int maxLoop = list->size();
+		for(int i = 0; i != maxLoop; ++i){
+			UnicodeString* seg = list->get(i);
+
+			nameDec->addSegment(new UnicodeString(seg));
+		}
+
+		packageDec->setName(nameDec);
+		unit->setPackage(packageDec);
+	}
+
+	return unit;
+}
 
 } /* namespace alinous */

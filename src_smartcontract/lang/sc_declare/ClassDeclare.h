@@ -57,15 +57,13 @@ public:
 
 	ClassExtends* getExtends() const noexcept;
 
-	virtual const UnicodeString* getName() const noexcept;
-	virtual const UnicodeString* getFullQualifiedName() noexcept;
 	virtual const UnicodeString* getConstructorName() const noexcept;
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out) const;
 	virtual void fromBinary(ByteBuffer* in);
 
-	virtual ClassDeclare* generateClassDeclare(HashMap<UnicodeString, AbstractType>* input);
+	virtual ClassDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType>* input);
 
 
 protected:
@@ -78,6 +76,8 @@ public:
 	int getInheritIndex() const noexcept;
 	void setInheritIndex(int inheritIndex) noexcept;
 
+	virtual const UnicodeString* getName() const noexcept;
+	virtual const UnicodeString* getFullQualifiedName() noexcept;
 
 	virtual ArrayList<MethodDeclare>* getMethods() noexcept;
 	virtual ArrayList<MemberVariableDeclare>* getMemberVariables() noexcept;

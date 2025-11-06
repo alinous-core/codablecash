@@ -47,12 +47,22 @@ PackageSpace::~PackageSpace() {
 }
 
 void PackageSpace::addClassDeclare(ClassDeclare* clazz) noexcept {
+#ifdef __DEBUG__
+	AnalyzedClass* ac = this->classes->get(clazz->getName());
+	assert(ac == nullptr);
+#endif
+
 	AnalyzedClass* aclazz = new AnalyzedClass(clazz);
 
 	this->classes->put(clazz->getName(), aclazz);
 }
 
 void PackageSpace::addClassDeclare(AnalyzedClass* clazz) noexcept {
+#ifdef __DEBUG__
+	AnalyzedClass* ac = this->classes->get(clazz->getClassDeclare()->getName());
+	assert(ac == nullptr);
+#endif
+
 	this->classes->put(clazz->getClassDeclare()->getName(), clazz);
 }
 

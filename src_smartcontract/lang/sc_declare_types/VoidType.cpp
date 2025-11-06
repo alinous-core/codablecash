@@ -28,7 +28,7 @@ int VoidType::binarySize() const {
 	return total;
 }
 
-void VoidType::toBinary(ByteBuffer* out) {
+void VoidType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_VOID);
 }
 

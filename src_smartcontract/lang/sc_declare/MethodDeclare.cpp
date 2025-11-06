@@ -30,6 +30,19 @@
 
 namespace alinous {
 
+MethodDeclare::MethodDeclare(short kind) : CodeElement(kind) {
+	this->_static = false;
+	this->name = nullptr;
+	this->ctrl = nullptr;
+	this->type = nullptr;
+	this->args = nullptr;
+	this->block = nullptr;
+	this->atype = nullptr;
+	this->callSig = nullptr;
+	this->fqn = nullptr;
+	this->strName = nullptr;
+}
+
 MethodDeclare::MethodDeclare() : CodeElement(CodeElement::METHOD_DECLARE) {
 	this->_static = false;
 	this->name = nullptr;
@@ -63,6 +76,12 @@ void MethodDeclare::preAnalyze(AnalyzeContext* actx) {
 	this->args->setParent(this);
 	this->args->preAnalyze(actx);
 
+	if(this->type != nullptr){
+		this->type->preAnalyze(actx);
+		this->type->setParent(this);
+		actx->detectGenericsType(this->type);
+	}
+
 	if(this->block != nullptr){
 		this->block->setParent(this);
 		this->block->preAnalyze(actx);
@@ -71,17 +90,23 @@ void MethodDeclare::preAnalyze(AnalyzeContext* actx) {
 			this->block->adjustDecalutConstructorCall(actx);
 		}
 	}
-
-	if(this->type != nullptr){
-		this->type->preAnalyze(actx);
-		this->type->setParent(this);
-		actx->detectGenericsType(this->type);
-	}
 }
 
 void MethodDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 	TypeResolver* typeResolver = actx->getTypeResolver();
 
+	analyzeTypeRefBody(actx, typeResolver);
+
+	if(this->block != nullptr){
+		// set this pointer on analysis phase
+		AnalyzedClass* aclass = actx->getAnalyzedClass(this);
+		AnalyzedThisClassStackPopper thisStack(actx, aclass);
+
+		this->block->analyzeTypeRef(actx);
+	}
+}
+
+void MethodDeclare::analyzeTypeRefBody(AnalyzeContext *actx, TypeResolver* typeResolver) {
 	if(!isConstructor()){
 		if(this->type == nullptr){
 			actx->addValidationError(ValidationError::CODE_NO_RETURN_METHOD_VALUE, this, L"Return type of method '{0}()' does not exists.", {this->name});
@@ -96,14 +121,6 @@ void MethodDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 
 	this->args->analyzeTypeRef(actx);
 
-	if(this->block != nullptr){
-		// set this pointer on analysis phase
-		AnalyzedClass* aclass = actx->getAnalyzedClass(this);
-		AnalyzedThisClassStackPopper thisStack(actx, aclass);
-
-		this->block->analyzeTypeRef(actx);
-	}
-
 	if(this->type != nullptr){
 		this->type->analyzeTypeRef(actx);
 	}
@@ -115,12 +132,12 @@ void MethodDeclare::analyze(AnalyzeContext* actx) {
 	AnalyzedClass* aclass = actx->getAnalyzedClass(this);
 	AnalyzedThisClassStackPopper thisStack(actx, aclass);
 
-	if(this->block != nullptr){
-		this->block->analyze(actx);
-	}
-
 	if(this->type != nullptr){
 		this->type->analyze(actx);
+	}
+
+	if(this->block != nullptr){
+		this->block->analyze(actx);
 	}
 }
 

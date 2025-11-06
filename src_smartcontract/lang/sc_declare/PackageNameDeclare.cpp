@@ -62,8 +62,7 @@ int PackageNameDeclare::binarySize() const {
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
 		UnicodeString* str = this->list.get(i);
-		total += sizeof(uint32_t);
-		total += str->length() * sizeof(uint16_t);
+		total += stringSize(str);
 	}
 
 	return total;

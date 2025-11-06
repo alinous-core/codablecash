@@ -30,7 +30,7 @@ int IntType::binarySize() const {
 	return total;
 }
 
-void IntType::toBinary(ByteBuffer* out) {
+void IntType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_INT);
 	AbstractType::toBinary(out);
 }

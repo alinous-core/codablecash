@@ -35,6 +35,8 @@ UnicodeString ZeroDivisionExceptionClassDeclare::NAME{L"ZeroDivisionException"};
 ZeroDivisionExceptionClassDeclare::ZeroDivisionExceptionClassDeclare() : AbstractExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);
 
+	this->name = new UnicodeString(&NAME);
+
 	this->extends = new ClassExtends();
 	this->extends->setClassName(&ExceptionClassDeclare::NAME);
 }
@@ -63,14 +65,6 @@ void ZeroDivisionExceptionClassDeclare::throwException(VirtualMachine* vm, const
 
 ZeroDivisionExceptionClassDeclare::~ZeroDivisionExceptionClassDeclare() {
 
-}
-
-const UnicodeString* ZeroDivisionExceptionClassDeclare::getName() const noexcept {
-	return &NAME;
-}
-
-const UnicodeString* ZeroDivisionExceptionClassDeclare::getFullQualifiedName() noexcept {
-	return &NAME;
 }
 
 ClassDeclare* ZeroDivisionExceptionClassDeclare::getBaseClass() const noexcept {

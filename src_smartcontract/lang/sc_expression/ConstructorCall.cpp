@@ -124,9 +124,10 @@ void ConstructorCall::toBinary(ByteBuffer* out) const {
 }
 
 void ConstructorCall::fromBinary(ByteBuffer* in) {
-	CodeElement* element = createFromBinary(in);
-	checkIsExp(element);
+	CodeElement* element = createFromBinary(in); __STP(element);
 	this->name = dynamic_cast<AbstractType*>(element);
+	checkNotNull(element);
+	__STP_MV(element);
 
 	int maxLoop = in->getInt();
 	for(int i = 0; i != maxLoop; ++i){

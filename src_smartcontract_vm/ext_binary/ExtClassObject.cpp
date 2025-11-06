@@ -52,6 +52,11 @@ ExtClassObject* ExtClassObject::getExtClassObject(const UnicodeString* name) con
 	return dynamic_cast<ExtClassObject*>(obj);
 }
 
+ExtClassObject* ExtClassObject::getExtClassObject(const wchar_t *name) const noexcept {
+	UnicodeString __name(name);
+	return getExtClassObject(&__name);
+}
+
 ExtExceptionObject* ExtClassObject::getExtExceptionObject(const UnicodeString* name) const noexcept {
 	AbstractExtObject* obj = this->map->get(name);
 

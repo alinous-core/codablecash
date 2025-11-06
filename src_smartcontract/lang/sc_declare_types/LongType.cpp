@@ -28,7 +28,7 @@ int LongType::binarySize() const {
 	return total;
 }
 
-void LongType::toBinary(ByteBuffer* out) {
+void LongType::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::TYPE_LONG);
 	AbstractType::toBinary(out);
 }

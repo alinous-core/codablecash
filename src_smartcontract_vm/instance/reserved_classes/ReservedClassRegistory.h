@@ -22,9 +22,10 @@ public:
 	virtual ~ReservedClassRegistory();
 
 	const ArrayList<AnalyzedClass>* getReservedClassesList() const noexcept;
-	CompilationUnit* getUnit() const noexcept;
 
 	AnalyzedClass* getAnalyzedClass(const UnicodeString* fqn) const noexcept;
+
+	CompilationUnit* makeCompilantUnit(const UnicodeString* packageName) noexcept;
 
 private:
 	void addAnalyzedClass(AnalyzedClass* aclass) noexcept;
@@ -32,7 +33,7 @@ private:
 private:
 	ArrayList<AnalyzedClass> list;
 	HashMap<UnicodeString, AnalyzedClass> map;
-	CompilationUnit* unit;
+	ArrayList<CompilationUnit>* unitlist;
 };
 
 } /* namespace alinous */

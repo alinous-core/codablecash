@@ -28,12 +28,9 @@ public:
 		return TYPE_STRING_CLASS;
 	}
 
-	virtual const UnicodeString* getName() const noexcept;
-	virtual const UnicodeString* getFullQualifiedName() noexcept;
-
 	virtual ClassDeclare* getBaseClass() const noexcept;
 
-
+	virtual const UnicodeString* getPackageName() const noexcept;
 };
 
 } /* namespace alinous */

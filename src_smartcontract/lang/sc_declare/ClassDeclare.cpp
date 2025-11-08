@@ -55,12 +55,15 @@ ClassDeclare::~ClassDeclare() {
 		delete this->name;
 	}
 	delete this->extends;
+	this->extends = nullptr;
 	delete this->implements;
 	delete this->fqn;
 }
 
 void ClassDeclare::preAnalyze(AnalyzeContext* actx) {
-	this->block->setParent(this);
+	if(this->block != nullptr){
+		this->block->setParent(this);
+	}
 
 	if(!this->interface){
 		addDefaultConstructor();
@@ -88,11 +91,15 @@ void ClassDeclare::preAnalyze(AnalyzeContext* actx) {
 		this->implements->preAnalyze(actx);
 	}
 
-	this->block->preAnalyze(actx);
+	if(this->block != nullptr){
+		this->block->preAnalyze(actx);
+	}
 }
 
 void ClassDeclare::addDefaultConstructor() noexcept {
-	this->block->addDefaultConstructor(this->name);
+	if(this->block != nullptr){
+		this->block->addDefaultConstructor(this->name);
+	}
 }
 
 
@@ -128,12 +135,16 @@ void ClassDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 		}
 	}
 
-	this->block->analyzeTypeRef(actx);
+	if(this->block != nullptr){
+		this->block->analyzeTypeRef(actx);
+	}
 }
 
 
 void ClassDeclare::analyze(AnalyzeContext* actx) {
-	this->block->analyze(actx);
+	if(this->block != nullptr){
+		this->block->analyze(actx);
+	}
 
 	if(!this->interface && this->implements != nullptr){
 		checkImplementsInterfaces(actx);

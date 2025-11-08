@@ -26,7 +26,10 @@
 #include "vm/stack/MethodArgumentSetupper.h"
 #include "vm/stack/StackPopper.h"
 
+#include "instance/reserved_classes/object/ObjectObjectMethod.h"
+#include "instance/reserved_classes/list/ListListMethod.h"
 
+#include "lang/sc_declare/AccessControlDeclare.h"
 namespace alinous {
 
 AbstractReservedMethodDeclare::AbstractReservedMethodDeclare(uint32_t methodId) : MethodDeclare(RESERVED_METHOD_DECLARE) {
@@ -38,12 +41,40 @@ AbstractReservedMethodDeclare::~AbstractReservedMethodDeclare() {
 }
 
 AbstractReservedMethodDeclare* AbstractReservedMethodDeclare::createMethodFromBinary(ByteBuffer *in) {
-	uint16_t methodId = in->getShort();
+	AbstractReservedMethodDeclare* method = nullptr;
+	uint32_t methodId = in->getInt();
 
 	switch(methodId){
+	case METHOD_OBJECT_OBJECT:
+		method = new ObjectObjectMethod();
+		break;
+	case METHOD_LIST_LIST:
+		method = new ListListMethod();
+		break;
 	default:
 		return nullptr;
 	}
+
+	return method;
+}
+
+int AbstractReservedMethodDeclare::binarySize() const {
+	checkNotNull(this->name);
+	checkNotNull(this->ctrl);
+	checkNotNull(this->args);
+
+	int total = sizeof(uint16_t);
+	total += sizeof(uint32_t);
+
+	return total;
+}
+
+void AbstractReservedMethodDeclare::toBinary(ByteBuffer *out) const {
+	out->putShort(this->kind);
+	out->putInt(this->methodId);
+}
+
+void AbstractReservedMethodDeclare::fromBinary(ByteBuffer *in) {
 
 }
 

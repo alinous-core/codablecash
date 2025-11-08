@@ -58,9 +58,6 @@ AbstractReservedClassDeclare::~AbstractReservedClassDeclare() {
 
 	this->members->deleteElements();
 	delete this->members;
-
-	delete this->extends;
-	this->extends = nullptr;
 }
 
 ArrayList<MethodDeclare>* AbstractReservedClassDeclare::getMethods() noexcept {
@@ -193,45 +190,15 @@ AbstractReservedClassDeclare* AbstractReservedClassDeclare::createFromBinary(Byt
 		throw new BinaryFormatException(__FILE__, __LINE__);
 	}
 
-	ret->fromBinary(in);
-
 	return ret;
 }
 
 int AbstractReservedClassDeclare::binarySize() const {
-	checkNotNull(this->block);
+	checkNotNull(this->name);
 
 	int total = sizeof(uint16_t); // toBinaryHead(out);
 
 	total += sizeof(uint16_t); // out->putShort(getClassType());
-
-	total += stringSize(this->name);
-
-	total += sizeof(uint8_t);
-	if(this->extends != nullptr){
-		total += this->extends->binarySize();
-	}
-
-	total += sizeof(uint8_t);
-	if(this->implements != nullptr){
-		total += this->implements->binarySize();
-	}
-
-	total += sizeof(uint16_t);
-	int maxLoop = this->methods->size();
-	for(int i = 0; i != maxLoop; ++i){
-		MethodDeclare* method = this->methods->get(i);
-
-		total += method->binarySize();
-	}
-
-	total += sizeof(uint16_t);
-	maxLoop = this->members->size();
-	for(int i = 0; i != maxLoop; ++i){
-		MemberVariableDeclare* member = this->members->get(i);
-
-		total += member->binarySize();
-	}
 
 	return total;
 }
@@ -241,74 +208,10 @@ void AbstractReservedClassDeclare::toBinary(ByteBuffer *out) const {
 
 	toBinaryHead(out);
 	out->putShort(getClassType());
-
-	putString(out, this->name);
-
-	out->put(this->extends != nullptr ? (uint8_t)1 : (uint8_t)0);
-	if(this->extends != nullptr){
-		this->extends->toBinary(out);
-	}
-
-	out->put(this->implements != nullptr ? (uint8_t)1 : (uint8_t)0);
-	if(this->implements != nullptr){
-		this->implements->toBinary(out);
-	}
-
-	int maxLoop = this->methods->size();
-	out->putShort(maxLoop);
-	for(int i = 0; i != maxLoop; ++i){
-		MethodDeclare* method = this->methods->get(i);
-
-		method->toBinary(out);
-	}
-
-	maxLoop = this->members->size();
-	out->putShort(maxLoop);
-	for(int i = 0; i != maxLoop; ++i){
-		MemberVariableDeclare* member = this->members->get(i);
-
-		member->toBinary(out);
-	}
 }
 
 void AbstractReservedClassDeclare::fromBinary(ByteBuffer *in) {
-	this->name = getString(in);
 
-	bool bl = in->get();
-	if(bl == 1){
-		CodeElement* element = CodeElement::createFromBinary(in);
-		checkKind(element, CodeElement::CLASS_EXTENDS);
-		this->extends = dynamic_cast<ClassExtends*>(element);
-	}
-
-	bl = in->get();
-	if(bl == 1){
-		CodeElement* element = CodeElement::createFromBinary(in);
-		checkKind(element, CodeElement::CLASS_IMPLEMENTS);
-		this->implements = dynamic_cast<ClassImplements*>(element);
-	}
-
-	int maxLoop = in->getShort();
-	for(int i = 0; i != maxLoop; ++i){
-		CodeElement* element = CodeElement::createFromBinary(in); __STP(element);
-		MethodDeclare* method = dynamic_cast<MethodDeclare*>(element);
-
-		checkNotNull(method);
-		__STP_MV(element);
-
-		this->methods->addElement(method);
-	}
-
-	maxLoop = in->getShort();
-	for(int i = 0; i != maxLoop; ++i){
-		CodeElement* element = CodeElement::createFromBinary(in); __STP(element);
-		MemberVariableDeclare* member = dynamic_cast<MemberVariableDeclare*>(element);
-
-		checkNotNull(member);
-		__STP_MV(element);
-
-		this->members->addElement(member);
-	}
 }
 
 void AbstractReservedClassDeclare::addMethod(MethodDeclare *method) noexcept {

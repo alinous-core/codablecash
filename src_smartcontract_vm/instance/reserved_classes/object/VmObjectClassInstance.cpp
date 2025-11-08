@@ -11,7 +11,6 @@ namespace alinous {
 
 VmObjectClassInstance::VmObjectClassInstance(AnalyzedClass* clazz, VirtualMachine* v)
 		: AbstractVmReservedInstance(clazz, v) {
-	// TODO Auto-generated constructor stub
 
 }
 

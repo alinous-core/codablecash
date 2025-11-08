@@ -19,6 +19,10 @@ ClassName::ClassName() : CodeElement(CodeElement::CLASS_NAME) {
 	this->fqn = nullptr;
 }
 
+ClassName::ClassName(const wchar_t *fqn) : CodeElement(CodeElement::CLASS_NAME) {
+	this->fqn = new UnicodeString(fqn);
+}
+
 ClassName::~ClassName() {
 	delete this->fqn;
 }

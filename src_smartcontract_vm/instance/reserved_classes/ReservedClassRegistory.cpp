@@ -26,6 +26,8 @@
 
 #include "instance/reserved_classes/object/ObjectClassDeclare.h"
 
+#include "instance/reserved_classes/list/ListClassDeclare.h"
+
 #include "lang/sc_declare/PackageDeclare.h"
 #include "lang/sc_declare/PackageNameDeclare.h"
 
@@ -59,6 +61,10 @@ ReservedClassRegistory::ReservedClassRegistory() {
 	// Object Class
 	aclass = ObjectClassDeclare::createAnalyzedClass();
 	addAnalyzedClass(aclass);
+
+	// List Class (Generics)
+	aclass = ListClassDeclare::createAnalyzedClass();
+	addAnalyzedClass(aclass);
 }
 
 AnalyzedClass* ReservedClassRegistory::getAnalyzedClass(const UnicodeString* fqn) const noexcept {
@@ -74,14 +80,6 @@ void ReservedClassRegistory::addAnalyzedClass(AnalyzedClass* aclass) noexcept {
 }
 
 ReservedClassRegistory::~ReservedClassRegistory() {
-	int maxLoop = this->list.size();
-	for(int i = 0; i != maxLoop; ++i){
-		AnalyzedClass* aclass = this->list.get(i);
-
-		ClassDeclare* dec = aclass->getClassDeclare();
-		delete dec;
-	}
-
 	this->list.deleteElements();
 
 	this->unitlist->deleteElements();
@@ -94,6 +92,7 @@ const ArrayList<AnalyzedClass>* ReservedClassRegistory::getReservedClassesList()
 
 CompilationUnit* ReservedClassRegistory::makeCompilantUnit(const UnicodeString *packageName) noexcept {
 	CompilationUnit* unit = new CompilationUnit();
+
 	this->unitlist->addElement(unit);
 
 	if(packageName != nullptr){

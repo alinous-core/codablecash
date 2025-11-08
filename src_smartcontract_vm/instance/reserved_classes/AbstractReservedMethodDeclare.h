@@ -16,10 +16,16 @@ class AbstractReservedMethodDeclare : public MethodDeclare {
 public:
 	static constexpr const uint32_t METHOD_OBJECT_OBJECT = 1;
 
+	static constexpr const uint32_t METHOD_LIST_LIST = 100;
+
 	explicit AbstractReservedMethodDeclare(uint32_t methodId);
 	virtual ~AbstractReservedMethodDeclare();
 
 	static AbstractReservedMethodDeclare* createMethodFromBinary(ByteBuffer* in);
+
+	virtual int binarySize() const;
+	virtual void toBinary(ByteBuffer* out) const;
+	virtual void fromBinary(ByteBuffer* in);
 
 	void preAnalyze(AnalyzeContext* actx);
 	void analyzeTypeRef(AnalyzeContext* actx);

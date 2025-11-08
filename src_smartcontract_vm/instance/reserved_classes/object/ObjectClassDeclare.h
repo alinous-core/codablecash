@@ -32,7 +32,7 @@ public:
 	virtual void init(alinous::VirtualMachine *vm);
 	virtual ClassDeclare* getBaseClass() const noexcept;
 	virtual IVmInstanceFactory* getFactory() const noexcept;
-	const virtual alinous::UnicodeString* getFullQualifiedName() noexcept;
+	const virtual UnicodeString* getFullQualifiedName() noexcept;
 
 
 private:

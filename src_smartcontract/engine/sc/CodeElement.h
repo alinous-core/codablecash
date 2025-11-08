@@ -47,6 +47,7 @@ public:
 	static const constexpr short RESERVED_CLASS_DECLARE{18};
 	static const constexpr short RESERVED_METHOD_DECLARE{19};
 	static const constexpr short RESERVED_GENERICS_CLASS_DECLARE{20};
+	static const constexpr short RESERVED_GENERATED_GENERICS_CLASS_DECLARE{21};
 
 
 	static const constexpr short TYPE_BOOL{30};

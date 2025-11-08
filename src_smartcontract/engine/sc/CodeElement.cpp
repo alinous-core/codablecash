@@ -171,6 +171,7 @@
 
 #include "instance/reserved_generics/AbstractReservedGenericsClassDeclare.h"
 
+#include "instance/reserved_generics/ReservedGeneratedGenericsClassDeclare.h"
 
 namespace alinous {
 
@@ -307,7 +308,10 @@ CodeElement* CodeElement::createFromBinary(ByteBuffer* in) {
 		element = AbstractReservedMethodDeclare::createMethodFromBinary(in);
 		break;
 	case RESERVED_GENERICS_CLASS_DECLARE:
-		element =AbstractReservedGenericsClassDeclare::createFromBinary(in);
+		element = AbstractReservedGenericsClassDeclare::createFromBinary(in);
+		break;
+	case RESERVED_GENERATED_GENERICS_CLASS_DECLARE:
+		element = new ReservedGeneratedGenericsClassDeclare();
 		break;
 
 	case TYPE_BOOL:
@@ -812,6 +816,7 @@ ClassDeclare* CodeElement::getClassDeclare() const {
 	if(this->kind == CodeElement::CLASS_DECLARE || this->kind == CodeElement::GENERICS_CLASS_DECLARE ||
 			this->kind == CodeElement::RESERVED_CLASS_DECLARE ||
 			this->kind == CodeElement::RESERVED_GENERICS_CLASS_DECLARE ||
+			this->kind == CodeElement::RESERVED_GENERATED_GENERICS_CLASS_DECLARE ||
 			this->kind == CodeElement::GENERICS_GENERATED_CLASS_DECLARE
 			){
 		CodeElement* element = const_cast<CodeElement*>(this);

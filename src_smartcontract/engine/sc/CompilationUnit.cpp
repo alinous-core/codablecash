@@ -15,7 +15,7 @@ namespace alinous {
 
 CompilationUnit::CompilationUnit() : classes(4), CodeElement(CodeElement::COMPILANT_UNIT) {
 	this->package = nullptr;
-	this->imports = nullptr;
+	this->imports = new ImportsDeclare();
 }
 
 CompilationUnit::~CompilationUnit() {
@@ -79,6 +79,7 @@ const UnicodeString* CompilationUnit::getPackageName() noexcept {
 
 
 void CompilationUnit::setImports(ImportsDeclare* imports) noexcept {
+	delete this->imports;
 	this->imports = imports;
 }
 

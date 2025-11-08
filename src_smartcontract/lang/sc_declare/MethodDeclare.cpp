@@ -146,22 +146,27 @@ void MethodDeclare::setStatic(bool s) noexcept {
 }
 
 void MethodDeclare::setAccessControl(AccessControlDeclare* ctrl) noexcept {
+	delete this->ctrl;
 	this->ctrl = ctrl;
 }
 
 void MethodDeclare::setType(AbstractType* type) noexcept {
+	delete this->type;
 	this->type = type;
 }
 
 void MethodDeclare::setName(UnicodeString* name) noexcept {
+	delete this->name;
 	this->name = name;
 }
 
 void MethodDeclare::setArguments(ArgumentsListDeclare* args) noexcept {
+	delete this->args;
 	this->args = args;
 }
 
 void MethodDeclare::setBlock(StatementBlock* block) noexcept {
+	delete this->block;
 	this->block = block;
 }
 

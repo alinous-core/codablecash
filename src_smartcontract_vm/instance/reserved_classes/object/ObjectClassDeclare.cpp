@@ -27,7 +27,6 @@ ObjectClassDeclare::ObjectClassDeclare() {
 	this->name = new UnicodeString(&NAME);
 
 	addMethod(new ObjectObjectMethod());
-
 }
 
 ObjectClassDeclare::~ObjectClassDeclare() {

@@ -107,9 +107,10 @@ ArrayList<AnalyzedType>* ArgumentsListDeclare::getArgumentsAnalyzedType() noexce
 
 int ArgumentsListDeclare::binarySize() const {
 	int total = sizeof(uint16_t);
-	total += sizeof(uint32_t);
 
 	int maxLoop = this->list.size();
+	total += sizeof(uint32_t);
+
 	for(int i = 0; i != maxLoop; ++i){
 		ArgumentDeclare* arg = this->list.get(i);
 		total += arg->binarySize();

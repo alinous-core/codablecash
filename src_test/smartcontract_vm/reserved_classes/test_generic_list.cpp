@@ -20,6 +20,23 @@ TEST_GROUP(TestGenericListGroup) {
 
 
 TEST(TestGenericListGroup, case01){
+	const File* projectFolder = this->env->getProjectRoot();
+	VmTestUtils util(L"src_test/smartcontract_vm/reserved_classes/resources/list/case01/", projectFolder);
+
+	bool result = util.loadAllFiles();
+	CHECK(result)
+	util.setMain(L"test.fw", L"SmartContract", L"main");
+
+	result = util.analyze();
+	CHECK(result)
+
+	result = util.createInstance();
+	CHECK(result)
+
+	// FIXME TestGenericListGroup
+}
+
+TEST(TestGenericListGroup, case02){
 
 }
 

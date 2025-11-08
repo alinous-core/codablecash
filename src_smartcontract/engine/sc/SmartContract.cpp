@@ -127,6 +127,7 @@ void SmartContract::analyze(VirtualMachine* vm) {
 
 		const UnicodeString* packageName = dec->getPackageName();
 		CompilationUnit* reservedUnit = this->reservedClassRegistory->makeCompilantUnit(packageName);
+		reservedUnit->addClassDeclare(dec);
 
 		dec->setParent(reservedUnit);
 		dec->preAnalyze(actx);

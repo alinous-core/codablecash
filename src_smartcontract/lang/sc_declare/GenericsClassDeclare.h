@@ -49,7 +49,7 @@ public:
 
 	virtual void init(VirtualMachine* vm);
 
-private:
+protected:
 	ArrayList<GenericsParameter>* genericsParams;
 
 };

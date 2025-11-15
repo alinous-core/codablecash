@@ -18,6 +18,7 @@ public:
 	static const constexpr int TYPE_CARET{1};
 	static const constexpr int TYPE_TILDE{2};
 
+	ModularSmartcontractVersion(const ModularSmartcontractVersion& inst);
 	ModularSmartcontractVersion(int major, int minor, int patch, int verType);
 	virtual ~ModularSmartcontractVersion();
 

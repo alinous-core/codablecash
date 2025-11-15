@@ -76,7 +76,7 @@ void CatchStatement::analyze(AnalyzeContext* actx) {
 	}
 
 	TypeResolver* resolver = actx->getTypeResolver();
-	AnalyzedType* exType = resolver->findClassType((const UnicodeString*)nullptr, &ExceptionClassDeclare::NAME); __STP(exType);
+	AnalyzedType* exType = resolver->findClassType(&AbstractExceptionClassDeclare::PACKAGE_NAME, &ExceptionClassDeclare::NAME); __STP(exType);
 
 	AnalyzedClass* ac = at.getAnalyzedClass();
 	AnalyzedClass* exc = exType->getAnalyzedClass();

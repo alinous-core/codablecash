@@ -7,6 +7,7 @@
 
 #include "json_object/JsonNumericValue.h"
 
+#include "base_io/ByteBuffer.h"
 namespace codablecash {
 
 JsonNumericValue::JsonNumericValue(const JsonNumericValue &inst) {
@@ -33,6 +34,22 @@ bool JsonNumericValue::equals(const AbstractJsonObject *other) const noexcept {
 	const JsonNumericValue* v = dynamic_cast<const JsonNumericValue*>(other);
 
 	return v != nullptr && this->value == v->value;
+}
+
+int JsonNumericValue::binarySize() const {
+	int total = sizeof(uint8_t);
+	total += sizeof(uint32_t);
+
+	return total;
+}
+
+void JsonNumericValue::toBinary(ByteBuffer *out) const {
+	out->put(getType());
+	out->putInt(this->value);
+}
+
+void JsonNumericValue::fromBinary(ByteBuffer *in) {
+	this->value = in->getInt();
 }
 
 } /* namespace codablecash */

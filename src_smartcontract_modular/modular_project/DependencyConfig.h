@@ -23,6 +23,7 @@ public:
 	static constexpr const wchar_t* NAME = L"name";
 	static constexpr const wchar_t* VERSION = L"version";
 
+	DependencyConfig(const DependencyConfig& inst);
 	DependencyConfig();
 	virtual ~DependencyConfig();
 

@@ -21,6 +21,12 @@
 
 #include "bc/ExceptionThrower.h"
 
+#include "bc_base/BinaryUtils.h"
+
+#include "base_io/ByteBuffer.h"
+
+#include <cstdint>
+
 
 namespace codablecash {
 
@@ -89,6 +95,18 @@ void ModularProjectConfig::load(const File *file) {
 		}
 	}
 
+	// license
+	{
+		const JsonValuePair* pair = root->get(LICENSE);
+		if(pair != nullptr){
+			AbstractJsonObject* obj = pair->getValue();
+			JsonStringValue* stringValue = dynamic_cast<JsonStringValue*>(obj);
+			ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(stringValue == nullptr, L"The license must be string value.", __FILE__, __LINE__);
+
+			setLicense(stringValue->getValue());
+		}
+	}
+
 	// libraries
 	{
 		const JsonValuePair* pair = root->get(LIBRALIES);
@@ -133,6 +151,107 @@ void ModularProjectConfig::setLicense(const UnicodeString *license) noexcept {
 void ModularProjectConfig::addLibrary(const UnicodeString *libname) noexcept {
 	UnicodeString* str = new UnicodeString(libname);
 	this->libralies->addElement(str);
+}
+
+int ModularProjectConfig::binarySize() const {
+	BinaryUtils::checkNotNull(this->projectName);
+	BinaryUtils::checkNotNull(this->executable);
+
+	int total = BinaryUtils::stringSize(this->projectName);
+	total += BinaryUtils::stringSize(this->executable);
+
+	total += sizeof(uint8_t);
+	if(this->author != nullptr){
+		total += BinaryUtils::stringSize(this->author);
+	}
+
+	total += sizeof(uint8_t);
+	if(this->license != nullptr){
+		total += BinaryUtils::stringSize(this->author);
+	}
+
+	int maxLoop = this->libralies->size();
+	total += sizeof(uint16_t);
+
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* lib = this->libralies->get(i);
+		total += BinaryUtils::stringSize(lib);
+	}
+
+	return total;
+}
+
+void ModularProjectConfig::toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->projectName);
+	BinaryUtils::checkNotNull(this->executable);
+
+	BinaryUtils::putString(out, this->projectName);
+	BinaryUtils::putString(out, this->executable);
+
+	uint8_t bl = (this->author != nullptr) ? 1 : 0;
+	out->put(bl);
+	if(bl > 0){
+		BinaryUtils::putString(out, this->author);
+	}
+
+	bl = (this->license != nullptr) ? 1 : 0;
+	out->put(bl);
+	if(bl > 0){
+		BinaryUtils::putString(out, this->license);
+	}
+
+	int maxLoop = this->libralies->size();
+	out->putShort(maxLoop);
+
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* lib = this->libralies->get(i);
+		BinaryUtils::putString(out, lib);
+	}
+}
+
+ModularProjectConfig* ModularProjectConfig::createFromBinary(ByteBuffer *in) {
+	ModularProjectConfig* inst = new ModularProjectConfig(); __STP(inst);
+
+	{
+		UnicodeString* str = BinaryUtils::getString(in); __STP(str);
+		inst->setProjectName(str);
+	}
+
+	{
+		UnicodeString* str = BinaryUtils::getString(in); __STP(str);
+		inst->setExecutable(str);
+	}
+
+	uint8_t bl = in->get();
+	if(bl > 0){
+		UnicodeString* str = BinaryUtils::getString(in); __STP(str);
+		inst->setAuthor(str);
+	}
+
+	bl = in->get();
+	if(bl > 0){
+		UnicodeString* str = BinaryUtils::getString(in); __STP(str);
+		inst->setLicense(str);
+	}
+
+	int maxLoop = in->getShort();
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* str = BinaryUtils::getString(in); __STP(str);
+		inst->addLibrary(str);
+	}
+
+	return __STP_MV(inst);
+}
+
+ModularProjectConfig* ModularProjectConfig::copy() const {
+	int cap = binarySize();
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(cap, true); __STP(buff);
+
+	toBinary(buff);
+	buff->position(0);
+
+	ModularProjectConfig* config = createFromBinary(buff);
+	return config;
 }
 
 } /* namespace codablecash */

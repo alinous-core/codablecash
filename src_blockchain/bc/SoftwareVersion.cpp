@@ -15,6 +15,12 @@
 
 namespace codablecash {
 
+SoftwareVersion::SoftwareVersion(const SoftwareVersion &inst) {
+	this->major = inst.major;
+	this->minor = inst.minor;
+	this->patch = inst.patch;
+}
+
 SoftwareVersion::SoftwareVersion(int major, int minor, int patch) {
 	this->major = major;
 	this->minor = minor;

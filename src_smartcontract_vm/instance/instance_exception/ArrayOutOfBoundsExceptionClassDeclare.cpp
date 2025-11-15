@@ -26,7 +26,9 @@
 
 namespace alinous {
 
-UnicodeString ArrayOutOfBoundsExceptionClassDeclare::NAME{L"ArrayOutOfBoundsException"};
+const UnicodeString ArrayOutOfBoundsExceptionClassDeclare::NAME{L"ArrayOutOfBoundsException"};
+const UnicodeString ArrayOutOfBoundsExceptionClassDeclare::FULL_QUALIFIED_NAME{L"lang.ArrayOutOfBoundsException"};
+
 
 ArrayOutOfBoundsExceptionClassDeclare::ArrayOutOfBoundsExceptionClassDeclare() : AbstractExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);
@@ -48,7 +50,11 @@ void ArrayOutOfBoundsExceptionClassDeclare::throwException(VirtualMachine* vm, c
 	ExecControlManager* ctrl = vm->getCtrl();
 	IVmInstanceFactory* factory = ExceptionInstanceFactory::getInstance();
 
-	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&NAME);
+	UnicodeString fqn(&AbstractExceptionClassDeclare::PACKAGE_NAME);
+	fqn.append(L".");
+	fqn.append(&NAME);
+
+	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&fqn);
 
 	VmClassInstance* inst = factory->createInstance(aclass, vm);
 	inst->init(vm);

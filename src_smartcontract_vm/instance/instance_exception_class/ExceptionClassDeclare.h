@@ -16,7 +16,8 @@ class AnalyzedClass;
 
 class ExceptionClassDeclare : public AbstractExceptionClassDeclare {
 public:
-	static UnicodeString NAME;
+	const static UnicodeString NAME;
+	const static UnicodeString FULL_QUALIFIED_NAME;
 	static AnalyzedClass* createAnalyzedClass() noexcept;
 
 	ExceptionClassDeclare();

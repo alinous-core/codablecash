@@ -11,10 +11,14 @@
 #include "modular_project/ModularProjectConfig.h"
 #include "modular_project/ModularConfigException.h"
 
-#include "base_io/File.h"
+#include "smartcontract_instance/ModularSmartcontractInstance.h"
+#include "smartcontract_instance/ExecutableModuleInstance.h"
+#include "smartcontract_instance/LibraryExectableModuleInstance.h"
 
 #include "base/StackRelease.h"
 #include "base/UnicodeString.h"
+
+#include "base_io/File.h"
 
 #include "bc/ExceptionThrower.h"
 
@@ -95,5 +99,38 @@ void ModularSmartcontractProject::loadLibrary(const File* libraryPath, const Uni
 
 	this->libModules->addElement(__STP_MV(libMod));
 }
+
+ModularSmartcontractInstance* ModularSmartcontractProject::toInstance() const {
+	ModularSmartcontractInstance* instance = new ModularSmartcontractInstance(); __STP(instance);
+
+	instance->setModularProjectConfig(this->config);
+
+	// exec
+	{
+		AbstractExecutableModuleInstance* inst = this->executableModule->toInstance();
+		UnicodeString name(L"exec");
+		inst->setName(&name);
+		instance->setExecutableModuleInstance(dynamic_cast<ExecutableModuleInstance*>(inst));
+	}
+
+	{
+		int maxLoop = this->libModules->size();
+		for(int i = 0; i != maxLoop; ++i){
+			LibrarySmartcontractModule* mod = this->libModules->get(i);
+
+			AbstractExecutableModuleInstance* inst = mod->toInstance();
+			LibraryExectableModuleInstance* lib = dynamic_cast<LibraryExectableModuleInstance*>(inst);
+
+			const UnicodeString* name = lib->getLibraryName();
+
+			if(!instance->libraryExists(name)){
+				instance->addLibraryModuleInstance(name, lib);
+			}
+		}
+	}
+
+	return __STP_MV(instance);
+}
+
 
 } /* namespace codablecash */

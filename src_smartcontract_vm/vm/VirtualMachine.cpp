@@ -227,7 +227,12 @@ void VirtualMachine::checkUncaughtException() {
 		return;
 	}
 	ReservedClassRegistory* reg = getReservedClassRegistory();
-	AnalyzedClass* exclass = reg->getAnalyzedClass(&ExceptionClassDeclare::NAME);
+
+	UnicodeString fqn(AbstractExceptionClassDeclare::PACKAGE_NAME);
+	fqn.append(L".");
+	fqn.append(&ExceptionClassDeclare::NAME);
+
+	AnalyzedClass* exclass = reg->getAnalyzedClass(&fqn);
 
 	this->uncaughtException = catchException(exclass);
 

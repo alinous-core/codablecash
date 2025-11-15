@@ -13,6 +13,7 @@
 namespace alinous {
 class UnicodeString;
 class File;
+class ByteBuffer;
 }
 using namespace alinous;
 
@@ -45,6 +46,12 @@ public:
 	const ArrayList<UnicodeString>* getLibralies() const noexcept {
 		return this->libralies;
 	}
+
+	int binarySize() const;
+	void toBinary(ByteBuffer* out) const;
+	static ModularProjectConfig* createFromBinary(ByteBuffer* in);
+
+	ModularProjectConfig* copy() const;
 
 private:
 	UnicodeString* projectName;

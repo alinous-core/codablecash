@@ -16,12 +16,23 @@ using namespace alinous;
 namespace codablecash {
 
 class ModularSmartcontractVersion;
+class JsonObject;
 
 class AbstractDependencyConfig {
 public:
+	static constexpr const wchar_t* NAME = L"name";
+	static constexpr const wchar_t* VERSION = L"version";
+
+	AbstractDependencyConfig(const AbstractDependencyConfig& inst);
 	AbstractDependencyConfig();
 	virtual ~AbstractDependencyConfig();
 
+	virtual AbstractDependencyConfig* copy() const = 0;
+
+	static void fromJson(AbstractDependencyConfig* inst, const JsonObject* jsonObj);
+
+	void setModuleName(const UnicodeString* name) noexcept;
+	void setVersion(const ModularSmartcontractVersion* v) noexcept;
 
 private:
 	UnicodeString* moduleName;

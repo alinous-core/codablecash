@@ -6,6 +6,7 @@ set(__src
 	DependencyConfig.cpp
 	ExecutableSmartcontractModule.cpp
 	LibrarySmartcontractModule.cpp
+	LocalProjectModuleDependencyConfig.cpp
 	ModularConfigException.cpp
 	ModularInstanceConfig.cpp
 	ModularProjectConfig.cpp

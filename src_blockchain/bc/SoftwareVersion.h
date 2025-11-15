@@ -19,6 +19,7 @@ namespace codablecash {
 
 class SoftwareVersion {
 public:
+	SoftwareVersion(const SoftwareVersion& inst);
 	SoftwareVersion(int major, int minor, int patch);
 	virtual ~SoftwareVersion();
 

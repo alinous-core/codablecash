@@ -173,11 +173,6 @@ AnalyzedType* TypeResolver::findClassType(const CodeElement* element, const Unic
 		CompilationUnit* unit = element->getCompilationUnit();
 		ClassDeclare* clazz = element->getClassDeclare();
 
-		// is Object
-		if(name->equals(&ObjectClassDeclare::NAME)){
-			return findClassType(&ObjectClassDeclare::PACKAGE, &ObjectClassDeclare::NAME);
-		}
-
 		// find from generitics params, like T
 		if(clazz->isGenerics()) {
 			GenericsClassDeclare* gclazz = dynamic_cast<GenericsClassDeclare*>(clazz);
@@ -207,6 +202,15 @@ AnalyzedType* TypeResolver::findClassType(const CodeElement* element, const Unic
 		// find same package
 		const UnicodeString* packageName = unit->getPackageName();
 		AnalyzedType* atype = findClassType(packageName, name);
+		if(atype != nullptr){
+			return atype;
+		}
+
+		// find "lang" package
+		if(name->equals(&ObjectClassDeclare::NAME)){
+			return findClassType(&ObjectClassDeclare::PACKAGE, &ObjectClassDeclare::NAME);
+		}
+		atype = findClassType(&ObjectClassDeclare::PACKAGE, name);
 		if(atype != nullptr){
 			return atype;
 		}

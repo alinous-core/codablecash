@@ -27,7 +27,8 @@
 
 namespace alinous {
 
-UnicodeString TypeCastExceptionClassDeclare::NAME{L"TypeCastException"};
+const UnicodeString TypeCastExceptionClassDeclare::NAME{L"TypeCastException"};
+const UnicodeString TypeCastExceptionClassDeclare::FULL_QUALIFIED_NAME{L"lang.TypeCastException"};
 
 TypeCastExceptionClassDeclare::TypeCastExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);
@@ -49,7 +50,10 @@ void TypeCastExceptionClassDeclare::throwException(VirtualMachine* vm, const Cod
 	ExecControlManager* ctrl = vm->getCtrl();
 	IVmInstanceFactory* factory = ExceptionInstanceFactory::getInstance();
 
-	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&NAME);
+	UnicodeString fqn(&AbstractExceptionClassDeclare::PACKAGE_NAME);
+	fqn.append(L".");
+	fqn.append(&NAME);
+	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&fqn);
 
 	VmClassInstance* inst = factory->createInstance(aclass, vm);
 	inst->init(vm);

@@ -61,7 +61,7 @@ void ThrowStatement::analyze(AnalyzeContext* actx) {
 	}
 
 	TypeResolver* resolver = actx->getTypeResolver();
-	AnalyzedType* exType = resolver->findClassType(this, &ExceptionClassDeclare::NAME); __STP(exType);
+	AnalyzedType* exType = resolver->findClassType(&AbstractExceptionClassDeclare::PACKAGE_NAME, &ExceptionClassDeclare::NAME); __STP(exType);
 
 	AnalyzedClass* clazz = atype.getAnalyzedClass();
 	if(!clazz->hasBaseClass(exType->getAnalyzedClass())){

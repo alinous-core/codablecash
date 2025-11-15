@@ -20,7 +20,9 @@
 
 namespace alinous {
 
-UnicodeString ExceptionClassDeclare::NAME{L"Exception"};
+const UnicodeString ExceptionClassDeclare::NAME{L"Exception"};
+const UnicodeString ExceptionClassDeclare::FULL_QUALIFIED_NAME{L"lang.Exception"};
+
 
 ExceptionClassDeclare::ExceptionClassDeclare() : AbstractExceptionClassDeclare() {
 	addDefaultConstructor(&NAME);

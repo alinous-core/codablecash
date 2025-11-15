@@ -28,7 +28,9 @@
 
 namespace alinous {
 
-UnicodeString DatabaseExceptionClassDeclare::NAME{L"DatabaseException"};
+const UnicodeString DatabaseExceptionClassDeclare::NAME{L"DatabaseException"};
+const UnicodeString DatabaseExceptionClassDeclare::FULL_QUALIFIED_NAME{L"lang.DatabaseException"};
+
 
 AnalyzedClass* DatabaseExceptionClassDeclare::createAnalyzedClass() noexcept {
 	DatabaseExceptionClassDeclare* classDec = new DatabaseExceptionClassDeclare();
@@ -41,7 +43,11 @@ void DatabaseExceptionClassDeclare::throwException(const UnicodeString* msg, Vir
 	ExecControlManager* ctrl = vm->getCtrl();
 	IVmInstanceFactory* factory = ExceptionInstanceFactory::getInstance();
 
-	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&NAME);
+	UnicodeString fqn(AbstractExceptionClassDeclare::PACKAGE_NAME);
+	fqn.append(L".");
+	fqn.append(&NAME);
+
+	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&fqn);
 
 	VmClassInstance* inst = factory->createInstance(aclass, vm);
 	inst->init(vm);

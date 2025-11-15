@@ -52,7 +52,11 @@ void ZeroDivisionExceptionClassDeclare::throwException(VirtualMachine* vm, const
 	ExecControlManager* ctrl = vm->getCtrl();
 	IVmInstanceFactory* factory = ExceptionInstanceFactory::getInstance();
 
-	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&NAME);
+	UnicodeString fqn(&AbstractExceptionClassDeclare::PACKAGE_NAME);
+	fqn.append(L".");
+	fqn.append(&NAME);
+
+	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&fqn);
 
 	VmClassInstance* inst = factory->createInstance(aclass, vm);
 	inst->init(vm);

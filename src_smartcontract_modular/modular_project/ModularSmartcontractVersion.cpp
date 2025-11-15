@@ -20,6 +20,11 @@ using namespace alinous;
 
 namespace codablecash {
 
+ModularSmartcontractVersion::ModularSmartcontractVersion(const ModularSmartcontractVersion &inst)
+		: SoftwareVersion(inst.major, inst.minor, inst.patch) {
+	this->versionType = inst.versionType;
+}
+
 ModularSmartcontractVersion::ModularSmartcontractVersion(int major, int minor, int patch, int verType)
 		: SoftwareVersion(major, minor, patch) {
 	this->versionType = verType;

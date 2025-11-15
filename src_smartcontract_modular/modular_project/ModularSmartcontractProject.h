@@ -21,6 +21,7 @@ namespace codablecash {
 class ExecutableSmartcontractModule;
 class LibrarySmartcontractModule;
 class ModularProjectConfig;
+class ModularSmartcontractInstance;
 
 class ModularSmartcontractProject {
 public:
@@ -33,6 +34,8 @@ public:
 	virtual ~ModularSmartcontractProject();
 
 	void loadProject();
+
+	ModularSmartcontractInstance* toInstance() const;
 
 private:
 	void loadExecutable(const UnicodeString* path);

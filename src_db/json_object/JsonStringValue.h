@@ -41,6 +41,8 @@ public:
 	virtual void toBinary(ByteBuffer *out) const;
 	virtual void fromBinary(ByteBuffer *in);
 
+	virtual AbstractFunctionExtArguments* toFunctionExtArgument() const;
+
 private:
 	UnicodeString* value;
 };

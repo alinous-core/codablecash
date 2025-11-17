@@ -8,6 +8,12 @@
 #include "json_object/JsonNumericValue.h"
 
 #include "base_io/ByteBuffer.h"
+
+#include "ext_arguments/NumericArgument.h"
+
+#include "engine/sc_analyze/AnalyzedType.h"
+
+
 namespace codablecash {
 
 JsonNumericValue::JsonNumericValue(const JsonNumericValue &inst) {
@@ -50,6 +56,10 @@ void JsonNumericValue::toBinary(ByteBuffer *out) const {
 
 void JsonNumericValue::fromBinary(ByteBuffer *in) {
 	this->value = in->getInt();
+}
+
+AbstractFunctionExtArguments* JsonNumericValue::toFunctionExtArgument() const {
+	return new NumericArgument(this->value, AnalyzedType::TYPE_INT);
 }
 
 } /* namespace codablecash */

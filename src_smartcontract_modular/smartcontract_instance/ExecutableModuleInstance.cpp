@@ -15,6 +15,7 @@
 
 #include "bc/ExceptionThrower.h"
 
+#include "vm/VirtualMachine.h"
 
 namespace codablecash {
 
@@ -28,13 +29,10 @@ ExecutableModuleInstance::~ExecutableModuleInstance() {
 }
 
 void ExecutableModuleInstance::loadCompilantUnits(const File *projectBaseDir) {
-	File* baseDir = projectBaseDir->get(this->projectRelativePath); __STP(baseDir);
+	resetContract();
+	parseSourceFolders(projectBaseDir);
 
-	ExceptionThrower<FileIOException>::throwExceptionIfCondition(!baseDir->exists(), L"Module base folder does not exists.", __FILE__, __LINE__);
-	ExceptionThrower<FileIOException>::throwExceptionIfCondition(!baseDir->isDirectory(), L"Module base folder id not a directory.", __FILE__, __LINE__);
-
-
-
+	this->vm->loadSmartContract(this->contract);
 
 }
 

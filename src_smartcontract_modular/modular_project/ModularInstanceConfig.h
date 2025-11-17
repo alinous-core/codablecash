@@ -41,6 +41,19 @@ public:
 	void setMainClass(const UnicodeString* value) noexcept;
 	void setInitializerMethod(const UnicodeString* value) noexcept;
 
+	const UnicodeString* getMainPackage() const noexcept {
+		return this->mainPackage;
+	}
+	const UnicodeString* getMainClass() const noexcept {
+		return this->mainClass;
+	}
+	const UnicodeString* getInitializerMethod() const noexcept {
+		return this->initializerMethod;
+	}
+	const ArrayList<AbstractJsonValue>* getInitializerMethodArguments() const noexcept {
+		return this->initializerMethodArguments;
+	}
+
 	int binarySize() const;
 	void toBinary(ByteBuffer* out) const;
 	void fromBinary(ByteBuffer* in);

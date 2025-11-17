@@ -64,7 +64,7 @@ public:
 
 	VmClassInstance* createScInstance();
 
-	void interpret(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments);
+	void interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments);
 	void interpret(const UnicodeString* method);
 	void interpret(MethodDeclare* method, VmClassInstance* _this, ArrayList<AbstractFunctionExtArguments>* arguments);
 

@@ -10,6 +10,11 @@
 
 namespace alinous {
 class UnicodeString;
+class File;
+class SmartContract;
+class VirtualMachine;
+class CompileError;
+class VmClassInstance;
 }
 using namespace alinous;
 
@@ -20,6 +25,7 @@ namespace codablecash {
 class SoftwareVersion;
 class ModularInstanceConfig;
 class DependencyConfig;
+
 
 class AbstractExecutableModuleInstance {
 public:
@@ -33,6 +39,24 @@ public:
 	void setInstanceConfig(const ModularInstanceConfig* config);
 	void setDependencyConfig(const DependencyConfig* config);
 
+	virtual void loadCompilantUnits(const File* projectBaseDir) = 0;
+	bool hasCompileError() const noexcept;
+
+	bool analyze();
+	void setMainInstance();
+	bool createMainInstance();
+	bool interpretInitializer();
+
+	void resetRootReference();
+
+protected:
+	void resetContract();
+	void parseSourceFolders(const File *projectBaseDir);
+	void scanSourceFolder(File* baseDir, const UnicodeString* folder);
+
+	void scanFiles(File* folder);
+	void addCompilantUnit(File* file, File* base);
+
 protected:
 	UnicodeString* name;
 	UnicodeString* projectRelativePath;
@@ -42,6 +66,14 @@ protected:
 
 	ModularInstanceConfig* instanceConfig;
 	DependencyConfig* dependencyConfig;
+
+protected:
+	SmartContract* contract;
+	VirtualMachine* vm;
+
+	VmClassInstance* mainInst;
+
+	const ArrayList<CompileError>* compile_errors;
 };
 
 } /* namespace codablecash */

@@ -9,6 +9,7 @@
 
 #include "base/UnicodeString.h"
 
+#include "vm/VirtualMachine.h"
 
 namespace codablecash {
 
@@ -35,7 +36,10 @@ void LibraryExectableModuleInstance::addExportClass(const UnicodeString *clazz) 
 }
 
 void LibraryExectableModuleInstance::loadCompilantUnits(const File *projectBaseDir) {
-	// FIXME load lib
+	resetContract();
+	parseSourceFolders(projectBaseDir);
+
+	this->vm->loadSmartContract(this->contract);
 }
 
 } /* namespace codablecash */

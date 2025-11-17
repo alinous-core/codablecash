@@ -13,6 +13,7 @@
 
 #include "base_io/ByteBuffer.h"
 
+#include "ext_arguments/StringArgument.h"
 
 namespace codablecash {
 
@@ -71,6 +72,10 @@ void JsonStringValue::toBinary(ByteBuffer *out) const {
 void JsonStringValue::fromBinary(ByteBuffer *in) {
 	this->value = BinaryUtils::getString(in);
 	BinaryUtils::checkNotNull(this->value);
+}
+
+AbstractFunctionExtArguments* JsonStringValue::toFunctionExtArgument() const {
+	return new StringArgument(this->value);
 }
 
 } /* namespace codablecash */

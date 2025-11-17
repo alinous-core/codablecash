@@ -64,12 +64,79 @@ void ModularSmartcontractInstance::loadCompilantUnits(const File *projectBaseDir
 		LibraryExectableModuleInstance* inst = this->libArray->get(i);
 		inst->loadCompilantUnits(projectBaseDir);
 	}
-
 }
 
 bool ModularSmartcontractInstance::libraryExists(const UnicodeString *name) const noexcept {
 	LibraryExectableModuleInstance* value = this->libraries->get(name);
 	return value != nullptr;
+}
+
+bool ModularSmartcontractInstance::hasCompileError() const noexcept {
+	bool hasError = this->execModule->hasCompileError();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* inst = this->libArray->get(i);
+		hasError |= inst->hasCompileError();
+	}
+
+	return hasError;
+}
+
+bool ModularSmartcontractInstance::analyze() {
+	bool hasError = !this->execModule->analyze();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* inst = this->libArray->get(i);
+		hasError |= (!inst->analyze());
+	}
+
+	return hasError;
+}
+
+void ModularSmartcontractInstance::setMainInstance() {
+	this->execModule->setMainInstance();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* inst = this->libArray->get(i);
+		inst->setMainInstance();
+	}
+}
+
+bool ModularSmartcontractInstance::createMainInstance() {
+	bool hasError = !this->execModule->createMainInstance();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* inst = this->libArray->get(i);
+		hasError |= (!inst->createMainInstance());
+	}
+
+	return hasError;
+}
+
+bool ModularSmartcontractInstance::interpretInitializer() {
+	bool hasError = !this->execModule->interpretInitializer();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* inst = this->libArray->get(i);
+		hasError |= (!inst->interpretInitializer());
+	}
+
+	return hasError;
+}
+
+void ModularSmartcontractInstance::resetRootReference() {
+	this->execModule->resetRootReference();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* inst = this->libArray->get(i);
+		inst->resetRootReference();
+	}
 }
 
 } /* namespace codablecash */

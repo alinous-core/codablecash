@@ -9,6 +9,7 @@
 
 #include "base_io/ByteBuffer.h"
 
+#include "ext_arguments/BoolArgument.h"
 
 namespace codablecash {
 
@@ -49,6 +50,10 @@ void JsonBooleanValue::toBinary(ByteBuffer *out) const {
 void JsonBooleanValue::fromBinary(ByteBuffer *in) {
 	uint8_t bl = in->get();
 	this->value = bl > 0;
+}
+
+AbstractFunctionExtArguments* JsonBooleanValue::toFunctionExtArgument() const {
+	return new BoolArgument(this->value);
 }
 
 } /* namespace codablecash */

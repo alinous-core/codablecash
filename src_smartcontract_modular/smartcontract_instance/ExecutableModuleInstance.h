@@ -11,12 +11,6 @@
 #include "base/ArrayList.h"
 #include "smartcontract_instance/AbstractExecutableModuleInstance.h"
 
-namespace alinous {
-class File;
-}
-using namespace alinous;
-
-
 namespace codablecash {
 
 
@@ -25,7 +19,7 @@ public:
 	ExecutableModuleInstance();
 	virtual ~ExecutableModuleInstance();
 
-	void loadCompilantUnits(const File* projectBaseDir);
+	virtual void loadCompilantUnits(const File* projectBaseDir);
 
 };
 

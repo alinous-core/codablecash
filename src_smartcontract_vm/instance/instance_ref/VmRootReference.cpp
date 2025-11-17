@@ -7,8 +7,6 @@
 
 #include "instance/instance_ref/VmRootReference.h"
 #include "instance/instance_gc/GcManager.h"
-#include "instance/instance_ref_static/StaticInstanceHolder.h"
-
 #include "vm/VirtualMachine.h"
 
 #include "instance/instance_ref/RefereceFactory.h"
@@ -18,6 +16,7 @@
 #include "engine/sc_analyze/AnalyzedType.h"
 
 #include "instance/instance_ref_class_static/StaticClassReferenceHolder.h"
+#include "instance/instance_ref_static/StaticConstInstanceHolder.h"
 
 
 namespace alinous {
@@ -25,7 +24,7 @@ namespace alinous {
 VmRootReference::VmRootReference(VirtualMachine* vm) : AbstractReference(this, VmInstanceTypesConst::REF_ROOT) {
 	this->vm = vm;
 	this->mainInst = nullptr;
-	this->staticHolder = new StaticInstanceHolder();
+	this->staticHolder = new StaticConstInstanceHolder();
 	this->classStaticHolder = new StaticClassReferenceHolder();
 }
 

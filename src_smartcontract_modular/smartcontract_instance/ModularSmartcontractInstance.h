@@ -34,6 +34,14 @@ public:
 	bool libraryExists(const UnicodeString* name) const noexcept;
 
 	void loadCompilantUnits(const File* projectBaseDir);
+	bool hasCompileError() const noexcept;
+
+	bool analyze();
+	void setMainInstance();
+	bool createMainInstance();
+	bool interpretInitializer();
+
+	void resetRootReference();
 
 private:
 	ModularProjectConfig* config;

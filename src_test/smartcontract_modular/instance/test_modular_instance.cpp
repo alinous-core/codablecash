@@ -38,6 +38,19 @@ TEST(TestModularInstanceGroup, case01){
 	ModularSmartcontractInstance* inst = project.toInstance(); __STP(inst);
 	inst->loadCompilantUnits(baseDir);
 
+	bool res = inst->hasCompileError();
+	CHECK(res == false);
+
+
+	res = inst->analyze();
+	CHECK(res == false);
+
+	inst->setMainInstance();
+	res = inst->createMainInstance();
+	CHECK(res == false);
+
+	inst->resetRootReference();
+
 	// FIXME TestModularInstanceGroup
 }
 

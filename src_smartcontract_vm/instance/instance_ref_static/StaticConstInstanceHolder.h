@@ -19,10 +19,10 @@ class UnicodeString;
 class StringConstHolder;
 class VmStringInstance;
 
-class StaticInstanceHolder {
+class StaticConstInstanceHolder {
 public:
-	StaticInstanceHolder();
-	virtual ~StaticInstanceHolder();
+	StaticConstInstanceHolder();
+	virtual ~StaticConstInstanceHolder();
 
 	PrimitiveReference* newNumericConstReferenece(int64_t value, uint8_t type, VirtualMachine* vm);
 	VmStringInstance* newStringConstInstance(VmRootReference* rootRef, const UnicodeString* str, VirtualMachine* vm);

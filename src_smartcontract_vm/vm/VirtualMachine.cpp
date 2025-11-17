@@ -141,10 +141,10 @@ VmClassInstance* VirtualMachine::createScInstance() {
 
 void VirtualMachine::interpret(const UnicodeString* method) {
 	ArrayList<AbstractFunctionExtArguments> list;
-	interpret(method, &list);
+	interpretMainObjectMethod(method, &list);
 }
 
-void VirtualMachine::interpret(const UnicodeString* method,	ArrayList<AbstractFunctionExtArguments>* arguments) {
+void VirtualMachine::interpretMainObjectMethod(const UnicodeString* method,	ArrayList<AbstractFunctionExtArguments>* arguments) {
 	VmClassInstance* _this = dynamic_cast<VmClassInstance*>(this->sc->getRootReference()->getInstance());
 	AnalyzedClass* aclass = _this->getAnalyzedClass();
 

@@ -29,7 +29,7 @@ public:
 	void setLibraryName(const UnicodeString* str) noexcept;
 	void addExportClass(const UnicodeString* clazz) noexcept;
 
-	void loadCompilantUnits(const File* projectBaseDir);
+	virtual void loadCompilantUnits(const File* projectBaseDir);
 
 private:
 	UnicodeString* libraryName;

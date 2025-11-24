@@ -29,6 +29,10 @@ public:
 
 	void load(const JsonArrayObject* dependencies);
 
+	ArrayList<AbstractDependencyConfig>* getList() const noexcept {
+		return this->list;
+	}
+
 private:
 	ArrayList<AbstractDependencyConfig>* list;
 

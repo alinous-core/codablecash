@@ -251,6 +251,8 @@ int ClassDeclare::binarySize() const {
 		total += this->implements->binarySize();
 	}
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -258,6 +260,8 @@ void ClassDeclare::toBinary(ByteBuffer* out) const {
 	toBinaryCheck(out);
 	toBinaryHead(out);
 	toBinaryBody(out);
+
+	positionToBinary(out);
 }
 
 void ClassDeclare::toBinaryCheck(ByteBuffer *out) const {
@@ -315,6 +319,8 @@ void ClassDeclare::fromBinary(ByteBuffer* in) {
 		checkKind(element, CodeElement::CLASS_IMPLEMENTS);
 		this->implements = dynamic_cast<ClassImplements*>(element);
 	}
+
+	positionFromBinary(in);
 }
 
 void ClassDeclare::setExtends(ClassExtends* extends) noexcept {

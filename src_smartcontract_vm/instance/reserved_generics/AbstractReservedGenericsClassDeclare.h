@@ -23,6 +23,10 @@ public:
 
 	static AbstractReservedGenericsClassDeclare* createFromBinary(ByteBuffer* in);
 
+	virtual bool isReserved() const noexcept {
+		return true;
+	}
+
 	virtual uint16_t getGenericsClassType() const noexcept = 0;
 
 	virtual int binarySize() const;

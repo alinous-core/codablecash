@@ -295,6 +295,8 @@ int FunctionCallExpression::binarySize() const {
 		total += exp->binarySize();
 	}
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -311,6 +313,8 @@ void FunctionCallExpression::toBinary(ByteBuffer* out) const {
 		AbstractExpression* exp = this->args.get(i);
 		exp->toBinary(out);
 	}
+
+	positionToBinary(out);
 }
 
 void FunctionCallExpression::fromBinary(ByteBuffer* in) {
@@ -327,6 +331,8 @@ void FunctionCallExpression::fromBinary(ByteBuffer* in) {
 
 		this->args.addElement(exp);
 	}
+
+	positionFromBinary(in);
 }
 
 AnalyzedType FunctionCallExpression::getType(AnalyzeContext* actx) {

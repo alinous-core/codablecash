@@ -79,6 +79,8 @@ int SubstitutionStatement::binarySize() const {
 	total += this->variable->binarySize();
 	total += this->exp->binarySize();
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -89,6 +91,8 @@ void SubstitutionStatement::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::STMT_SUBSTITUTION);
 	this->variable->toBinary(out);
 	this->exp->toBinary(out);
+
+	positionToBinary(out);
 }
 
 void SubstitutionStatement::fromBinary(ByteBuffer* in) {
@@ -99,6 +103,8 @@ void SubstitutionStatement::fromBinary(ByteBuffer* in) {
 	element = createFromBinary(in);
 	checkIsExp(element);
 	this->exp = dynamic_cast<AbstractExpression*>(element);
+
+	positionFromBinary(in);
 }
 
 void SubstitutionStatement::init(VirtualMachine* vm) {

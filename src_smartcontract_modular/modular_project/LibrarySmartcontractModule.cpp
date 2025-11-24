@@ -58,6 +58,9 @@ void LibrarySmartcontractModule::load(const File *modulePath) {
 
 		JsonStringValue* strValue = dynamic_cast<JsonStringValue*>(pair->getValue());
 		ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(strValue == nullptr, L"The libraryName must be String.", __FILE__, __LINE__);
+
+		const UnicodeString* libname = strValue->getValue();
+		setLibraryName(libname);
 	}
 
 	// exportClasses

@@ -113,7 +113,10 @@ void AbstractSmartcontractModule::analyzeJsonObject(const JsonObject *object) {
 }
 
 void AbstractSmartcontractModule::setupInstance(AbstractExecutableModuleInstance *inst) const {
-	inst->setProjectRelativePath(this->projectRelativePath);
+	{
+		inst->setProjectRelativePath(this->projectRelativePath);
+	}
+
 
 	int maxLoop = this->sourceFolders->size();
 	for(int i = 0; i != maxLoop; ++i){

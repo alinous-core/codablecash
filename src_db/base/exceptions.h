@@ -42,6 +42,17 @@ public:
 	static const wchar_t* defaultMessage;
 };
 
+class CompilantUnitAnalyzeException : public Exception{
+public:
+	CompilantUnitAnalyzeException(const char* srcfile, int srcline) noexcept;
+	CompilantUnitAnalyzeException(Exception* cause, const char* srcfile, int srcline) noexcept;
+	CompilantUnitAnalyzeException(const wchar_t* message, const char* srcfile, int srcline) noexcept;
+	CompilantUnitAnalyzeException(const wchar_t* message, Exception* cause, const char* srcfile, int srcline) noexcept;
+	virtual ~CompilantUnitAnalyzeException();
+	static const wchar_t* defaultMessage;
+};
+
+
 } /* namespace alinous */
 
 #endif /* BASE_EXCEPTIONS_H_ */

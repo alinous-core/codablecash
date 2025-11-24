@@ -1,0 +1,16 @@
+package sample;
+
+
+class Sample01 {
+	public Sample01() {
+		this.count = 3 * 2;
+		stcount++;
+	}
+	
+	public int main(){
+
+	}
+	
+	private int count = 0;
+	public static int stcount = 10;
+}

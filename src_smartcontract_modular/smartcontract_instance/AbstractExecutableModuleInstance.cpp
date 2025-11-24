@@ -5,9 +5,11 @@
  *      Author: iizuka
  */
 #include "smartcontract_instance/AbstractExecutableModuleInstance.h"
+#include "smartcontract_instance/InstanceDependencyHandler.h"
 
 #include "modular_project/ModularInstanceConfig.h"
 #include "modular_project/DependencyConfig.h"
+#include "modular_project/ModularConfigException.h"
 
 #include "base/UnicodeString.h"
 #include "base/StackRelease.h"
@@ -23,8 +25,11 @@
 #include "bc/SoftwareVersion.h"
 
 #include "engine/sc/SmartContract.h"
+#include "engine/sc/CompilationUnit.h"
 
 #include "engine/compiler/CompileError.h"
+
+#include "engine/sc_analyze/AnalyzeContext.h"
 
 #include "vm/VirtualMachine.h"
 
@@ -33,6 +38,10 @@
 #include "ext_arguments/AbstractFunctionExtArguments.h"
 
 #include "instance/instance_gc/GcManager.h"
+
+#include "smartcontract_instance/ModuleInstanceClassLoader.h"
+
+#include "lang/sc_declare/ClassDeclare.h"
 
 
 namespace codablecash {
@@ -46,10 +55,10 @@ AbstractExecutableModuleInstance::AbstractExecutableModuleInstance() {
 	this->instanceConfig = nullptr;
 	this->dependencyConfig = nullptr;
 
-	this->contract = nullptr;
 	this->vm = nullptr;
 	this->compile_errors = nullptr;
 	this->mainInst = nullptr;
+	this->dependencyHandler = new InstanceDependencyHandler();
 }
 
 AbstractExecutableModuleInstance::~AbstractExecutableModuleInstance() {
@@ -66,9 +75,8 @@ AbstractExecutableModuleInstance::~AbstractExecutableModuleInstance() {
 	vm->destroy();
 	delete this->vm;
 
-	this->contract = nullptr;
-
 	this->mainInst = nullptr;
+	delete this->dependencyHandler;
 }
 
 void AbstractExecutableModuleInstance::setName(const UnicodeString *name) noexcept {
@@ -107,11 +115,11 @@ void AbstractExecutableModuleInstance::setDependencyConfig(const DependencyConfi
 }
 
 void AbstractExecutableModuleInstance::resetContract() {
-	delete this->contract;
-	this->contract = new SmartContract();
-
 	delete this->vm;
 	this->vm = new VirtualMachine(1024*1024);
+
+	SmartContract* contract = new SmartContract();
+	this->vm->loadSmartContract(contract);
 
 	this->compile_errors = nullptr;
 }
@@ -125,18 +133,20 @@ void AbstractExecutableModuleInstance::parseSourceFolders(const File *projectBas
 	int maxLoop = this->sourceFolders->size();
 	for(int i = 0; i != maxLoop; ++i){
 		const UnicodeString* folder = this->sourceFolders->get(i);
-		scanSourceFolder(baseDir, folder);
+
+		scanSourceFolder(baseDir, folder, projectBaseDir);
 	}
 }
 
-void AbstractExecutableModuleInstance::scanSourceFolder(File *baseDir, const UnicodeString *folder) {
+void AbstractExecutableModuleInstance::scanSourceFolder(File *baseDir, const UnicodeString *folder, const File *projectBaseDir) {
 	File* dir = baseDir->get(folder); __STP(dir);
-	scanFiles(dir);
+	scanFiles(dir, projectBaseDir);
 
-	this->compile_errors = this->contract->getCompileErrors();
+	SmartContract* contract = this->vm->getSmartContract();
+	this->compile_errors = contract->getCompileErrors();
 }
 
-void AbstractExecutableModuleInstance::scanFiles(File *folder) {
+void AbstractExecutableModuleInstance::scanFiles(File *folder, const File *projectBaseDir) {
 	ArrayList<UnicodeString>* filesList = folder->list(); __STP(filesList);
 	filesList->setDeleteOnExit();
 
@@ -146,35 +156,40 @@ void AbstractExecutableModuleInstance::scanFiles(File *folder) {
 
 		File* f = folder->get(path); __STP(f);
 		if(f->isDirectory()){
-			scanFiles(f);
+			scanFiles(f, projectBaseDir);
 		} else{
-			addCompilantUnit(f, folder);
+			addCompilantUnit(f, folder, projectBaseDir);
 		}
 	}
 }
 
-void AbstractExecutableModuleInstance::addCompilantUnit(File *file, File *base) {
+void AbstractExecutableModuleInstance::addCompilantUnit(File *file, File *base, const File *projectBaseDir) {
 	int length = file->length();
 	FileInputStream stream(file);
 
-	this->contract->addCompilationUnit(&stream, length, base, file);
+	SmartContract* contract = this->vm->getSmartContract();
+	CompilationUnit* unit = contract->addCompilationUnit(&stream, length, base, file);
+
+	const UnicodeString* projectPath = projectBaseDir->getAbsolutePath(); __STP(projectPath);
+	const UnicodeString* filePath = file->getAbsolutePath(); __STP(filePath);
+
+	UnicodeString* path = filePath->substring(projectPath->length()); __STP(path);
+
+	unit->setProjectRelativePath(path);
 }
 
 bool AbstractExecutableModuleInstance::hasCompileError() const noexcept {
 	return !this->compile_errors->isEmpty();
 }
 
-bool AbstractExecutableModuleInstance::analyze() {
-	this->vm->analyze();
-	return !this->vm->hasError();
-}
 
 void AbstractExecutableModuleInstance::setMainInstance() {
 	const UnicodeString* mainPackage = this->instanceConfig->getMainPackage();
 	const UnicodeString* mainClass = this->instanceConfig->getMainClass();
 	const UnicodeString* initializerMethod = this->instanceConfig->getInitializerMethod();
 
-	this->contract->setMainMethod(mainPackage, mainClass, initializerMethod);
+	SmartContract* contract = this->vm->getSmartContract();
+	contract->setMainMethod(mainPackage, mainClass, initializerMethod);
 }
 
 bool AbstractExecutableModuleInstance::createMainInstance() {
@@ -207,14 +222,133 @@ bool AbstractExecutableModuleInstance::interpretInitializer() {
 }
 
 void AbstractExecutableModuleInstance::resetRootReference() {
-	this->mainInst = nullptr;
+	SmartContract* contract = this->vm->getSmartContract();
 
-	this->contract->clearRootReference(this->vm);
+	if(contract->isInitialized()){
+		this->mainInst = nullptr;
 
-	GcManager* gc = this->vm->getGc();
-	gc->garbageCollect();
+		contract->clearRootReference(this->vm);
 
-	assert(gc->isEmpty());
+		GcManager* gc = this->vm->getGc();
+		gc->garbageCollect();
+
+		assert(gc->isEmpty());
+	}
+}
+
+bool AbstractExecutableModuleInstance::initBeforeAnalyze() {
+	SmartContract* contract = this->vm->getSmartContract();
+	contract->initBeforeAnalyze(this->vm);
+
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+	return actx->hasError();
+}
+
+bool AbstractExecutableModuleInstance::preAnalyze() {
+	SmartContract* contract = this->vm->getSmartContract();
+	contract->preAnalyze(this->vm);
+
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+	return actx->hasError();
+}
+
+bool AbstractExecutableModuleInstance::preAnalyzeGenerics() {
+	SmartContract* contract = this->vm->getSmartContract();
+	contract->preAnalyzeGenerics(this->vm);
+
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+	return actx->hasError();
+}
+
+bool AbstractExecutableModuleInstance::analyzeType() {
+	SmartContract* contract = this->vm->getSmartContract();
+	contract->analyzeType(this->vm);
+
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+	return actx->hasError();
+}
+
+
+bool AbstractExecutableModuleInstance::analyzeMetadata() {
+	SmartContract* contract = this->vm->getSmartContract();
+	contract->analyzeMetadata(this->vm);
+
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+	return actx->hasError();
+}
+
+bool AbstractExecutableModuleInstance::analyzeFinal() {
+	SmartContract* contract = this->vm->getSmartContract();
+	contract->analyzeFinal(this->vm);
+
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+	return actx->hasError();
+}
+
+bool AbstractExecutableModuleInstance::loadDependency(ModularSmartcontractInstance* parent) {
+	SmartContract* contract = this->vm->getSmartContract();
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+
+	if(this->dependencyConfig != nullptr){
+		ArrayList<AbstractDependencyConfig>* list = this->dependencyConfig->getList();
+		int maxLoop = list->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractDependencyConfig* config = list->get(i);
+
+			this->dependencyHandler->registerDependentInstance(config, parent, actx);
+		}
+	}
+
+
+
+	this->dependencyHandler->importExportedClasses(actx);
+
+	return actx->hasError();
+}
+
+bool AbstractExecutableModuleInstance::preAnalyzeDependency() {
+	SmartContract* contract = this->vm->getSmartContract();
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+
+	this->dependencyHandler->preAnalyze(actx);
+	// FIXME analyzeTypeDependency()
+
+	return actx->hasError();
+}
+
+bool AbstractExecutableModuleInstance::analyzeTypeDependency() {
+	SmartContract* contract = this->vm->getSmartContract();
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+
+	this->dependencyHandler->analyzeType(actx);
+
+	return actx->hasError();
+}
+
+bool AbstractExecutableModuleInstance::analyzeDependency() {
+	SmartContract* contract = this->vm->getSmartContract();
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+
+	this->dependencyHandler->analyze(actx);
+
+	return actx->hasError();
+}
+
+void AbstractExecutableModuleInstance::loadLibExportInterfaceUnits(ModuleInstanceClassLoader* clazzloader) {
+	SmartContract* contract = this->vm->getSmartContract();
+
+	ArrayList<UnicodeString>* liblist = this->instanceConfig->getLibExport();
+	int maxLoop = liblist->size();
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* fqn = liblist->get(i);
+
+		// load class
+		clazzloader->loadClass(fqn);
+
+		const ClassDeclare* dec = clazzloader->getClassDeclare(fqn);
+		ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(dec == nullptr, L"Module does not exists.", __FILE__, __LINE__);
+		ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(!dec->isInterface(), L"libExport must be an interface, not a class.", __FILE__, __LINE__);
+	}
 }
 
 } /* namespace alinous */

@@ -13,16 +13,25 @@
 #include "engine/sc_analyze/AnalyzeContext.h"
 #include "engine/sc_analyze/PackageSpace.h"
 #include "engine/sc_analyze/AnalyzedClass.h"
+#include "engine/sc_analyze/TypeResolver.h"
 
 #include "engine/sc_analyze_stack/AnalyzeStackPopper.h"
 #include "engine/sc_analyze_stack/AnalyzeStackManager.h"
 
 #include "base/UnicodeString.h"
+#include "base/Exception.h"
 
 #include "lang/sc_declare/ClassDeclare.h"
 #include "lang/sc_declare/MethodDeclare.h"
 
 #include "instance/VmClassInstance.h"
+
+#include "instance/instance_exception/ExceptionInterrupt.h"
+
+#include "instance/reserved_classes/ReservedClassRegistory.h"
+
+#include "instance/instance_ref_class_static/StaticClassReferenceHolder.h"
+
 #include "instance/instance_ref/ObjectReference.h"
 #include "instance/instance_ref/VmRootReference.h"
 
@@ -32,22 +41,20 @@
 #include "base_io_stream/FileInputStream.h"
 #include "base_io/File.h"
 
+#include "vm/exceptions.h"
+
 #include "vm/stack/StackPopper.h"
 #include "vm/stack/VmStack.h"
+
 
 #include "engine/compiler/CompileError.h"
 #include "engine/compiler/ParseErrorHandler.h"
 
 #include "ext_arguments/AbstractFunctionExtArguments.h"
 
-#include "instance/reserved_classes/ReservedClassRegistory.h"
+#include "bc/ExceptionThrower.h"
 
-#include "base/Exception.h"
-
-#include "instance/instance_exception/ExceptionInterrupt.h"
-
-#include "instance/instance_ref_class_static/StaticClassReferenceHolder.h"
-
+#include "base/StackRelease.h"
 
 namespace alinous {
 
@@ -58,7 +65,7 @@ SmartContract::SmartContract() {
 	this->mainMethod = nullptr;
 	this->rootReference = nullptr;
 	this->initialized = false;
-	this->reservedClassRegistory = new ReservedClassRegistory();
+	this->reservedClassRegistory = nullptr;
 }
 
 SmartContract::~SmartContract() {
@@ -73,17 +80,21 @@ SmartContract::~SmartContract() {
 	this->compileErrorList.deleteElements();
 }
 
-void alinous::SmartContract::setMainMethod(const UnicodeString* mainPackage,
+void SmartContract::setMainMethod(const UnicodeString* mainPackage,
 		const UnicodeString* mainClass, const UnicodeString* mainMethod) {
 	if(mainPackage != nullptr){
+		delete this->mainPackage;
 		this->mainPackage = new UnicodeString(*mainPackage);
 	}
+
+	delete this->mainClass;
+	delete this->mainMethod;
 
 	this->mainClass = new UnicodeString(*mainClass);
 	this->mainMethod = new UnicodeString(*mainMethod);
 }
 
-void SmartContract::addCompilationUnit(InputStream* stream, int length, const File* base, File* source) {
+CompilationUnit* SmartContract::addCompilationUnit(InputStream* stream, int length, const File* base, File* source) {
 	SmartContractParser parser(stream, length);
 
 	CompilationUnit* unit = parser.parse();
@@ -98,21 +109,55 @@ void SmartContract::addCompilationUnit(InputStream* stream, int length, const Fi
 	}
 
 	this->progs.addElement(unit);
+
+	return unit;
 }
 
-void SmartContract::addCompilationUnit(File* file, const File* base) {
+CompilationUnit* SmartContract::addCompilationUnit(File* file, const File* base) {
 	FileInputStream stream(file);
 
 	int length = file->length();
-	addCompilationUnit(&stream, length, base, file);
+	return addCompilationUnit(&stream, length, base, file);
 }
 
 void SmartContract::analyze(VirtualMachine* vm) {
-	const ArrayList<AnalyzedClass>* list = this->reservedClassRegistory->getReservedClassesList();
+	initBeforeAnalyze(vm);
+
+	preAnalyze(vm);
+	if(this->actx->hasError()){
+		return;
+	}
+
+	preAnalyzeGenerics(vm);
+	if(this->actx->hasError()){
+		return;
+	}
+
+	analyzeType(vm);
+	if(this->actx->hasError()){
+		return;
+	}
+
+	analyzeMetadata(vm);
+	if(this->actx->hasError()){
+		return;
+	}
+
+	analyzeFinal(vm);
+}
+
+
+void SmartContract::initBeforeAnalyze(VirtualMachine *vm) {
+	delete this->reservedClassRegistory;
+	this->reservedClassRegistory = new ReservedClassRegistory();
 
 	this->actx = new AnalyzeContext(this);
 	this->actx->setVm(vm);
 	this->actx->resigterReservedClasses();
+}
+
+void SmartContract::preAnalyze(VirtualMachine *vm) {
+	const ArrayList<AnalyzedClass>* list = this->reservedClassRegistory->getReservedClassesList();
 
 	// pre analyze
 	int maxLoop = this->progs.size();
@@ -130,22 +175,20 @@ void SmartContract::analyze(VirtualMachine* vm) {
 		reservedUnit->addClassDeclare(dec);
 
 		dec->setParent(reservedUnit);
-		dec->preAnalyze(actx);
+		dec->preAnalyze(this->actx);
 	}
+}
 
-	if(this->actx->hasError()){
-		return;
-	}
-
+void SmartContract::preAnalyzeGenerics(VirtualMachine *vm) {
 	// generics
 	this->actx->generateGenericsClasses();
 	this->actx->preAnalyzeGenerics();
+}
 
-	if(this->actx->hasError()){
-		return;
-	}
+void SmartContract::analyzeType(VirtualMachine *vm) {
+	const ArrayList<AnalyzedClass>* list = this->reservedClassRegistory->getReservedClassesList();
 
-	maxLoop = this->progs.size();
+	int maxLoop = this->progs.size();
 	for(int i = 0; i != maxLoop; ++i){
 		CompilationUnit* unit = this->progs.get(i);
 		unit->analyzeType(this->actx);
@@ -160,45 +203,39 @@ void SmartContract::analyze(VirtualMachine* vm) {
 	}
 
 	this->actx->analyzeTypeRefGenerics();
+}
 
-	if(this->actx->hasError()){
-		return;
-	}
-
+void SmartContract::analyzeMetadata(VirtualMachine *vm) {
 	// static meta data
 	this->actx->analyzeStaticVariables();
 
 	// inheritance
 	this->actx->analyzeClassInheritance();
+}
 
 
-	if(this->actx->hasError()){
-		return;
+void SmartContract::analyzeFinal(VirtualMachine *vm) {
+	const ArrayList<AnalyzedClass>* list = this->reservedClassRegistory->getReservedClassesList();
+	// make top stack
+	AnalyzeStackManager* stackMgr = actx->getAnalyzeStackManager();
+	AnalyzeStackPopper popper(stackMgr, true);
+	stackMgr->addFunctionStack();
+
+	int maxLoop = this->progs.size();
+	for(int i = 0; i != maxLoop; ++i){
+		CompilationUnit* unit = this->progs.get(i);
+		unit->analyze(this->actx);
 	}
 
-	{
-		// make top stack
-		AnalyzeStackManager* stackMgr = actx->getAnalyzeStackManager();
-		AnalyzeStackPopper popper(stackMgr, true);
-		stackMgr->addFunctionStack();
+	maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AnalyzedClass* cls = list->get(i);
+		ClassDeclare* dec = cls->getClassDeclare();
 
-		maxLoop = this->progs.size();
-		for(int i = 0; i != maxLoop; ++i){
-			CompilationUnit* unit = this->progs.get(i);
-			unit->analyze(this->actx);
-		}
-
-		maxLoop = list->size();
-		for(int i = 0; i != maxLoop; ++i){
-			AnalyzedClass* cls = list->get(i);
-			ClassDeclare* dec = cls->getClassDeclare();
-
-			dec->analyze(actx);
-		}
-
-		this->actx->analyzeGenerics();
+		dec->analyze(actx);
 	}
 
+	this->actx->analyzeGenerics();
 }
 
 bool SmartContract::hasError() noexcept {
@@ -226,7 +263,10 @@ VmClassInstance* SmartContract::createInstance(VirtualMachine* vm) {
 	initialize(vm);
 
 	PackageSpace* space = this->actx->getPackegeSpace(this->mainPackage);
+	ExceptionThrower<VmClassNotFoundException>::throwExceptionIfCondition(space == nullptr, L"The package space does not exist.", __FILE__, __LINE__);
+
 	AnalyzedClass* clazz = space->getClass(this->mainClass);
+	ExceptionThrower<VmClassNotFoundException>::throwExceptionIfCondition(clazz == nullptr, L"The Main Class does not exist.", __FILE__, __LINE__);
 
 	MethodDeclare* defConstructor = clazz->getDefaultConstructor();
 
@@ -298,6 +338,31 @@ CompilationUnit* SmartContract::getCompilationUnit(int pos) {
 
 ReservedClassRegistory* SmartContract::getReservedClassRegistory() const noexcept {
 	return this->reservedClassRegistory;
+}
+
+ClassDeclare* SmartContract::getClassDeclareByFqn(const UnicodeString *fqn) const {
+	ClassDeclare* result = nullptr;
+
+	int maxLoop = this->progs.size();
+	for(int i = 0; i != maxLoop; ++i){
+		CompilationUnit* unit = this->progs.get(i);
+
+		UnicodeString* package = TypeResolver::getPackageName(fqn); __STP(package);
+		UnicodeString* className = TypeResolver::getClassName(fqn); __STP(className);
+
+		const UnicodeString* unitPackage = unit->getPackageName();
+
+		if((package != nullptr && package->equals(unitPackage)) || (package == nullptr && unitPackage == nullptr)){
+			ClassDeclare* dec = unit->getClassDeclare(className);
+
+			if(dec != nullptr){
+				result = dec;
+				break;
+			}
+		}
+	}
+
+	return result;
 }
 
 } /* namespace alinous */

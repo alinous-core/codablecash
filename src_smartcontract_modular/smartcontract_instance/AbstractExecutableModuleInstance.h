@@ -15,6 +15,7 @@ class SmartContract;
 class VirtualMachine;
 class CompileError;
 class VmClassInstance;
+class CompilationUnit;
 }
 using namespace alinous;
 
@@ -25,7 +26,9 @@ namespace codablecash {
 class SoftwareVersion;
 class ModularInstanceConfig;
 class DependencyConfig;
-
+class InstanceDependencyHandler;
+class ModularSmartcontractInstance;
+class ModuleInstanceClassLoader;
 
 class AbstractExecutableModuleInstance {
 public:
@@ -42,20 +45,37 @@ public:
 	virtual void loadCompilantUnits(const File* projectBaseDir) = 0;
 	bool hasCompileError() const noexcept;
 
-	bool analyze();
 	void setMainInstance();
 	bool createMainInstance();
 	bool interpretInitializer();
 
 	void resetRootReference();
 
+	bool initBeforeAnalyze();
+	bool preAnalyze();
+	bool preAnalyzeGenerics();
+	bool analyzeType();
+	bool analyzeMetadata();
+	bool analyzeFinal();
+
+	bool loadDependency(ModularSmartcontractInstance* parent);
+	bool preAnalyzeDependency();
+	bool analyzeTypeDependency();
+	bool analyzeDependency();
+
+	void loadLibExportInterfaceUnits(ModuleInstanceClassLoader* clazzloader);
+
+	VirtualMachine* getVM() const noexcept {
+		return this->vm;
+	}
+
 protected:
 	void resetContract();
 	void parseSourceFolders(const File *projectBaseDir);
-	void scanSourceFolder(File* baseDir, const UnicodeString* folder);
+	void scanSourceFolder(File* baseDir, const UnicodeString* folder, const File *projectBaseDir);
 
-	void scanFiles(File* folder);
-	void addCompilantUnit(File* file, File* base);
+	void scanFiles(File* folder, const File *projectBaseDir);
+	void addCompilantUnit(File* file, File* base, const File *projectBaseDir);
 
 protected:
 	UnicodeString* name;
@@ -68,12 +88,14 @@ protected:
 	DependencyConfig* dependencyConfig;
 
 protected:
-	SmartContract* contract;
+	// SmartContract* contract;
 	VirtualMachine* vm;
 
 	VmClassInstance* mainInst;
 
 	const ArrayList<CompileError>* compile_errors;
+
+	InstanceDependencyHandler* dependencyHandler;
 };
 
 } /* namespace codablecash */

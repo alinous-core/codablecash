@@ -858,4 +858,22 @@ void CodeElement::copyCodePositions(const CodeElement *other) noexcept {
 	this->endColumn = other->endColumn;
 }
 
+int CodeElement::positionBinarySize() const {
+	return sizeof(uint32_t) * 4;
+}
+
+void CodeElement::positionToBinary(ByteBuffer *out) const {
+	out->putInt(this->beginLine);
+	out->putInt(this->beginColumn);
+	out->putInt(this->endLine);
+	out->putInt(this->endColumn);
+}
+
+void CodeElement::positionFromBinary(ByteBuffer *in) {
+	this->beginLine = in->getInt();
+	this->beginColumn = in->getInt();
+	this->endLine = in->getInt();
+	this->endColumn = in->getInt();
+}
+
 } /* namespace alinous */

@@ -13,6 +13,7 @@
 
 namespace alinous {
 class File;
+class VirtualMachine;
 }
 using namespace alinous;
 
@@ -32,6 +33,7 @@ public:
 	void addLibraryModuleInstance(const UnicodeString* name, LibraryExectableModuleInstance* inst);
 
 	bool libraryExists(const UnicodeString* name) const noexcept;
+	LibraryExectableModuleInstance* getLibraryModuleInstance(const UnicodeString* modName) const noexcept;
 
 	void loadCompilantUnits(const File* projectBaseDir);
 	bool hasCompileError() const noexcept;
@@ -44,13 +46,26 @@ public:
 	void resetRootReference();
 
 private:
+	void initBeforeAnalyze();
+	void preAnalyze();
+	void preAnalyzeGenerics();
+	void analyzeType();
+	void analyzeMetadata();
+	void analyzeFinal();
+
+	// dependency
+	void loadDependency();
+	void preAnalyzeDependency();
+	void analyzeTypeDependency();
+	void analyzeDependency();
+
+private:
 	ModularProjectConfig* config;
 
 	ExecutableModuleInstance* execModule;
 
 	HashMap<UnicodeString, LibraryExectableModuleInstance>* libraries;
 	ArrayList<LibraryExectableModuleInstance>* libArray;
-
 };
 
 } /* namespace codablecash */

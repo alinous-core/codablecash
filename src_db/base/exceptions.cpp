@@ -70,5 +70,24 @@ UnsupportedFunctionException::UnsupportedFunctionException(const wchar_t* messag
 UnsupportedFunctionException::~UnsupportedFunctionException() {
 }
 
+const wchar_t* CompilantUnitAnalyzeException::defaultMessage = L"Analayze Unit has failed. ";
+
+CompilantUnitAnalyzeException::CompilantUnitAnalyzeException(const char* srcfile, int srcline) noexcept : Exception(srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+}
+CompilantUnitAnalyzeException::CompilantUnitAnalyzeException(Exception* cause, const char* srcfile, int srcline) noexcept : Exception(cause, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+}
+CompilantUnitAnalyzeException::CompilantUnitAnalyzeException(const wchar_t* message, const char* srcfile, int srcline) noexcept : Exception(message, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+	this->message->append(message);
+}
+CompilantUnitAnalyzeException::CompilantUnitAnalyzeException(const wchar_t* message, Exception* cause, const char* srcfile, int srcline) noexcept : Exception(message, cause, srcfile, srcline) {
+	this->message = new UnicodeString(defaultMessage);
+	this->message->append(message);
+}
+CompilantUnitAnalyzeException::~CompilantUnitAnalyzeException() {
+}
+
 
 } /* namespace alinous */

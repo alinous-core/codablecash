@@ -92,6 +92,8 @@ void ModularSmartcontractProject::loadLibrary(const File* libraryPath, const Uni
 
 	UnicodeString projectRelativePath(MODULE_DIR_NAME);
 	projectRelativePath.append(L"/");
+	projectRelativePath.append(libname);
+	projectRelativePath.append(L"/");
 
 	LibrarySmartcontractModule* libMod = new LibrarySmartcontractModule(&projectRelativePath); __STP(libMod);
 	libMod->load(libPath);

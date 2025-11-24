@@ -31,6 +31,8 @@ public:
 
 	virtual void loadCompilantUnits(const File* projectBaseDir);
 
+	void loadExportClasses(ModuleInstanceClassLoader* loader);
+
 private:
 	UnicodeString* libraryName;
 	ArrayList<UnicodeString>* exportClasses;

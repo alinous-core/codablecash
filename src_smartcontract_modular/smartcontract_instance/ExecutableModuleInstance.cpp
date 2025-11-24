@@ -31,9 +31,6 @@ ExecutableModuleInstance::~ExecutableModuleInstance() {
 void ExecutableModuleInstance::loadCompilantUnits(const File *projectBaseDir) {
 	resetContract();
 	parseSourceFolders(projectBaseDir);
-
-	this->vm->loadSmartContract(this->contract);
-
 }
 
 } /* namespace codablecash */

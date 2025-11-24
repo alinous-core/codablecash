@@ -62,6 +62,8 @@ int ClassImplements::binarySize() const {
 		total += n->binarySize();
 	}
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -75,6 +77,8 @@ void ClassImplements::toBinary(ByteBuffer* out) const {
 		ClassName* n = this->list.get(i);
 		n->toBinary(out);
 	}
+
+	positionToBinary(out);
 }
 
 void ClassImplements::fromBinary(ByteBuffer* in) {
@@ -86,6 +90,8 @@ void ClassImplements::fromBinary(ByteBuffer* in) {
 		ClassName* n = dynamic_cast<ClassName*>(element);
 		this->list.addElement(n);
 	}
+
+	positionFromBinary(in);
 }
 
 ClassImplements* ClassImplements::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {

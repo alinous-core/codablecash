@@ -106,6 +106,8 @@ int CastExpression::binarySize() const {
 	total += this->exp->binarySize();
 	total += this->type->binarySize();
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -116,6 +118,8 @@ void CastExpression::toBinary(ByteBuffer* out) const {
 	out->putShort(CodeElement::EXP_CAST);
 	this->exp->toBinary(out);
 	this->type->toBinary(out);
+
+	positionToBinary(out);
 }
 
 void CastExpression::fromBinary(ByteBuffer* in) {
@@ -126,6 +130,8 @@ void CastExpression::fromBinary(ByteBuffer* in) {
 	element = createFromBinary(in);
 	checkIsType(element);
 	this->type = dynamic_cast<AbstractType*>(element);
+
+	positionFromBinary(in);
 }
 
 AnalyzedType CastExpression::getType(AnalyzeContext* actx) {

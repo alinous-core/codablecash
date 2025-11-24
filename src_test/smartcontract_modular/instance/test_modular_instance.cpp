@@ -41,7 +41,6 @@ TEST(TestModularInstanceGroup, case01){
 	bool res = inst->hasCompileError();
 	CHECK(res == false);
 
-
 	res = inst->analyze();
 	CHECK(res == false);
 
@@ -51,7 +50,35 @@ TEST(TestModularInstanceGroup, case01){
 
 	inst->resetRootReference();
 
+	inst->setMainInstance();
+	res = inst->createMainInstance();
+	CHECK(res == false);
+
+
 	// FIXME TestModularInstanceGroup
+}
+
+TEST(TestModularInstanceGroup, case02){
+	const File* projectFolder = this->env->getProjectRoot();
+
+	ModularProjectUtils utils(L"src_test/smartcontract_modular/instance/resources/case02/project01/", projectFolder);
+	const File* baseDir = utils.getFolder();
+
+	ModularSmartcontractProject project(baseDir);
+	project.loadProject();
+
+	ModularSmartcontractInstance* inst = project.toInstance(); __STP(inst);
+	inst->loadCompilantUnits(baseDir);
+
+	bool res = inst->hasCompileError();
+	CHECK(res == false);
+
+	res = inst->analyze();
+	CHECK(res == false);
+
+	inst->setMainInstance();
+	res = inst->createMainInstance();
+	CHECK(res == false);
 }
 
 

@@ -65,6 +65,8 @@ int PackageNameDeclare::binarySize() const {
 		total += stringSize(str);
 	}
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -78,6 +80,8 @@ void PackageNameDeclare::toBinary(ByteBuffer* out) const {
 		UnicodeString* str = this->list.get(i);
 		putString(out, str);
 	}
+
+	positionToBinary(out);
 }
 
 void PackageNameDeclare::fromBinary(ByteBuffer* in) {
@@ -86,6 +90,8 @@ void PackageNameDeclare::fromBinary(ByteBuffer* in) {
 		UnicodeString* str = getString(in);
 		this->list.addElement(str);
 	}
+
+	positionFromBinary(in);
 }
 
 PackageNameDeclare* PackageNameDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {

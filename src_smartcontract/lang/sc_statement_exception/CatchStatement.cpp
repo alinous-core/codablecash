@@ -138,6 +138,8 @@ int CatchStatement::binarySize() const {
 	total += this->variableDeclare->binarySize();
 	total += this->block->binarySize();
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -149,6 +151,8 @@ void CatchStatement::toBinary(ByteBuffer* out) const {
 
 	this->variableDeclare->toBinary(out);
 	this->block->toBinary(out);
+
+	positionToBinary(out);
 }
 
 void CatchStatement::fromBinary(ByteBuffer* in) {
@@ -161,6 +165,8 @@ void CatchStatement::fromBinary(ByteBuffer* in) {
 	checkKind(element, CodeElement::STMT_BLOCK);
 
 	this->block = dynamic_cast<StatementBlock*>(element);
+
+	positionFromBinary(in);
 }
 
 void CatchStatement::setBlock(StatementBlock* block) noexcept {

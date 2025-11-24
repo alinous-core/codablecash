@@ -116,6 +116,8 @@ int ArgumentsListDeclare::binarySize() const {
 		total += arg->binarySize();
 	}
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -129,6 +131,8 @@ void ArgumentsListDeclare::toBinary(ByteBuffer* out) const {
 		ArgumentDeclare* arg = this->list.get(i);
 		arg->toBinary(out);
 	}
+
+	positionToBinary(out);
 }
 
 
@@ -141,6 +145,8 @@ void ArgumentsListDeclare::fromBinary(ByteBuffer* in) {
 		ArgumentDeclare* arg = dynamic_cast<ArgumentDeclare*>(element);
 		this->list.addElement(arg);
 	}
+
+	positionFromBinary(in);
 }
 
 const UnicodeString* ArgumentsListDeclare::toString() noexcept {

@@ -218,14 +218,21 @@ AnalyzedType* MethodDeclare::getReturnedType() const noexcept {
 int MethodDeclare::binarySize() const {
 	checkNotNull(this->name);
 	checkNotNull(this->ctrl);
-	checkNotNull(this->type);
+	if(!isConstructor()){
+		checkNotNull(this->type);
+	}
 	checkNotNull(this->args);
 
 	int total = sizeof(uint16_t);
 	total += sizeof(char);
 	total += stringSize(this->name);
 	total += this->ctrl->binarySize();
-	total += this->type->binarySize();
+
+	total += sizeof(uint8_t);
+	if(this->type != nullptr){
+		total += this->type->binarySize();
+	}
+
 	total += this->args->binarySize();
 
 	total += sizeof(uint8_t);
@@ -233,13 +240,17 @@ int MethodDeclare::binarySize() const {
 		total += this->block->binarySize();
 	}
 
+	total += positionBinarySize();
+
 	return total;
 }
 
 void MethodDeclare::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 	checkNotNull(this->ctrl);
-	checkNotNull(this->type);
+	if(!isConstructor()){
+		checkNotNull(this->type);
+	}
 	checkNotNull(this->args);
 
 	out->putShort(CodeElement::METHOD_DECLARE);
@@ -247,7 +258,13 @@ void MethodDeclare::toBinary(ByteBuffer* out) const {
 	out->put(this->_static ? (char)1 : (char)0);
 	putString(out, this->name);
 	this->ctrl->toBinary(out);
-	this->type->toBinary(out);
+
+	uint8_t bl = (this->type != nullptr) ? 1 : 0;
+	out->put(bl);
+	if(bl > 0){
+		this->type->toBinary(out);
+	}
+
 	this->args->toBinary(out);
 
 	out->put(this->block != nullptr ? (uint8_t)1 : (uint8_t)0);
@@ -255,6 +272,7 @@ void MethodDeclare::toBinary(ByteBuffer* out) const {
 		this->block->toBinary(out);
 	}
 
+	positionToBinary(out);
 }
 
 void MethodDeclare::fromBinary(ByteBuffer* in) {
@@ -267,9 +285,12 @@ void MethodDeclare::fromBinary(ByteBuffer* in) {
 	checkKind(element, CodeElement::ACCESS_CONTROL_DECLARE);
 	this->ctrl = dynamic_cast<AccessControlDeclare*>(element);
 
-	element = createFromBinary(in);
-	checkIsType(element);
-	this->type = dynamic_cast<AbstractType*>(element);
+	bl = in->get();
+	if(bl > 0){
+		element = createFromBinary(in);
+		checkIsType(element);
+		this->type = dynamic_cast<AbstractType*>(element);
+	}
 
 	element = createFromBinary(in);
 	checkKind(element, CodeElement::ARGUMENTS_LIST_DECLARE);
@@ -281,6 +302,8 @@ void MethodDeclare::fromBinary(ByteBuffer* in) {
 		checkKind(element, CodeElement::STMT_BLOCK);
 		this->block = dynamic_cast<StatementBlock*>(element);
 	}
+
+	positionFromBinary(in);
 }
 
 void MethodDeclare::init(VirtualMachine* vm) {

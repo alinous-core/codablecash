@@ -147,6 +147,8 @@ int VariableDeclareStatement::binarySize() const {
 		total += this->exp->binarySize();
 	}
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -166,6 +168,8 @@ void VariableDeclareStatement::toBinary(ByteBuffer* out) const {
 	if(!isNull){
 		this->exp->toBinary(out);
 	}
+
+	positionToBinary(out);
 }
 
 void VariableDeclareStatement::fromBinary(ByteBuffer* in) {
@@ -183,6 +187,8 @@ void VariableDeclareStatement::fromBinary(ByteBuffer* in) {
 		checkIsExp(element);
 		this->exp = dynamic_cast<AbstractExpression*>(element);
 	}
+
+	positionFromBinary(in);
 }
 
 void VariableDeclareStatement::init(VirtualMachine* vm) {

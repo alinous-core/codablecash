@@ -116,6 +116,8 @@ VirtualMachine::~VirtualMachine() {
 
 void VirtualMachine::loadSmartContract(SmartContract* sc) {
 	this->sc = sc;
+
+	delete this->stackManager;
 	this->stackManager = new VmStackManager();
 }
 

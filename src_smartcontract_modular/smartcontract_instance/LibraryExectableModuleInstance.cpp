@@ -6,10 +6,12 @@
  */
 
 #include "smartcontract_instance/LibraryExectableModuleInstance.h"
+#include "smartcontract_instance/ModuleInstanceClassLoader.h"
 
 #include "base/UnicodeString.h"
 
 #include "vm/VirtualMachine.h"
+
 
 namespace codablecash {
 
@@ -38,8 +40,17 @@ void LibraryExectableModuleInstance::addExportClass(const UnicodeString *clazz) 
 void LibraryExectableModuleInstance::loadCompilantUnits(const File *projectBaseDir) {
 	resetContract();
 	parseSourceFolders(projectBaseDir);
+}
 
-	this->vm->loadSmartContract(this->contract);
+void LibraryExectableModuleInstance::loadExportClasses(ModuleInstanceClassLoader *loader) {
+	SmartContract* contract = this->vm->getSmartContract();
+
+	int maxLoop = this->exportClasses->size();
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* fqn = this->exportClasses->get(i);
+
+		loader->loadClass(fqn);
+	}
 }
 
 } /* namespace codablecash */

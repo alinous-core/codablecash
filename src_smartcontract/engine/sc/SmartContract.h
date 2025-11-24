@@ -10,6 +10,7 @@
 
 #include "base/ArrayList.h"
 
+
 namespace alinous {
 
 class File;
@@ -24,16 +25,24 @@ class ExtClassObject;
 class CompileError;
 class ReservedClassRegistory;
 class GcManager;
+class ClassDeclare;
 
 class SmartContract {
 public:
 	SmartContract();
 	virtual ~SmartContract();
 
-	void addCompilationUnit(InputStream* stream, int length, const File* base, File* source);
-	void addCompilationUnit(File* file, const File* base);
+	CompilationUnit* addCompilationUnit(InputStream* stream, int length, const File* base, File* source);
+	CompilationUnit* addCompilationUnit(File* file, const File* base);
 	void analyze(VirtualMachine* vm);
 	bool hasError() noexcept;
+
+	void initBeforeAnalyze(VirtualMachine* vm);
+	void preAnalyze(VirtualMachine* vm);
+	void preAnalyzeGenerics(VirtualMachine* vm);
+	void analyzeType(VirtualMachine* vm);
+	void analyzeMetadata(VirtualMachine* vm);
+	void analyzeFinal(VirtualMachine* vm);
 
 	void setMainMethod(const UnicodeString* mainPackage, const UnicodeString* mainClass, const UnicodeString* mainMethod);
 
@@ -50,6 +59,12 @@ public:
 
 	CompilationUnit* getCompilationUnit(int pos);
 	ReservedClassRegistory* getReservedClassRegistory() const noexcept;
+
+	bool isInitialized() const noexcept {
+		return this->initialized;
+	}
+
+	ClassDeclare* getClassDeclareByFqn(const UnicodeString* fqn) const;
 
 private:
 	UnicodeString* mainPackage;

@@ -43,6 +43,9 @@ public:
 	virtual bool isGenerics() const noexcept {
 		return false;
 	}
+	virtual bool isReserved() const noexcept {
+		return false;
+	}
 
 	virtual void preAnalyze(AnalyzeContext* actx);
 	virtual void analyzeTypeRef(AnalyzeContext* actx);

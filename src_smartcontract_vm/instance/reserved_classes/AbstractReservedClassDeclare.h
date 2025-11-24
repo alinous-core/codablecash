@@ -31,6 +31,10 @@ public:
 
 	static AbstractReservedClassDeclare* createFromBinary(ByteBuffer* in);
 
+	virtual bool isReserved() const noexcept {
+		return true;
+	}
+
 	virtual void preAnalyze(AnalyzeContext* actx);
 	virtual void analyzeTypeRef(AnalyzeContext* actx);
 	virtual void analyze(AnalyzeContext* actx);

@@ -59,7 +59,9 @@ public:
 	void fromBinary(ByteBuffer* in);
 	static ModularInstanceConfig* createFromBinary(ByteBuffer* in);
 
-
+	ArrayList<UnicodeString>* getLibExport() const noexcept {
+		return this->libExport;
+	}
 
 private:
 	void loadMainPackageAndClass(const JsonObject* instance);

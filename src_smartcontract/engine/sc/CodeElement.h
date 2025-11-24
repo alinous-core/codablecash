@@ -233,6 +233,12 @@ public:
 	void copyCodePositions(const CodeElement* other) noexcept;
 
 protected:
+	int positionBinarySize() const;
+	void positionToBinary(ByteBuffer* out) const;
+	void positionFromBinary(ByteBuffer* in);
+
+
+protected:
 	short kind;
 
 	int beginLine;

@@ -49,6 +49,8 @@ int ObjectType::binarySize() const {
 
 	total += AbstractType::binarySize();
 
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -63,6 +65,8 @@ void ObjectType::toBinary(ByteBuffer* out) const {
 
 	putString(out, this->className);
 	AbstractType::toBinary(out);
+
+	positionToBinary(out);
 }
 
 void ObjectType::fromBinary(ByteBuffer* in) {
@@ -74,6 +78,8 @@ void ObjectType::fromBinary(ByteBuffer* in) {
 
 	this->className = getString(in);
 	AbstractType::fromBinary(in);
+
+	positionFromBinary(in);
 }
 
 const UnicodeString* ObjectType::toString() noexcept {

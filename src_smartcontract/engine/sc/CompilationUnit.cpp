@@ -6,16 +6,20 @@
  */
 
 #include "engine/sc/CompilationUnit.h"
+
 #include "lang/sc_declare/ClassDeclare.h"
 #include "lang/sc_declare/PackageDeclare.h"
 #include "lang/sc_declare/ImportsDeclare.h"
+
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
 
 namespace alinous {
 
 CompilationUnit::CompilationUnit() : classes(4), CodeElement(CodeElement::COMPILANT_UNIT) {
 	this->package = nullptr;
 	this->imports = new ImportsDeclare();
+	this->projectRelativePath = nullptr;
 }
 
 CompilationUnit::~CompilationUnit() {
@@ -23,6 +27,8 @@ CompilationUnit::~CompilationUnit() {
 	delete this->imports;
 
 	this->classes.deleteElements();
+
+	delete this->projectRelativePath;
 }
 
 void CompilationUnit::preAnalyze(AnalyzeContext* actx) {
@@ -116,6 +122,13 @@ int CompilationUnit::binarySize() const {
 		total += dec->binarySize();
 	}
 
+	total += sizeof(char);
+	if(this->projectRelativePath != nullptr){
+		total += stringSize(this->projectRelativePath);
+	}
+
+	total += positionBinarySize();
+
 	return total;
 }
 
@@ -143,6 +156,13 @@ void CompilationUnit::toBinary(ByteBuffer* out) const {
 		dec->toBinary(out);
 	}
 
+	bl = (this->projectRelativePath != nullptr);
+	out->put(bl ? 1 : 0);
+	if(bl > 0){
+		putString(out, this->projectRelativePath);
+	}
+
+	positionToBinary(out);
 }
 
 void CompilationUnit::fromBinary(ByteBuffer* in) {
@@ -157,6 +177,8 @@ void CompilationUnit::fromBinary(ByteBuffer* in) {
 	if(bl == (char)1){
 		CodeElement* element = createFromBinary(in);
 		checkKind(element, CodeElement::IMPORTS_DECLARE);
+
+		delete this->imports;
 		this->imports = dynamic_cast<ImportsDeclare*>(element);
 	}
 
@@ -168,6 +190,13 @@ void CompilationUnit::fromBinary(ByteBuffer* in) {
 		ClassDeclare* dec = dynamic_cast<ClassDeclare*>(element);
 		this->classes.addElement(dec);
 	}
+
+	bl = in->get();
+	if(bl > 0){
+		this->projectRelativePath = getString(in);
+	}
+
+	positionFromBinary(in);
 }
 
 CompilationUnit* CompilationUnit::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) {
@@ -192,6 +221,44 @@ CompilationUnit* CompilationUnit::generateGenericsImplement(HashMap<UnicodeStrin
 	}
 
 	return inst;
+}
+
+ClassDeclare* CompilationUnit::getClassDeclare(const UnicodeString *name) const noexcept {
+	ClassDeclare* ret = nullptr;
+
+	int maxLoop = this->classes.size();
+	for(int i = 0; i != maxLoop; ++i){
+		ClassDeclare* clazz = this->classes.get(i);
+		const UnicodeString* className = clazz->getName();
+
+		if(className->equals(name)){
+			ret = clazz;
+			break;
+		}
+	}
+
+	return ret;
+}
+
+void CompilationUnit::setProjectRelativePath(const UnicodeString *path) noexcept {
+	delete this->projectRelativePath;
+	this->projectRelativePath = new UnicodeString(path);
+}
+
+CompilationUnit* CompilationUnit::copy() const {
+	int cap = binarySize();
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(cap, true); __STP(buff);
+
+	toBinary(buff);
+
+	buff->position(0);
+	CodeElement* element = CodeElement::createFromBinary(buff); __STP(element);
+	CompilationUnit* unit = dynamic_cast<CompilationUnit*>(element);
+
+	checkNotNull(unit);
+	__STP_MV(element);
+
+	return unit;
 }
 
 } /* namespace alinous */

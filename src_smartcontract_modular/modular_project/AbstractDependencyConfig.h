@@ -34,6 +34,17 @@ public:
 	void setModuleName(const UnicodeString* name) noexcept;
 	void setVersion(const ModularSmartcontractVersion* v) noexcept;
 
+	const UnicodeString* getModuleName() const noexcept {
+		return this->moduleName;
+	}
+	const ModularSmartcontractVersion* getVersion() const noexcept {
+		return this->version;
+	}
+
+	bool isLocal() const noexcept {
+		return true;
+	}
+
 private:
 	UnicodeString* moduleName;
 	ModularSmartcontractVersion* version;

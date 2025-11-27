@@ -24,7 +24,6 @@ public:
 
 	void setLibraryName(const UnicodeString* str) noexcept;
 
-
 	virtual AbstractExecutableModuleInstance* toInstance() const;
 
 private:

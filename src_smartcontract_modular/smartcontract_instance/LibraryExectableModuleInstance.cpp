@@ -12,11 +12,15 @@
 
 #include "vm/VirtualMachine.h"
 
+#include "bc_base/BinaryUtils.h"
+
+#include "base_io/ByteBuffer.h"
+
 
 namespace codablecash {
 
 LibraryExectableModuleInstance::LibraryExectableModuleInstance()
-		: AbstractExecutableModuleInstance() {
+		: AbstractExecutableModuleInstance(TYPE_LIBRARY) {
 	this->libraryName = nullptr;
 	this->exportClasses = new ArrayList<UnicodeString>();
 }
@@ -50,6 +54,51 @@ void LibraryExectableModuleInstance::loadExportClasses(ModuleInstanceClassLoader
 		UnicodeString* fqn = this->exportClasses->get(i);
 
 		loader->loadClass(fqn);
+	}
+}
+
+int LibraryExectableModuleInstance::binarySize() const {
+	BinaryUtils::checkNotNull(this->libraryName);
+
+	int total = AbstractExecutableModuleInstance::binarySize();
+
+	total += BinaryUtils::stringSize(this->libraryName);
+
+	int maxLoop = this->exportClasses->size();
+	total += sizeof(uint16_t);
+
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* fqn = this->exportClasses->get(i);
+		total += BinaryUtils::stringSize(fqn);
+	}
+
+	return total;
+}
+
+void LibraryExectableModuleInstance::toBinary(ByteBuffer *out) const {
+	AbstractExecutableModuleInstance::toBinary(out);
+
+	BinaryUtils::putString(out, this->libraryName);
+
+	int maxLoop = this->exportClasses->size();
+	out->putShort(maxLoop);
+
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* fqn = this->exportClasses->get(i);
+		BinaryUtils::putString(out, fqn);
+	}
+}
+
+void LibraryExectableModuleInstance::fromBinary(ByteBuffer *in) {
+	AbstractExecutableModuleInstance::fromBinary(in);
+
+	this->libraryName = BinaryUtils::getString(in);
+
+	int maxLoop = in->getShort();
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* fqn =  BinaryUtils::getString(in);
+
+		this->exportClasses->addElement(fqn);
 	}
 }
 

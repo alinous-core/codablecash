@@ -14,6 +14,7 @@
 #include "json_object/JsonValuePair.h"
 #include "json_object/JsonStringValue.h"
 
+#include "bc_base/BinaryUtils.h"
 
 namespace codablecash {
 
@@ -22,7 +23,7 @@ LocalProjectModuleDependencyConfig::LocalProjectModuleDependencyConfig(const Loc
 	this->localloc = inst.localloc != nullptr ? new UnicodeString(inst.localloc) : nullptr;
 }
 
-LocalProjectModuleDependencyConfig::LocalProjectModuleDependencyConfig() {
+LocalProjectModuleDependencyConfig::LocalProjectModuleDependencyConfig() : AbstractDependencyConfig(TYPE_LOCAL_MODULE) {
 	this->localloc = nullptr;
 }
 
@@ -54,6 +55,27 @@ LocalProjectModuleDependencyConfig* LocalProjectModuleDependencyConfig::fromJson
 void LocalProjectModuleDependencyConfig::setLocalLoc(const UnicodeString *lloc) noexcept {
 	delete this->localloc;
 	this->localloc = new UnicodeString(lloc);
+}
+
+int LocalProjectModuleDependencyConfig::binarySize() const {
+	BinaryUtils::checkNotNull(this->localloc);
+
+	int total = AbstractDependencyConfig::binarySize();
+	total += BinaryUtils::stringSize(this->localloc);
+
+	return total;
+}
+
+void LocalProjectModuleDependencyConfig::toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->localloc);
+
+	AbstractDependencyConfig::toBinary(out);
+	BinaryUtils::putString(out, this->localloc);
+}
+
+void LocalProjectModuleDependencyConfig::fromBinary(ByteBuffer *in) {
+	AbstractDependencyConfig::fromBinary(in);
+	this->localloc = BinaryUtils::getString(in);
 }
 
 } /* namespace codablecash */

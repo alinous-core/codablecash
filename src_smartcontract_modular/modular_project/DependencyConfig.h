@@ -10,6 +10,9 @@
 
 #include "base/ArrayList.h"
 
+namespace alinous {
+class ByteBuffer;
+}  // namespace alinous
 using namespace alinous;
 
 
@@ -32,6 +35,11 @@ public:
 	ArrayList<AbstractDependencyConfig>* getList() const noexcept {
 		return this->list;
 	}
+
+	// binary
+	virtual int binarySize() const;
+	virtual void toBinary(ByteBuffer* out) const;
+	static DependencyConfig* createFromBinary(ByteBuffer* in);
 
 private:
 	ArrayList<AbstractDependencyConfig>* list;

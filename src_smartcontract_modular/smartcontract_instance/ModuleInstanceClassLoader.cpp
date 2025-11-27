@@ -46,7 +46,7 @@ void ModuleInstanceClassLoader::loadClass(const UnicodeString *fqn) {
 	AnalyzeContext* actx = contarct->getAnalyzeContext();
 
 	const ClassDeclare* clazz = contarct->getClassDeclareByFqn(fqn);
-	if(!clazz->isReserved()){
+	if(clazz != nullptr && !clazz->isReserved()){
 		const CompilationUnit* unit = clazz->getCompilationUnit();
 
 		CompilationUnit* newUnit = unit->copy();

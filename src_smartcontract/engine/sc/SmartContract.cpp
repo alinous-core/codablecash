@@ -332,8 +332,16 @@ const ArrayList<CompileError>* SmartContract::getCompileErrors() const noexcept 
 	return &this->compileErrorList;
 }
 
-CompilationUnit* SmartContract::getCompilationUnit(int pos) {
+int SmartContract::getNumCompilationUnit() const noexcept {
+	return this->progs.size();
+}
+
+CompilationUnit* SmartContract::getCompilationUnit(int pos) const noexcept {
 	return this->progs.get(pos);
+}
+
+void SmartContract::addCompilationUnit(CompilationUnit *unit) {
+	this->progs.addElement(unit);
 }
 
 ReservedClassRegistory* SmartContract::getReservedClassRegistory() const noexcept {

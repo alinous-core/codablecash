@@ -211,6 +211,7 @@ public:
 
 	static void checkNotNull(void* ptr);
 	static void checkKind(CodeElement* element, short kind);
+	static void checkKind(CodeElement* element, short* kind, int length);
 	static void checkIsType(CodeElement* element);
 	static void checkIsStatement(CodeElement* element);
 	static void checkIsExp(CodeElement* element);

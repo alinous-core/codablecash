@@ -124,6 +124,7 @@ ModularSmartcontractInstance* ModularSmartcontractProject::toInstance() const {
 			LibraryExectableModuleInstance* lib = dynamic_cast<LibraryExectableModuleInstance*>(inst);
 
 			const UnicodeString* name = lib->getLibraryName();
+			lib->setName(name);
 
 			if(!instance->libraryExists(name)){
 				instance->addLibraryModuleInstance(name, lib);

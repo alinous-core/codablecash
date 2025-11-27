@@ -30,6 +30,11 @@ public:
 		return this->versionType;
 	}
 
+	// binary
+	virtual int binarySize() const;
+	virtual void toBinary(ByteBuffer* out) const;
+	static ModularSmartcontractVersion* createFromBinary(ByteBuffer* in);
+
 private:
 	bool validateCaret(const SoftwareVersion* other) const noexcept;
 	SoftwareVersion* maxCaretVersion(const SoftwareVersion* other) const noexcept;

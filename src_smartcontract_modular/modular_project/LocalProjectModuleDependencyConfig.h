@@ -29,6 +29,10 @@ public:
 
 	void setLocalLoc(const UnicodeString* lloc) noexcept;
 
+	virtual int binarySize() const;
+	virtual void toBinary(ByteBuffer* out) const;
+	virtual void fromBinary(ByteBuffer* in);
+
 private:
 	UnicodeString* localloc;
 

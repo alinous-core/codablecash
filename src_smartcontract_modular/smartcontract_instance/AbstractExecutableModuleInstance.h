@@ -7,6 +7,7 @@
 
 #ifndef SMARTCONTRACT_INSTANCE_ABSTRACTEXECUTABLEMODULEINSTANCE_H_
 #define SMARTCONTRACT_INSTANCE_ABSTRACTEXECUTABLEMODULEINSTANCE_H_
+#include <cstdint>
 
 namespace alinous {
 class UnicodeString;
@@ -16,6 +17,7 @@ class VirtualMachine;
 class CompileError;
 class VmClassInstance;
 class CompilationUnit;
+class ByteBuffer;
 }
 using namespace alinous;
 
@@ -32,7 +34,10 @@ class ModuleInstanceClassLoader;
 
 class AbstractExecutableModuleInstance {
 public:
-	AbstractExecutableModuleInstance();
+	static constexpr const uint8_t TYPE_EXEC = 1;
+	static constexpr const uint8_t TYPE_LIBRARY= 2;
+
+	explicit AbstractExecutableModuleInstance(uint8_t kind);
 	virtual ~AbstractExecutableModuleInstance();
 
 	void setName(const UnicodeString* name) noexcept;
@@ -69,6 +74,13 @@ public:
 		return this->vm;
 	}
 
+	// binary
+	virtual int binarySize() const;
+	virtual void toBinary(ByteBuffer* out) const;
+	virtual void fromBinary(ByteBuffer* in);
+
+	static AbstractExecutableModuleInstance* createFromBinary(ByteBuffer* in);
+
 protected:
 	void resetContract();
 	void parseSourceFolders(const File *projectBaseDir);
@@ -78,6 +90,7 @@ protected:
 	void addCompilantUnit(File* file, File* base, const File *projectBaseDir);
 
 protected:
+	uint8_t kind;
 	UnicodeString* name;
 	UnicodeString* projectRelativePath;
 

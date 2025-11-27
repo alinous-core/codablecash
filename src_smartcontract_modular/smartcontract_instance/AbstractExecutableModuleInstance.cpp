@@ -6,6 +6,9 @@
  */
 #include "smartcontract_instance/AbstractExecutableModuleInstance.h"
 #include "smartcontract_instance/InstanceDependencyHandler.h"
+#include "smartcontract_instance/ExecutableModuleInstance.h"
+#include "smartcontract_instance/LibraryExectableModuleInstance.h"
+#include "smartcontract_instance/ModuleInstanceClassLoader.h"
 
 #include "modular_project/ModularInstanceConfig.h"
 #include "modular_project/DependencyConfig.h"
@@ -39,14 +42,14 @@
 
 #include "instance/instance_gc/GcManager.h"
 
-#include "smartcontract_instance/ModuleInstanceClassLoader.h"
-
 #include "lang/sc_declare/ClassDeclare.h"
 
+#include "bc_base/BinaryUtils.h"
 
 namespace codablecash {
 
-AbstractExecutableModuleInstance::AbstractExecutableModuleInstance() {
+AbstractExecutableModuleInstance::AbstractExecutableModuleInstance(uint8_t kind) {
+	this->kind = kind;
 	this->name = nullptr;
 	this->projectRelativePath = nullptr;
 
@@ -299,8 +302,6 @@ bool AbstractExecutableModuleInstance::loadDependency(ModularSmartcontractInstan
 		}
 	}
 
-
-
 	this->dependencyHandler->importExportedClasses(actx);
 
 	return actx->hasError();
@@ -311,7 +312,6 @@ bool AbstractExecutableModuleInstance::preAnalyzeDependency() {
 	AnalyzeContext* actx = contract->getAnalyzeContext();
 
 	this->dependencyHandler->preAnalyze(actx);
-	// FIXME analyzeTypeDependency()
 
 	return actx->hasError();
 }
@@ -349,6 +349,135 @@ void AbstractExecutableModuleInstance::loadLibExportInterfaceUnits(ModuleInstanc
 		ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(dec == nullptr, L"Module does not exists.", __FILE__, __LINE__);
 		ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(!dec->isInterface(), L"libExport must be an interface, not a class.", __FILE__, __LINE__);
 	}
+}
+
+int AbstractExecutableModuleInstance::binarySize() const {
+	BinaryUtils::checkNotNull(this->name);
+	BinaryUtils::checkNotNull(this->projectRelativePath);
+	BinaryUtils::checkNotNull(this->version);
+	BinaryUtils::checkNotNull(this->instanceConfig);
+
+
+	int total = sizeof(uint8_t);
+	total += BinaryUtils::stringSize(this->name);
+	total += BinaryUtils::stringSize(this->projectRelativePath);
+
+	int maxLoop = this->sourceFolders->size();
+	total += sizeof(uint16_t);
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* folder = this->sourceFolders->get(i);
+		total += BinaryUtils::stringSize(folder);
+	}
+
+	total += this->version->binarySize();
+	total += this->instanceConfig->binarySize();
+
+	total += sizeof(uint8_t);
+	if(this->dependencyConfig != nullptr){
+		total += this->dependencyConfig->binarySize();
+	}
+
+	// vm to binary
+	SmartContract* contract = this->vm->getSmartContract();
+
+	maxLoop = contract->getNumCompilationUnit();
+	total += sizeof(uint32_t);
+
+	for(int i = 0; i != maxLoop; ++i){
+		CompilationUnit* unit = contract->getCompilationUnit(i);
+		total += unit->binarySize();
+	}
+
+	return total;
+}
+
+void AbstractExecutableModuleInstance::toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->name);
+	BinaryUtils::checkNotNull(this->projectRelativePath);
+	BinaryUtils::checkNotNull(this->version);
+	BinaryUtils::checkNotNull(this->instanceConfig);
+
+	out->put(this->kind);
+	BinaryUtils::putString(out, this->name);
+	BinaryUtils::putString(out, this->projectRelativePath);
+
+	int maxLoop = this->sourceFolders->size();
+	out->putShort(maxLoop);
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* folder = this->sourceFolders->get(i);
+		BinaryUtils::putString(out, folder);
+	}
+
+	this->version->toBinary(out);
+	this->instanceConfig->toBinary(out);
+
+	uint8_t bl = (this->dependencyConfig != nullptr) ? 1 : 0;
+	out->put(bl);
+	if(bl > 0){
+		this->dependencyConfig->toBinary(out);
+	}
+
+	// vm to binary
+	SmartContract* contract = this->vm->getSmartContract();
+
+	maxLoop = contract->getNumCompilationUnit();
+	out->putInt(maxLoop);
+
+	for(int i = 0; i != maxLoop; ++i){
+		CompilationUnit* unit = contract->getCompilationUnit(i);
+		unit->toBinary(out);
+	}
+
+}
+
+void AbstractExecutableModuleInstance::fromBinary(ByteBuffer *in) {
+	this->name = BinaryUtils::getString(in);
+	this->projectRelativePath = BinaryUtils::getString(in);
+
+	int maxLoop = in->getShort();
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* folder = BinaryUtils::getString(in);
+		this->sourceFolders->addElement(folder);
+	}
+
+	this->version = SoftwareVersion::createFromBinary(in);
+	this->instanceConfig = ModularInstanceConfig::createFromBinary(in);
+
+	uint8_t bl = in->get();
+	if(bl > 0){
+		this->dependencyConfig = DependencyConfig::createFromBinary(in);
+	}
+
+	// vm
+	resetContract();
+	SmartContract* contract = this->vm->getSmartContract();
+
+	maxLoop = in->getInt();
+	for(int i = 0; i != maxLoop; ++i){
+		CodeElement* element = CodeElement::createFromBinary(in); __STP(element);
+		CompilationUnit* unit = dynamic_cast<CompilationUnit*>(element);
+		BinaryUtils::checkNotNull(unit);
+
+		__STP_MV(element);
+		contract->addCompilationUnit(unit);
+	}
+}
+
+AbstractExecutableModuleInstance* AbstractExecutableModuleInstance::createFromBinary(ByteBuffer *in) {
+	AbstractExecutableModuleInstance* inst = nullptr;
+
+	uint8_t kind = in->get();
+	if(kind == TYPE_EXEC){
+		inst = new ExecutableModuleInstance();
+	}
+	else{
+		inst = new LibraryExectableModuleInstance();
+	}
+	__STP(inst);
+
+	inst->fromBinary(in);
+
+	return __STP_MV(inst);
 }
 
 } /* namespace alinous */

@@ -8,6 +8,7 @@
 #include "modular_project/DependencyConfig.h"
 #include "modular_project/AbstractDependencyConfig.h"
 #include "modular_project/ModularConfigException.h"
+#include "modular_project/LocalProjectModuleDependencyConfig.h"
 
 #include "json_object/JsonArrayObject.h"
 #include "json_object/JsonValuePair.h"
@@ -16,7 +17,10 @@
 
 #include "bc/ExceptionThrower.h"
 
-#include "modular_project/LocalProjectModuleDependencyConfig.h"
+#include "base_io/ByteBuffer.h"
+
+#include "base/StackRelease.h"
+
 
 namespace codablecash {
 
@@ -53,6 +57,41 @@ void DependencyConfig::load(const JsonArrayObject *dependencies) {
 			this->list->addElement(dconf);
 		}
 	}
+}
+
+int DependencyConfig::binarySize() const {
+	int total = 0;
+
+	int maxLoop = this->list->size();
+	total += sizeof(uint16_t);
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractDependencyConfig* conf = this->list->get(i);
+		total += conf->binarySize();
+	}
+
+	return total;
+}
+
+void DependencyConfig::toBinary(ByteBuffer *out) const {
+	int maxLoop = this->list->size();
+	out->putShort(maxLoop);
+
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractDependencyConfig* conf = this->list->get(i);
+		conf->toBinary(out);
+	}
+}
+
+DependencyConfig* DependencyConfig::createFromBinary(ByteBuffer *in) {
+	DependencyConfig* inst = new DependencyConfig(); __STP(inst);
+
+	int maxLoop = in->getShort();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractDependencyConfig* conf = AbstractDependencyConfig::createFromBinary(in);
+		inst->list->addElement(conf);
+	}
+
+	return __STP_MV(inst);
 }
 
 } /* namespace codablecash */

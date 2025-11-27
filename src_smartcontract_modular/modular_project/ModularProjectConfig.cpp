@@ -167,7 +167,7 @@ int ModularProjectConfig::binarySize() const {
 
 	total += sizeof(uint8_t);
 	if(this->license != nullptr){
-		total += BinaryUtils::stringSize(this->author);
+		total += BinaryUtils::stringSize(this->license);
 	}
 
 	int maxLoop = this->libralies->size();

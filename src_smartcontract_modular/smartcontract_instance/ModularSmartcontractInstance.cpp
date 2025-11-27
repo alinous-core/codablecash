@@ -9,6 +9,8 @@
 #include "smartcontract_instance/ExecutableModuleInstance.h"
 #include "smartcontract_instance/LibraryExectableModuleInstance.h"
 
+#include "modular_project_registory/SmartcontractProjectData.h"
+
 #include "modular_project/ModularProjectConfig.h"
 
 #include "base/StackRelease.h"
@@ -18,6 +20,15 @@
 
 #include "bc/ExceptionThrower.h"
 
+#include "bc_base/BinaryUtils.h"
+
+#include "base_io/ByteBuffer.h"
+
+#include "modular_project/SmartcontractProjectId.h"
+
+#include "crypto/Sha256.h"
+
+#include "modular_project_registory/ProjectIdKey.h"
 namespace codablecash {
 
 ModularSmartcontractInstance::ModularSmartcontractInstance() {
@@ -283,6 +294,100 @@ void ModularSmartcontractInstance::resetRootReference() {
 		LibraryExectableModuleInstance* inst = this->libArray->get(i);
 		inst->resetRootReference();
 	}
+}
+
+int ModularSmartcontractInstance::binarySize() const {
+	BinaryUtils::checkNotNull(this->config);
+	BinaryUtils::checkNotNull(this->execModule);
+
+	int total = this->config->binarySize();
+	total += this->execModule->binarySize();
+
+	int maxLoop = this->libArray->size();
+	total += sizeof(uint16_t);
+
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* libmod = this->libArray->get(i);
+		total += libmod->binarySize();
+	}
+
+	return total;
+}
+
+void ModularSmartcontractInstance::toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->config);
+	BinaryUtils::checkNotNull(this->execModule);
+
+	this->config->toBinary(out);
+	this->execModule->toBinary(out);
+
+	int maxLoop = this->libArray->size();
+	out->putShort(maxLoop);
+
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* libmod = this->libArray->get(i);
+		libmod->toBinary(out);
+	}
+}
+
+ModularSmartcontractInstance* ModularSmartcontractInstance::createFromBinary(ByteBuffer *in) {
+	ModularSmartcontractInstance* inst = new ModularSmartcontractInstance(); __STP(inst);
+
+	{
+		ModularProjectConfig* config = ModularProjectConfig::createFromBinary(in); __STP(config);
+		inst->setModularProjectConfig(config);
+	}
+
+	{
+		AbstractExecutableModuleInstance* mod = AbstractExecutableModuleInstance::createFromBinary(in); __STP(mod);
+		ExecutableModuleInstance* exec = dynamic_cast<ExecutableModuleInstance*>(mod);
+		BinaryUtils::checkNotNull(exec);
+		__STP_MV(mod);
+
+		inst->setExecutableModuleInstance(exec);
+	}
+
+	int maxLoop = in->getShort();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractExecutableModuleInstance* mod = AbstractExecutableModuleInstance::createFromBinary(in); __STP(mod);
+		LibraryExectableModuleInstance* libmod = dynamic_cast<LibraryExectableModuleInstance*>(mod);
+		BinaryUtils::checkNotNull(libmod);
+		__STP_MV(mod);
+
+		const UnicodeString* name = libmod->getLibraryName();
+		inst->addLibraryModuleInstance(name, libmod);
+	}
+
+	return __STP_MV(inst);
+}
+
+SmartcontractProjectData* ModularSmartcontractInstance::createData() const {
+	SmartcontractProjectData* data = new SmartcontractProjectData(); __STP(data);
+	ByteBuffer* buff = createBinary(); __STP(buff);
+	buff->position(0);
+
+	data->setData(buff);
+
+	{
+		ByteBuffer* shaBuff = Sha256::sha256(buff, true); __STP(shaBuff);
+
+		SmartcontractProjectId projectId((const char*)shaBuff->array(), shaBuff->capacity());
+		ProjectIdKey key;
+		key.setProjectId(&projectId);
+
+		data->setKey(&key);
+	}
+
+	return __STP_MV(data);
+}
+
+ByteBuffer* ModularSmartcontractInstance::createBinary() const {
+	int cap = binarySize();
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(cap, true); __STP(buff);
+
+	toBinary(buff);
+
+	return __STP_MV(buff);
 }
 
 } /* namespace codablecash */

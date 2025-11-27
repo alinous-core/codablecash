@@ -12,9 +12,9 @@
 #include "base/UnicodeString.h"
 
 #include "bc/SoftwareVersion.h"
-
 #include "bc/ExceptionThrower.h"
 
+#include "base_io/ByteBuffer.h"
 
 using namespace alinous;
 
@@ -103,6 +103,27 @@ ModularSmartcontractVersion* ModularSmartcontractVersion::parseString(const Unic
 	SoftwareVersion* version = SoftwareVersion::parseString(verstr); __STP(version);
 
 	return new ModularSmartcontractVersion(version->getMajor(), version->getMinor(), version->getPatch(), verType);
+}
+
+int ModularSmartcontractVersion::binarySize() const {
+	int total = SoftwareVersion::binarySize();
+	total += sizeof(uint8_t);
+
+	return total;
+}
+
+void ModularSmartcontractVersion::toBinary(ByteBuffer *out) const {
+	SoftwareVersion::toBinary(out);
+	out->put(this->versionType);
+}
+
+ModularSmartcontractVersion* ModularSmartcontractVersion::createFromBinary(ByteBuffer *in) {
+	uint8_t major = in->get();
+	uint8_t minor = in->get();
+	uint8_t pathch = in->get();
+	uint8_t versionType = in->get();
+
+	return new ModularSmartcontractVersion(major, minor, pathch, versionType);
 }
 
 } /* namespace codablecash */

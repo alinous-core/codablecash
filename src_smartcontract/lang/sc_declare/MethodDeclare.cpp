@@ -218,9 +218,6 @@ AnalyzedType* MethodDeclare::getReturnedType() const noexcept {
 int MethodDeclare::binarySize() const {
 	checkNotNull(this->name);
 	checkNotNull(this->ctrl);
-	if(!isConstructor()){
-		checkNotNull(this->type);
-	}
 	checkNotNull(this->args);
 
 	int total = sizeof(uint16_t);
@@ -248,9 +245,6 @@ int MethodDeclare::binarySize() const {
 void MethodDeclare::toBinary(ByteBuffer* out) const {
 	checkNotNull(this->name);
 	checkNotNull(this->ctrl);
-	if(!isConstructor()){
-		checkNotNull(this->type);
-	}
 	checkNotNull(this->args);
 
 	out->putShort(CodeElement::METHOD_DECLARE);

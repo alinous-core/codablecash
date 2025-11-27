@@ -19,7 +19,7 @@
 
 namespace codablecash {
 
-ExecutableModuleInstance::ExecutableModuleInstance() {
+ExecutableModuleInstance::ExecutableModuleInstance() : AbstractExecutableModuleInstance(TYPE_EXEC) {
 
 
 }

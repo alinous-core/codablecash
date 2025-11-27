@@ -12,6 +12,7 @@
 #include "base/ArrayList.h"
 
 namespace alinous {
+class ByteBuffer;
 class File;
 class VirtualMachine;
 }
@@ -22,6 +23,7 @@ namespace codablecash {
 class ModularProjectConfig;
 class ExecutableModuleInstance;
 class LibraryExectableModuleInstance;
+class SmartcontractProjectData;
 
 class ModularSmartcontractInstance {
 public:
@@ -45,7 +47,17 @@ public:
 
 	void resetRootReference();
 
+	// binary
+	int binarySize() const;
+	void toBinary(ByteBuffer* out) const;
+	static ModularSmartcontractInstance* createFromBinary(ByteBuffer* in);
+
+	// create data
+	SmartcontractProjectData* createData() const;
+
 private:
+	ByteBuffer* createBinary() const;
+
 	void initBeforeAnalyze();
 	void preAnalyze();
 	void preAnalyzeGenerics();

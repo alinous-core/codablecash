@@ -728,6 +728,21 @@ void CodeElement::checkKind(CodeElement* element, short kind) {
 	}
 }
 
+void CodeElement::checkKind(CodeElement *element, short *kind, int length) {
+	bool result = false;
+	for(int i = 0; i != length; ++i){
+		if(kind[i] == element->kind){
+			result = true;
+			break;
+		}
+	}
+
+	if(!result){
+		delete element;
+		throw new MulformattedScBinaryException(__FILE__, __LINE__);
+	}
+}
+
 void CodeElement::checkIsType(CodeElement* element) {
 	if(!(element->kind >= TYPE_BOOL && element->kind < STMT_BLOCK)){
 		delete element;
@@ -875,5 +890,7 @@ void CodeElement::positionFromBinary(ByteBuffer *in) {
 	this->endLine = in->getInt();
 	this->endColumn = in->getInt();
 }
+
+
 
 } /* namespace alinous */

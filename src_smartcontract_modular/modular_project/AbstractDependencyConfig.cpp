@@ -8,6 +8,7 @@
 #include "modular_project/AbstractDependencyConfig.h"
 #include "modular_project/ModularSmartcontractVersion.h"
 #include "modular_project/ModularConfigException.h"
+#include "modular_project/LocalProjectModuleDependencyConfig.h"
 
 #include "base/UnicodeString.h"
 #include "base/StackRelease.h"
@@ -18,16 +19,21 @@
 
 #include "bc/ExceptionThrower.h"
 
+#include "base_io/ByteBuffer.h"
+
+#include "bc_base/BinaryUtils.h"
 
 namespace codablecash {
 
 
 AbstractDependencyConfig::AbstractDependencyConfig(const AbstractDependencyConfig &inst) {
+	this->kind = inst.kind;
 	this->moduleName = new UnicodeString(inst.moduleName);
 	this->version = new ModularSmartcontractVersion(*inst.version);
 }
 
-AbstractDependencyConfig::AbstractDependencyConfig() {
+AbstractDependencyConfig::AbstractDependencyConfig(uint8_t kind) {
+	this->kind = kind;
 	this->moduleName = nullptr;
 	this->version = nullptr;
 }
@@ -72,6 +78,41 @@ void AbstractDependencyConfig::setModuleName(const UnicodeString *name) noexcept
 void AbstractDependencyConfig::setVersion(const ModularSmartcontractVersion *v) noexcept {
 	delete this->version;
 	this->version = new ModularSmartcontractVersion(*v);
+}
+
+int AbstractDependencyConfig::binarySize() const {
+	BinaryUtils::checkNotNull(this->moduleName);
+	BinaryUtils::checkNotNull(this->version);
+
+	int total = sizeof(uint8_t);
+	total += BinaryUtils::stringSize(this->moduleName);
+	total += this->version->binarySize();
+
+	return total;
+}
+
+void AbstractDependencyConfig::toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->moduleName);
+	BinaryUtils::checkNotNull(this->version);
+
+	out->put(this->kind);
+	BinaryUtils::putString(out, this->moduleName);
+	this->version->toBinary(out);
+}
+
+void AbstractDependencyConfig::fromBinary(ByteBuffer *in) {
+	this->moduleName = BinaryUtils::getString(in);
+	this->version = ModularSmartcontractVersion::createFromBinary(in);
+}
+
+AbstractDependencyConfig* AbstractDependencyConfig::createFromBinary(ByteBuffer *in) {
+	AbstractDependencyConfig* ret = nullptr;
+
+	uint8_t kind = in->get();
+	ret = new LocalProjectModuleDependencyConfig();
+
+	ret->fromBinary(in);
+	return ret;
 }
 
 } /* namespace codablecash */

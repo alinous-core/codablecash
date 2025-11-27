@@ -97,8 +97,11 @@ void SubstitutionStatement::toBinary(ByteBuffer* out) const {
 
 void SubstitutionStatement::fromBinary(ByteBuffer* in) {
 	CodeElement* element = createFromBinary(in);
-	checkKind(element, CodeElement::EXP_VARIABLE_ID);
-	this->variable = dynamic_cast<VariableIdentifier*>(element);
+
+	short KINDS[2] = {CodeElement::EXP_MEMBER_REF, CodeElement::EXP_VARIABLE_ID};
+	checkKind(element, KINDS, 2);
+
+	this->variable = dynamic_cast<AbstractExpression*>(element);
 
 	element = createFromBinary(in);
 	checkIsExp(element);

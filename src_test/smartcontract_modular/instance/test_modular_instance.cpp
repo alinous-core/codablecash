@@ -12,6 +12,9 @@
 
 #include "smartcontract_instance/ModularSmartcontractInstance.h"
 
+#include "modular_project_registory/SmartcontractProjectData.h"
+#include "modular_project_registory/ModularSmartcontractProjectRegistory.h"
+
 using namespace codablecash;
 
 
@@ -53,9 +56,6 @@ TEST(TestModularInstanceGroup, case01){
 	inst->setMainInstance();
 	res = inst->createMainInstance();
 	CHECK(res == false);
-
-
-	// FIXME TestModularInstanceGroup
 }
 
 TEST(TestModularInstanceGroup, case02){

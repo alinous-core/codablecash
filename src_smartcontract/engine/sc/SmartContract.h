@@ -57,7 +57,10 @@ public:
 
 	const ArrayList<CompileError>* getCompileErrors() const noexcept;
 
-	CompilationUnit* getCompilationUnit(int pos);
+	int getNumCompilationUnit() const noexcept;
+	CompilationUnit* getCompilationUnit(int pos) const noexcept;
+	void addCompilationUnit(CompilationUnit* unit);
+
 	ReservedClassRegistory* getReservedClassRegistory() const noexcept;
 
 	bool isInitialized() const noexcept {

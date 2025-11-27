@@ -33,6 +33,11 @@ public:
 
 	void loadExportClasses(ModuleInstanceClassLoader* loader);
 
+	// binary
+	virtual int binarySize() const;
+	virtual void toBinary(ByteBuffer* out) const;
+	virtual void fromBinary(ByteBuffer* in);
+
 private:
 	UnicodeString* libraryName;
 	ArrayList<UnicodeString>* exportClasses;

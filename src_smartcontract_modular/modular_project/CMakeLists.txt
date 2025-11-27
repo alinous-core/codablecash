@@ -14,6 +14,7 @@ set(__src
 	ModularSmartcontractProject.cpp
 	ModularSmartcontractVersion.cpp
 	ModularConfigException.cpp
+	SmartcontractProjectId.cpp
 )
 handle_sub(codablecashlib "${__src}" smartcontract_modular modular_project)
 

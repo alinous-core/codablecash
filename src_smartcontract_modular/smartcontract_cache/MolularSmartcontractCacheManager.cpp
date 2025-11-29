@@ -14,7 +14,7 @@ MolularSmartcontractCacheManager::MolularSmartcontractCacheManager() {
 }
 
 MolularSmartcontractCacheManager::~MolularSmartcontractCacheManager() {
-	// TODO Auto-generated destructor stub
+
 }
 
 } /* namespace codablecash */

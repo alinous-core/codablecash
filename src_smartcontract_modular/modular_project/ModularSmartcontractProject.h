@@ -37,7 +37,13 @@ public:
 
 	ModularSmartcontractInstance* toInstance() const;
 
+	const File* getProjectBaseDir() const noexcept {
+		return this->baseDir;
+	}
+
 private:
+	void __loadProject();
+
 	void loadExecutable(const UnicodeString* path);
 	void loadLibrary(const File* libraryPath, const UnicodeString* libname);
 

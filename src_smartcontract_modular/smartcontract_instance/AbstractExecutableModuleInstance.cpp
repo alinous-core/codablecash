@@ -27,6 +27,8 @@
 #include "bc/ExceptionThrower.h"
 #include "bc/SoftwareVersion.h"
 
+#include "engine/CodableDatabase.h"
+
 #include "engine/sc/SmartContract.h"
 #include "engine/sc/CompilationUnit.h"
 
@@ -46,6 +48,7 @@
 
 #include "bc_base/BinaryUtils.h"
 
+
 namespace codablecash {
 
 AbstractExecutableModuleInstance::AbstractExecutableModuleInstance(uint8_t kind) {
@@ -62,6 +65,9 @@ AbstractExecutableModuleInstance::AbstractExecutableModuleInstance(uint8_t kind)
 	this->compile_errors = nullptr;
 	this->mainInst = nullptr;
 	this->dependencyHandler = new InstanceDependencyHandler();
+
+	this->dbDir = nullptr;
+	this->undodbDir = nullptr;
 }
 
 AbstractExecutableModuleInstance::~AbstractExecutableModuleInstance() {
@@ -80,6 +86,9 @@ AbstractExecutableModuleInstance::~AbstractExecutableModuleInstance() {
 
 	this->mainInst = nullptr;
 	delete this->dependencyHandler;
+
+	delete this->dbDir;
+	delete this->undodbDir;
 }
 
 void AbstractExecutableModuleInstance::setName(const UnicodeString *name) noexcept {
@@ -478,6 +487,22 @@ AbstractExecutableModuleInstance* AbstractExecutableModuleInstance::createFromBi
 	inst->fromBinary(in);
 
 	return __STP_MV(inst);
+}
+
+void AbstractExecutableModuleInstance::setDatabaseDir(const File *baseDir) {
+	File* dbRoot = baseDir->get(this->name); __STP(dbRoot);
+
+	this->dbDir = dbRoot->get(DB_DIR);
+	this->undodbDir = dbRoot->get(UNDO_DIR);
+}
+
+void AbstractExecutableModuleInstance::createDatabase() {
+	CodableDatabase db;
+	db.createDatabase(this->dbDir, this->undodbDir);
+}
+
+void AbstractExecutableModuleInstance::loadDatabase() {
+	this->vm->loadDatabase(this->dbDir, this->undodbDir);
 }
 
 } /* namespace alinous */

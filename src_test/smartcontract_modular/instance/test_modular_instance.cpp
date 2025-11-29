@@ -15,6 +15,8 @@
 #include "modular_project_registory/SmartcontractProjectData.h"
 #include "modular_project_registory/ModularSmartcontractProjectRegistory.h"
 
+#include "trx/session/base/CdbDatabaseSessionId.h"
+
 using namespace codablecash;
 
 
@@ -59,6 +61,9 @@ TEST(TestModularInstanceGroup, case01){
 }
 
 TEST(TestModularInstanceGroup, case02){
+	File projectTestFolder = this->env->testCaseDir();
+	_ST(File, baseTestDir, projectTestFolder.get(L"store"))
+
 	const File* projectFolder = this->env->getProjectRoot();
 
 	ModularProjectUtils utils(L"src_test/smartcontract_modular/instance/resources/case02/project01/", projectFolder);
@@ -73,6 +78,10 @@ TEST(TestModularInstanceGroup, case02){
 	bool res = inst->hasCompileError();
 	CHECK(res == false);
 
+	inst->setDatabaseDir(baseTestDir);
+	inst->createDatabase();
+	inst->loadDatabase();
+
 	res = inst->analyze();
 	CHECK(res == false);
 
@@ -81,4 +90,11 @@ TEST(TestModularInstanceGroup, case02){
 	CHECK(res == false);
 }
 
+TEST(TestModularInstanceGroup, generateSession01){
+	CdbDatabaseSessionId* baseId = CdbDatabaseSessionId::createRandomId(); __STP(baseId);
+	CdbDatabaseSessionId* copy = CdbDatabaseSessionId::from32BytesId(baseId); __STP(copy);
+
+	int cmp = baseId->compareTo(copy);
+	CHECK(cmp == 0);
+}
 

@@ -6,6 +6,7 @@ add_subdirectory(modular_project)
 add_subdirectory(modular_project_registory)
 add_subdirectory(smartcontract_cache)
 add_subdirectory(smartcontract_executor)
+add_subdirectory(smartcontract_executor_index)
 add_subdirectory(smartcontract_instance)
 add_subdirectory(transaction)
 

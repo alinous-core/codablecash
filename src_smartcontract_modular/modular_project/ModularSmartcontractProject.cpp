@@ -46,6 +46,12 @@ ModularSmartcontractProject::~ModularSmartcontractProject() {
 }
 
 void ModularSmartcontractProject::loadProject() {
+	if(this->config == nullptr){
+		__loadProject();
+	}
+}
+
+void ModularSmartcontractProject::__loadProject() {
 	File* projectConfig = this->baseDir->get(PROJECT_CONFIG_FILE_NAME); __STP(projectConfig);
 
 	this->config = new ModularProjectConfig();
@@ -134,6 +140,5 @@ ModularSmartcontractInstance* ModularSmartcontractProject::toInstance() const {
 
 	return __STP_MV(instance);
 }
-
 
 } /* namespace codablecash */

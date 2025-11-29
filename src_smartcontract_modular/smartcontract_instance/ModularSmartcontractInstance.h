@@ -24,9 +24,15 @@ class ModularProjectConfig;
 class ExecutableModuleInstance;
 class LibraryExectableModuleInstance;
 class SmartcontractProjectData;
+class SmartcontractProjectId;
+class SmartcontractInstanceAddress;
+
 
 class ModularSmartcontractInstance {
 public:
+	static const constexpr wchar_t* DB_DIR{L"main_data"};
+	static const constexpr wchar_t* UNDO_DIR{L"undo_data"};
+
 	ModularSmartcontractInstance();
 	virtual ~ModularSmartcontractInstance();
 
@@ -47,6 +53,11 @@ public:
 
 	void resetRootReference();
 
+	// database
+	void setDatabaseDir(const File* baseDir);
+	void createDatabase();
+	void loadDatabase();
+
 	// binary
 	int binarySize() const;
 	void toBinary(ByteBuffer* out) const;
@@ -54,6 +65,9 @@ public:
 
 	// create data
 	SmartcontractProjectData* createData() const;
+	SmartcontractProjectId* getProjectId() const;
+
+	void setSmartcontractInstanceAddress(const SmartcontractInstanceAddress* address);
 
 private:
 	ByteBuffer* createBinary() const;
@@ -78,6 +92,8 @@ private:
 
 	HashMap<UnicodeString, LibraryExectableModuleInstance>* libraries;
 	ArrayList<LibraryExectableModuleInstance>* libArray;
+
+	SmartcontractInstanceAddress* instanceAddress;
 };
 
 } /* namespace codablecash */

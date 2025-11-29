@@ -37,6 +37,9 @@ public:
 	static constexpr const uint8_t TYPE_EXEC = 1;
 	static constexpr const uint8_t TYPE_LIBRARY= 2;
 
+	static const constexpr wchar_t* DB_DIR{L"main_data"};
+	static const constexpr wchar_t* UNDO_DIR{L"undo_data"};
+
 	explicit AbstractExecutableModuleInstance(uint8_t kind);
 	virtual ~AbstractExecutableModuleInstance();
 
@@ -81,6 +84,11 @@ public:
 
 	static AbstractExecutableModuleInstance* createFromBinary(ByteBuffer* in);
 
+	// database
+	void setDatabaseDir(const File* baseDir);
+	void createDatabase();
+	void loadDatabase();
+
 protected:
 	void resetContract();
 	void parseSourceFolders(const File *projectBaseDir);
@@ -109,6 +117,10 @@ protected:
 	const ArrayList<CompileError>* compile_errors;
 
 	InstanceDependencyHandler* dependencyHandler;
+
+	// database
+	File* dbDir;
+	File* undodbDir;
 };
 
 } /* namespace codablecash */

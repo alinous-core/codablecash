@@ -23,6 +23,8 @@
 #include "bc/ExceptionThrower.h"
 
 #include "bc_base/BinaryUtils.h"
+#include "bc_base/AbstractAddress.h"
+#include "bc_base/AddressDescriptor.h"
 
 #include "base_io/ByteBuffer.h"
 #include "base_io/File.h"
@@ -33,6 +35,8 @@
 
 #include "transaction/SmartcontractInstanceAddress.h"
 
+
+
 namespace codablecash {
 
 ModularSmartcontractInstance::ModularSmartcontractInstance() {
@@ -41,6 +45,7 @@ ModularSmartcontractInstance::ModularSmartcontractInstance() {
 	this->libraries = new HashMap<UnicodeString, LibraryExectableModuleInstance>();
 	this->libArray = new ArrayList<LibraryExectableModuleInstance>();
 	this->instanceAddress = nullptr;
+	this->dbRoot = nullptr;
 }
 
 ModularSmartcontractInstance::~ModularSmartcontractInstance() {
@@ -57,10 +62,10 @@ ModularSmartcontractInstance::~ModularSmartcontractInstance() {
 		}
 	}
 	delete this->libraries;
-
 	delete this->libArray;
-
 	delete this->instanceAddress;
+
+	delete this->dbRoot;
 }
 
 void ModularSmartcontractInstance::setModularProjectConfig(const ModularProjectConfig *config) {
@@ -370,26 +375,27 @@ ModularSmartcontractInstance* ModularSmartcontractInstance::createFromBinary(Byt
 
 SmartcontractProjectData* ModularSmartcontractInstance::createData() const {
 	SmartcontractProjectData* data = new SmartcontractProjectData(); __STP(data);
+
 	ByteBuffer* buff = createBinary(); __STP(buff);
 	buff->position(0);
-
 	data->setData(buff);
 
-	{
-		ByteBuffer* shaBuff = Sha256::sha256(buff, true); __STP(shaBuff);
+	SmartcontractProjectId* projectId = __getProjectId(buff); __STP(projectId);
+	ProjectIdKey key;
+	key.setProjectId(projectId);
 
-		SmartcontractProjectId projectId((const char*)shaBuff->array(), shaBuff->capacity());
-		ProjectIdKey key;
-		key.setProjectId(&projectId);
-
-		data->setKey(&key);
-	}
+	data->setKey(&key);
 
 	return __STP_MV(data);
 }
 
 SmartcontractProjectId* ModularSmartcontractInstance::getProjectId() const {
 	ByteBuffer* buff = createBinary(); __STP(buff);
+
+	return __getProjectId(buff);
+}
+
+SmartcontractProjectId* ModularSmartcontractInstance::__getProjectId(ByteBuffer *buff) const {
 	buff->position(0);
 
 	ByteBuffer* shaBuff = Sha256::sha256(buff, true); __STP(shaBuff);
@@ -408,17 +414,27 @@ ByteBuffer* ModularSmartcontractInstance::createBinary() const {
 }
 
 void ModularSmartcontractInstance::setDatabaseDir(const File *baseDir) {
-	SmartcontractProjectId* projectId = getProjectId(); __STP(projectId);
-	UnicodeString* strProjectId = projectId->toString(); __STP(strProjectId);
+	AddressDescriptor* desc = this->instanceAddress->toAddressDescriptor(); __STP(desc);
 
-	File* dbRoot = baseDir->get(strProjectId); __STP(dbRoot);
+	const char* cstr = desc->toCString();
+	StackArrayRelease<const char> __st_cstr(cstr);
+	UnicodeString seg(cstr);
+
+	delete this->dbRoot;
+	this->dbRoot = baseDir->get(&seg);
 
 	this->execModule->setDatabaseDir(dbRoot);
 
 	int maxLoop = this->libArray->size();
 	for(int i = 0; i != maxLoop; ++i){
 		LibraryExectableModuleInstance* lib = this->libArray->get(i);
-		lib->setDatabaseDir(dbRoot);
+		lib->setDatabaseDir(this->dbRoot);
+	}
+}
+
+void ModularSmartcontractInstance::cleanDbRoot() {
+	if(this->dbRoot != nullptr && this->dbRoot->exists()){
+		this->dbRoot->deleteDir();
 	}
 }
 

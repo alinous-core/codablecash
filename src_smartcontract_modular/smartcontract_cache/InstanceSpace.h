@@ -11,14 +11,25 @@
 namespace codablecash {
 
 class ModularSmartcontractInstance;
+class SmartcontractInstanceAddress;
 
 class InstanceSpace {
 public:
-	InstanceSpace();
+	InstanceSpace(const SmartcontractInstanceAddress *instAddress, ModularSmartcontractInstance* instance);
 	virtual ~InstanceSpace();
+
+	bool isDeletable() const noexcept;
+	void beforeCacheOut();
+
+	const SmartcontractInstanceAddress* getSmartContractInstanceAddress() const noexcept;
+
+
 
 private:
 	ModularSmartcontractInstance* instance;
+
+	int ref;
+
 };
 
 } /* namespace codablecash */

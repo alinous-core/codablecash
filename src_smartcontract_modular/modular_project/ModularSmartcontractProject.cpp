@@ -141,4 +141,16 @@ ModularSmartcontractInstance* ModularSmartcontractProject::toInstance() const {
 	return __STP_MV(instance);
 }
 
+SmartcontractProjectId* ModularSmartcontractProject::getProjectId() const {
+	ModularSmartcontractInstance* instance = toInstance(); __STP(instance);
+	instance->loadCompilantUnits(this->baseDir);
+
+	bool res = instance->hasCompileError();
+	ExceptionThrower<Exception>::throwExceptionIfCondition(res == true, L"Compile error exists.", __FILE__, __LINE__);
+
+	SmartcontractProjectId* projectId = instance->getProjectId();
+
+	return projectId;
+}
+
 } /* namespace codablecash */

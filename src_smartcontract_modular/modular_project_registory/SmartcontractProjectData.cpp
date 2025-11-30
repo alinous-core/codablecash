@@ -8,6 +8,8 @@
 #include "modular_project_registory/SmartcontractProjectData.h"
 #include "modular_project_registory/ProjectIdKey.h"
 
+#include "smartcontract_instance/ModularSmartcontractInstance.h"
+
 #include "base_io/ByteBuffer.h"
 
 #include "base/StackRelease.h"
@@ -71,6 +73,13 @@ void SmartcontractProjectData::setKey(const ProjectIdKey *key) {
 
 IBlockObject* SmartcontractProjectData::copyData() const noexcept {
 	return new SmartcontractProjectData(*this);
+}
+
+ModularSmartcontractInstance* SmartcontractProjectData::toSmartcontractInstance() const {
+	this->projectData->position(0);
+	ModularSmartcontractInstance* instance = ModularSmartcontractInstance::createFromBinary(this->projectData);
+
+	return instance;
 }
 
 } /* namespace codablecash */

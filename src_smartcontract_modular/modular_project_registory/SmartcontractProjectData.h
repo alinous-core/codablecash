@@ -15,6 +15,7 @@ using namespace alinous;
 namespace codablecash {
 
 class ProjectIdKey;
+class ModularSmartcontractInstance;
 
 class SmartcontractProjectData : public IBlockObject {
 public:
@@ -34,6 +35,8 @@ public:
 	}
 
 	virtual IBlockObject* copyData() const noexcept;
+
+	ModularSmartcontractInstance* toSmartcontractInstance() const;
 
 private:
 	ByteBuffer* projectData;

@@ -20,6 +20,9 @@ class ModularSmartcontractProjectRegistory;
 class SmartcontractExecContextRegistory;
 class InstanceIdIndex;
 class ModularSmartcontractProject;
+class SmartcontractProjectId;
+class SmartcontractProjectData;
+class InstanceSpacesManager;
 
 class ModularSmartcontractExecutor {
 public:
@@ -28,13 +31,21 @@ public:
 	explicit ModularSmartcontractExecutor(const File* base);
 	virtual ~ModularSmartcontractExecutor();
 
+	void createExecutor();
+	void open();
+	void close() noexcept;
+
 	void registerModularSmartcontractProject(ModularSmartcontractProject* project);
+	SmartcontractProjectData* getProject(const SmartcontractProjectId* projectId);
 
 private:
 	File* baseDir;
 	ModularSmartcontractProjectRegistory* projectRegistory;
 	SmartcontractExecContextRegistory* execContextRegistory;
 	InstanceIdIndex* instanceIndex;
+
+	InstanceSpacesManager* instanceSpace;
+
 };
 
 } /* namespace codablecash */

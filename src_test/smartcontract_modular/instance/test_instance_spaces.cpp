@@ -1,7 +1,7 @@
 /*
- * test_smartcontract_executor.cpp
+ * test_instance_spaces.cpp
  *
- *  Created on: Nov 28, 2025
+ *  Created on: Nov 30, 2025
  *      Author: iizuka
  */
 #include "test_utils/t_macros.h"
@@ -23,7 +23,7 @@
 
 using namespace codablecash;
 
-TEST_GROUP(TestSmartcontractExecutorGroup) {
+TEST_GROUP(TestInstanceSpacesrGroup) {
 	TEST_SETUP() {
 		env->setup();
 	}
@@ -32,7 +32,7 @@ TEST_GROUP(TestSmartcontractExecutorGroup) {
 	}
 };
 
-TEST(TestSmartcontractExecutorGroup, case01){
+TEST(TestInstanceSpacesrGroup, case01) {
 	const File* projectFolder = this->env->getProjectRoot();
 	ModularProjectUtils utils(L"src_test/smartcontract_modular/instance/resources/case02/project01/", projectFolder);
 	const File* baseDir = utils.getFolder();
@@ -47,17 +47,6 @@ TEST(TestSmartcontractExecutorGroup, case01){
 	ModularSmartcontractExecutor executor(baseTestDir);
 	executor.createExecutor();
 
-	{
-		executor.open();
-
-		executor.registerModularSmartcontractProject(&project);
-
-		SmartcontractProjectId* projectId = project.getProjectId(); __STP(projectId);
-		SmartcontractProjectData* data = executor.getProject(projectId); __STP(data);
-
-		CHECK(data != nullptr);
-
-		executor.close();
-	}
 
 }
+

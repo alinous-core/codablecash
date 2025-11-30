@@ -57,6 +57,7 @@ public:
 	void setDatabaseDir(const File* baseDir);
 	void createDatabase();
 	void loadDatabase();
+	void cleanDbRoot();
 
 	// binary
 	int binarySize() const;
@@ -68,8 +69,13 @@ public:
 	SmartcontractProjectId* getProjectId() const;
 
 	void setSmartcontractInstanceAddress(const SmartcontractInstanceAddress* address);
+	const SmartcontractInstanceAddress* getSmartContractInstanceAddress() const noexcept {
+		return this->instanceAddress;
+	}
 
 private:
+	SmartcontractProjectId* __getProjectId(ByteBuffer* buff) const;
+
 	ByteBuffer* createBinary() const;
 
 	void initBeforeAnalyze();
@@ -94,6 +100,8 @@ private:
 	ArrayList<LibraryExectableModuleInstance>* libArray;
 
 	SmartcontractInstanceAddress* instanceAddress;
+
+	File* dbRoot;
 };
 
 } /* namespace codablecash */

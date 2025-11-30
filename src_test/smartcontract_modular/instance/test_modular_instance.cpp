@@ -17,6 +17,9 @@
 
 #include "trx/session/base/CdbDatabaseSessionId.h"
 
+#include "transaction/SmartcontractInstanceAddress.h"
+
+
 using namespace codablecash;
 
 
@@ -77,6 +80,9 @@ TEST(TestModularInstanceGroup, case02){
 
 	bool res = inst->hasCompileError();
 	CHECK(res == false);
+
+	SmartcontractInstanceAddress* address = SmartcontractInstanceAddress::createAddress(0); __STP(address);
+	inst->setSmartcontractInstanceAddress(address);
 
 	inst->setDatabaseDir(baseTestDir);
 	inst->createDatabase();

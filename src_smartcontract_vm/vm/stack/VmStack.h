@@ -18,6 +18,7 @@ namespace alinous {
 class AbstractReference;
 class VirtualMachine;
 class VmRootReference;
+class AbstractExpression;
 
 class VmStack : public AbstractReference, public IInstanceContainer {
 public:
@@ -46,9 +47,17 @@ public:
 
 	virtual void resetOnGc() noexcept;
 
+	void setCurrentMethod(MethodDeclare* currentMethod) noexcept;
+	void setEntryPoint(AbstractExpression* entryPoint) noexcept;
+
 private:
 	VMemList<AbstractReference>* stack;
 	VirtualMachine* vm;
+
+	MethodDeclare* currentMethod;
+	AbstractExpression* entryPoint;
+
+
 };
 
 } /* namespace alinous */

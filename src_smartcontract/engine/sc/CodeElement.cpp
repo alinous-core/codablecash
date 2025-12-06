@@ -161,6 +161,7 @@
 #include "lang_sql/sql_dml_parts/SQLWhere.h"
 
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
 
 #include "engine/sc/exceptions.h"
 
@@ -170,8 +171,8 @@
 #include "instance/reserved_classes/AbstractReservedMethodDeclare.h"
 
 #include "instance/reserved_generics/AbstractReservedGenericsClassDeclare.h"
-
 #include "instance/reserved_generics/ReservedGeneratedGenericsClassDeclare.h"
+
 
 namespace alinous {
 
@@ -891,6 +892,13 @@ void CodeElement::positionFromBinary(ByteBuffer *in) {
 	this->endColumn = in->getInt();
 }
 
+CodeElement* CodeElement::binaryCopy() const {
+	int cap = binarySize();
+	ByteBuffer* buff = ByteBuffer::allocateWithEndian(cap, true); __STP(buff);
 
+	buff->position(0);
+	CodeElement* element = createFromBinary(buff);
+	return element;
+}
 
 } /* namespace alinous */

@@ -32,6 +32,10 @@
 #include "lang/sc_declare/PackageNameDeclare.h"
 
 
+#include "inter_modular_access/InterModuleAccessException.h"
+
+using namespace codablecash;
+
 namespace alinous {
 
 ReservedClassRegistory::ReservedClassRegistory() {
@@ -56,6 +60,9 @@ ReservedClassRegistory::ReservedClassRegistory() {
 	addAnalyzedClass(aclass);
 
 	aclass = DatabaseExceptionClassDeclare::createAnalyzedClass();
+	addAnalyzedClass(aclass);
+
+	aclass = InterModuleAccessException::createAnalyzedClass();
 	addAnalyzedClass(aclass);
 
 	// Object Class

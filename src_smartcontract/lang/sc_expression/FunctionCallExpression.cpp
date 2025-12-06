@@ -358,6 +358,9 @@ AbstractVmInstance* FunctionCallExpression::interpret(VirtualMachine* vm) {
 	FunctionArguments args;
 	interpretThisPointer(vm, &args);
 
+	// mark stack
+	vm->markStackEntryPoint(this);
+
 	GcManager* gc = vm->getGc();
 	StackFloatingVariableHandler releaser(gc);
 	interpretArguments(vm, &args, &releaser);

@@ -15,6 +15,7 @@ namespace alinous {
 class ByteBuffer;
 class File;
 class VirtualMachine;
+class AbstractFunctionExtArguments;
 }
 using namespace alinous;
 
@@ -26,7 +27,7 @@ class LibraryExectableModuleInstance;
 class SmartcontractProjectData;
 class SmartcontractProjectId;
 class SmartcontractInstanceAddress;
-
+class SmartcontractExecResult;
 
 class ModularSmartcontractInstance {
 public:
@@ -47,6 +48,8 @@ public:
 	bool hasCompileError() const noexcept;
 
 	bool analyze();
+	bool checkDirectAccess();
+
 	void setMainInstance();
 	bool createMainInstance();
 	bool interpretInitializer();
@@ -64,6 +67,9 @@ public:
 	void toBinary(ByteBuffer* out) const;
 	static ModularSmartcontractInstance* createFromBinary(ByteBuffer* in);
 
+	// modular
+	bool generateInterModularCommunicationClasses();
+
 	// create data
 	SmartcontractProjectData* createData() const;
 	SmartcontractProjectId* getProjectId() const;
@@ -72,6 +78,9 @@ public:
 	const SmartcontractInstanceAddress* getSmartContractInstanceAddress() const noexcept {
 		return this->instanceAddress;
 	}
+
+	// invoke method
+	SmartcontractExecResult* invokeMainObjectMethod(UnicodeString *moduleName, UnicodeString *methodName, ArrayList<AbstractFunctionExtArguments>* args);
 
 private:
 	SmartcontractProjectId* __getProjectId(ByteBuffer* buff) const;

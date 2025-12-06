@@ -30,6 +30,9 @@
 #include "instance/reserved_classes/list/ListListMethod.h"
 
 #include "lang/sc_declare/AccessControlDeclare.h"
+
+#include "inter_modular_access/ModularProxyMethodDeclare.h"
+
 namespace alinous {
 
 AbstractReservedMethodDeclare::AbstractReservedMethodDeclare(uint32_t methodId) : MethodDeclare(RESERVED_METHOD_DECLARE) {
@@ -47,6 +50,9 @@ AbstractReservedMethodDeclare* AbstractReservedMethodDeclare::createMethodFromBi
 	switch(methodId){
 	case METHOD_OBJECT_OBJECT:
 		method = new ObjectObjectMethod();
+		break;
+	case METHOD_MODULAR_INTERFACE:
+		method = new ModularProxyMethodDeclare();
 		break;
 	case METHOD_LIST_LIST:
 		method = new ListListMethod();
@@ -117,6 +123,8 @@ void AbstractReservedMethodDeclare::init(VirtualMachine *vm) {
 void AbstractReservedMethodDeclare::interpret(FunctionArguments *args, VirtualMachine *vm) {
 	MethodArgumentSetupper argSetup(args, vm);
 	{
+		// stack
+		vm->markStackbyMethod(this);
 		vm->newStack();
 		StackPopper stackPopper(vm);
 

@@ -28,6 +28,7 @@ namespace codablecash {
 
 InstanceDependencyHandler::InstanceDependencyHandler() {
 	this->map = new HashMap<UnicodeString, InstanceDependencyContext>();
+	this->list = new ArrayList<InstanceDependencyContext>();
 }
 
 InstanceDependencyHandler::~InstanceDependencyHandler() {
@@ -40,6 +41,8 @@ InstanceDependencyHandler::~InstanceDependencyHandler() {
 	}
 
 	delete this->map;
+
+	delete this->list;
 }
 
 void InstanceDependencyHandler::registerDependentInstance(AbstractDependencyConfig *config, ModularSmartcontractInstance *parent, AnalyzeContext* actx) {
@@ -58,6 +61,7 @@ void InstanceDependencyHandler::registerDependentInstance(AbstractDependencyConf
 		context->setVm(vm);
 
 		this->map->put(name, context);
+		this->list->addElement(context);
 	}
 }
 

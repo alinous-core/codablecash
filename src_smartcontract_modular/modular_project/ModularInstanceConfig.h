@@ -63,6 +63,10 @@ public:
 		return this->libExport;
 	}
 
+	ArrayList<UnicodeString>* getDirectAccess() const noexcept {
+		return this->directAccess;
+	}
+
 private:
 	void loadMainPackageAndClass(const JsonObject* instance);
 	void loadInitializer(const JsonObject* initializer);

@@ -69,6 +69,8 @@ public:
 
 	ClassDeclare* getClassDeclareByFqn(const UnicodeString* fqn) const;
 
+	UnicodeString* getMainClassFqn() const noexcept;
+
 private:
 	UnicodeString* mainPackage;
 	UnicodeString* mainClass;

@@ -226,6 +226,9 @@ AnalyzedType ConstructorCall::getType(AnalyzeContext* actx) {
 AbstractVmInstance* ConstructorCall::interpret(VirtualMachine* vm) {
 	GcManager* gc = vm->getGc();
 
+	// mark stack
+	vm->markStackEntryPoint(this);
+
 	AnalyzedClass* clazz = this->atype->getAnalyzedClass();
 	VmClassInstance* inst = VmClassInstance::createObject(clazz, vm);
 

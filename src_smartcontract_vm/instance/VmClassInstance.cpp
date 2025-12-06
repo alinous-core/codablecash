@@ -37,13 +37,14 @@
 
 namespace alinous {
 
+
 VmClassInstance::VmClassInstance(AnalyzedClass* clazz, VirtualMachine* vm) :
-		AbstractVmInstance(VmInstanceTypesConst::INST_OBJ), clazz(clazz), members(vm) {
+		AbstractVmInstance(VmInstanceTypesConst::INST_OBJ, vm->publishInstanceSerial()), clazz(clazz), members(vm) {
 
 }
 
 VmClassInstance::VmClassInstance(uint8_t type, AnalyzedClass* clazz, VirtualMachine* vm) :
-		AbstractVmInstance(type), clazz(clazz), members(vm) {
+		AbstractVmInstance(type, vm->publishInstanceSerial()), clazz(clazz), members(vm) {
 }
 
 VmClassInstance::~VmClassInstance() {

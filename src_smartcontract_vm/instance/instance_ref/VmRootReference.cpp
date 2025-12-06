@@ -21,11 +21,12 @@
 
 namespace alinous {
 
-VmRootReference::VmRootReference(VirtualMachine* vm) : AbstractReference(this, VmInstanceTypesConst::REF_ROOT) {
+VmRootReference::VmRootReference(VirtualMachine* vm) : AbstractReference(this, VmInstanceTypesConst::REF_ROOT, 0) {
 	this->vm = vm;
 	this->mainInst = nullptr;
 	this->staticHolder = new StaticConstInstanceHolder();
 	this->classStaticHolder = new StaticClassReferenceHolder();
+	this->instanceSerial = 1;
 }
 
 VmRootReference::~VmRootReference() {
@@ -126,5 +127,8 @@ StaticClassReferenceHolder* VmRootReference::getStaticClassReferenceHolder() con
 void VmRootReference::resetOnGc() noexcept {
 }
 
+uint64_t VmRootReference::publishInstanceSerial() noexcept {
+	return this->instanceSerial++;
+}
 
 } /* namespace alinous */

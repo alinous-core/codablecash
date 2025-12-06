@@ -27,7 +27,6 @@ public:
 	virtual ~InstanceDependencyContext();
 
 	void setModuleInstance(AbstractExecutableModuleInstance* inst) noexcept;
-	void setUnitsList(ArrayList<CompilationUnit>* unitsList) noexcept;
 
 	AbstractExecutableModuleInstance* getModuleInstance() const noexcept {
 		return this->moduleInstance;
@@ -40,7 +39,6 @@ public:
 
 private:
 	AbstractExecutableModuleInstance* moduleInstance;
-	ArrayList<CompilationUnit>* uintsList;
 	ModuleInstanceClassLoader* clazzLoader;
 };
 

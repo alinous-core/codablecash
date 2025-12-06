@@ -22,9 +22,11 @@ public:
 	static constexpr const uint16_t TYPE_NULL_POINTER_EXCEPTION = 5;
 	static constexpr const uint16_t TYPE_TYPE_CAST_EXCEPTION = 6;
 	static constexpr const uint16_t TYPE_ZERO_DIVISION_EXCEPTION = 7;
+	static constexpr const uint16_t TYPE_INTER_MODULE_ACCESS_EXCEPTION = 8;
 
-	static constexpr const uint16_t TYPE_OBJECT = 8;
+	static constexpr const uint16_t TYPE_OBJECT = 10;
 
+	static constexpr const uint16_t TYPE_MODULAR_PROXY = 11;
 
 	AbstractReservedClassDeclare();
 	virtual ~AbstractReservedClassDeclare();

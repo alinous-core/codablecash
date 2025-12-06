@@ -36,8 +36,13 @@ public:
 	void analyzeType(AnalyzeContext* actx);
 	void analyze(AnalyzeContext* actx);
 
+	ArrayList<InstanceDependencyContext>* getContextList() const noexcept {
+		return this->list;
+	}
+
 private:
 	HashMap<UnicodeString, InstanceDependencyContext>* map;
+	ArrayList<InstanceDependencyContext>* list;
 
 };
 

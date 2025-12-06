@@ -14,7 +14,7 @@ namespace alinous {
 
 class ExtNullPtrObject : public AbstractExtObject {
 public:
-	ExtNullPtrObject(const UnicodeString* name, uint8_t type);
+	ExtNullPtrObject(const UnicodeString* name);
 	virtual ~ExtNullPtrObject();
 
 	virtual bool isNull() const noexcept;

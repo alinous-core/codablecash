@@ -146,7 +146,13 @@ void VirtualMachine::interpret(const UnicodeString* method) {
 	interpretMainObjectMethod(method, &list);
 }
 
-void VirtualMachine::interpretMainObjectMethod(const UnicodeString* method,	ArrayList<AbstractFunctionExtArguments>* arguments) {
+MethodDeclare* VirtualMachine::interpretMainObjectMethod(const UnicodeString *method, ArrayList<AbstractFunctionExtArguments> *arguments) {
+	FunctionArguments args;
+	return interpretMainObjectMethod(method, arguments, &args);
+}
+
+
+MethodDeclare* VirtualMachine::interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments, FunctionArguments* args) {
 	VmClassInstance* _this = dynamic_cast<VmClassInstance*>(this->sc->getRootReference()->getInstance());
 	AnalyzedClass* aclass = _this->getAnalyzedClass();
 
@@ -170,23 +176,19 @@ void VirtualMachine::interpretMainObjectMethod(const UnicodeString* method,	Arra
 		typeList.addElement(new AnalyzedType(at));
 	}
 
-	MethodScore* score = calc.findMethod(method, &typeList);
-	if(score == nullptr){
-		throw new VmMethodNotFoundException(__FILE__, __LINE__);
-	}
+	MethodScore* score = calcScore(&calc, method, &typeList);
 
 	VTableMethodEntry* methodEntry = score->getEntry();
 	MethodDeclare* methodDeclare = methodEntry->getMethod();
 
-	FunctionArguments args;
-	args.setThisPtr(_this);
+	args->setThisPtr(_this);
 
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractFunctionExtArguments* extArg = arguments->get(i);
 
 		AbstractVmInstance* inst = extArg->interpret(this);
 
-		args.addSubstance(inst != nullptr ? inst->getInstance() : nullptr);
+		args->addSubstance(inst != nullptr ? inst->getInstance() : nullptr);
 	}
 
 
@@ -195,10 +197,74 @@ void VirtualMachine::interpretMainObjectMethod(const UnicodeString* method,	Arra
 	StackPopper popStack(this);
 	VmStack* stack = this->topStack();
 
-	methodDeclare->interpret(&args, this);
+	methodDeclare->interpret(args, this);
 
 	// uncaught exception
 	checkUncaughtException();
+
+	return methodDeclare;
+}
+
+
+MethodDeclare* VirtualMachine::interpretMainObjectMethodProxy(const UnicodeString *method, FunctionArguments *args) {
+	VmClassInstance* _this = dynamic_cast<VmClassInstance*>(this->sc->getRootReference()->getInstance());
+	AnalyzedClass* aclass = _this->getAnalyzedClass();
+
+	const UnicodeString* fqn = aclass->getFullQualifiedName();
+
+	AnalyzeContext* actx = this->sc->getAnalyzeContext();
+	VTableRegistory* vreg = actx->getVtableRegistory();
+	VTableClassEntry* classEntry = vreg->getClassEntry(fqn, aclass);
+
+	// calc type
+	FunctionScoreCalc calc(classEntry);
+
+	ArrayList<AnalyzedType> typeList;
+	typeList.setDeleteOnExit();
+
+	const ArrayList<IAbstractVmInstanceSubstance>* list = args->getArguments();
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		IAbstractVmInstanceSubstance* vminst = list->get(i);
+
+		AnalyzedType at = vminst->getRuntimeType();
+		typeList.addElement(new AnalyzedType(at));
+	}
+
+	// score
+	MethodScore* score = calcScore(&calc, method, &typeList);
+
+	VTableMethodEntry* methodEntry = score->getEntry();
+	MethodDeclare* methodDeclare = methodEntry->getMethod();
+
+	// FIXME
+	FunctionArguments localArguments;
+	for(int i = 0; i != maxLoop; ++i){
+		IAbstractVmInstanceSubstance* vminst = list->get(i);
+		localArguments.addSubstance(vminst);
+	}
+	localArguments.setThisPtr(_this);
+
+	// top stack
+	this->newStack();
+	StackPopper popStack(this);
+	VmStack* stack = this->topStack();
+
+	methodDeclare->interpret(&localArguments, this);
+
+	// uncaught exception
+	checkUncaughtException();
+
+	return methodDeclare;
+}
+
+
+MethodScore* VirtualMachine::calcScore(FunctionScoreCalc *calc, const UnicodeString *method, ArrayList<AnalyzedType> *typeList) {
+	MethodScore* score = calc->findMethod(method, typeList);
+	if(score == nullptr){
+		throw new VmMethodNotFoundException(__FILE__, __LINE__);
+	}
+	return score;
 }
 
 void VirtualMachine::interpret(MethodDeclare* method, VmClassInstance* _this, ArrayList<AbstractFunctionExtArguments>* arguments) {
@@ -215,6 +281,8 @@ void VirtualMachine::interpret(MethodDeclare* method, VmClassInstance* _this, Ar
 	// uncaught exception
 	checkUncaughtException();
 }
+
+
 
 ReservedClassRegistory* VirtualMachine::getReservedClassRegistory() const noexcept {
 	return this->sc->getReservedClassRegistory();
@@ -282,6 +350,14 @@ bool VirtualMachine::hasAnalyzeError(int code, AnalyzeContext* actx) noexcept {
 	}
 
 	return ret;
+}
+
+void VirtualMachine::markStackbyMethod(MethodDeclare *method) {
+	this->stackManager->markStackbyMethod(method);
+}
+
+void VirtualMachine::markStackEntryPoint(AbstractExpression *exp) {
+	this->markStackEntryPoint(exp);
 }
 
 void VirtualMachine::newStack() {
@@ -438,6 +514,18 @@ ExtExceptionObject* VirtualMachine::getUncaughtException() noexcept {
 	return dynamic_cast<ExtExceptionObject*>(extObj);
 }
 
+ObjectReference* VirtualMachine::getUncaughtExceptionProxy() noexcept {
+	return this->uncaughtException;
+}
+
+void VirtualMachine::clearUncoughtException() noexcept {
+	if(this->uncaughtException != nullptr){
+		this->gc->removeObject(this->uncaughtException);
+		delete this->uncaughtException;
+		this->uncaughtException = nullptr;
+	}
+}
+
 void VirtualMachine::setCaught(bool caught) noexcept {
 	this->caught = caught;
 }
@@ -472,6 +560,17 @@ const UnicodeString* VirtualMachine::getCurrentSchema() const noexcept {
 void VirtualMachine::setEscapeTargetCondition(EscapeTargetCondition* cond) noexcept {
 	delete this->espaceTargetCondition;
 	this->espaceTargetCondition = cond;
+}
+
+uint64_t VirtualMachine::publishInstanceSerial() noexcept {
+	uint64_t serial = 0;
+
+	if(this->sc != nullptr && this->rootReference != nullptr){
+		VmRootReference* rootReference = this->sc->getRootReference();
+		serial = rootReference->publishInstanceSerial();
+	}
+
+	return serial;
 }
 
 } /* namespace alinous */

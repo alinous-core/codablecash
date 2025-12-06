@@ -7,6 +7,7 @@ set(__src
 	SmartcontractExecContextKey.cpp
 	SmartcontractExecContextKeyFactory.cpp
 	SmartcontractExecContextRegistory.cpp
+	SmartcontractExecResult.cpp
 )
 handle_sub(codablecashlib "${__src}" smartcontract_modular smartcontract_executor)
 

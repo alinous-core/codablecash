@@ -20,7 +20,7 @@
 
 namespace alinous {
 
-VmArrayInstance::VmArrayInstance(VirtualMachine* vm, int length, const AnalyzedType& atype) : AbstractVmInstance(VmInstanceTypesConst::INST_ARRAY) {
+VmArrayInstance::VmArrayInstance(VirtualMachine* vm, int length, const AnalyzedType& atype) : AbstractVmInstance(VmInstanceTypesConst::INST_ARRAY, vm->publishInstanceSerial()) {
 	this->array = new(vm) VMemList<AbstractReference>(vm);
 	this->length = length;
 	this->atype = new AnalyzedType(atype);

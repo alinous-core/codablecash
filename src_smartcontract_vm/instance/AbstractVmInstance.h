@@ -28,7 +28,7 @@ public:
 	void* operator new(size_t size, VirtualMachine* vm);
 	void operator delete(void* p, size_t size);
 
-	explicit AbstractVmInstance(uint8_t type);
+	AbstractVmInstance(uint8_t type, uint64_t serial);
 	virtual ~AbstractVmInstance();
 
 	virtual uint8_t getType() const noexcept;
@@ -46,6 +46,7 @@ public:
 	virtual AbstractExtObject* toClassExtObject(const UnicodeString* name, VTableRegistory* table);
 protected:
 	uint8_t type;
+	uint64_t serial;
 };
 
 } /* namespace alinous */

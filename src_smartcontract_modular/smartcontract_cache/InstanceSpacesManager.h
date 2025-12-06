@@ -30,6 +30,9 @@ public:
 	virtual ~InstanceSpacesManager();
 
 	InstanceSpace* createInstance(const SmartcontractInstanceAddress* instAddress, const SmartcontractProjectId* projectId);
+	void registerCache(InstanceSpace* space);
+
+	InstanceSpace* loadFromCache(const SmartcontractInstanceAddress *instAddress);
 
 private:
 	MolularSmartcontractCacheManager* cache;

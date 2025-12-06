@@ -50,6 +50,10 @@ class VmTransactionHandler;
 class File;
 
 class AnalyzeContext;
+class FunctionScoreCalc;
+class MethodScore;
+class AnalyzedType;
+class AbstractExpression;
 
 class VirtualMachine {
 public:
@@ -64,9 +68,15 @@ public:
 
 	VmClassInstance* createScInstance();
 
-	void interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments);
+	MethodDeclare* interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments);
+	MethodDeclare* interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments, FunctionArguments* args);
+	MethodDeclare* interpretMainObjectMethodProxy(const UnicodeString* method, FunctionArguments* args);
+
 	void interpret(const UnicodeString* method);
 	void interpret(MethodDeclare* method, VmClassInstance* _this, ArrayList<AbstractFunctionExtArguments>* arguments);
+
+	void markStackbyMethod(MethodDeclare* method);
+	void markStackEntryPoint(AbstractExpression* exp);
 
 	void newStack();
 	void popStack();
@@ -97,6 +107,8 @@ public:
 
 	ArrayList<Exception>& getExceptions() noexcept;
 	ExtExceptionObject* getUncaughtException() noexcept;
+	ObjectReference* getUncaughtExceptionProxy() noexcept;
+	void clearUncoughtException() noexcept;
 
 	ReservedClassRegistory* getReservedClassRegistory() const noexcept;
 
@@ -133,11 +145,18 @@ public:
 		return this->espaceTargetCondition;
 	}
 	void setEscapeTargetCondition(EscapeTargetCondition* cond) noexcept;
+
+	uint64_t publishInstanceSerial() noexcept;
+
+private:
+	MethodScore* calcScore(FunctionScoreCalc* calc, const UnicodeString *method, ArrayList<AnalyzedType>* typeList);
+
 private:
 	SmartContract* sc;
 
 	VmMemoryManager* memory;
 	VmStackManager* stackManager;
+
 	VmMalloc* alloc;
 	GcManager* gc;
 	ExecControlManager* ctrl;

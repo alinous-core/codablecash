@@ -20,6 +20,7 @@
 
 #include "smartcontract_executor/ModularSmartcontractExecutor.h"
 
+#include "smartcontract_cache/ProjectNotFoundException.h"
 
 using namespace codablecash;
 
@@ -59,5 +60,8 @@ TEST(TestSmartcontractExecutorGroup, case01){
 
 		executor.close();
 	}
+}
 
+TEST(TestSmartcontractExecutorGroup, exceptions01){
+	testException<ProjectNotFoundException>();
 }

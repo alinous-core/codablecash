@@ -166,7 +166,7 @@ TEST(TestExtObjects, extExceptionCopy){
 
 TEST(TestExtObjects, nullObj01){
 	UnicodeString name(L"name");
-	ExtNullPtrObject obj(&name, 0);
+	ExtNullPtrObject obj(&name);
 
 	ExtNullPtrObject* obj1 = dynamic_cast<ExtNullPtrObject*>(obj.copy()); __STP(obj1);
 	CHECK(obj1 != nullptr)

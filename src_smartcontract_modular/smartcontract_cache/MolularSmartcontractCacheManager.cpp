@@ -49,6 +49,8 @@ InstanceSpace* MolularSmartcontractCacheManager::getInstanceSpace(const Smartcon
 		int index = this->list->indexOf(inst);
 		this->list->remove(index);
 		this->list->add(inst);
+
+		inst->incRef();
 	}
 
 	return inst;
@@ -62,7 +64,7 @@ InstanceSpace* MolularSmartcontractCacheManager::__getInstanceSpace(const Smartc
 		InstanceSpace* inst = this->list->get(i);
 		const SmartcontractInstanceAddress* ad = inst->getSmartContractInstanceAddress();
 
-		if(address->compareTo(ad)){
+		if(address->compareTo(ad) == 0){
 			instance = inst;
 			break;
 		}
@@ -95,6 +97,7 @@ void MolularSmartcontractCacheManager::removeAll() {
 	while(size > 0){
 		{
 			StackUnlocker __lock(this->mutex, __FILE__, __LINE__);
+			this->cacheLimit = 0;
 			__removeLast();
 		}
 		size = cacheSize();

@@ -17,8 +17,11 @@
 #include "modular_project_registory/SmartcontractProjectData.h"
 
 #include "smartcontract_cache/InstanceSpace.h"
+#include "smartcontract_cache/ProjectNotFoundException.h"
 
 #include "base/StackRelease.h"
+
+#include "bc/ExceptionThrower.h"
 
 
 namespace codablecash {
@@ -45,16 +48,20 @@ InstanceSpace* InstanceSpacesManager::createInstance(const SmartcontractInstance
 	key.setProjectId(projectId);
 
 	SmartcontractProjectData* data = this->projectReg->findProjectById(&key); __STP(data);
-	if(data == nullptr){ // FIXME exception
-		return nullptr;
-	}
+	ExceptionThrower<ProjectNotFoundException>::throwExceptionIfCondition(data == nullptr, L"", __FILE__, __LINE__);
 
 	ModularSmartcontractInstance* instance = data->toSmartcontractInstance();
 	InstanceSpace* space = new InstanceSpace(instAddress, instance); __STP(space);
 
-	this->cache->registerInstance(space);
-
 	return __STP_MV(space);
+}
+
+void InstanceSpacesManager::registerCache(InstanceSpace *space) {
+	this->cache->registerInstance(space);
+}
+
+InstanceSpace* InstanceSpacesManager::loadFromCache(const SmartcontractInstanceAddress *instAddress) {
+	return this->cache->getInstanceSpace(instAddress);
 }
 
 } /* namespace codablecash */

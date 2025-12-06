@@ -8,12 +8,21 @@
 #ifndef SMARTCONTRACT_CACHE_PROJECTNOTFOUNDEXCEPTION_H_
 #define SMARTCONTRACT_CACHE_PROJECTNOTFOUNDEXCEPTION_H_
 
+#include "base/Exception.h"
+
+using namespace alinous;
+
 namespace codablecash {
 
-class ProjectNotFoundException {
+class ProjectNotFoundException : public Exception {
 public:
-	ProjectNotFoundException();
+	ProjectNotFoundException(const char* srcfile, int srcline) noexcept;
+	ProjectNotFoundException(Exception* cause, const char* srcfile, int srcline) noexcept;
+	ProjectNotFoundException(const wchar_t* message, const char* srcfile, int srcline) noexcept;
+	ProjectNotFoundException(const wchar_t* message, Exception* cause, const char* srcfile, int srcline) noexcept;
 	virtual ~ProjectNotFoundException();
+
+	static const wchar_t* defaultMessage;
 };
 
 } /* namespace codablecash */

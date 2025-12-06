@@ -12,6 +12,7 @@
 #include "engine/sc_analyze/AnalyzedType.h"
 #include "engine/sc_analyze/TypeResolver.h"
 
+#include "engine/sc_analyze/ValidationError.h"
 namespace alinous {
 
 ClassImplements::ClassImplements() : CodeElement(CodeElement::CLASS_IMPLEMENTS) {
@@ -48,6 +49,10 @@ void ClassImplements::analyzeTypeRef(AnalyzeContext* actx) {
 		const UnicodeString* name = n->getName();
 
 		AnalyzedType* type = res->findClassType(this, name);
+
+		actx->addValidationError(!type->isInterface(), ValidationError::CODE_WRONG_CLASS_NAME, this, L"The {0} is not type.", {name});
+		actx->addValidationError(!type->isInterface(), ValidationError::CODE_CLASS_IMPLEMENTS_NOT_INTERFACE_CLASS, this, L"The {0} must be interface.", {name});
+
 		this->typelist.addElement(type);
 	}
 }

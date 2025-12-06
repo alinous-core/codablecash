@@ -15,7 +15,6 @@ namespace codablecash {
 
 InstanceDependencyContext::InstanceDependencyContext() {
 	this->moduleInstance = nullptr;
-	this->uintsList = nullptr;
 	this->clazzLoader = new ModuleInstanceClassLoader();
 }
 
@@ -25,10 +24,6 @@ InstanceDependencyContext::~InstanceDependencyContext() {
 
 void InstanceDependencyContext::setModuleInstance(AbstractExecutableModuleInstance *inst) noexcept {
 	this->moduleInstance = inst;
-}
-
-void InstanceDependencyContext::setUnitsList(ArrayList<CompilationUnit> *unitsList) noexcept {
-	this->uintsList = unitsList;
 }
 
 void InstanceDependencyContext::setVm(VirtualMachine *vm) {

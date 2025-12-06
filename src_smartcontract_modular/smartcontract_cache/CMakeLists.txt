@@ -2,7 +2,9 @@
 
 set(__src
 	InstanceSpace.cpp
+	InstanceSpaceReleaser.cpp
 	InstanceSpacesManager.cpp
+	ModuleSetupException.cpp
 	MolularSmartcontractCacheManager.cpp
 	ProjectNotFoundException.cpp
 )

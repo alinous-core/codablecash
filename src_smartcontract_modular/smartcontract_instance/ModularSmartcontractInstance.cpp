@@ -35,6 +35,7 @@
 
 #include "transaction/SmartcontractInstanceAddress.h"
 
+#include "smartcontract_instance/SmartcontractExecutionException.h"
 
 
 namespace codablecash {
@@ -133,6 +134,18 @@ bool ModularSmartcontractInstance::analyze() {
 	catch(CompilantUnitAnalyzeException* e){
 		delete e;
 		hasError = true;
+	}
+
+	return hasError;
+}
+
+bool ModularSmartcontractInstance::checkDirectAccess() {
+	bool hasError = this->execModule->checkDirectAccess();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* inst = this->libArray->get(i);
+		hasError |= inst->checkDirectAccess();
 	}
 
 	return hasError;
@@ -461,6 +474,45 @@ void ModularSmartcontractInstance::loadDatabase() {
 void ModularSmartcontractInstance::setSmartcontractInstanceAddress(const SmartcontractInstanceAddress *address) {
 	delete this->instanceAddress;
 	this->instanceAddress = dynamic_cast<SmartcontractInstanceAddress*>(address->copyData());
+}
+
+SmartcontractExecResult* ModularSmartcontractInstance::invokeMainObjectMethod(UnicodeString *moduleName, UnicodeString *methodName,
+		ArrayList<AbstractFunctionExtArguments>* args) {
+
+	AbstractExecutableModuleInstance* module = nullptr;
+
+	const UnicodeString* name = this->execModule->getName();
+	if(name->equals(moduleName)){
+		module = this->execModule;
+	}
+	else{
+		int maxLoop = this->libArray->size();
+		for(int i = 0; i != maxLoop; ++i){
+			LibraryExectableModuleInstance* lib = libArray->get(i);
+
+			name = lib->getName();
+			if(name->equals(moduleName)){
+				module = lib;
+				break;
+			}
+		}
+	}
+	ExceptionThrower<SmartcontractExecutionException>::throwExceptionIfCondition(module == nullptr, L"Module name is wrong.", __FILE__, __LINE__);
+
+	return module->invokeMainObjectMethodProxy(methodName, args);
+}
+
+bool ModularSmartcontractInstance::generateInterModularCommunicationClasses() {
+	bool hasError = this->execModule->generateInterModularCommunicationClasses();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* lib = libArray->get(i);
+
+		hasError |= lib->generateInterModularCommunicationClasses();
+	}
+
+	return hasError;
 }
 
 } /* namespace codablecash */

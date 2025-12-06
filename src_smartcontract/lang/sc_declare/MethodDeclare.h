@@ -44,6 +44,13 @@ public:
 	void setArguments(ArgumentsListDeclare* args) noexcept;
 	void setBlock(StatementBlock* block) noexcept;
 
+	AccessControlDeclare* getAccessControlDeclare() const noexcept {
+		return this->ctrl;
+	}
+	AbstractType* getType() const noexcept {
+		return this->type;
+	}
+
 	StatementBlock* getBlock() const noexcept;
 
 	bool isConstructor() const;

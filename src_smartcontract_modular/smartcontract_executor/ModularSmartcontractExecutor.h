@@ -23,10 +23,13 @@ class ModularSmartcontractProject;
 class SmartcontractProjectId;
 class SmartcontractProjectData;
 class InstanceSpacesManager;
+class InstanceSpace;
+class SmartcontractInstanceAddress;
 
 class ModularSmartcontractExecutor {
 public:
 	static const constexpr wchar_t* DIR_NAME{L"contract_exec"};
+	static const constexpr wchar_t* INSTANCES_DIR_NAME{L"instances"};
 
 	explicit ModularSmartcontractExecutor(const File* base);
 	virtual ~ModularSmartcontractExecutor();
@@ -37,6 +40,9 @@ public:
 
 	void registerModularSmartcontractProject(ModularSmartcontractProject* project);
 	SmartcontractProjectData* getProject(const SmartcontractProjectId* projectId);
+
+	void createInstance(const SmartcontractInstanceAddress* instAddress, const SmartcontractProjectId* projectId);
+	InstanceSpace* loadFromCache(const SmartcontractInstanceAddress* instAddress);
 
 private:
 	File* baseDir;

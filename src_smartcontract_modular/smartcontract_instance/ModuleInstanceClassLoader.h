@@ -30,7 +30,7 @@ public:
 	void setVm(VirtualMachine* vm);
 
 	void loadClass(const UnicodeString* fqn);
-	const ClassDeclare* getClassDeclare(const UnicodeString* fqn) const;
+	ClassDeclare* getClassDeclare(const UnicodeString* fqn) const;
 
 	void preAnalyze(AnalyzeContext* actx);
 	void analyzeType(AnalyzeContext* actx);

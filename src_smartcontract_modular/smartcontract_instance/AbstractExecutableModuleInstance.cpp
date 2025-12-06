@@ -10,6 +10,8 @@
 #include "smartcontract_instance/LibraryExectableModuleInstance.h"
 #include "smartcontract_instance/ModuleInstanceClassLoader.h"
 
+#include "smartcontract_instance/ClassNotFoundException.h"
+
 #include "modular_project/ModularInstanceConfig.h"
 #include "modular_project/DependencyConfig.h"
 #include "modular_project/ModularConfigException.h"
@@ -35,20 +37,39 @@
 #include "engine/compiler/CompileError.h"
 
 #include "engine/sc_analyze/AnalyzeContext.h"
+#include "engine/sc_analyze/TypeResolver.h"
+#include "engine/sc_analyze/AnalyzedType.h"
+#include "engine/sc_analyze/AnalyzedClass.h"
 
 #include "vm/VirtualMachine.h"
 
 #include "json_object/AbstractJsonValue.h"
 
+#include "vm/variable_access/FunctionArguments.h"
+
 #include "ext_arguments/AbstractFunctionExtArguments.h"
 
 #include "instance/instance_gc/GcManager.h"
+#include "instance/AbstractVmInstance.h"
+#include "instance/VmInstanceTypesConst.h"
 
 #include "lang/sc_declare/ClassDeclare.h"
 
 #include "bc_base/BinaryUtils.h"
 
+#include "smartcontract_executor/SmartcontractExecResult.h"
 
+#include "lang/sc_declare/MethodDeclare.h"
+
+#include "ext_binary/ExtNullPtrObject.h"
+
+#include "smartcontract_instance/InstanceDependencyContext.h"
+
+#include "inter_modular_access/ModularProxyObjectInstanceFactory.h"
+
+#include "instance/instance_ref/ObjectReference.h"
+
+#include "instance/instance_exception_class/VmExceptionInstance.h"
 namespace codablecash {
 
 AbstractExecutableModuleInstance::AbstractExecutableModuleInstance(uint8_t kind) {
@@ -65,6 +86,7 @@ AbstractExecutableModuleInstance::AbstractExecutableModuleInstance(uint8_t kind)
 	this->compile_errors = nullptr;
 	this->mainInst = nullptr;
 	this->dependencyHandler = new InstanceDependencyHandler();
+	this->factory = new ModularProxyObjectInstanceFactory();
 
 	this->dbDir = nullptr;
 	this->undodbDir = nullptr;
@@ -503,6 +525,155 @@ void AbstractExecutableModuleInstance::createDatabase() {
 
 void AbstractExecutableModuleInstance::loadDatabase() {
 	this->vm->loadDatabase(this->dbDir, this->undodbDir);
+}
+
+bool AbstractExecutableModuleInstance::checkDirectAccess() {
+	SmartContract* contract = this->vm->getSmartContract();
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+	TypeResolver* resolver = actx->getTypeResolver();
+
+	// main instance class
+	UnicodeString* mainClassFqn = contract->getMainClassFqn(); __STP(mainClassFqn);
+	ClassDeclare* dec = contract->getClassDeclareByFqn(mainClassFqn);
+	ExceptionThrower<ClassNotFoundException>::throwExceptionIfCondition(dec == nullptr, L"Main class does not exists.", __FILE__, __LINE__);
+
+	AnalyzedType* atypeDec = resolver->getClassType(dec); __STP(atypeDec);
+	AnalyzedClass* aclazzDec = atypeDec->getAnalyzedClass();
+	const ArrayList<AnalyzedClass>* implememtsList = aclazzDec->getImplements();
+
+	ArrayList<UnicodeString>* list = this->instanceConfig->getDirectAccess();
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* clazzFqn = list->get(i);
+
+		ClassDeclare* interface = contract->getClassDeclareByFqn(clazzFqn);
+		ExceptionThrower<ClassNotFoundException>::throwExceptionIfCondition(interface == nullptr, L"Interface does not exists.", __FILE__, __LINE__);
+		ExceptionThrower<ClassNotFoundException>::throwExceptionIfCondition(!interface->isInterface(), L"Interface class must be interface.", __FILE__, __LINE__);
+		ExceptionThrower<ClassNotFoundException>::throwExceptionIfCondition(interface->isGenerics(), L"Interface class must not use Generics.", __FILE__, __LINE__);
+
+		AnalyzedType* atype = resolver->getClassType(interface); __STP(atype);
+		AnalyzedClass* aclazz = atype->getAnalyzedClass();
+
+		bool bl = hasInterface(implememtsList, aclazz);
+		ExceptionThrower<ClassNotFoundException>::throwExceptionIfCondition(!bl, L"The main class does not implements the directAccess Interface.", __FILE__, __LINE__);
+	}
+
+	return false;
+}
+
+bool AbstractExecutableModuleInstance::hasInterface(const ArrayList<AnalyzedClass> *implememtsList, AnalyzedClass *aclazz) {
+	bool result = false;
+
+	int maxLoop = implememtsList->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AnalyzedClass* cls = implememtsList->get(i);
+
+		if(aclazz->equals(cls)){
+			result = true;
+			break;
+		}
+	}
+
+	return result;
+}
+
+SmartcontractExecResult* AbstractExecutableModuleInstance::invokeMainObjectMethodProxy(UnicodeString *methodName,
+		ArrayList<AbstractFunctionExtArguments> *args) {
+	SmartContract* contract = this->vm->getSmartContract();
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+	TypeResolver* resolver = actx->getTypeResolver();
+
+	FunctionArguments innerArguments;
+	MethodDeclare* method = this->vm->interpretMainObjectMethod(methodName, args, &innerArguments);
+
+	SmartcontractExecResult* result = new SmartcontractExecResult(); __STP(result);
+
+	{
+		AnalyzedType* atype = method->getReturnedType();
+		if(!atype->isVoid()){
+			AbstractVmInstance* vminst = innerArguments.getReturnedValue();
+
+			UnicodeString name(L"ret");
+			VTableRegistory* vreg = actx->getVtableRegistory();
+
+			AbstractExtObject* retObj = vminst != nullptr ? vminst->toClassExtObject(&name, vreg) : new ExtNullPtrObject(&name);
+			result->setReturnedValue(retObj);
+		}
+	}
+
+	return __STP_MV(result);
+}
+
+
+AbstractExtObject* AbstractExecutableModuleInstance::invokeMainObjectMethodProxy(UnicodeString *methodName, FunctionArguments *args) {
+	AbstractExtObject* ret = nullptr;
+
+	SmartContract* contract = this->vm->getSmartContract();
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+
+	MethodDeclare* method = this->vm->interpretMainObjectMethodProxy(methodName, args);
+
+
+	AnalyzedType* atype = method->getReturnedType();
+	ObjectReference* exObj = this->vm->getUncaughtExceptionProxy();
+	if(!atype->isVoid() && exObj != nullptr){
+		VTableRegistory* vreg = actx->getVtableRegistory();
+
+		UnicodeString name(L"exception");
+		ret = exObj->toClassExtObject(&name, vreg);
+
+		this->vm->clearUncoughtException();
+	}
+
+	return ret;
+}
+
+
+bool AbstractExecutableModuleInstance::generateInterModularCommunicationClasses() {
+	bool hasError = false;
+
+	ArrayList<InstanceDependencyContext>* list = this->dependencyHandler->getContextList();
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		InstanceDependencyContext* dctx = list->get(i);
+
+		AbstractExecutableModuleInstance* importInst = dctx->getModuleInstance();
+		const ModularInstanceConfig* instanceConfig = importInst->getInstanceConfig();
+
+		const UnicodeString* mainPackage = instanceConfig->getMainPackage();
+		const UnicodeString* mainClass = instanceConfig->getMainClass();
+		UnicodeString* mainFqn = new UnicodeString(L""); __STP(mainFqn);
+		if(mainPackage->length() > 0){
+			mainFqn->append(mainPackage);
+			mainFqn->append(L".");
+		}
+		mainFqn->append(mainClass);
+
+		ArrayList<UnicodeString>* libExport = instanceConfig->getLibExport();
+
+		generateLibExport(mainFqn, libExport, dctx);
+	}
+
+
+
+	return hasError;
+	// FIXME generateInterModularCommunicationClasses
+}
+
+void AbstractExecutableModuleInstance::generateLibExport(UnicodeString* mainFqn, ArrayList<UnicodeString> *libExport, InstanceDependencyContext* dctx) {
+	ModuleInstanceClassLoader* classLoader = dctx->getClassLoader();
+
+	int maxLoop = libExport->size();
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* ifFqn = libExport->get(i);
+
+		ClassDeclare* ifdec = classLoader->getClassDeclare(ifFqn);
+		ExceptionThrower<ClassNotFoundException>::throwExceptionIfCondition(ifdec == nullptr, L"The main class does not implements the directAccess Interface.", __FILE__, __LINE__);
+		ExceptionThrower<ClassNotFoundException>::throwExceptionIfCondition(ifdec->isGenerics(), L"The main class can not use Generics.", __FILE__, __LINE__);
+		ExceptionThrower<ClassNotFoundException>::throwExceptionIfCondition(!ifdec->isInterface(), L"The main class must be interface.", __FILE__, __LINE__);
+
+		this->factory->generateModularClass(mainFqn, ifdec, dctx);
+	}
 }
 
 } /* namespace alinous */

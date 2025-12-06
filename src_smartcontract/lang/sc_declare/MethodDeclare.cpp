@@ -312,6 +312,8 @@ void MethodDeclare::interpret(FunctionArguments* args, VirtualMachine* vm) {
 	MethodArgumentSetupper argSetup(args, vm);
 	//vm->setFunctionArguments(args);
 
+	vm->markStackbyMethod(this);
+
 	block->interpret(vm);
 }
 

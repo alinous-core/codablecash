@@ -21,7 +21,8 @@ namespace alinous {
 
 const VmString::ValueCompare VmStringInstance::compareFunctor;
 
-VmStringInstance::VmStringInstance(VirtualMachine* vm, const UnicodeString* str) : AbstractVmInstance(VmInstanceTypesConst::INST_STRING) {
+VmStringInstance::VmStringInstance(VirtualMachine* vm, const UnicodeString* str)
+	: AbstractVmInstance(VmInstanceTypesConst::INST_STRING, vm->publishInstanceSerial()) {
 	this->value = new(vm) VmString(vm, str);
 	this->str = nullptr;
 }

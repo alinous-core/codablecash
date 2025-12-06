@@ -373,4 +373,17 @@ ClassDeclare* SmartContract::getClassDeclareByFqn(const UnicodeString *fqn) cons
 	return result;
 }
 
+UnicodeString* SmartContract::getMainClassFqn() const noexcept {
+	UnicodeString* fqn = new UnicodeString(L"");
+
+	if(this->mainPackage != nullptr){
+		fqn->append(this->mainPackage);
+		fqn->append(L".");
+	}
+
+	fqn->append(this->mainClass);
+
+	return fqn;
+}
+
 } /* namespace alinous */

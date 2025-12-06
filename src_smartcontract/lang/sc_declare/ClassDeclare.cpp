@@ -24,6 +24,7 @@
 #include "engine/sc_analyze_functions/VTableMethodEntry.h"
 #include "engine/sc_analyze_functions/VTableClassEntry.h"
 
+#include "lang/sc_declare/ClassName.h"
 
 namespace alinous {
 
@@ -69,7 +70,6 @@ void ClassDeclare::preAnalyze(AnalyzeContext* actx) {
 		addDefaultConstructor();
 	}
 
-
 	CompilationUnit* unit = getCompilationUnit();
 	PackageSpace* space = actx->getPackegeSpace(unit->getPackageName());
 
@@ -81,6 +81,14 @@ void ClassDeclare::preAnalyze(AnalyzeContext* actx) {
 	}
 
 	space->addClassDeclare(this);
+
+	// Object as Extends
+	if(this->extends == nullptr){
+		this->extends = new ClassExtends();
+		ClassName* name = new ClassName();
+		name->addStr("lang.Object");
+		this->extends->setClassName(name);
+	}
 
 	if(this->extends != nullptr){
 		this->extends->setParent(this);
@@ -201,7 +209,7 @@ void ClassDeclare::setBlock(ClassDeclareBlock* block) noexcept {
 	this->block = block;
 }
 
-void alinous::ClassDeclare::setName(UnicodeString* name) noexcept {
+void ClassDeclare::setName(UnicodeString* name) noexcept {
 	this->name = name;
 }
 

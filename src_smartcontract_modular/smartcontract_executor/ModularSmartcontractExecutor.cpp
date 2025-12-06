@@ -18,14 +18,16 @@
 #include "smartcontract_instance/ModularSmartcontractInstance.h"
 
 #include "smartcontract_cache/InstanceSpacesManager.h"
+#include "smartcontract_cache/InstanceSpace.h"
 
 #include "base/UnicodeString.h"
 #include "base/StackRelease.h"
 
 #include "base_io/File.h"
 
+#include "bc/ExceptionThrower.h"
 
-
+#include "smartcontract_cache/ModuleSetupException.h"
 namespace codablecash {
 
 ModularSmartcontractExecutor::ModularSmartcontractExecutor(const File* base) {
@@ -82,6 +84,31 @@ SmartcontractProjectData* ModularSmartcontractExecutor::getProject(const Smartco
 
 	SmartcontractProjectData* data = this->projectRegistory->findProjectById(&key);
 	return data;
+}
+
+void ModularSmartcontractExecutor::createInstance(const SmartcontractInstanceAddress *instAddress, const SmartcontractProjectId *projectId) {
+	InstanceSpace* space = this->instanceSpace->createInstance(instAddress, projectId); __STP(space);
+
+	// language
+	bool hasError = space->analyze();
+	ExceptionThrower<ModuleSetupException>::throwExceptionIfCondition(hasError == true, L"Analysis error.", __FILE__, __LINE__);
+
+	space->setMainInstance();
+	space->createMainInstance();
+	hasError = space->interpretInitializer();
+	ExceptionThrower<ModuleSetupException>::throwExceptionIfCondition(hasError == true, L"Main object initialize error.", __FILE__, __LINE__);
+
+	// database
+	File* instanceRootDir = this->baseDir->get(INSTANCES_DIR_NAME); __STP(instanceRootDir);
+	space->setDatabaseDir(instanceRootDir);
+	space->createDatabase();
+
+	this->instanceSpace->registerCache(__STP_MV(space));
+}
+
+InstanceSpace* ModularSmartcontractExecutor::loadFromCache(const SmartcontractInstanceAddress *instAddress) {
+	InstanceSpace* space = this->instanceSpace->loadFromCache(instAddress);
+	return space;
 }
 
 } /* namespace codablecash */

@@ -53,11 +53,16 @@ public:
 	StaticClassReferenceHolder* getStaticClassReferenceHolder() const noexcept;
 
 	virtual int valueCompare(const IAbstractVmInstanceSubstance* right) const noexcept;
+
+	uint64_t publishInstanceSerial() noexcept;
+
 private:
 	VirtualMachine* vm;
 	AbstractReference* mainInst;
 	StaticConstInstanceHolder* staticHolder;
 	StaticClassReferenceHolder* classStaticHolder;
+
+	uint64_t instanceSerial;
 
 };
 

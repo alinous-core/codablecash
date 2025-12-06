@@ -15,6 +15,7 @@ namespace alinous {
 class AbstractReservedMethodDeclare : public MethodDeclare {
 public:
 	static constexpr const uint32_t METHOD_OBJECT_OBJECT = 1;
+	static constexpr const uint32_t METHOD_MODULAR_INTERFACE = 2;
 
 	static constexpr const uint32_t METHOD_LIST_LIST = 100;
 

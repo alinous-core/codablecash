@@ -7,11 +7,23 @@
 
 #ifndef SMARTCONTRACT_CACHE_INSTANCESPACE_H_
 #define SMARTCONTRACT_CACHE_INSTANCESPACE_H_
+#include "base/ArrayList.h"
+
+namespace alinous {
+class ByteBuffer;
+class File;
+class VirtualMachine;
+class SysMutex;
+class AbstractFunctionExtArguments;
+}
+using namespace alinous;
+
 
 namespace codablecash {
 
 class ModularSmartcontractInstance;
 class SmartcontractInstanceAddress;
+class SmartcontractExecResult;
 
 class InstanceSpace {
 public:
@@ -23,11 +35,34 @@ public:
 
 	const SmartcontractInstanceAddress* getSmartContractInstanceAddress() const noexcept;
 
+	// language
+	bool analyze();
+	void setMainInstance();
 
+	// before invoke
+	bool createMainInstance();
+	bool interpretInitializer();
+	void resetRootReference();
+
+	// databases
+	void setDatabaseDir(const File* baseDir);
+	void createDatabase();
+
+	// exec
+	void loadDatabase();
+	void cleanDbRoot();
+
+	// ref
+	void incRef();
+	void decRef();
+
+	// invoke main instance
+	SmartcontractExecResult* invokeMainObjectMethod(UnicodeString *moduleName, UnicodeString* methodName, ArrayList<AbstractFunctionExtArguments>* args);
 
 private:
 	ModularSmartcontractInstance* instance;
 
+	SysMutex* mutex;
 	int ref;
 
 };

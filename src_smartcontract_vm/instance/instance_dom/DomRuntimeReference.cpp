@@ -18,7 +18,7 @@
 namespace alinous {
 
 DomRuntimeReference::DomRuntimeReference(IAbstractVmInstanceSubstance* owner, VirtualMachine* vm)
-		: AbstractReference(owner, VmInstanceTypesConst::REF_DOM_RUNTIME){
+		: AbstractReference(owner, VmInstanceTypesConst::REF_DOM_RUNTIME, vm->publishInstanceSerial()){
 	this->reference = nullptr;
 }
 
@@ -77,7 +77,7 @@ int DomRuntimeReference::valueCompare(const IAbstractVmInstanceSubstance* right)
 }
 
 AbstractExtObject* DomRuntimeReference::toClassExtObject(const UnicodeString* name, VTableRegistory* table) {
-	return this->reference == nullptr ? new ExtNullPtrObject(name, VmInstanceTypesConst::REF_DOM_RUNTIME) : this->reference->toClassExtObject(name, table);
+	return this->reference == nullptr ? new ExtNullPtrObject(name) : this->reference->toClassExtObject(name, table);
 }
 
 const UnicodeString* DomRuntimeReference::toString() const noexcept {

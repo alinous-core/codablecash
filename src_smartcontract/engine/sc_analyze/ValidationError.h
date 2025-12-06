@@ -42,6 +42,7 @@ public:
 	static constexpr int CODE_CLASS_MEMBER_AND_STACK_VARIABLE_DO_NOT_EXISTS = 32;
 	static constexpr int CODE_CLASS_MEMBER_VOID = 33;
 	static constexpr int CODE_CLASS_DOES_NOT_IMPLEMENET_METHOD = 34;
+	static constexpr int CODE_CLASS_IMPLEMENTS_NOT_INTERFACE_CLASS = 35;
 
 
 	static constexpr int CODE_ALLOCATION_TYPE_DOES_NOT_EXISTS = 40;

@@ -12,6 +12,7 @@
 #include "lang/sc_declare/AccessControlDeclare.h"
 #include "lang/sc_declare/ArgumentsListDeclare.h"
 
+#include "vm/VirtualMachine.h"
 
 namespace alinous {
 

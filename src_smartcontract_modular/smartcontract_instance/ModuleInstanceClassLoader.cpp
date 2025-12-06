@@ -75,7 +75,7 @@ void ModuleInstanceClassLoader::addCompilationUnit(const UnicodeString *fqn, Com
 	}
 }
 
-const ClassDeclare* ModuleInstanceClassLoader::getClassDeclare(const UnicodeString *fqn) const {
+ClassDeclare* ModuleInstanceClassLoader::getClassDeclare(const UnicodeString *fqn) const {
 	UnicodeString* className = TypeResolver::getClassName(fqn); __STP(className);
 
 	CompilationUnit* unit = this->classFqnMap->get(fqn);

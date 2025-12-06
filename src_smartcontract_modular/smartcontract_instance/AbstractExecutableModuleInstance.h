@@ -18,6 +18,10 @@ class CompileError;
 class VmClassInstance;
 class CompilationUnit;
 class ByteBuffer;
+class AnalyzedClass;
+class AbstractFunctionExtArguments;
+class FunctionArguments;
+class AbstractExtObject;
 }
 using namespace alinous;
 
@@ -31,6 +35,10 @@ class DependencyConfig;
 class InstanceDependencyHandler;
 class ModularSmartcontractInstance;
 class ModuleInstanceClassLoader;
+class SmartcontractExecResult;
+class InstanceDependencyContext;
+class ModularProxyObjectInstanceFactory;
+
 
 class AbstractExecutableModuleInstance {
 public:
@@ -66,6 +74,8 @@ public:
 	bool analyzeMetadata();
 	bool analyzeFinal();
 
+	bool checkDirectAccess();
+
 	bool loadDependency(ModularSmartcontractInstance* parent);
 	bool preAnalyzeDependency();
 	bool analyzeTypeDependency();
@@ -89,7 +99,24 @@ public:
 	void createDatabase();
 	void loadDatabase();
 
+	// invoke method
+	SmartcontractExecResult* invokeMainObjectMethodProxy(UnicodeString *methodName, ArrayList<AbstractFunctionExtArguments>* args);
+	AbstractExtObject* invokeMainObjectMethodProxy(UnicodeString *methodName, FunctionArguments* args);
+
+	const UnicodeString* getName() const noexcept {
+		return this->name;
+	}
+	const ModularInstanceConfig* getInstanceConfig() const noexcept {
+		return this->instanceConfig;
+	}
+
+	// modular
+	bool generateInterModularCommunicationClasses();
+
 protected:
+	void generateLibExport(UnicodeString* mainFqn, ArrayList<UnicodeString>* libExport, InstanceDependencyContext* dctx);
+
+	bool hasInterface(const ArrayList<AnalyzedClass>* implememtsList, AnalyzedClass* aclazz);
 	void resetContract();
 	void parseSourceFolders(const File *projectBaseDir);
 	void scanSourceFolder(File* baseDir, const UnicodeString* folder, const File *projectBaseDir);
@@ -117,6 +144,7 @@ protected:
 	const ArrayList<CompileError>* compile_errors;
 
 	InstanceDependencyHandler* dependencyHandler;
+	ModularProxyObjectInstanceFactory* factory;
 
 	// database
 	File* dbDir;

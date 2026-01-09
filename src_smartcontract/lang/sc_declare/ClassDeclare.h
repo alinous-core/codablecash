@@ -68,6 +68,9 @@ public:
 
 	virtual ClassDeclare* generateGenericsImplement(HashMap<UnicodeString, AbstractType>* input);
 
+	ClassImplements* getImplements() const noexcept {
+		return this->implements;
+	}
 
 protected:
 	void toBinaryCheck(ByteBuffer* out) const;

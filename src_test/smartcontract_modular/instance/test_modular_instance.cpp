@@ -49,7 +49,16 @@ TEST(TestModularInstanceGroup, case01){
 	bool res = inst->hasCompileError();
 	CHECK(res == false);
 
-	res = inst->analyze();
+	res = inst->preAnalyzeGoup();
+	CHECK(res == false);
+
+	res = inst->analyzeTypeRefGroup();
+	CHECK(res == false);
+
+	res = inst->analyzeMetadataGroup();
+	CHECK(res == false);
+
+	res = inst->analyzeGroup();
 	CHECK(res == false);
 
 	inst->setMainInstance();
@@ -88,7 +97,10 @@ TEST(TestModularInstanceGroup, case02){
 	inst->createDatabase();
 	inst->loadDatabase();
 
-	res = inst->analyze();
+	res = inst->preAnalyzeGoup();
+	res |= inst->analyzeTypeRefGroup();
+	res |= inst->analyzeMetadataGroup();
+	res |= inst->analyzeGroup();
 	CHECK(res == false);
 
 	inst->setMainInstance();

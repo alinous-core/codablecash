@@ -78,7 +78,7 @@ TEST(TestStringClassGroup, stringInst02){
 }
 
 TEST(TestStringClassGroup, stringInstcmp01){
-	VirtualMachine vm(1024);
+	VirtualMachine vm(1500);
 
 	UnicodeString str(L"test");
 	VmStringInstance* strInst = new(&vm) VmStringInstance(&vm, &str);

@@ -20,6 +20,7 @@
 #include "ext_binary/ExtStringClass.h"
 #include "ext_binary/ExtNullPtrObject.h"
 
+#include "engine/sc_analyze/AnalyzedType.h"
 
 namespace alinous {
 
@@ -106,9 +107,9 @@ AbstractExtObject* ObjectReference::createNullObject(const UnicodeString* name, 
 	//	return new ExtStringClass(name);
 	//}
 
-	uint8_t type = this->instanceType == ObjectReference::STRING_INSTANCE ? VmInstanceTypesConst::INST_STRING : VmInstanceTypesConst::INST_OBJ;
+	uint8_t atype = this->instanceType == ObjectReference::STRING_INSTANCE ? AnalyzedType::TYPE_STRING : AnalyzedType::TYPE_OBJECT;
 
-	return new ExtNullPtrObject(name);
+	return new ExtNullPtrObject(name, atype);
 }
 
 bool ObjectReference::isNull() const noexcept {

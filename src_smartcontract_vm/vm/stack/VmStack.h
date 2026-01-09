@@ -49,6 +49,12 @@ public:
 
 	void setCurrentMethod(MethodDeclare* currentMethod) noexcept;
 	void setEntryPoint(AbstractExpression* entryPoint) noexcept;
+	MethodDeclare* getCurrentMethod() const noexcept {
+		return this->currentMethod;
+	}
+	AbstractExpression* getEntryPoint() const noexcept {
+		return this->entryPoint;
+	}
 
 private:
 	VMemList<AbstractReference>* stack;

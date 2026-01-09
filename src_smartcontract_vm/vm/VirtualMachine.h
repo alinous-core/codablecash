@@ -54,6 +54,7 @@ class FunctionScoreCalc;
 class MethodScore;
 class AnalyzedType;
 class AbstractExpression;
+class IInitializeCompilantUnitProvidor;
 
 class VirtualMachine {
 public:
@@ -66,14 +67,14 @@ public:
 	bool hasAnalyzeError(int code) noexcept;
 	bool hasAnalyzeError(int code, AnalyzeContext* actx) noexcept;
 
-	VmClassInstance* createScInstance();
+	VmClassInstance* createScInstance(ArrayList<IInitializeCompilantUnitProvidor>* exprogs);
 
 	MethodDeclare* interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments);
 	MethodDeclare* interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments, FunctionArguments* args);
 	MethodDeclare* interpretMainObjectMethodProxy(const UnicodeString* method, FunctionArguments* args);
 
 	void interpret(const UnicodeString* method);
-	void interpret(MethodDeclare* method, VmClassInstance* _this, ArrayList<AbstractFunctionExtArguments>* arguments);
+	void interpret(MethodDeclare* method, VmClassInstance* _this, ArrayList<AbstractFunctionExtArguments>* arguments, ArrayList<IInitializeCompilantUnitProvidor>* exprogs);
 
 	void markStackbyMethod(MethodDeclare* method);
 	void markStackEntryPoint(AbstractExpression* exp);
@@ -102,7 +103,7 @@ public:
 
 	SmartContract* getSmartContract() const noexcept;
 
-	void initialize();
+	void initialize(ArrayList<IInitializeCompilantUnitProvidor>* exprogs);
 	void destroy() noexcept;
 
 	ArrayList<Exception>& getExceptions() noexcept;
@@ -147,6 +148,7 @@ public:
 	void setEscapeTargetCondition(EscapeTargetCondition* cond) noexcept;
 
 	uint64_t publishInstanceSerial() noexcept;
+	AnalyzedClass* getStringAnalyzedClass() const noexcept;
 
 private:
 	MethodScore* calcScore(FunctionScoreCalc* calc, const UnicodeString *method, ArrayList<AnalyzedType>* typeList);

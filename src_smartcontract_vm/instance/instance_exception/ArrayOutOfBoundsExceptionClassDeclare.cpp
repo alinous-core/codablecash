@@ -59,7 +59,6 @@ void ArrayOutOfBoundsExceptionClassDeclare::throwException(VirtualMachine* vm, c
 	VmClassInstance* inst = factory->createInstance(aclass, vm);
 	inst->init(vm);
 
-
 	VmExceptionInstance* exception = dynamic_cast<VmExceptionInstance*>(inst);
 
 	vm->throwException(exception, element);

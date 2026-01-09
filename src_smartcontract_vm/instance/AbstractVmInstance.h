@@ -44,6 +44,8 @@ public:
 	virtual const UnicodeString* toString() const noexcept = 0;
 
 	virtual AbstractExtObject* toClassExtObject(const UnicodeString* name, VTableRegistory* table);
+
+
 protected:
 	uint8_t type;
 	uint64_t serial;

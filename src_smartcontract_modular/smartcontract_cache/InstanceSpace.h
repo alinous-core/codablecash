@@ -44,6 +44,9 @@ public:
 	bool interpretInitializer();
 	void resetRootReference();
 
+	// dependent modules
+	void invokeModularProxyListnerMethod();
+
 	// databases
 	void setDatabaseDir(const File* baseDir);
 	void createDatabase();

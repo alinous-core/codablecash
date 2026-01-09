@@ -18,10 +18,9 @@
 #include "engine/sc_analyze/AnalyzedClass.h"
 #include "engine/sc_analyze/AnalyzedThisClassStackPopper.h"
 
-#include "vm/VirtualMachine.h"
-
 #include "vm/variable_access/FunctionArguments.h"
 
+#include "vm/VirtualMachine.h"
 #include "vm/stack/VmStack.h"
 #include "vm/stack/MethodArgumentSetupper.h"
 #include "vm/stack/StackPopper.h"
@@ -32,6 +31,10 @@
 #include "lang/sc_declare/AccessControlDeclare.h"
 
 #include "inter_modular_access/ModularProxyMethodDeclare.h"
+
+#include "modular_interfaces/ModuleDetectedMethodDeclare.h"
+
+#include "instance/reserved_classes_string/StringEqualsMethodDeclare.h"
 
 namespace alinous {
 
@@ -56,6 +59,12 @@ AbstractReservedMethodDeclare* AbstractReservedMethodDeclare::createMethodFromBi
 		break;
 	case METHOD_LIST_LIST:
 		method = new ListListMethod();
+		break;
+	case METHOD_MODULE_PROXY_LISTNER_MODULE_DETECTED:
+		method = new ModuleDetectedMethodDeclare();
+		break;
+	case METHOD_STRING_EQUALS:
+		method = new StringEqualsMethodDeclare();
 		break;
 	default:
 		return nullptr;
@@ -99,10 +108,13 @@ void AbstractReservedMethodDeclare::preAnalyze(AnalyzeContext *actx) {
 }
 
 void AbstractReservedMethodDeclare::analyzeTypeRef(AnalyzeContext *actx) {
+	TypeResolver* typeResolver = actx->getTypeResolver();
+
 	this->args->analyzeTypeRef(actx);
 
 	if(this->type != nullptr){
 		this->type->analyzeTypeRef(actx);
+		analyzeReturnedValue(actx, typeResolver);
 	}
 }
 

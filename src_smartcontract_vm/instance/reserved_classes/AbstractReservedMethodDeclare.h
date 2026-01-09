@@ -19,6 +19,11 @@ public:
 
 	static constexpr const uint32_t METHOD_LIST_LIST = 100;
 
+	static constexpr const uint32_t METHOD_MODULE_PROXY_LISTNER_MODULE_DETECTED = 200;
+
+	static constexpr const uint32_t METHOD_STRING_EQUALS = 300;
+
+
 	explicit AbstractReservedMethodDeclare(uint32_t methodId);
 	virtual ~AbstractReservedMethodDeclare();
 

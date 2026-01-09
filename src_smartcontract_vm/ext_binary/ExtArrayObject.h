@@ -27,6 +27,8 @@ public:
 	virtual AbstractExtObject* copy() const noexcept;
 
 	virtual const UnicodeString* toString() const noexcept;
+	virtual AbstractVmInstance* toVmInstance(VirtualMachine* vm);
+
 private:
 	ArrayList<AbstractExtObject> array;
 	int length;

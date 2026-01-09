@@ -7,8 +7,6 @@
 
 #include "inter_modular_access/ModularProxyMethodDeclare.h"
 
-#include "base/StackRelease.h"
-
 #include "lang/sc_declare/MethodDeclare.h"
 #include "lang/sc_declare/AccessControlDeclare.h"
 #include "lang/sc_declare/ArgumentsListDeclare.h"
@@ -26,6 +24,7 @@
 
 #include "inter_modular_access/ModuleProxyInstance.h"
 #include "inter_modular_access/ModularProxyClassDeclare.h"
+#include "inter_modular_access/InterModuleAccessException.h"
 
 #include "smartcontract_instance/InstanceDependencyContext.h"
 #include "smartcontract_instance/AbstractExecutableModuleInstance.h"
@@ -37,10 +36,12 @@
 #include "instance/instance_exception_class/VmExceptionInstance.h"
 
 #include "ext_binary/AbstractExtObject.h"
-
-#include "inter_modular_access/InterModuleAccessException.h"
+#include "ext_binary/ExtExceptionObject.h"
 
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
+
+
 namespace codablecash {
 
 ModularProxyMethodDeclare::ModularProxyMethodDeclare() : AbstractReservedMethodDeclare(METHOD_MODULAR_INTERFACE) {
@@ -82,16 +83,11 @@ void ModularProxyMethodDeclare::doInterpret(FunctionArguments *args, VirtualMach
 
 	AbstractExtObject* exceptionEx = moduleInstance->invokeMainObjectMethodProxy(this->name, args); __STP(exceptionEx);
 	if(exceptionEx != nullptr){
+		ExtExceptionObject* exExtObject = dynamic_cast<ExtExceptionObject*>(exceptionEx);
 
-		UnicodeString message(L"");
-		InterModuleAccessException::throwException(&message, vm, this);
-
-		// FIXME error message
-
-		// vm->throwException(ex, this);
+		const UnicodeString* message = exExtObject->getMessage();
+		InterModuleAccessException::throwException(message, vm, this);
 	}
-
-
 }
 
 const UnicodeString* ModularProxyMethodDeclare::toString() {
@@ -100,6 +96,11 @@ const UnicodeString* ModularProxyMethodDeclare::toString() {
 
 ModularProxyMethodDeclare* ModularProxyMethodDeclare::fromMethodDeclare(MethodDeclare *method) {
 	ModularProxyMethodDeclare* dec = new ModularProxyMethodDeclare(); __STP(dec);
+
+	{
+		const UnicodeString* name = method->getName();
+		dec->setName(new UnicodeString(name));
+	}
 
 	{
 		AccessControlDeclare* acdec = method->getAccessControlDeclare();
@@ -113,7 +114,7 @@ ModularProxyMethodDeclare* ModularProxyMethodDeclare::fromMethodDeclare(MethodDe
 	}
 	{
 		ArgumentsListDeclare* args = method->getArguments();
-		ArgumentsListDeclare* copy = dynamic_cast<ArgumentsListDeclare*>(args);
+		ArgumentsListDeclare* copy = dynamic_cast<ArgumentsListDeclare*>(args->binaryCopy());
 		dec->setArguments(copy);
 	}
 

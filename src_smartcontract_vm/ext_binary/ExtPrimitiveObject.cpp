@@ -133,5 +133,8 @@ const UnicodeString* ExtPrimitiveObject::toString() const noexcept {
 	return this->str;
 }
 
+AbstractVmInstance* ExtPrimitiveObject::toVmInstance(VirtualMachine *vm) {
+	// FIXME toVmInstance
+}
 
 } /* namespace alinous */

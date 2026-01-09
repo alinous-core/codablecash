@@ -71,7 +71,7 @@ TEST(TestCallMainInstGroup, callMainMethod){
 	vm->loadSmartContract(sc);
 
 	vm->analyze();
-	VmClassInstance* mainInst = vm->createScInstance();
+	VmClassInstance* mainInst = vm->createScInstance(nullptr);
 
 	{
 		vm->interpret(&mainMethod);

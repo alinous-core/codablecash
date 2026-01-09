@@ -57,7 +57,8 @@ const SmartcontractInstanceAddress* InstanceSpace::getSmartContractInstanceAddre
 }
 
 bool InstanceSpace::analyze() {
-	bool hasError = this->instance->analyze();
+	bool hasError = this->instance->preAnalyzeGoup();
+	hasError |= this->instance->analyzeTypeRefGroup();
 
 	this->instance->setMainInstance();
 
@@ -69,6 +70,28 @@ bool InstanceSpace::analyze() {
 	// generate connector class
 	if(!hasError){
 		hasError |= this->instance->generateInterModularCommunicationClasses();
+	}
+
+	// pre analyze connector class
+	if(!hasError){
+		hasError |= this->instance->preAnalyzeInterModularCommunicationClasses();
+	}
+	if(!hasError){
+		hasError |= this->instance->analyzeTypeRefInterModularCommunicationClasses();
+	}
+
+	// metadata
+	if(!hasError){
+		hasError |= this->instance->analyzeMetadataGroup();
+	}
+
+	// analyze
+	if(!hasError){
+		hasError |= this->instance->analyzeGroup();
+	}
+
+	if(!hasError){
+		hasError |= this->instance->analyzeInterModularCommunicationClasses();
 	}
 
 	return hasError;
@@ -104,6 +127,10 @@ void InstanceSpace::loadDatabase() {
 
 void InstanceSpace::cleanDbRoot() {
 	this->instance->cleanDbRoot();
+}
+
+void InstanceSpace::invokeModularProxyListnerMethod() {
+	this->instance->invokeModularProxyListnerMethod();
 }
 
 SmartcontractExecResult* InstanceSpace::invokeMainObjectMethod(UnicodeString *moduleName, UnicodeString *methodName, ArrayList<AbstractFunctionExtArguments>* args) {

@@ -15,6 +15,8 @@
 #include "ext_binary/ExtNullPtrObject.h"
 
 #include "instance/instance_gc/GcManager.h"
+
+#include "engine/sc_analyze/AnalyzedType.h"
 namespace alinous {
 
 DomRuntimeReference::DomRuntimeReference(IAbstractVmInstanceSubstance* owner, VirtualMachine* vm)
@@ -77,7 +79,7 @@ int DomRuntimeReference::valueCompare(const IAbstractVmInstanceSubstance* right)
 }
 
 AbstractExtObject* DomRuntimeReference::toClassExtObject(const UnicodeString* name, VTableRegistory* table) {
-	return this->reference == nullptr ? new ExtNullPtrObject(name) : this->reference->toClassExtObject(name, table);
+	return this->reference == nullptr ? new ExtNullPtrObject(name, AnalyzedType::TYPE_NONE) : this->reference->toClassExtObject(name, table);
 }
 
 const UnicodeString* DomRuntimeReference::toString() const noexcept {

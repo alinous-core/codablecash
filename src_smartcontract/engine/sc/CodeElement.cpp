@@ -895,6 +895,7 @@ void CodeElement::positionFromBinary(ByteBuffer *in) {
 CodeElement* CodeElement::binaryCopy() const {
 	int cap = binarySize();
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(cap, true); __STP(buff);
+	toBinary(buff);
 
 	buff->position(0);
 	CodeElement* element = createFromBinary(buff);

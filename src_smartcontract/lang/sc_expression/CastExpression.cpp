@@ -78,9 +78,9 @@ void CastExpression::analyze(AnalyzeContext* actx) {
 		}
 	}
 	else{
-		int result = InternalTypeChecker::analyzeCompatibility(this->atype, &at);
+		int result = InternalTypeChecker::analyzeCompatibility(this->atype, &at, false);
 		if(InternalTypeChecker::INCOMPATIBLE == result){
-			result = InternalTypeChecker::analyzeCompatibility(&at, this->atype);
+			result = InternalTypeChecker::analyzeCompatibility(&at, this->atype, false);
 			if(InternalTypeChecker::INCOMPATIBLE == result){
 				actx->addValidationError(ValidationError::CODE_CAST_TYPE_INCOMPATIBLE, this, L"Can not cast because of type incompatible.", {});
 			}
@@ -166,7 +166,8 @@ AbstractVmInstance* CastExpression::interpret(VirtualMachine* vm) {
 
 	AnalyzedClass* expClazz = this->atype->getAnalyzedClass();
 
-	if(!expClazz->hasBaseClass(clazz)){
+	//if(!expClazz->hasBaseClass(clazz)){
+	if(!clazz->hasBaseClass(expClazz)){
 		releaser.registerInstance(inst);
 
 		TypeCastExceptionClassDeclare::throwException(vm, this);

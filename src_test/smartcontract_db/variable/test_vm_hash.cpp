@@ -77,7 +77,7 @@ TEST(TestVmHashGroup, put02){
 }
 
 TEST(TestVmHashGroup, put03){
-	VirtualMachine* vm = new VirtualMachine(1024 * 10); __STP(vm);
+	VirtualMachine* vm = new VirtualMachine(1024 * 1024); __STP(vm);
 
 	UnicodeString strkey(L"key");
 	UnicodeString strkey2(L"key");
@@ -104,7 +104,7 @@ TEST(TestVmHashGroup, put03){
 }
 
 TEST(TestVmHashGroup, keySet){
-	VirtualMachine* vm = new VirtualMachine(1024 * 1024); __STP(vm);
+	VirtualMachine* vm = new VirtualMachine(1024 * 1024 * 2); __STP(vm);
 
 	VMemHashmap<VmStringInstance, VmStringInstance>* map = new(vm) VMemHashmap<VmStringInstance, VmStringInstance>(vm);
 

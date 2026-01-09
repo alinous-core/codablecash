@@ -66,4 +66,8 @@ const UnicodeString* ExtArrayObject::toString() const noexcept {
 	return this->str;
 }
 
+AbstractVmInstance* ExtArrayObject::toVmInstance(VirtualMachine *vm) {
+	// FIXME toVmInstance
+}
+
 } /* namespace alinous */

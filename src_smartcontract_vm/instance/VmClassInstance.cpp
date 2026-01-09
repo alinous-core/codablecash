@@ -193,9 +193,10 @@ AnalyzedType VmClassInstance::getRuntimeType() const noexcept {
 }
 
 AbstractExtObject* VmClassInstance::toClassExtObject(const UnicodeString* name, VTableRegistory* reg) {
-	ExtClassObject* extObj = new ExtClassObject(name);
-
 	const UnicodeString* fqn = this->clazz->getFullQualifiedName();
+
+	ExtClassObject* extObj = new ExtClassObject(name, fqn);
+
 	VTableClassEntry* classEntry = reg->getClassEntry(fqn, this->clazz);
 	MemberVariableTable* table = classEntry->getMemberVariableTable();
 

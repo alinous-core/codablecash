@@ -47,21 +47,26 @@ AnalyzedClass* TypeCastExceptionClassDeclare::createAnalyzedClass() noexcept {
 }
 
 void TypeCastExceptionClassDeclare::throwException(VirtualMachine* vm, const CodeElement* element) noexcept {
-	ExecControlManager* ctrl = vm->getCtrl();
-	IVmInstanceFactory* factory = ExceptionInstanceFactory::getInstance();
+	throwException(true, vm, element);
+}
 
-	UnicodeString fqn(&AbstractExceptionClassDeclare::PACKAGE_NAME);
-	fqn.append(L".");
-	fqn.append(&NAME);
-	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&fqn);
+void TypeCastExceptionClassDeclare::throwException(bool cond,VirtualMachine *vm, const CodeElement *element) noexcept {
+	if(cond){
+		ExecControlManager* ctrl = vm->getCtrl();
+		IVmInstanceFactory* factory = ExceptionInstanceFactory::getInstance();
 
-	VmClassInstance* inst = factory->createInstance(aclass, vm);
-	inst->init(vm);
+		UnicodeString fqn(&AbstractExceptionClassDeclare::PACKAGE_NAME);
+		fqn.append(L".");
+		fqn.append(&NAME);
+		AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&fqn);
 
+		VmClassInstance* inst = factory->createInstance(aclass, vm);
+		inst->init(vm);
 
-	VmExceptionInstance* exception = dynamic_cast<VmExceptionInstance*>(inst);
+		VmExceptionInstance* exception = dynamic_cast<VmExceptionInstance*>(inst);
 
-	vm->throwException(exception, element);
+		vm->throwException(exception, element);
+	}
 }
 
 TypeCastExceptionClassDeclare::~TypeCastExceptionClassDeclare() {

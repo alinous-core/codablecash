@@ -196,12 +196,15 @@ void FunctionCallExpression::analyze(AnalyzeContext* actx, AnalyzedClass* athisC
 
 	analyzeArguments(actx);
 	analyzeMethodEntry(actx, athisClass, staticMode);
+	if(this->methodEntry == nullptr){
+		return;
+	}
 
 	MethodDeclare* methodDeclare = this->methodEntry->getMethod();
 	staticMode = isStaticMode();
 
-	uint8_t instType = lastInst->getType();
-	if(instType == AbstractVariableInstraction::INSTRUCTION_CLASS_TYPE && !methodDeclare->isStatic()){
+	uint8_t lastInstType = lastInst->getType();
+	if(lastInstType == AbstractVariableInstraction::INSTRUCTION_CLASS_TYPE && !methodDeclare->isStatic()){
 		if(staticMode){
 			// error
 			actx->addValidationError(ValidationError::CODE_WRONG_FUNC_CALL_CANT_CALL_NOSTATIC, actx->getCurrentElement(), L"The method can't invoke non-static method '{0}()'.", {this->strName});
@@ -221,7 +224,7 @@ void FunctionCallExpression::analyze(AnalyzeContext* actx, AnalyzedClass* athisC
 		}
 	}
 
-	if(instType == AbstractVariableInstraction::INSTRUCTION_CLASS_TYPE){
+	if(lastInstType == AbstractVariableInstraction::INSTRUCTION_CLASS_TYPE){ // static method
 		this->noVirtual = true;
 	}
 }

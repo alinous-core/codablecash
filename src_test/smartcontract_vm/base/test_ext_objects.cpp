@@ -31,13 +31,15 @@ TEST_GROUP(TestExtObjects) {
 };
 
 TEST(TestExtObjects, constructObj){
-	UnicodeString name("main");
-	ExtClassObject obj(&name);
+	UnicodeString name(L"main");
+	UnicodeString fqn(L"main.ClassA");
+	ExtClassObject obj(&name, &fqn);
 }
 
 TEST(TestExtObjects, classobjadd){
 	UnicodeString name("main");
-	ExtClassObject obj(&name);
+	UnicodeString fqn(L"main.ClassA");
+	ExtClassObject obj(&name, &fqn);
 
 	UnicodeString count("count");
 	ExtPrimitiveObject* intOnj = ExtPrimitiveObject::createIntObject(&count, 1);
@@ -149,7 +151,8 @@ TEST(TestExtObjects, string01){
 
 TEST(TestExtObjects, classObj01){
 	UnicodeString name(L"name");
-	ExtClassObject obj(&name);
+	UnicodeString fqn(L"main.ClassA");
+	ExtClassObject obj(&name, &fqn);
 
 	UnicodeString exname(L"dummyEx");
 	ExtExceptionObject* exobj = obj.getExtExceptionObject(&exname);
@@ -166,7 +169,7 @@ TEST(TestExtObjects, extExceptionCopy){
 
 TEST(TestExtObjects, nullObj01){
 	UnicodeString name(L"name");
-	ExtNullPtrObject obj(&name);
+	ExtNullPtrObject obj(&name, 0);
 
 	ExtNullPtrObject* obj1 = dynamic_cast<ExtNullPtrObject*>(obj.copy()); __STP(obj1);
 	CHECK(obj1 != nullptr)

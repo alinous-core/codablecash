@@ -34,6 +34,7 @@
 
 #include "inter_modular_access/InterModuleAccessException.h"
 
+#include "modular_interfaces/ModularProxyListnerClassDeclare.h"
 using namespace codablecash;
 
 namespace alinous {
@@ -71,6 +72,10 @@ ReservedClassRegistory::ReservedClassRegistory() {
 
 	// List Class (Generics)
 	aclass = ListClassDeclare::createAnalyzedClass();
+	addAnalyzedClass(aclass);
+
+	// ModularProxyListnerClassDeclare
+	aclass = ModularProxyListnerClassDeclare::createAnalyzedClass();
 	addAnalyzedClass(aclass);
 }
 
@@ -124,6 +129,14 @@ CompilationUnit* ReservedClassRegistory::makeCompilantUnit(const UnicodeString *
 	}
 
 	return unit;
+}
+
+void ReservedClassRegistory::initCompilantUnits(VirtualMachine *vm) {
+	int maxLoop = this->unitlist->size();
+	for(int i = 0; i != maxLoop; ++i){
+		CompilationUnit* unit = this->unitlist->get(i);
+		unit->init(vm);
+	}
 }
 
 } /* namespace alinous */

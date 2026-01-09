@@ -26,6 +26,7 @@ class CompileError;
 class ReservedClassRegistory;
 class GcManager;
 class ClassDeclare;
+class IInitializeCompilantUnitProvidor;
 
 class SmartContract {
 public:
@@ -50,8 +51,8 @@ public:
 	void clearRootReference(VirtualMachine* vm) noexcept;
 	void releaseMainInstance(GcManager* gc) noexcept;
 
-	VmClassInstance* createInstance(VirtualMachine* vm);
-	void initialize(VirtualMachine* vm);
+	VmClassInstance* createInstance(VirtualMachine* vm, ArrayList<IInitializeCompilantUnitProvidor>* exprogs);
+	void initialize(VirtualMachine* vm, ArrayList<IInitializeCompilantUnitProvidor>* exprogs);
 
 	AnalyzeContext* getAnalyzeContext() const noexcept;
 
@@ -70,6 +71,9 @@ public:
 	ClassDeclare* getClassDeclareByFqn(const UnicodeString* fqn) const;
 
 	UnicodeString* getMainClassFqn() const noexcept;
+
+private:
+	void initializeExprogs(VirtualMachine* vm, ArrayList<IInitializeCompilantUnitProvidor>* exprogs);
 
 private:
 	UnicodeString* mainPackage;

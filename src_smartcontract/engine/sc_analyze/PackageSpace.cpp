@@ -77,6 +77,7 @@ void PackageSpace::analyzeClassInheritance(AnalyzeContext* actx) noexcept {
 		AnalyzedClass* cls = this->classes->get(n);
 
 		doAnalyzeClassInheritance(cls);
+		doAnalyzeDeliverClasses(cls);
 	}
 
 	delete it;
@@ -106,6 +107,58 @@ void PackageSpace::doAnalyzeClassInheritance(AnalyzedClass* cls) noexcept {
 	}
 }
 
+void PackageSpace::doAnalyzeDeliverClasses(AnalyzedClass *cls) noexcept {
+	// down analysis
+	ArrayList<AnalyzedClass> list;
+
+	{
+		AnalyzedClass* clazz = cls;
+		while(clazz != nullptr){
+			const ArrayList<AnalyzedClass>* interfaces = clazz->getImplements();
+			int	maxLoop = interfaces->size();
+
+			list.addElement(clazz, 0);
+
+			for(int i = 0; i != maxLoop; ++i){
+				AnalyzedClass* ifclazz = interfaces->get(i);
+
+				analyzeInterfaceInheritance(ifclazz, &list);
+			}
+
+			clazz = clazz->getExtends();
+		}
+	}
+
+
+	// up analysis
+	{
+		int maxLoop = list.size();
+		for(int i = 0; i != maxLoop; ++i){
+			AnalyzedClass* clazz = list.get(i);
+
+			addDeliverClasses(clazz, &list, i+1);
+		}
+	}
+}
+
+void PackageSpace::addDeliverClasses(AnalyzedClass *targetClazz, ArrayList<AnalyzedClass> *list, int pos) {
+	int maxLoop = list->size();
+	for(int i = pos; i < maxLoop; ++i){
+		AnalyzedClass* clazz = list->get(i);
+
+		if(!clazz->isInterface()){
+			targetClazz->addDelivedImplementClass(clazz);
+		}
+	}
+}
+
+void PackageSpace::analyzeInterfaceInheritance(AnalyzedClass *ifclazz, ArrayList<AnalyzedClass> *list) {
+	while(ifclazz != nullptr && ifclazz->isInterface()){
+		list->addElement(ifclazz, 0);
+		ifclazz = ifclazz->getExtends();
+	}
+}
+
 void PackageSpace::buildVTables(AnalyzeContext* actx) noexcept {
 	Iterator<UnicodeString>* it = this->classes->keySet()->iterator(); __STP(it);
 	while(it->hasNext()){
@@ -119,8 +172,6 @@ void PackageSpace::buildVTables(AnalyzeContext* actx) noexcept {
 HashMap<UnicodeString, AnalyzedClass>* PackageSpace::getMap() const noexcept {
 	return this->classes;
 }
-
-
 
 bool PackageSpace::isEmpty() const noexcept {
 	return this->classes->isEmpty();

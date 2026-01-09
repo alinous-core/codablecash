@@ -54,6 +54,7 @@ void DatabaseExceptionClassDeclare::throwException(const UnicodeString* msg, Vir
 
 
 	VmExceptionInstance* exception = dynamic_cast<VmExceptionInstance*>(inst);
+	exception->setMessage(msg, vm);
 
 	vm->throwException(exception, element);
 }

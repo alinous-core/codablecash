@@ -158,6 +158,7 @@ void AnalyzeContext::popThisClass() noexcept {
 }
 
 void AnalyzeContext::analyzeClassInheritance() {
+	// super classes
 	Iterator<UnicodeString>* it = this->packageSpaces->keySet()->iterator();
 	while(it->hasNext()){
 		const UnicodeString* packageName = it->next();

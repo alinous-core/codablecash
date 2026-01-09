@@ -21,6 +21,8 @@ public:
 
 	static AnalyzedClass* createAnalyzedClass() noexcept;
 
+	static AnalyzedClass* getStaticAnalyzedClass();
+
 	StringClassDeclare();
 	virtual ~StringClassDeclare();
 
@@ -29,7 +31,6 @@ public:
 	}
 
 	virtual ClassDeclare* getBaseClass() const noexcept;
-
 	virtual const UnicodeString* getPackageName() const noexcept;
 };
 

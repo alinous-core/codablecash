@@ -136,10 +136,17 @@ void ClassDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 	if(this->implements != nullptr){
 		const ArrayList<AnalyzedType>* list = this->implements->getAnalyzedTypes();
 
-		int maxLoop = list->size();
-		for(int i = 0; i != maxLoop; ++i){
-			AnalyzedType* cls = list->get(i);
-			dec->addImplements(cls->getAnalyzedClass());
+		// interface can't implements other interfaces
+		if(!list->isEmpty() && isInterface()){
+			actx->addValidationError(ValidationError::CODE_INTERFACE_CANNOT_IMPLEMENTS, this, L"Class {0} is interface. It can't implement other interfaces.", {this->name});
+		}
+
+		if(!actx->hasError()){
+			int maxLoop = list->size();
+			for(int i = 0; i != maxLoop; ++i){
+				AnalyzedType* cls = list->get(i);
+				dec->addImplements(cls->getAnalyzedClass());
+			}
 		}
 	}
 

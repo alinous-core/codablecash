@@ -46,6 +46,7 @@ private:
 	void addSuperVirtualMethodImplEntry(MethodDeclare* method);
 
 	MethodDeclare* getSuperClassMethod(MethodDeclare* method) noexcept;
+	MethodDeclare* getDeliverClassMethod(MethodDeclare* method) noexcept;
 
 	void addMethodNameEntry(VTableMethodEntry* entry) noexcept;
 

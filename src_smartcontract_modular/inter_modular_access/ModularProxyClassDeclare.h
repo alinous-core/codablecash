@@ -21,7 +21,7 @@ public:
 	ModularProxyClassDeclare();
 	virtual ~ModularProxyClassDeclare();
 
-	static AnalyzedClass* createAnalyzedClass() noexcept;
+//	static AnalyzedClass* createAnalyzedClass() noexcept;
 
 	virtual uint16_t getClassType() const noexcept {
 		return AbstractReservedClassDeclare::TYPE_MODULAR_PROXY;
@@ -29,6 +29,8 @@ public:
 
 	//// use getName() and GetPackageName of ClassDeclare
 	///  use Extends
+	static const UnicodeString* getPackageFromIf(ClassDeclare *ifdec);
+	static UnicodeString* getNameFromInterface(const UnicodeString* mainFqn, const UnicodeString* ifName);
 
 	void setFactory(IVmInstanceFactory* factory);
 	virtual IVmInstanceFactory* getFactory() const noexcept;
@@ -37,6 +39,8 @@ public:
 	InstanceDependencyContext* getInstanceDependencyContext() const noexcept {
 		return this->dctx;
 	}
+
+	virtual void preAnalyze(AnalyzeContext* actx);
 
 private:
 	IVmInstanceFactory* factory;

@@ -28,6 +28,8 @@
 #include "bc/ExceptionThrower.h"
 
 #include "smartcontract_cache/ModuleSetupException.h"
+
+#include "smartcontract_cache/InstanceSpaceReleaser.h"
 namespace codablecash {
 
 ModularSmartcontractExecutor::ModularSmartcontractExecutor(const File* base) {
@@ -87,23 +89,33 @@ SmartcontractProjectData* ModularSmartcontractExecutor::getProject(const Smartco
 }
 
 void ModularSmartcontractExecutor::createInstance(const SmartcontractInstanceAddress *instAddress, const SmartcontractProjectId *projectId) {
-	InstanceSpace* space = this->instanceSpace->createInstance(instAddress, projectId); __STP(space);
+	{
+		InstanceSpace* space = this->instanceSpace->createInstance(instAddress, projectId); __STP(space);
 
-	// language
-	bool hasError = space->analyze();
-	ExceptionThrower<ModuleSetupException>::throwExceptionIfCondition(hasError == true, L"Analysis error.", __FILE__, __LINE__);
+		// language
+		bool hasError = space->analyze();
+		ExceptionThrower<ModuleSetupException>::throwExceptionIfCondition(hasError == true, L"Analysis error.", __FILE__, __LINE__);
 
-	space->setMainInstance();
-	space->createMainInstance();
-	hasError = space->interpretInitializer();
-	ExceptionThrower<ModuleSetupException>::throwExceptionIfCondition(hasError == true, L"Main object initialize error.", __FILE__, __LINE__);
+		space->setMainInstance();
+		space->createMainInstance();
+		hasError = space->interpretInitializer();
+		ExceptionThrower<ModuleSetupException>::throwExceptionIfCondition(hasError == true, L"Main object initialize error.", __FILE__, __LINE__);
 
-	// database
-	File* instanceRootDir = this->baseDir->get(INSTANCES_DIR_NAME); __STP(instanceRootDir);
-	space->setDatabaseDir(instanceRootDir);
-	space->createDatabase();
+		// database
+		File* instanceRootDir = this->baseDir->get(INSTANCES_DIR_NAME); __STP(instanceRootDir);
+		space->setDatabaseDir(instanceRootDir);
+		space->createDatabase();
 
-	this->instanceSpace->registerCache(__STP_MV(space));
+		this->instanceSpace->registerCache(__STP_MV(space));
+	}
+
+	// dependency module objects
+	{
+		InstanceSpace* space = this->instanceSpace->loadFromCache(instAddress);
+		InstanceSpaceReleaser __releaser(space);
+
+		space->invokeModularProxyListnerMethod();
+	}
 }
 
 InstanceSpace* ModularSmartcontractExecutor::loadFromCache(const SmartcontractInstanceAddress *instAddress) {

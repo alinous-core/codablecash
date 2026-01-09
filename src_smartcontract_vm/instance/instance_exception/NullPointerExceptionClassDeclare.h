@@ -19,6 +19,7 @@ public:
 
 	static AnalyzedClass* createAnalyzedClass() noexcept;
 	static void throwException(VirtualMachine* vm, const CodeElement* element) noexcept;
+	static void throwException(bool cond, VirtualMachine* vm, const CodeElement* element) noexcept;
 
 	NullPointerExceptionClassDeclare();
 	virtual ~NullPointerExceptionClassDeclare();

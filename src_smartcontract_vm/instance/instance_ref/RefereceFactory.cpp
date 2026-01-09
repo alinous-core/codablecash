@@ -54,7 +54,7 @@ AbstractReference* RefereceFactory::createReferenceFromDefinition(IAbstractVmIns
 	case CodeElement::TYPE_LONG:
 		ref = PrimitiveReference::createLongReference(vm, 0);
 		break;
-	case AnalyzedType::TYPE_DOM:
+	case CodeElement::TYPE_DOM:
 		ref = new(vm) DomRuntimeReference(owner, vm);
 		break;
 	case CodeElement::TYPE_OBJECT:
@@ -148,6 +148,5 @@ PrimitiveReference* RefereceFactory::createNumericReference(int64_t value, uint8
 
 	return ref;
 }
-
 
 } /* namespace alinous */

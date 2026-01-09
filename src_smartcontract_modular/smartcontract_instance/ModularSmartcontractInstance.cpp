@@ -115,19 +115,56 @@ bool ModularSmartcontractInstance::hasCompileError() const noexcept {
 	return hasError;
 }
 
-bool ModularSmartcontractInstance::analyze() {
-	bool hasError = false;
 
+
+bool ModularSmartcontractInstance::preAnalyzeGoup() {
+	bool hasError = false;
 	try{
 		initBeforeAnalyze();
 		preAnalyze();
 		preAnalyzeGenerics();
 		loadDependency();
 		preAnalyzeDependency();
+	}
+	catch(CompilantUnitAnalyzeException* e){
+		delete e;
+		hasError = true;
+	}
 
+	return hasError;
+}
+
+bool ModularSmartcontractInstance::analyzeTypeRefGroup() {
+	bool hasError = false;
+	try{
 		analyzeType();
 		analyzeTypeDependency();
-		analyzeMetadata();
+	}
+	catch(CompilantUnitAnalyzeException* e){
+		delete e;
+		hasError = true;
+	}
+
+	return hasError;
+}
+
+bool ModularSmartcontractInstance::analyzeMetadataGroup() {
+	bool hasError = this->execModule->analyzeMetadata();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* inst = this->libArray->get(i);
+		hasError |= inst->analyzeMetadata();
+	}
+
+	return hasError;
+}
+
+
+bool ModularSmartcontractInstance::analyzeGroup() {
+	bool hasError = false;
+
+	try{
 		analyzeFinal();
 		analyzeDependency();
 	}
@@ -197,18 +234,6 @@ void ModularSmartcontractInstance::analyzeType() {
 	}
 
 	ExceptionThrower<CompilantUnitAnalyzeException>::throwExceptionIfCondition(hasError, L"analyzeType() failed.", __FILE__, __LINE__);
-}
-
-void ModularSmartcontractInstance::analyzeMetadata() {
-	bool hasError = this->execModule->analyzeMetadata();
-
-	int maxLoop = this->libArray->size();
-	for(int i = 0; i != maxLoop; ++i){
-		LibraryExectableModuleInstance* inst = this->libArray->get(i);
-		hasError |= inst->analyzeMetadata();
-	}
-
-	ExceptionThrower<CompilantUnitAnalyzeException>::throwExceptionIfCondition(hasError, L"analyzeMetadata() failed.", __FILE__, __LINE__);
 }
 
 void ModularSmartcontractInstance::analyzeFinal() {
@@ -513,6 +538,55 @@ bool ModularSmartcontractInstance::generateInterModularCommunicationClasses() {
 	}
 
 	return hasError;
+}
+
+bool ModularSmartcontractInstance::preAnalyzeInterModularCommunicationClasses() {
+	bool hasError = this->execModule->preAnalyzeInterModularCommunicationClasses();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* lib = libArray->get(i);
+
+		hasError |= lib->preAnalyzeInterModularCommunicationClasses();
+	}
+
+	return hasError;
+}
+
+bool ModularSmartcontractInstance::analyzeTypeRefInterModularCommunicationClasses() {
+	bool hasError = this->execModule->analyzeTypeRefInterModularCommunicationClasses();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* lib = libArray->get(i);
+
+		hasError |= lib->analyzeTypeRefInterModularCommunicationClasses();
+	}
+
+	return hasError;
+}
+
+bool ModularSmartcontractInstance::analyzeInterModularCommunicationClasses() {
+	bool hasError = this->execModule->analyzeInterModularCommunicationClasses();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* lib = libArray->get(i);
+
+		hasError |= lib->analyzeInterModularCommunicationClasses();
+	}
+
+	return hasError;
+}
+
+void ModularSmartcontractInstance::invokeModularProxyListnerMethod() {
+	this->execModule->invokeModularProxyListnerMethod();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* lib = libArray->get(i);
+		lib->invokeModularProxyListnerMethod();
+	}
 }
 
 } /* namespace codablecash */

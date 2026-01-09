@@ -18,9 +18,6 @@
 #include "instance/instance_ref/AbstractReference.h"
 #include "instance/instance_ref/ObjectReference.h"
 
-#include "vm/stack/VmStackManager.h"
-#include "vm/stack/VmStack.h"
-
 #include "instance/instance_ref/VmRootReference.h"
 
 #include "lang/sc_declare/MethodDeclare.h"
@@ -31,33 +28,34 @@
 #include "engine/sc_analyze_functions/VTableMethodEntry.h"
 #include "engine/sc_analyze_functions/MethodScore.h"
 
-#include "vm/variable_access/FunctionArguments.h"
-
 #include "engine/sc_analyze/AnalyzedClass.h"
 #include "engine/sc_analyze/AnalyzeContext.h"
 #include "engine/sc_analyze/AnalyzedType.h"
 #include "engine/sc_analyze/ValidationError.h"
-
-#include "instance/instance_exception_class/VmExceptionInstance.h"
+#include "engine/sc_analyze/TypeResolver.h"
 
 #include "ext_arguments/AbstractFunctionExtArguments.h"
 
 #include "ext_binary/ExtExceptionObject.h"
 
 #include "vm/exceptions.h"
+#include "vm/IInitializeCompilantUnitProvidor.h"
 
 #include "vm/stack/StackPopper.h"
+#include "vm/stack/VmStackManager.h"
+#include "vm/stack/VmStack.h"
 
 #include "vm/vm_ctrl/ExecControlManager.h"
 #include "vm/vm_ctrl/ExceptionControl.h"
 
-#include "base/Exception.h"
+#include "vm/variable_access/FunctionArguments.h"
 
 #include "instance/reserved_classes/ReservedClassRegistory.h"
+#include "instance/reserved_classes_string/StringClassDeclare.h"
 
 #include "instance/instance_exception_class/ExceptionClassDeclare.h"
-
-#include "base/UnicodeString.h"
+#include "instance/instance_exception_class/StackTraceElement.h"
+#include "instance/instance_exception_class/VmExceptionInstance.h"
 
 #include "engine/CodableDatabase.h"
 
@@ -66,6 +64,11 @@
 #include "scan_select/scan_planner/base/SelectScanPlanner.h"
 
 #include "scan_select/scan_condition/exp_escape/EscapeTargetCondition.h"
+
+#include "base/Exception.h"
+#include "base/StackRelease.h"
+#include "base/UnicodeString.h"
+
 
 namespace alinous {
 
@@ -125,11 +128,13 @@ void VirtualMachine::loadDatabase(const File* dbdir, const File* undoDir) {
 	this->db->loadDatabase(dbdir, undoDir);
 }
 
-VmClassInstance* VirtualMachine::createScInstance() {
+VmClassInstance* VirtualMachine::createScInstance(ArrayList<IInitializeCompilantUnitProvidor>* exprogs) {
 	VmClassInstance* retInst = nullptr;
-	initialize();
+
+	initialize(exprogs);
+
 	try{
-		retInst = this->sc->createInstance(this);
+		retInst = this->sc->createInstance(this, exprogs);
 	}
 	catch(Exception* e){
 		this->exceptions.addElement(e);
@@ -237,7 +242,6 @@ MethodDeclare* VirtualMachine::interpretMainObjectMethodProxy(const UnicodeStrin
 	VTableMethodEntry* methodEntry = score->getEntry();
 	MethodDeclare* methodDeclare = methodEntry->getMethod();
 
-	// FIXME
 	FunctionArguments localArguments;
 	for(int i = 0; i != maxLoop; ++i){
 		IAbstractVmInstanceSubstance* vminst = list->get(i);
@@ -251,6 +255,15 @@ MethodDeclare* VirtualMachine::interpretMainObjectMethodProxy(const UnicodeStrin
 	VmStack* stack = this->topStack();
 
 	methodDeclare->interpret(&localArguments, this);
+
+	// FIXME set return value local to arg
+	{
+		AbstractVmInstance* returnedValue = localArguments.getReturnedValue();
+		if(returnedValue != nullptr){
+			IAbstractVmInstanceSubstance* sub = returnedValue->getInstance();
+		}
+
+	}
 
 	// uncaught exception
 	checkUncaughtException();
@@ -267,11 +280,11 @@ MethodScore* VirtualMachine::calcScore(FunctionScoreCalc *calc, const UnicodeStr
 	return score;
 }
 
-void VirtualMachine::interpret(MethodDeclare* method, VmClassInstance* _this, ArrayList<AbstractFunctionExtArguments>* arguments) {
+void VirtualMachine::interpret(MethodDeclare* method, VmClassInstance* _this, ArrayList<AbstractFunctionExtArguments>* arguments, ArrayList<IInitializeCompilantUnitProvidor>* exprogs) {
 	ERROR_POINT(L"VirtualMachine::interpret");
 	CAUSE_ERROR_BY_THROW(L"VirtualMachine::interpret", new Exception(__FILE__, __LINE__));
 
-	initialize();
+	initialize(exprogs);
 
 	FunctionArguments args;
 	args.setThisPtr(_this);
@@ -357,7 +370,7 @@ void VirtualMachine::markStackbyMethod(MethodDeclare *method) {
 }
 
 void VirtualMachine::markStackEntryPoint(AbstractExpression *exp) {
-	this->markStackEntryPoint(exp);
+	this->stackManager->markStackEntryPoint(exp);
 }
 
 void VirtualMachine::newStack() {
@@ -413,12 +426,12 @@ void VirtualMachine::setFunctionArguments(FunctionArguments* args) noexcept {
 	this->argsRegister = args;
 }
 
-void VirtualMachine::initialize() {
+void VirtualMachine::initialize(ArrayList<IInitializeCompilantUnitProvidor>* exprogs) {
 	if(this->initialized){
 		return;
 	}
 
-	this->sc->initialize(this);
+	this->sc->initialize(this, exprogs);
 	this->initialized = true;
 }
 
@@ -463,6 +476,23 @@ ExecControlManager* VirtualMachine::getCtrl() const noexcept {
 
 void VirtualMachine::throwException(VmExceptionInstance* exception, const CodeElement* element) noexcept {
 	ExecControlManager* ctrl = this->ctrl;
+
+	// make stack trace
+	int maxLoop = this->stackManager->size();
+	for(int i = maxLoop - 1; i != -1; --i){
+		VmStack* stack = this->stackManager->get(i);
+
+		StackTraceElement* element = new(this) StackTraceElement(publishInstanceSerial());
+
+		MethodDeclare* currentMethod = stack->getCurrentMethod();
+		AbstractExpression* exp = stack->getEntryPoint();
+
+		if(currentMethod != nullptr){
+			element->setCurrentMethod(currentMethod);
+			element->setEntryPoint(exp);
+			exception->addStacktrace(element);
+		}
+	}
 
 	exception->setCodeElement(element);
 
@@ -571,6 +601,19 @@ uint64_t VirtualMachine::publishInstanceSerial() noexcept {
 	}
 
 	return serial;
+}
+
+AnalyzedClass* VirtualMachine::getStringAnalyzedClass() const noexcept {
+	if(this->sc == nullptr){
+		return StringClassDeclare::getStaticAnalyzedClass();
+	}
+	AnalyzeContext* actx = this->sc->getAnalyzeContext();
+	TypeResolver* resolver = actx->getTypeResolver();
+
+	AnalyzedType* atype = resolver->findBasicType(&StringClassDeclare::NAME); __STP(atype);
+	AnalyzedClass* clazz = atype->getAnalyzedClass();
+
+	return clazz;
 }
 
 } /* namespace alinous */

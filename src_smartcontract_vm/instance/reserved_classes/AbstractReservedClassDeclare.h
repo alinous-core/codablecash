@@ -27,6 +27,7 @@ public:
 	static constexpr const uint16_t TYPE_OBJECT = 10;
 
 	static constexpr const uint16_t TYPE_MODULAR_PROXY = 11;
+	static constexpr const uint16_t TYPE_MODULAR_PROXY_LISTNER = 12;
 
 	AbstractReservedClassDeclare();
 	virtual ~AbstractReservedClassDeclare();
@@ -40,6 +41,8 @@ public:
 	virtual void preAnalyze(AnalyzeContext* actx);
 	virtual void analyzeTypeRef(AnalyzeContext* actx);
 	virtual void analyze(AnalyzeContext* actx);
+
+	virtual void init(VirtualMachine *vm);
 
 	virtual ArrayList<MethodDeclare>* getMethods() noexcept;
 	virtual ArrayList<MemberVariableDeclare>* getMemberVariables() noexcept;

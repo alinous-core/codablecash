@@ -18,6 +18,10 @@ class Module01 implements IExportMethods, IDirectAccess {
 		this.count = value;
 	}
 	
+	public int getCount() {
+		return this.count;
+	}
+	
 	private int count = 0;
 	private Result res;
 }

@@ -2,5 +2,6 @@ package modsample.export;
 
 
 interface IExportMethods {
-	
+	public void doubleup();
+	public int getCount();
 }

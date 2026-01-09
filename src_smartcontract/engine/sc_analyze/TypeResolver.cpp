@@ -28,6 +28,7 @@
 
 #include "instance/reserved_classes/object/ObjectClassDeclare.h"
 
+#include "instance/reserved_classes_string/StringClassDeclare.h"
 namespace alinous {
 
 const UnicodeString TypeResolver::DOT(L".");
@@ -83,7 +84,13 @@ AnalyzedType* TypeResolver::resolveType(CodeElement* element, AbstractType* type
 		result = new AnalyzedType(AnalyzedType::TYPE_LONG);
 		break;
 	case CodeElement::TYPE_STRING:
-		result = new AnalyzedType(AnalyzedType::TYPE_STRING);
+		{
+			result = new AnalyzedType(AnalyzedType::TYPE_STRING);
+
+			PackageSpace* space = this->ctx->getPackegeSpace(nullptr);
+			AnalyzedClass* clazz = space->getClass(&StringClassDeclare::NAME);
+			result->setAnalyzedClass(clazz);
+		}
 		break;
 	case CodeElement::TYPE_VOID:
 		result = new AnalyzedType(AnalyzedType::TYPE_VOID);
@@ -163,6 +170,10 @@ AnalyzedType* TypeResolver::findBasicType(const UnicodeString* name) const {
 	}
 	else if(name->equals(STRING)){
 		result = new AnalyzedType(AnalyzedType::TYPE_STRING);
+
+		PackageSpace* space = this->ctx->getPackegeSpace(nullptr);
+		AnalyzedClass* clazz = space->getClass(&StringClassDeclare::NAME);
+		result->setAnalyzedClass(clazz);
 	}
 
 	return result;

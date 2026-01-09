@@ -56,6 +56,7 @@
 
 #include "base/StackRelease.h"
 
+#include "vm/IInitializeCompilantUnitProvidor.h"
 namespace alinous {
 
 SmartContract::SmartContract() {
@@ -259,8 +260,8 @@ void SmartContract::releaseMainInstance(GcManager* gc) noexcept {
 }
 
 
-VmClassInstance* SmartContract::createInstance(VirtualMachine* vm) {
-	initialize(vm);
+VmClassInstance* SmartContract::createInstance(VirtualMachine* vm, ArrayList<IInitializeCompilantUnitProvidor>* exprogs) {
+	initialize(vm, exprogs);
 
 	PackageSpace* space = this->actx->getPackegeSpace(this->mainPackage);
 	ExceptionThrower<VmClassNotFoundException>::throwExceptionIfCondition(space == nullptr, L"The package space does not exist.", __FILE__, __LINE__);
@@ -294,7 +295,7 @@ VmClassInstance* SmartContract::createInstance(VirtualMachine* vm) {
 	// exec constructor
 	try{
 		ArrayList<AbstractFunctionExtArguments> arguments;
-		vm->interpret(defConstructor, inst, &arguments);
+		vm->interpret(defConstructor, inst, &arguments, exprogs);
 	}
 	catch(Exception* e){
 		throw e;
@@ -304,7 +305,7 @@ VmClassInstance* SmartContract::createInstance(VirtualMachine* vm) {
 	return inst;
 }
 
-void SmartContract::initialize(VirtualMachine* vm) {
+void SmartContract::initialize(VirtualMachine* vm, ArrayList<IInitializeCompilantUnitProvidor>* exprogs) {
 	if(this->initialized){
 		return;
 	}
@@ -318,10 +319,23 @@ void SmartContract::initialize(VirtualMachine* vm) {
 		unit->init(vm);
 	}
 
+	if(exprogs != nullptr){
+		initializeExprogs(vm, exprogs);
+	}
+
 	StaticClassReferenceHolder* staticClassHolder = this->rootReference->getStaticClassReferenceHolder();
 	staticClassHolder->init(vm, actx);
 
 	this->initialized = true;
+}
+
+void SmartContract::initializeExprogs(VirtualMachine *vm, ArrayList<IInitializeCompilantUnitProvidor> *exprogs) {
+	int maxLoop = exprogs->size();
+	for(int i = 0; i != maxLoop; ++i){
+		IInitializeCompilantUnitProvidor* providor = exprogs->get(i);
+
+		providor->initCompilantUnits(vm);
+	}
 }
 
 AnalyzeContext* SmartContract::getAnalyzeContext() const noexcept {

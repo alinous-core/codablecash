@@ -112,10 +112,7 @@ void MethodDeclare::analyzeTypeRefBody(AnalyzeContext *actx, TypeResolver* typeR
 			actx->addValidationError(ValidationError::CODE_NO_RETURN_METHOD_VALUE, this, L"Return type of method '{0}()' does not exists.", {this->name});
 		}
 		else {
-			this->atype = typeResolver->resolveType(this, this->type);
-			if(this->atype == nullptr){
-				actx->addValidationError(ValidationError::CODE_WRONG_TYPE_NAME, this, L"The type '{0}' does not exists.", {this->type->toString()});
-			}
+			analyzeReturnedValue(actx, typeResolver);
 		}
 	}
 
@@ -123,6 +120,13 @@ void MethodDeclare::analyzeTypeRefBody(AnalyzeContext *actx, TypeResolver* typeR
 
 	if(this->type != nullptr){
 		this->type->analyzeTypeRef(actx);
+	}
+}
+
+void MethodDeclare::analyzeReturnedValue(AnalyzeContext *actx, TypeResolver *typeResolver) {
+	this->atype = typeResolver->resolveType(this, this->type);
+	if(this->atype == nullptr){
+		actx->addValidationError(ValidationError::CODE_WRONG_TYPE_NAME, this, L"The type '{0}' does not exists.", {this->type->toString()});
 	}
 }
 

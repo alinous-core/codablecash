@@ -104,7 +104,7 @@ void MemberVariableDeclare::analyze(AnalyzeContext* actx) {
 
 		AnalyzedTypeChecker checker;
 		AnalyzedType exAt = this->exp->getType(actx);
-		int result = checker.checkCompatibility(actx, this->atype, &exAt);
+		int result = checker.checkCompatibility(actx, this->atype, &exAt, true);
 
 		if(result == InternalTypeChecker::INCOMPATIBLE){
 			actx->addValidationError(ValidationError::CODE_TYPE_INCOMPATIBLE, this, L"Initial variable is incompatible with variable declare .", {});

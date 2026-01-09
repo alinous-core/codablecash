@@ -47,7 +47,11 @@ public:
 	void loadCompilantUnits(const File* projectBaseDir);
 	bool hasCompileError() const noexcept;
 
-	bool analyze();
+	bool preAnalyzeGoup();
+	bool analyzeTypeRefGroup();
+	bool analyzeMetadataGroup();
+	bool analyzeGroup();
+
 	bool checkDirectAccess();
 
 	void setMainInstance();
@@ -69,6 +73,12 @@ public:
 
 	// modular
 	bool generateInterModularCommunicationClasses();
+	bool preAnalyzeInterModularCommunicationClasses();
+	bool analyzeTypeRefInterModularCommunicationClasses();
+	bool analyzeInterModularCommunicationClasses();
+
+	void invokeModularProxyListnerMethod();
+
 
 	// create data
 	SmartcontractProjectData* createData() const;
@@ -91,7 +101,6 @@ private:
 	void preAnalyze();
 	void preAnalyzeGenerics();
 	void analyzeType();
-	void analyzeMetadata();
 	void analyzeFinal();
 
 	// dependency

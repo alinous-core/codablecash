@@ -74,6 +74,7 @@ public:
 
 protected:
 	void analyzeTypeRefBody(AnalyzeContext* actx, TypeResolver* typeResolver);
+	void analyzeReturnedValue(AnalyzeContext *actx, TypeResolver* typeResolver);
 
 protected:
 	AccessControlDeclare* ctrl;

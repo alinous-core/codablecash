@@ -11,6 +11,8 @@
 #include "base/ArrayList.h"
 #include "base/HashMap.h"
 
+#include "vm/IInitializeCompilantUnitProvidor.h"
+
 namespace alinous {
 class CompilationUnit;
 class VirtualMachine;
@@ -22,7 +24,7 @@ using namespace alinous;
 
 namespace codablecash {
 
-class ModuleInstanceClassLoader {
+class ModuleInstanceClassLoader : public IInitializeCompilantUnitProvidor {
 public:
 	ModuleInstanceClassLoader();
 	virtual ~ModuleInstanceClassLoader();
@@ -35,6 +37,8 @@ public:
 	void preAnalyze(AnalyzeContext* actx);
 	void analyzeType(AnalyzeContext* actx);
 	void analyze(AnalyzeContext* actx);
+
+	virtual void initCompilantUnits(VirtualMachine *vm);
 
 private:
 	void addCompilationUnit(const UnicodeString *fqn, CompilationUnit* unit) noexcept;

@@ -10,6 +10,7 @@
 #include "lang/sc_declare_types/AbstractType.h"
 
 #include "base/UnicodeString.h"
+#include "base/StackRelease.h"
 
 
 namespace alinous {
@@ -96,6 +97,20 @@ void PackageNameDeclare::fromBinary(ByteBuffer* in) {
 
 PackageNameDeclare* PackageNameDeclare::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
 	return new PackageNameDeclare(*this);
+}
+
+PackageNameDeclare* PackageNameDeclare::makeFromString(const UnicodeString *str) {
+	UnicodeString pattern(L"\\.");
+	ArrayList<UnicodeString>* list = str->split(&pattern); __STP(list);
+
+	PackageNameDeclare* dec = new PackageNameDeclare();
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		UnicodeString* seg = list->get(i);
+		dec->addSegment(seg);
+	}
+
+	return dec;
 }
 
 } /* namespace alinous */

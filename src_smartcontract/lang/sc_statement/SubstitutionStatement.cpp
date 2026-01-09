@@ -56,7 +56,7 @@ void SubstitutionStatement::analyze(AnalyzeContext* actx) {
 	this->exp->analyze(actx);
 
 	if(!actx->hasError()){
-		bool result = typeChecker.checkCompatibility(actx, this->variable, this->exp);
+		bool result = typeChecker.checkCompatibility(actx, this->variable, this->exp, true);
 	}
 
 	this->bctrl = this->variable->throwsException() || this->exp->throwsException();

@@ -86,4 +86,8 @@ const UnicodeString* ExtDomObject::toString() const noexcept {
 	return this->str;
 }
 
+AbstractVmInstance* ExtDomObject::toVmInstance(VirtualMachine *vm) {
+	// FIXME toVmInstance
+}
+
 } /* namespace alinous */

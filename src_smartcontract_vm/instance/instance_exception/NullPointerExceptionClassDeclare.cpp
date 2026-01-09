@@ -48,22 +48,28 @@ AnalyzedClass* NullPointerExceptionClassDeclare::createAnalyzedClass() noexcept 
 }
 
 void NullPointerExceptionClassDeclare::throwException(VirtualMachine* vm, const CodeElement* element) noexcept {
-	ExecControlManager* ctrl = vm->getCtrl();
-	IVmInstanceFactory* factory = ExceptionInstanceFactory::getInstance();
+	throwException(true, vm, element);
+}
 
-	UnicodeString fqn(&AbstractExceptionClassDeclare::PACKAGE_NAME);
-	fqn.append(L".");
-	fqn.append(&NAME);
+void NullPointerExceptionClassDeclare::throwException(bool cond, VirtualMachine *vm, const CodeElement *element) noexcept {
+	if(cond){
+		ExecControlManager* ctrl = vm->getCtrl();
+		IVmInstanceFactory* factory = ExceptionInstanceFactory::getInstance();
 
-	AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&fqn);
+		UnicodeString fqn(&AbstractExceptionClassDeclare::PACKAGE_NAME);
+		fqn.append(L".");
+		fqn.append(&NAME);
 
-	VmClassInstance* inst = factory->createInstance(aclass, vm);
-	inst->init(vm);
+		AnalyzedClass* aclass = vm->getReservedClassRegistory()->getAnalyzedClass(&fqn);
+
+		VmClassInstance* inst = factory->createInstance(aclass, vm);
+		inst->init(vm);
 
 
-	VmExceptionInstance* exception = dynamic_cast<VmExceptionInstance*>(inst);
+		VmExceptionInstance* exception = dynamic_cast<VmExceptionInstance*>(inst);
 
-	vm->throwException(exception, element);
+		vm->throwException(exception, element);
+	}
 }
 
 NullPointerExceptionClassDeclare::~NullPointerExceptionClassDeclare() {

@@ -22,6 +22,7 @@ class AnalyzedClass;
 class AbstractFunctionExtArguments;
 class FunctionArguments;
 class AbstractExtObject;
+class ClassDeclare;
 }
 using namespace alinous;
 
@@ -112,8 +113,17 @@ public:
 
 	// modular
 	bool generateInterModularCommunicationClasses();
+	bool preAnalyzeInterModularCommunicationClasses();
+	bool analyzeTypeRefInterModularCommunicationClasses();
+	bool analyzeInterModularCommunicationClasses();
+
+	void invokeModularProxyListnerMethod();
 
 protected:
+	void callModuleDetectedMethod(ClassDeclare* proxyClass, VmClassInstance* proxyInstance, const UnicodeString* ifname);
+	void fireListner(InstanceDependencyContext* dctx);
+	void doFireListner(InstanceDependencyContext *dctx, const UnicodeString* exportInterface, const ModularInstanceConfig* instanceConfig);
+
 	void generateLibExport(UnicodeString* mainFqn, ArrayList<UnicodeString>* libExport, InstanceDependencyContext* dctx);
 
 	bool hasInterface(const ArrayList<AnalyzedClass>* implememtsList, AnalyzedClass* aclazz);

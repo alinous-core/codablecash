@@ -11,12 +11,14 @@
 #include "base/ArrayList.h"
 #include "base/HashMap.h"
 
+#include "vm/IInitializeCompilantUnitProvidor.h"
+
 namespace alinous {
 class AnalyzedClass;
 class CompilationUnit;
 class UnicodeString;
 
-class ReservedClassRegistory {
+class ReservedClassRegistory : public IInitializeCompilantUnitProvidor {
 public:
 	ReservedClassRegistory();
 	virtual ~ReservedClassRegistory();
@@ -26,6 +28,8 @@ public:
 	AnalyzedClass* getAnalyzedClass(const UnicodeString* fqn) const noexcept;
 
 	CompilationUnit* makeCompilantUnit(const UnicodeString* packageName) noexcept;
+
+	virtual void initCompilantUnits(VirtualMachine *vm);
 
 private:
 	void addAnalyzedClass(AnalyzedClass* aclass) noexcept;

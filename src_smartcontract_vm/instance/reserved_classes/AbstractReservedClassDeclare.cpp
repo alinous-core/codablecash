@@ -22,6 +22,7 @@
 #include "lang/sc_declare/ClassExtends.h"
 #include "lang/sc_declare/ClassDeclareBlock.h"
 #include "lang/sc_declare/ClassImplements.h"
+#include "lang/sc_declare/ClassName.h"
 
 #include "lang/sc_statement/StatementBlock.h"
 
@@ -44,6 +45,12 @@
 
 #include "instance/reserved_classes/object/ObjectClassDeclare.h"
 
+#include "modular_interfaces/ModularProxyListnerClassDeclare.h"
+
+#include "inter_modular_access/ModularProxyClassDeclare.h"
+
+
+using namespace codablecash;
 
 namespace alinous {
 
@@ -69,9 +76,23 @@ ArrayList<MemberVariableDeclare>* AbstractReservedClassDeclare::getMemberVariabl
 }
 
 void AbstractReservedClassDeclare::preAnalyze(AnalyzeContext* actx) {
+	// Object as Extends
+	const UnicodeString* packageName = getPackageName();
+	if(this->extends == nullptr &&
+			!(packageName != nullptr && packageName->equals(&ObjectClassDeclare::PACKAGE)
+					&& this->name->equals(ObjectClassDeclare::NAME))){
+		this->extends = new ClassExtends();
+		ClassName* name = new ClassName();
+		name->addStr("lang.Object");
+		this->extends->setClassName(name);
+	}
 	if(this->extends != nullptr){
 		this->extends->setParent(this);
 		this->extends->preAnalyze(actx);
+	}
+	if(this->implements != nullptr){
+		this->implements->setParent(this);
+		this->implements->preAnalyze(actx);
 	}
 
 	int maxLoop = this->methods->size();
@@ -94,6 +115,13 @@ void AbstractReservedClassDeclare::preAnalyze(AnalyzeContext* actx) {
 void AbstractReservedClassDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 	if(this->extends != nullptr){
 		this->extends->analyzeTypeRef(actx);
+	}
+	if(this->implements != nullptr){
+		this->implements->analyzeTypeRef(actx);
+	}
+
+	if(actx->hasError()){
+		return;
 	}
 
 	int maxLoop = this->methods->size();
@@ -120,6 +148,16 @@ void AbstractReservedClassDeclare::analyzeTypeRef(AnalyzeContext* actx) {
 		AnalyzedType* cls = this->extends->getAnalyzedType();
 		dec->setExtends(cls->getAnalyzedClass());
 	}
+
+	if(this->implements != nullptr){
+		const ArrayList<AnalyzedType>* list = this->implements->getAnalyzedTypes();
+
+		int maxLoop = list->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AnalyzedType* cls = list->get(i);
+			dec->addImplements(cls->getAnalyzedClass());
+		}
+	}
 }
 
 void AbstractReservedClassDeclare::analyze(AnalyzeContext* actx) {
@@ -136,6 +174,10 @@ void AbstractReservedClassDeclare::analyze(AnalyzeContext* actx) {
 
 		member->analyze(actx);
 	}
+}
+
+void AbstractReservedClassDeclare::init(VirtualMachine *vm) {
+
 }
 
 void AbstractReservedClassDeclare::addDefaultConstructor(const UnicodeString* className) noexcept {
@@ -185,6 +227,12 @@ AbstractReservedClassDeclare* AbstractReservedClassDeclare::createFromBinary(Byt
 		break;
 	case TYPE_OBJECT:
 		ret = new ObjectClassDeclare();
+		break;
+	case TYPE_MODULAR_PROXY:
+		ret = new ModularProxyClassDeclare();
+		break;
+	case TYPE_MODULAR_PROXY_LISTNER:
+		ret = new ModularProxyListnerClassDeclare();
 		break;
 	default:
 		throw new BinaryFormatException(__FILE__, __LINE__);

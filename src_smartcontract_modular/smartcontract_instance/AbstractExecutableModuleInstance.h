@@ -102,7 +102,7 @@ public:
 
 	// invoke method
 	SmartcontractExecResult* invokeMainObjectMethodProxy(UnicodeString *methodName, ArrayList<AbstractFunctionExtArguments>* args);
-	AbstractExtObject* invokeMainObjectMethodProxy(UnicodeString *methodName, FunctionArguments* args);
+	AbstractExtObject* invokeMainObjectMethodProxy(VirtualMachine* callerVm, UnicodeString *methodName, FunctionArguments* args);
 
 	const UnicodeString* getName() const noexcept {
 		return this->name;

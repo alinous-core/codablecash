@@ -69,6 +69,7 @@
 #include "base/StackRelease.h"
 #include "base/UnicodeString.h"
 
+#include "instance/instance_gc/StackFloatingVariableHandler.h"
 
 namespace alinous {
 
@@ -153,7 +154,15 @@ void VirtualMachine::interpret(const UnicodeString* method) {
 
 MethodDeclare* VirtualMachine::interpretMainObjectMethod(const UnicodeString *method, ArrayList<AbstractFunctionExtArguments> *arguments) {
 	FunctionArguments args;
-	return interpretMainObjectMethod(method, arguments, &args);
+
+	MethodDeclare* methodDec = interpretMainObjectMethod(method, arguments, &args);
+
+	// FIXME floating
+	StackFloatingVariableHandler floatHandler(this->gc);
+	AbstractVmInstance* vmInst = args.getReturnedValue();
+	floatHandler.registerInstance(vmInst);
+
+	return methodDec;
 }
 
 
@@ -211,7 +220,7 @@ MethodDeclare* VirtualMachine::interpretMainObjectMethod(const UnicodeString* me
 }
 
 
-MethodDeclare* VirtualMachine::interpretMainObjectMethodProxy(const UnicodeString *method, FunctionArguments *args) {
+MethodDeclare* VirtualMachine::interpretMainObjectMethodProxy(VirtualMachine* callerVm, const UnicodeString *method, FunctionArguments *args) {
 	VmClassInstance* _this = dynamic_cast<VmClassInstance*>(this->sc->getRootReference()->getInstance());
 	AnalyzedClass* aclass = _this->getAnalyzedClass();
 
@@ -256,13 +265,21 @@ MethodDeclare* VirtualMachine::interpretMainObjectMethodProxy(const UnicodeStrin
 
 	methodDeclare->interpret(&localArguments, this);
 
-	// FIXME set return value local to arg
+	// set return value local to arg
 	{
 		AbstractVmInstance* returnedValue = localArguments.getReturnedValue();
 		if(returnedValue != nullptr){
-			IAbstractVmInstanceSubstance* sub = returnedValue->getInstance();
-		}
+			AnalyzeContext* actx = this->sc->getAnalyzeContext();
+			VTableRegistory* vtableReg = actx->getVtableRegistory();
 
+			IAbstractVmInstanceSubstance* sub = returnedValue->getInstance();
+
+			UnicodeString ret(L"ret");
+			AbstractExtObject* extObject = sub->instToClassExtObject(&ret, vtableReg); __STP(extObject);
+
+			AbstractVmInstance* vmInst = extObject->toVmInstance(callerVm);
+			args->setReturnedValue(vmInst);
+		}
 	}
 
 	// uncaught exception
@@ -290,6 +307,13 @@ void VirtualMachine::interpret(MethodDeclare* method, VmClassInstance* _this, Ar
 	args.setThisPtr(_this);
 
 	method->interpret(&args, this);
+
+	AbstractVmInstance* inst = args.getReturnedValue();
+
+	// FIXME floating
+	StackFloatingVariableHandler floatHandler(this->gc);
+	AbstractVmInstance* vmInst = args.getReturnedValue();
+	floatHandler.registerInstance(vmInst);
 
 	// uncaught exception
 	checkUncaughtException();

@@ -9,8 +9,23 @@
 
 #include "instance/VmInstanceTypesConst.h"
 
-#include "base/UnicodeString.h"
+#include "instance/instance_exception_class/VmExceptionInstance.h"
 
+#include "base/UnicodeString.h"
+#include "base/StackRelease.h"
+
+#include "engine/sc/SmartContract.h"
+
+#include "engine/sc_analyze/AnalyzeContext.h"
+#include "engine/sc_analyze/TypeResolver.h"
+#include "engine/sc_analyze/PackageSpace.h"
+
+#include "vm/exceptions.h"
+
+#include "bc/ExceptionThrower.h"
+
+
+using namespace codablecash;
 
 namespace alinous {
 
@@ -69,6 +84,23 @@ const UnicodeString* ExtExceptionObject::getMessage() const noexcept {
 }
 
 AbstractVmInstance* ExtExceptionObject::toVmInstance(VirtualMachine *vm) {
+	SmartContract* contract = vm->getSmartContract();
+	AnalyzeContext* actx = contract->getAnalyzeContext();
+
+	UnicodeString* packageName = TypeResolver::getPackageName(this->className); __STP(packageName);
+	PackageSpace* space = actx->getPackegeSpace(packageName);
+	ExceptionThrower<VmClassNotFoundException>::throwExceptionIfCondition(space == nullptr, L"The package was not found.", __FILE__, __LINE__);
+
+	UnicodeString* className = TypeResolver::getClassName(this->className); __STP(className);
+	AnalyzedClass* aclass = space->getClass(className);
+	ExceptionThrower<VmClassNotFoundException>::throwExceptionIfCondition(aclass == nullptr, L"The class was not found.", __FILE__, __LINE__);
+
+	VmExceptionInstance* vmInstance = new(vm) VmExceptionInstance(aclass, vm); __STP(vmInstance);
+	if(this->message != nullptr){
+		vmInstance->setMessage(this->message, vm);
+	}
+
+	return __STP_MV(vmInstance);
 	// FIXME toVmInstance
 }
 

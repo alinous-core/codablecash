@@ -81,7 +81,7 @@ void ModularProxyMethodDeclare::doInterpret(FunctionArguments *args, VirtualMach
 
 	AbstractExecutableModuleInstance* moduleInstance = dctx->getModuleInstance();
 
-	AbstractExtObject* exceptionEx = moduleInstance->invokeMainObjectMethodProxy(this->name, args); __STP(exceptionEx);
+	AbstractExtObject* exceptionEx = moduleInstance->invokeMainObjectMethodProxy(vm, this->name, args); __STP(exceptionEx);
 	if(exceptionEx != nullptr){
 		ExtExceptionObject* exExtObject = dynamic_cast<ExtExceptionObject*>(exceptionEx);
 

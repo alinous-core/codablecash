@@ -34,6 +34,9 @@
 
 #include "instance/IAbstractVmInstanceSubstance.h"
 
+#include "instance/instance_gc/GcManager.h"
+
+
 using namespace codablecash;
 
 namespace alinous {
@@ -151,6 +154,7 @@ const UnicodeString* ExtClassObject::toString() const noexcept {
 AbstractVmInstance* ExtClassObject::toVmInstance(VirtualMachine *vm) {
 	SmartContract* contract = vm->getSmartContract();
 	AnalyzeContext* actx = contract->getAnalyzeContext();
+	GcManager* gc = vm->getGc();
 
 	UnicodeString* packageName = TypeResolver::getPackageName(this->fqn); __STP(packageName);
 	PackageSpace* space = actx->getPackegeSpace(packageName);
@@ -166,14 +170,12 @@ AbstractVmInstance* ExtClassObject::toVmInstance(VirtualMachine *vm) {
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractExtObject* obj = this->list->get(i);
 
-		AbstractVmInstance* memberValue = obj->toVmInstance(vm); __STP(memberValue);
-		const UnicodeString* name = obj->getName();
-
-		IAbstractVmInstanceSubstance* substance = memberValue->getInstance(); __STP(substance);
+		AbstractVmInstance* memberValue = obj->toVmInstance(vm);
+		IAbstractVmInstanceSubstance* substance = memberValue->getInstance();
 
 		AbstractReference* ref = substance->wrap(inst, vm);
 
-		// FIXME toVmInstance
+		inst->addMember(gc, ref);
 	}
 
 	return __STP_MV(inst);

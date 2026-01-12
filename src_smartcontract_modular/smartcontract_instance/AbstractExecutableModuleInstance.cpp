@@ -639,14 +639,13 @@ SmartcontractExecResult* AbstractExecutableModuleInstance::invokeMainObjectMetho
 }
 
 
-AbstractExtObject* AbstractExecutableModuleInstance::invokeMainObjectMethodProxy(UnicodeString *methodName, FunctionArguments *args) {
+AbstractExtObject* AbstractExecutableModuleInstance::invokeMainObjectMethodProxy(VirtualMachine* callerVm, UnicodeString *methodName, FunctionArguments *args) {
 	AbstractExtObject* ret = nullptr;
 
 	SmartContract* contract = this->vm->getSmartContract();
 	AnalyzeContext* actx = contract->getAnalyzeContext();
 
-	MethodDeclare* method = this->vm->interpretMainObjectMethodProxy(methodName, args);
-
+	MethodDeclare* method = this->vm->interpretMainObjectMethodProxy(callerVm, methodName, args);
 
 	AnalyzedType* atype = method->getReturnedType();
 	ObjectReference* exObj = this->vm->getUncaughtExceptionProxy();

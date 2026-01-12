@@ -166,9 +166,8 @@ void VmClassInstance::init(VirtualMachine* vm) {
 
 		AbstractReference* ref = RefereceFactory::createReferenceFromDefinition(this, dec, vm);
 		ref->setOwner(this);
-		this->members.addElement(ref);
 
-		gc->registerObject(ref);
+		addMember(gc, ref);
 	}
 
 	for(int i = 0; i != maxLoop; ++i){
@@ -177,7 +176,11 @@ void VmClassInstance::init(VirtualMachine* vm) {
 
 		dec->onAllocate(vm, ref);
 	}
+}
 
+void VmClassInstance::addMember(GcManager* gc, AbstractReference *ref) {
+	this->members.addElement(ref);
+	gc->registerObject(ref);
 }
 
 const VMemList<AbstractReference>* VmClassInstance::getReferences() const noexcept {

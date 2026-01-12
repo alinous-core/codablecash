@@ -71,7 +71,7 @@ public:
 
 	MethodDeclare* interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments);
 	MethodDeclare* interpretMainObjectMethod(const UnicodeString* method, ArrayList<AbstractFunctionExtArguments>* arguments, FunctionArguments* args);
-	MethodDeclare* interpretMainObjectMethodProxy(const UnicodeString* method, FunctionArguments* args);
+	MethodDeclare* interpretMainObjectMethodProxy(VirtualMachine* callerVm, const UnicodeString* method, FunctionArguments* args);
 
 	void interpret(const UnicodeString* method);
 	void interpret(MethodDeclare* method, VmClassInstance* _this, ArrayList<AbstractFunctionExtArguments>* arguments, ArrayList<IInitializeCompilantUnitProvidor>* exprogs);

@@ -45,7 +45,10 @@ AbstractReference* VmNullprtInstance::wrap(IAbstractVmInstanceSubstance *owner, 
 	else if(this->atype == AnalyzedType::TYPE_OBJECT_ARRAY){
 		ref = new(vm) ArrayReference(owner, vm, nullptr);
 	}
-	else if(this->atype == AnalyzedType::TYPE_NONE){
+	else if(this->atype == AnalyzedType::TYPE_DOM_VALUE ||
+			this->atype == AnalyzedType::TYPE_DOM_ARRAY ||
+			this->atype == AnalyzedType::TYPE_DOM_VALUE_PAIR ||
+			this->atype == AnalyzedType::TYPE_DOM){
 		ref = new(vm) DomRuntimeReference(owner, vm);
 	}
 

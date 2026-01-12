@@ -79,7 +79,7 @@ int DomRuntimeReference::valueCompare(const IAbstractVmInstanceSubstance* right)
 }
 
 AbstractExtObject* DomRuntimeReference::toClassExtObject(const UnicodeString* name, VTableRegistory* table) {
-	return this->reference == nullptr ? new ExtNullPtrObject(name, AnalyzedType::TYPE_NONE) : this->reference->toClassExtObject(name, table);
+	return this->reference == nullptr ? new ExtNullPtrObject(name, AnalyzedType::TYPE_DOM_VALUE) : this->reference->toClassExtObject(name, table);
 }
 
 const UnicodeString* DomRuntimeReference::toString() const noexcept {

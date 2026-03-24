@@ -17,6 +17,7 @@ namespace codablecash {
 
 class CdbDatabaseSessionId;
 class BlockHeaderId;
+class AbstractSmartcontractOperationData;
 
 class SmartcontractExecContextData : public IBlockObject {
 public:
@@ -30,12 +31,40 @@ public:
 
 	virtual IBlockObject* copyData() const noexcept;
 
-private:
-	uint64_t height;
+	void setOperationData(const AbstractSmartcontractOperationData* opData);
 
-	uint64_t lastHeight;
-	BlockHeaderId* lastBlockHeaderId;
-	CdbDatabaseSessionId* lastTrxId; // = SessionId
+	void setCallSerial(uint64_t callSerial);
+	void setHeight(uint64_t height);
+	void setBlockHead(const BlockHeaderId* blockHeaderId);
+	void setLastSessionId(const CdbDatabaseSessionId* lastTrxId);
+	void setFinalized(bool finalized);
+
+	uint64_t getCallSerial() const noexcept {
+		return this->callSerial;
+	}
+	uint64_t getHeight() const noexcept {
+		return this->height;
+	}
+	const BlockHeaderId* getBlockHeaderId() const noexcept {
+		return this->blockHeaderId;
+	}
+	const AbstractSmartcontractOperationData* getOpData() const noexcept {
+		return this->opData;
+	}
+	const CdbDatabaseSessionId* getLastTrxId() const noexcept {
+		return this->lastTrxId;
+	}
+	bool isFinalized() const noexcept {
+		return this->finalized;
+	}
+
+protected:
+	uint64_t callSerial;
+	uint64_t height;
+	BlockHeaderId* blockHeaderId;
+	AbstractSmartcontractOperationData* opData;
+
+	CdbDatabaseSessionId* lastTrxId; // = SessionId = trxId
 
 	// snapshot
 	bool finalized;

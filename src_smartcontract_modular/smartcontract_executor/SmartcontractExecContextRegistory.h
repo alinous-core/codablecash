@@ -19,6 +19,10 @@ using namespace alinous;
 
 namespace codablecash {
 
+class SmartcontractExecContextKey;
+class SmartcontractExecContextData;
+class CdbDatabaseSessionId;
+
 class SmartcontractExecContextRegistory {
 public:
 	static const constexpr wchar_t* DIR_NAME{L"contexts_registory"};
@@ -30,6 +34,11 @@ public:
 	void createBlankDatabase();
 	void open();
 	void close();
+
+	void addExecContext(const SmartcontractExecContextKey* key, const SmartcontractExecContextData* data);
+
+	SmartcontractExecContextData* getExecContext(const CdbDatabaseSessionId* trxId);
+	SmartcontractExecContextData* getExecContext(const SmartcontractExecContextKey* key);
 
 private:
 	File* baseDir;

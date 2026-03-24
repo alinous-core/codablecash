@@ -16,7 +16,9 @@ InstanceSpaceReleaser::InstanceSpaceReleaser(InstanceSpace* space) {
 }
 
 InstanceSpaceReleaser::~InstanceSpaceReleaser() {
-	this->space->decRef();
+	if(this->space != nullptr){
+		this->space->decRef();
+	}
 }
 
 } /* namespace codablecash */

@@ -11,6 +11,10 @@
 
 #include "smartcontract_instance/SmartcontractExecutionException.h"
 
+#include "smartcontract_executor_operations/ModuleNotFoundException.h"
+
+
+using codablecash::ModuleNotFoundException;
 using codablecash::ModuleSetupException;
 using codablecash::ProjectNotFoundException;
 using codablecash::SmartcontractExecutionException;
@@ -33,5 +37,9 @@ TEST(TestModularExceptionsGroup, case02) {
 
 TEST(TestModularExceptionsGroup, case03) {
 	testException<SmartcontractExecutionException>();
+}
+
+TEST(TestModularExceptionsGroup, case04){
+	testException<ModuleNotFoundException>();
 }
 

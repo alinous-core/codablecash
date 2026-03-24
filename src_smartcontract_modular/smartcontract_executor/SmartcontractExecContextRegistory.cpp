@@ -8,6 +8,8 @@
 #include "smartcontract_executor/SmartcontractExecContextRegistory.h"
 #include "smartcontract_executor/SmartcontractExecContextKeyFactory.h"
 #include "smartcontract_executor/SmartcontractExecContextDataFactory.h"
+#include "smartcontract_executor/SmartcontractExecContextKey.h"
+#include "smartcontract_executor/SmartcontractExecContextData.h"
 
 #include "base/StackRelease.h"
 #include "base/UnicodeString.h"
@@ -70,6 +72,25 @@ void SmartcontractExecContextRegistory::close() {
 		delete this->dataStore;
 		this->dataStore = nullptr;
 	}
+}
+
+void SmartcontractExecContextRegistory::addExecContext(const SmartcontractExecContextKey *key,
+		const SmartcontractExecContextData *data) {
+	this->dataStore->putData(key, data);
+
+}
+
+SmartcontractExecContextData* SmartcontractExecContextRegistory::getExecContext(const CdbDatabaseSessionId *trxId) {
+	SmartcontractExecContextKey key;
+	key.setTransactionId(trxId);
+
+	return getExecContext(&key);
+}
+
+SmartcontractExecContextData* SmartcontractExecContextRegistory::getExecContext(const SmartcontractExecContextKey *key) {
+	IBlockObject* object = this->dataStore->findByKey(key); __STP(object);
+
+	return object != nullptr ? dynamic_cast<SmartcontractExecContextData*>(__STP_MV(object)) : nullptr;
 }
 
 } /* namespace codablecash */

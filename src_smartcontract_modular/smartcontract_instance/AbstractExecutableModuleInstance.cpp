@@ -83,6 +83,11 @@
 
 #include "instance/instance_exception/ExceptionInterrupt.h"
 
+#include "trx/transaction/CdbTransactionManager.h"
+
+#include "trx/session/base/CdbDatabaseSession.h"
+
+
 namespace codablecash {
 
 AbstractExecutableModuleInstance::AbstractExecutableModuleInstance(uint8_t kind) {
@@ -559,6 +564,22 @@ void AbstractExecutableModuleInstance::createDatabase() {
 
 void AbstractExecutableModuleInstance::loadDatabase() {
 	this->vm->loadDatabase(this->dbDir, this->undodbDir);
+}
+
+void AbstractExecutableModuleInstance::newSession(const CdbDatabaseSessionId *sessionId) {
+	CodableDatabase* database = this->vm->getDb();
+
+	database->newSession(sessionId);
+}
+
+const CdbDatabaseSessionId* AbstractExecutableModuleInstance::getDatabaseSessionId() const noexcept {
+	CodableDatabase* database = this->vm->getDb();
+
+	CdbTransactionManager* trxManager = database->getTransactionxManager();
+	CdbDatabaseSession* session = trxManager->getCdbDatabaseSession();
+
+	const CdbDatabaseSessionId* sessionId = session->getSessionId();
+	return sessionId;
 }
 
 bool AbstractExecutableModuleInstance::checkDirectAccess() {

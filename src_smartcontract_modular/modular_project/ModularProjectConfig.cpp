@@ -20,6 +20,7 @@
 #include "base/UnicodeString.h"
 
 #include "bc/ExceptionThrower.h"
+#include "bc/SoftwareVersion.h"
 
 #include "bc_base/BinaryUtils.h"
 
@@ -27,11 +28,11 @@
 
 #include <cstdint>
 
-
 namespace codablecash {
 
 ModularProjectConfig::ModularProjectConfig() {
 	this->projectName = nullptr;
+	this->version = nullptr;
 	this->executable = nullptr;
 
 	this->libralies = new ArrayList<UnicodeString>();
@@ -42,6 +43,7 @@ ModularProjectConfig::ModularProjectConfig() {
 
 ModularProjectConfig::~ModularProjectConfig() {
 	delete this->projectName;
+	delete this->version;
 	delete this->executable;
 
 	this->libralies->deleteElements();
@@ -69,6 +71,19 @@ void ModularProjectConfig::load(const File *file) {
 		ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(stringValue == nullptr, L"The project must be string value.", __FILE__, __LINE__);
 
 		setProjectName(stringValue->getValue());
+	}
+
+	// version
+	{
+		const JsonValuePair* pair = root->get(VERSION);
+		ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(pair == nullptr, L"The version is essential.", __FILE__, __LINE__);
+
+		JsonStringValue* strValue = dynamic_cast<JsonStringValue*>(pair->getValue());
+
+		ExceptionThrower<ModularConfigException>::throwExceptionIfCondition(strValue == nullptr, L"The version must be String.", __FILE__, __LINE__);
+
+		const UnicodeString* str = strValue->getValue();
+		this->version = SoftwareVersion::parseString(str);
 	}
 
 	// executable
@@ -133,6 +148,11 @@ void ModularProjectConfig::setProjectName(const UnicodeString *name) noexcept {
 	this->projectName = new UnicodeString(name);
 }
 
+void ModularProjectConfig::setVersion(const SoftwareVersion *ver) noexcept {
+	delete this->version;
+	this->version = new SoftwareVersion(*ver);
+}
+
 void ModularProjectConfig::setExecutable(const UnicodeString *exec) noexcept {
 	delete this->executable;
 	this->executable = new UnicodeString(exec);
@@ -155,9 +175,11 @@ void ModularProjectConfig::addLibrary(const UnicodeString *libname) noexcept {
 
 int ModularProjectConfig::binarySize() const {
 	BinaryUtils::checkNotNull(this->projectName);
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->executable);
 
 	int total = BinaryUtils::stringSize(this->projectName);
+	total += this->version->binarySize();
 	total += BinaryUtils::stringSize(this->executable);
 
 	total += sizeof(uint8_t);
@@ -183,9 +205,11 @@ int ModularProjectConfig::binarySize() const {
 
 void ModularProjectConfig::toBinary(ByteBuffer *out) const {
 	BinaryUtils::checkNotNull(this->projectName);
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->executable);
 
 	BinaryUtils::putString(out, this->projectName);
+	this->version->toBinary(out);
 	BinaryUtils::putString(out, this->executable);
 
 	uint8_t bl = (this->author != nullptr) ? 1 : 0;
@@ -215,6 +239,11 @@ ModularProjectConfig* ModularProjectConfig::createFromBinary(ByteBuffer *in) {
 	{
 		UnicodeString* str = BinaryUtils::getString(in); __STP(str);
 		inst->setProjectName(str);
+	}
+
+	{
+		SoftwareVersion* ver = SoftwareVersion::createFromBinary(in); __STP(ver);
+		inst->setVersion(ver);
 	}
 
 	{

@@ -24,6 +24,8 @@ namespace codablecash {
 class ModularSmartcontractInstance;
 class SmartcontractInstanceAddress;
 class SmartcontractExecResult;
+class SmartcontractProjectId;
+class CdbDatabaseSessionId;
 
 class InstanceSpace {
 public:
@@ -51,6 +53,9 @@ public:
 	void setDatabaseDir(const File* baseDir);
 	void createDatabase();
 
+	void newSession(const CdbDatabaseSessionId *sessionId);
+	const CdbDatabaseSessionId* getDatabaseSessionId() const noexcept;
+
 	// exec
 	void loadDatabase();
 	void cleanDbRoot();
@@ -62,11 +67,18 @@ public:
 	// invoke main instance
 	SmartcontractExecResult* invokeMainObjectMethod(UnicodeString *moduleName, UnicodeString* methodName, ArrayList<AbstractFunctionExtArguments>* args);
 
+	const SmartcontractProjectId* getProjectId() const noexcept {
+		return this->projectId;
+	}
+
 private:
 	ModularSmartcontractInstance* instance;
 
 	SysMutex* mutex;
 	int ref;
+
+	// cached
+	SmartcontractProjectId* projectId;
 
 };
 

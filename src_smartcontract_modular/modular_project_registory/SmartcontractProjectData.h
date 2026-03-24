@@ -16,6 +16,7 @@ namespace codablecash {
 
 class ProjectIdKey;
 class ModularSmartcontractInstance;
+class SoftwareVersion;
 
 class SmartcontractProjectData : public IBlockObject {
 public:
@@ -28,10 +29,15 @@ public:
 	static SmartcontractProjectData* createFromBinary(ByteBuffer *in);
 
 	void setData(const ByteBuffer* data);
-	void setKey(const ProjectIdKey* key);
 
+	void setKey(const ProjectIdKey* key);
 	const ProjectIdKey* getKey() const noexcept {
 		return this->key;
+	}
+
+	void setVersion(const SoftwareVersion* version);
+	const SoftwareVersion* getVersion() const noexcept {
+		return this->version;
 	}
 
 	virtual IBlockObject* copyData() const noexcept;
@@ -41,7 +47,7 @@ public:
 private:
 	ByteBuffer* projectData;
 	ProjectIdKey* key;
-
+	SoftwareVersion* version;
 };
 
 } /* namespace codablecash */

@@ -18,6 +18,7 @@ using namespace alinous;
 namespace codablecash {
 
 class SmartcontractInstanceAddress;
+class CdbDatabaseSessionId;
 
 class InstanceIdIndexKey : public AbstractBtreeKey {
 public:
@@ -35,12 +36,23 @@ public:
 	virtual int compareTo(const AbstractBtreeKey* key) const noexcept;
 	virtual AbstractBtreeKey* clone() const noexcept;
 
+	void setInstanceAddress(const SmartcontractInstanceAddress* instanceAddress);
+	SmartcontractInstanceAddress* getInstanceAddress() const noexcept {
+		return this->instanceAddress;
+	}
 	void setHeight(uint64_t height);
 
+	void setTrxId(const CdbDatabaseSessionId* trxId);
+	CdbDatabaseSessionId* getTrxId() const noexcept {
+		return this->trxId;
+	}
 
 private:
 	SmartcontractInstanceAddress* instanceAddress;
 	uint64_t height;
+
+	// for removal
+	CdbDatabaseSessionId* trxId;
 };
 
 } /* namespace codablecash */

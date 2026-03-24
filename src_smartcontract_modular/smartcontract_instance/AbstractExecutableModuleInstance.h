@@ -39,6 +39,7 @@ class ModuleInstanceClassLoader;
 class SmartcontractExecResult;
 class InstanceDependencyContext;
 class ModularProxyObjectInstanceFactory;
+class CdbDatabaseSessionId;
 
 
 class AbstractExecutableModuleInstance {
@@ -99,6 +100,8 @@ public:
 	void setDatabaseDir(const File* baseDir);
 	void createDatabase();
 	void loadDatabase();
+	void newSession(const CdbDatabaseSessionId *sessionId);
+	const CdbDatabaseSessionId* getDatabaseSessionId() const noexcept;
 
 	// invoke method
 	SmartcontractExecResult* invokeMainObjectMethodProxy(UnicodeString *methodName, ArrayList<AbstractFunctionExtArguments>* args);

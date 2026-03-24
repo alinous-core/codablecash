@@ -17,6 +17,7 @@
 #include "base/UnicodeString.h"
 #include "base/StackRelease.h"
 
+#include "modular_project/SmartcontractProjectId.h"
 
 namespace codablecash {
 
@@ -26,9 +27,12 @@ InstanceSpace::InstanceSpace(const SmartcontractInstanceAddress *instAddress, Mo
 
 	this->mutex = new SysMutex();
 	this->ref = 0;
+
+	this->projectId = this->instance->getProjectId();
 }
 
 InstanceSpace::~InstanceSpace() {
+	delete this->projectId;
 	delete this->instance;
 	delete this->mutex;
 }
@@ -119,6 +123,15 @@ void InstanceSpace::setDatabaseDir(const File *baseDir) {
 
 void InstanceSpace::createDatabase() {
 	this->instance->createDatabase();
+}
+
+void InstanceSpace::newSession(const CdbDatabaseSessionId *sessionId) {
+	this->instance->newSession(sessionId);
+}
+
+const CdbDatabaseSessionId* InstanceSpace::getDatabaseSessionId() const noexcept {
+	const CdbDatabaseSessionId* sessionId = this->instance->getDatabaseSessionId();
+	return sessionId;
 }
 
 void InstanceSpace::loadDatabase() {

@@ -12,7 +12,12 @@
 #include "numeric/BigInteger.h"
 
 #include "base/StackRelease.h"
+
+#include "bc_wallet/HdWalletSeed.h"
 namespace codablecash {
+
+const BigInteger Abstract32BytesId::Q(L"ff66c4652cbb54e13e4cc75898014aef72332e147343a95031cf416ca9f77ce7", 16);
+const BigInteger Abstract32BytesId::G(L"e000000000000000000000000000000000000000000000000000000000000002", 16);
 
 Abstract32BytesId::Abstract32BytesId() {
 	this->id = nullptr;
@@ -85,6 +90,23 @@ int Abstract32BytesId::hashCode() const {
 
 int Abstract32BytesId::ValueCompare::operator ()(const Abstract32BytesId *const a, const Abstract32BytesId *const b) const {
 	return a->compareTo(b);
+}
+
+ByteBuffer* Abstract32BytesId::makeRandom16Bytes() {
+	int size = 0;
+	BigInteger p(L"0", 16);
+	do{
+		BigInteger seed = BigInteger::ramdom();
+
+		BigInteger s = seed.mod(Abstract32BytesId::Q);
+		p = G.modPow(s, Abstract32BytesId::Q);
+		size = p.binarySize();
+	} while(size != 32);
+
+	ByteBuffer* buff = p.toBinary(); __STP(buff);
+	buff->position(0);
+
+	return __STP_MV(buff);
 }
 
 } /* namespace codablecash */

@@ -28,6 +28,7 @@ class SmartcontractProjectData;
 class SmartcontractProjectId;
 class SmartcontractInstanceAddress;
 class SmartcontractExecResult;
+class CdbDatabaseSessionId;
 
 class ModularSmartcontractInstance {
 public:
@@ -66,6 +67,9 @@ public:
 	void loadDatabase();
 	void cleanDbRoot();
 
+	void newSession(const CdbDatabaseSessionId *sessionId);
+	const CdbDatabaseSessionId* getDatabaseSessionId() const noexcept;
+
 	// binary
 	int binarySize() const;
 	void toBinary(ByteBuffer* out) const;
@@ -91,6 +95,11 @@ public:
 
 	// invoke method
 	SmartcontractExecResult* invokeMainObjectMethod(UnicodeString *moduleName, UnicodeString *methodName, ArrayList<AbstractFunctionExtArguments>* args);
+
+
+	ModularProjectConfig* getModularProjectConfig() const noexcept {
+		return this->config;
+	}
 
 private:
 	SmartcontractProjectId* __getProjectId(ByteBuffer* buff) const;

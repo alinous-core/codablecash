@@ -21,20 +21,26 @@
 
 #include "base/StackRelease.h"
 
+#include "trx/session/base/CdbDatabaseSessionId.h"
+
+
 namespace codablecash {
 
 InstanceIdIndexKey::InstanceIdIndexKey() {
 	this->instanceAddress = nullptr;
 	this->height = 0;
+	this->trxId = nullptr;
 }
 
 InstanceIdIndexKey::InstanceIdIndexKey(const SmartcontractInstanceAddress *instanceAddress, uint64_t height) {
 	this->instanceAddress = instanceAddress != nullptr ? dynamic_cast<SmartcontractInstanceAddress*>(instanceAddress->copyData()) : nullptr;
 	this->height = height;
+	this->trxId = nullptr;
 }
 
 InstanceIdIndexKey::~InstanceIdIndexKey() {
 	delete this->instanceAddress;
+	delete this->trxId;
 }
 
 int InstanceIdIndexKey::binarySize() const {
@@ -76,7 +82,15 @@ int InstanceIdIndexKey::compareTo(const AbstractBtreeKey *key) const noexcept {
 	const InstanceIdIndexKey* other = dynamic_cast<const InstanceIdIndexKey*>(key);
 	assert(other != nullptr);
 
-	return this->instanceAddress->compareTo(other->instanceAddress);
+	// compare
+	int cmp = this->instanceAddress->compareTo(other->instanceAddress);
+
+	int result = cmp;
+	if(result == 0){
+		result = this->height == other->height ? 0 : (this->height > other->height ? 1 : -1);
+	}
+
+	return result;
 }
 
 AbstractBtreeKey* InstanceIdIndexKey::clone() const noexcept {
@@ -85,6 +99,16 @@ AbstractBtreeKey* InstanceIdIndexKey::clone() const noexcept {
 
 void InstanceIdIndexKey::setHeight(uint64_t height) {
 	this->height = height;
+}
+
+void InstanceIdIndexKey::setTrxId(const CdbDatabaseSessionId *trxId) {
+	delete this->trxId;
+	this->trxId = dynamic_cast<CdbDatabaseSessionId*>(trxId->copyData());
+}
+
+void InstanceIdIndexKey::setInstanceAddress(const SmartcontractInstanceAddress *instanceAddress) {
+	delete this->instanceAddress;
+	this->instanceAddress = dynamic_cast<SmartcontractInstanceAddress*>(instanceAddress->copyData());
 }
 
 } /* namespace codablecash */

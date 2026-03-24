@@ -10,17 +10,20 @@
 
 #include "filestore_block/IBlockObject.h"
 
+#include "base/ArrayList.h"
+
 using namespace alinous;
 
 namespace codablecash {
 
 class CdbDatabaseSessionId;
+class InstanceSessionContext;
+class SessionContextReverseCompare;
 
 class InstanceIdIndexData : public IBlockObject {
 public:
 	InstanceIdIndexData(const InstanceIdIndexData& inst);
 	InstanceIdIndexData();
-	InstanceIdIndexData(CdbDatabaseSessionId* id);
 
 	virtual ~InstanceIdIndexData();
 
@@ -30,8 +33,17 @@ public:
 
 	virtual IBlockObject* copyData() const noexcept;
 
+	void addSessionContext(InstanceSessionContext* sessionId);
+	void sort();
+	void removeSessionId(const CdbDatabaseSessionId* sessionId);
+
+	int size() const noexcept;
+	const InstanceSessionContext* get(int i) const noexcept;
+
+	bool isEmpty() const noexcept;
+
 private:
-	CdbDatabaseSessionId* trxId; // = SessionId
+	ArrayList<InstanceSessionContext, SessionContextReverseCompare>* trxIdList; // = SessionId
 };
 
 } /* namespace codablecash */

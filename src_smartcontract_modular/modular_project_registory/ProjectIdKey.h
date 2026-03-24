@@ -32,6 +32,9 @@ public:
 	virtual AbstractBtreeKey* clone() const noexcept;
 
 	void setProjectId(const SmartcontractProjectId* id);
+	const SmartcontractProjectId* getProjectId() const noexcept {
+		return this->projectId;
+	}
 
 private:
 	SmartcontractProjectId* projectId;

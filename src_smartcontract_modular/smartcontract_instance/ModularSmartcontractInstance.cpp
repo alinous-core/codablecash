@@ -418,11 +418,20 @@ SmartcontractProjectData* ModularSmartcontractInstance::createData() const {
 	buff->position(0);
 	data->setData(buff);
 
-	SmartcontractProjectId* projectId = __getProjectId(buff); __STP(projectId);
-	ProjectIdKey key;
-	key.setProjectId(projectId);
+	{
+		SmartcontractProjectId* projectId = __getProjectId(buff); __STP(projectId);
+		ProjectIdKey key;
+		key.setProjectId(projectId);
 
-	data->setKey(&key);
+		data->setKey(&key);
+	}
+
+	{
+		ModularProjectConfig* mconfig = getModularProjectConfig();
+		const SoftwareVersion* v = mconfig->getVersion();
+
+		data->setVersion(v);
+	}
 
 	return __STP_MV(data);
 }
@@ -438,8 +447,9 @@ SmartcontractProjectId* ModularSmartcontractInstance::__getProjectId(ByteBuffer 
 
 	ByteBuffer* shaBuff = Sha256::sha256(buff, true); __STP(shaBuff);
 
-	SmartcontractProjectId* projectId = new SmartcontractProjectId((const char*)shaBuff->array(), shaBuff->capacity());
-	return projectId;
+	SmartcontractProjectId* projectId = new SmartcontractProjectId((const char*)shaBuff->array(), shaBuff->capacity()); __STP(projectId);
+
+	return __STP_MV(projectId);
 }
 
 ByteBuffer* ModularSmartcontractInstance::createBinary() const {
@@ -494,6 +504,21 @@ void ModularSmartcontractInstance::loadDatabase() {
 		LibraryExectableModuleInstance* lib = this->libArray->get(i);
 		lib->loadDatabase();
 	}
+}
+
+void ModularSmartcontractInstance::newSession(const CdbDatabaseSessionId *sessionId) {
+	this->execModule->newSession(sessionId);
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* lib = this->libArray->get(i);
+		lib->newSession(sessionId);
+	}
+}
+
+const CdbDatabaseSessionId* ModularSmartcontractInstance::getDatabaseSessionId() const noexcept {
+	const CdbDatabaseSessionId* sessionId = this->execModule->getDatabaseSessionId();
+	return sessionId;
 }
 
 void ModularSmartcontractInstance::setSmartcontractInstanceAddress(const SmartcontractInstanceAddress *address) {

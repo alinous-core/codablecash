@@ -312,6 +312,9 @@ VTableMethodEntry* VTableClassEntry::getVTableMethodEntry(const UnicodeString* c
 	return this->methods.get(callSignature);
 }
 
-
+ClassDeclare* VTableClassEntry::getClassDeclare() const noexcept {
+	ClassDeclare* dec = this->aclass->getClassDeclare();
+	return dec;
+}
 
 } /* namespace alinous */

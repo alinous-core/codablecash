@@ -23,6 +23,7 @@
 
 #include "bc/ExceptionThrower.h"
 
+#include "modular_project/SmartcontractProjectId.h"
 
 namespace codablecash {
 
@@ -52,6 +53,13 @@ InstanceSpace* InstanceSpacesManager::createInstance(const SmartcontractInstance
 
 	ModularSmartcontractInstance* instance = data->toSmartcontractInstance();
 	InstanceSpace* space = new InstanceSpace(instAddress, instance); __STP(space);
+
+#ifdef __DEBUG__
+	{
+		const SmartcontractProjectId* id = space->getProjectId();
+		assert(projectId->equals(id));
+	}
+#endif
 
 	return __STP_MV(space);
 }

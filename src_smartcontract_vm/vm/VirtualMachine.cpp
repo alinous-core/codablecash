@@ -71,6 +71,9 @@
 
 #include "instance/instance_gc/StackFloatingVariableHandler.h"
 
+#include "ext_arguments/ArgumentType.h"
+
+#include "engine/sc_analyze_functions/VTableClassEntry.h"
 namespace alinous {
 
 VirtualMachine::VirtualMachine(uint64_t memCapacity) {
@@ -157,7 +160,7 @@ MethodDeclare* VirtualMachine::interpretMainObjectMethod(const UnicodeString *me
 
 	MethodDeclare* methodDec = interpretMainObjectMethod(method, arguments, &args);
 
-	// FIXME floating
+	// floating
 	StackFloatingVariableHandler floatHandler(this->gc);
 	AbstractVmInstance* vmInst = args.getReturnedValue();
 	floatHandler.registerInstance(vmInst);
@@ -182,12 +185,19 @@ MethodDeclare* VirtualMachine::interpretMainObjectMethod(const UnicodeString* me
 	ArrayList<AnalyzedType> typeList;
 	typeList.setDeleteOnExit();
 
+
+	TypeResolver* resolver = actx->getTypeResolver();
+	ClassDeclare* clazzDec = classEntry->getClassDeclare();
+
 	int maxLoop = arguments->size();
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractFunctionExtArguments* extArg = arguments->get(i);
 
-		AnalyzedType at = extArg->getType();
-		typeList.addElement(new AnalyzedType(at));
+		ArgumentType* argumentType = extArg->getType(); __STP(argumentType);
+		AnalyzedType* at = argumentType->toAnalyzedType(resolver, clazzDec); __STP(at);
+
+
+		typeList.addElement(new AnalyzedType(*at));
 	}
 
 	MethodScore* score = calcScore(&calc, method, &typeList);
@@ -251,6 +261,7 @@ MethodDeclare* VirtualMachine::interpretMainObjectMethodProxy(VirtualMachine* ca
 	VTableMethodEntry* methodEntry = score->getEntry();
 	MethodDeclare* methodDeclare = methodEntry->getMethod();
 
+	// FIXME when vminst is object, copy caller's substance with callee vm(this)
 	FunctionArguments localArguments;
 	for(int i = 0; i != maxLoop; ++i){
 		IAbstractVmInstanceSubstance* vminst = list->get(i);
@@ -310,7 +321,7 @@ void VirtualMachine::interpret(MethodDeclare* method, VmClassInstance* _this, Ar
 
 	AbstractVmInstance* inst = args.getReturnedValue();
 
-	// FIXME floating
+	// floating
 	StackFloatingVariableHandler floatHandler(this->gc);
 	AbstractVmInstance* vmInst = args.getReturnedValue();
 	floatHandler.registerInstance(vmInst);

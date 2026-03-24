@@ -19,9 +19,12 @@ using namespace alinous;
 
 namespace codablecash {
 
+class SoftwareVersion;
+
 class ModularProjectConfig {
 public:
 	static constexpr const wchar_t* PROJECT{L"project"};
+	static constexpr const wchar_t* VERSION = L"version";
 	static constexpr const wchar_t* EXECUTABLE{L"executable"};
 	static constexpr const wchar_t* LIBRALIES{L"libraries"};
 	static constexpr const wchar_t* AUTHOR{L"author"};
@@ -33,6 +36,11 @@ public:
 	void load(const File* file);
 
 	void setProjectName(const UnicodeString* name) noexcept;
+
+	void setVersion(const SoftwareVersion* ver) noexcept;
+	const SoftwareVersion* getVersion() const noexcept {
+		return this->version;
+	}
 
 	void setExecutable(const UnicodeString* exec) noexcept;
 	const UnicodeString* getExecutable() const noexcept {
@@ -55,6 +63,7 @@ public:
 
 private:
 	UnicodeString* projectName;
+	SoftwareVersion* version;
 	UnicodeString* executable;
 
 	ArrayList<UnicodeString>* libralies;

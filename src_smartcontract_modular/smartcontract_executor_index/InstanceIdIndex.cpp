@@ -9,15 +9,21 @@
 #include "smartcontract_executor_index/InstanceIdIndexDataFactory.h"
 #include "smartcontract_executor_index/InstanceIdIndexKey.h"
 #include "smartcontract_executor_index/InstanceIdIndexKeyFactory.h"
+#include "smartcontract_executor_index/InstanceIdIndexData.h"
+#include "smartcontract_executor_index/IInstanceSessionContextListner.h"
 
 #include "random_access_file/DiskCacheManager.h"
 
 #include "btree/Btree.h"
 #include "btree/BtreeConfig.h"
+#include "btree/BtreeReverseScanner.h"
 
 #include "base/StackRelease.h"
+#include "base/Long.h"
 
 #include "base_io/File.h"
+
+#include "transaction/SmartcontractInstanceAddress.h"
 
 
 namespace codablecash {
@@ -69,6 +75,47 @@ void InstanceIdIndex::close() {
 		this->dataStore->close();
 		delete this->dataStore;
 		this->dataStore = nullptr;
+	}
+}
+
+void InstanceIdIndex::put(const InstanceIdIndexKey *key, const InstanceIdIndexData *data) {
+	this->dataStore->putData(key, data);
+}
+
+InstanceIdIndexData* InstanceIdIndex::findData(const InstanceIdIndexKey *key) {
+	IBlockObject* obj = this->dataStore->findByKey(key);
+
+	return obj != nullptr ? dynamic_cast<InstanceIdIndexData*>(obj) : nullptr;
+}
+
+void InstanceIdIndex::remove(const InstanceIdIndexKey *key) {
+	this->dataStore->remove(key);
+}
+
+void InstanceIdIndex::findHeads(const SmartcontractInstanceAddress *address, IInstanceSessionContextListner* listner) {
+	InstanceIdIndexKey key(address, Long::MAX_UINT64);
+
+	BtreeReverseScanner* scanner = this->dataStore->getReverseScanner(); __STP(scanner);
+
+	scanner->begin(&key);
+
+	while(scanner->hasPrevious()){
+		const IBlockObject* obj = scanner->previous();
+		const AbstractBtreeKey* abkey = scanner->previousKey();
+
+		const InstanceIdIndexData* data = dynamic_cast<const InstanceIdIndexData*>(obj);
+		const InstanceIdIndexKey* thisKey = dynamic_cast<const InstanceIdIndexKey*>(abkey);
+
+		SmartcontractInstanceAddress* instAddtess = thisKey->getInstanceAddress();
+		if(instAddtess->compareTo(address) != 0){
+			break;
+		}
+
+		int maxLoop = data->size();
+		for(int i = 0; i != maxLoop; ++i){
+			const InstanceSessionContext* context = data->get(i);
+			listner->visit(context);
+		}
 	}
 }
 

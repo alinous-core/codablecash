@@ -32,6 +32,16 @@ public:
 	void setMethodName(const UnicodeString* methodName);
 	void addFunctionArgument(const AbstractFunctionExtArguments* arg);
 
+	const UnicodeString* getModule() const noexcept {
+		return this->module;
+	}
+	const UnicodeString* getMethodName() const noexcept {
+		return this->methodName;
+	}
+	ArrayList<AbstractFunctionExtArguments>* getAruments() const noexcept {
+		return this->args;
+	}
+
 private:
 	UnicodeString* module;
 	UnicodeString* methodName;

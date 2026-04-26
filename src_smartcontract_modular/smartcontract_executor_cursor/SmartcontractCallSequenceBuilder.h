@@ -22,6 +22,10 @@ public:
 
 	void build(const CdbDatabaseSessionId* trxId);
 
+	const SmartcontractCallSequence* getSequence() const noexcept {
+		return this->sequence;
+	}
+
 private:
 	SmartcontractExecContextRegistory* contextRegistory;
 	SmartcontractCallSequence* sequence;

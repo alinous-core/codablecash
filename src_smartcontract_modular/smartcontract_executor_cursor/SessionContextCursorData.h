@@ -21,6 +21,9 @@ public:
 	virtual IBlockObject* copyData() const noexcept;
 
 	void setSessionId(const CdbDatabaseSessionId* trxId);
+	CdbDatabaseSessionId* getSessionId() const noexcept {
+		return this->trxId;
+	}
 
 private:
 	CdbDatabaseSessionId* trxId;

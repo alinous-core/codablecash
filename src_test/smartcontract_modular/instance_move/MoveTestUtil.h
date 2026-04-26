@@ -25,6 +25,7 @@ class ModularSmartcontractExecutor;
 class BlockHeaderId;
 class SmartcontractInstanceAddress;
 class InstanceSessionContext;
+class CdbDatabaseSessionId;
 
 
 class MoveTestUtil {
@@ -40,6 +41,8 @@ public:
 	void createInstance(const SmartcontractInstanceAddress* instAddress, BlockHeaderId* blockHeaderId, uint64_t height);
 	void process(const SmartcontractInstanceAddress* address, const UnicodeString* module, const UnicodeString* methodName, ArrayList<AbstractFunctionExtArguments>* args
 			, BlockHeaderId *blockHeaderId, uint64_t height);
+	CdbDatabaseSessionId* process(const SmartcontractInstanceAddress* address, const UnicodeString* module, const UnicodeString* methodName, ArrayList<AbstractFunctionExtArguments>* args
+			, BlockHeaderId *blockHeaderId, uint64_t height, const CdbDatabaseSessionId* lastTrxId);
 
 	ModularSmartcontractExecutor* getExecutor() const noexcept {
 		return this->executor;

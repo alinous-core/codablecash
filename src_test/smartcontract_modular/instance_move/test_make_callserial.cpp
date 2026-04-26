@@ -93,6 +93,8 @@ TEST(TestMakecallSerialGroup, case01){
 	SmartcontractCallSequenceBuilder builder(contextReg);
 	builder.build(trxId);
 
+	const SmartcontractCallSequence* sequence = builder.getSequence();
+
 
 }
 

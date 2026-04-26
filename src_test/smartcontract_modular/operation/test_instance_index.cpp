@@ -106,15 +106,15 @@ TEST(TestInstanceIndexGroup, case02){
 			InstanceIdIndexData* ret = index.findData(&key); __STP(ret);
 			const InstanceSessionContext* ctx = ret->get(0);
 
-			CHECK(ctx->getCallSerial() == 1);
-			CHECK(sessionId01->equals(ctx->getSessionId()));
+			CHECK(ctx->getCallSerial() == 2);
+			CHECK(sessionId02->equals(ctx->getSessionId()));
 		}
 		{
 			InstanceIdIndexData* ret = index.findData(&key); __STP(ret);
 			const InstanceSessionContext* ctx = ret->get(1);
 
-			CHECK(ctx->getCallSerial() == 2);
-			CHECK(sessionId02->equals(ctx->getSessionId()));
+			CHECK(ctx->getCallSerial() == 1);
+			CHECK(sessionId01->equals(ctx->getSessionId()));
 		}
 
 	}

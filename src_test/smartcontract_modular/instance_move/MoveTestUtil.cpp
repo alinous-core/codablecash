@@ -159,6 +159,18 @@ void MoveTestUtil::process(const SmartcontractInstanceAddress* address, const Un
 
 }
 
+CdbDatabaseSessionId* MoveTestUtil::process(const SmartcontractInstanceAddress *address, const UnicodeString *module, const UnicodeString *methodName, ArrayList<AbstractFunctionExtArguments> *args,
+		BlockHeaderId *blockHeaderId, uint64_t height, const CdbDatabaseSessionId *lastTrxId) {
+	CdbDatabaseSessionId* execTrxId = CdbDatabaseSessionId::createRandomId(); __STP(execTrxId);
+
+	ProcessSmartcontractOperation* op = this->executor->makeProcessSmartcontractOperation(address, execTrxId, lastTrxId, module, methodName, args, height, blockHeaderId); __STP(op);
+	op->execute(this->executor);
+
+	const CdbDatabaseSessionId* sessionId = op->getTrxId();
+
+	return dynamic_cast<CdbDatabaseSessionId*>(sessionId->copyData());
+}
+
 ArrayList<InstanceSessionContext>* MoveTestUtil::getHeads(const SmartcontractInstanceAddress* address) const {
 	SmartcontractExecContextRegistory* contextRegistory = this->executor->getSmartcontractExecContextRegistory();
 	MoveTestSessionHeadDitector detector(contextRegistory);
@@ -176,5 +188,7 @@ ArrayList<InstanceSessionContext>* MoveTestUtil::getHeads(const SmartcontractIns
 
 	return __STP_MV(ret);
 }
+
+
 
 } /* namespace codablecash */

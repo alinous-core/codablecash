@@ -31,6 +31,10 @@ void SmartcontractCallSequenceBuilder::build(const CdbDatabaseSessionId *trxId) 
 	SessionContextCursor cursor(this->contextRegistory);
 
 	cursor.setPosition(trxId);
+	{
+		SessionContextCursorData* data = cursor.getData(); __STP(data);
+		sequence->addFirst(data);
+	}
 
 	while(cursor.hasPrevious()){
 		cursor.previous();

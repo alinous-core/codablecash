@@ -240,7 +240,7 @@ UnicodeString& UnicodeString::append(const UnicodeString* str) noexcept {
 	return *this;
 }
 
-UnicodeString& UnicodeString::append(const int v) noexcept
+UnicodeString& UnicodeString::append(const int64_t v) noexcept
 {
 	if(v == 0){
 		append(L"0");

@@ -28,6 +28,10 @@ public:
 
 	void setLastTrxId(const CdbDatabaseSessionId* lastTrxId);
 
+	const CdbDatabaseSessionId* getTrxId() const noexcept {
+		return this->trxId;
+	}
+
 protected:
 	CdbDatabaseSessionId* trxId;
 	uint64_t height;

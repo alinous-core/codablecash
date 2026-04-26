@@ -516,6 +516,16 @@ void ModularSmartcontractInstance::newSession(const CdbDatabaseSessionId *sessio
 	}
 }
 
+void ModularSmartcontractInstance::undoCurrentSession() {
+	this->execModule->undoCurrentSession();
+
+	int maxLoop = this->libArray->size();
+	for(int i = 0; i != maxLoop; ++i){
+		LibraryExectableModuleInstance* lib = this->libArray->get(i);
+		lib->undoCurrentSession();
+	}
+}
+
 const CdbDatabaseSessionId* ModularSmartcontractInstance::getDatabaseSessionId() const noexcept {
 	const CdbDatabaseSessionId* sessionId = this->execModule->getDatabaseSessionId();
 	return sessionId;

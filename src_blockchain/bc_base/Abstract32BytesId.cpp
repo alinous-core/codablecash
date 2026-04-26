@@ -14,6 +14,9 @@
 #include "base/StackRelease.h"
 
 #include "bc_wallet/HdWalletSeed.h"
+
+#include "bc/ISystemLogger.h"
+
 namespace codablecash {
 
 const BigInteger Abstract32BytesId::Q(L"ff66c4652cbb54e13e4cc75898014aef72332e147343a95031cf416ca9f77ce7", 16);
@@ -107,6 +110,14 @@ ByteBuffer* Abstract32BytesId::makeRandom16Bytes() {
 	buff->position(0);
 
 	return __STP_MV(buff);
+}
+
+void Abstract32BytesId::debugLog(ISystemLogger *logger) const {
+	UnicodeString* str = toString(); __STP(str);
+
+	UnicodeString message(L"id : ");
+	message.append(str);
+	logger->debugLog(ISystemLogger::DEBUG_DBSESSION_INFO, &message, __FILE__, __LINE__);
 }
 
 } /* namespace codablecash */

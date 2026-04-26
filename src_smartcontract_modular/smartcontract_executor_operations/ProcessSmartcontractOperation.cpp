@@ -33,6 +33,8 @@
 
 #include "smartcontract_executor_operations_data/ProcessSmartcontractOperationData.h"
 
+#include "smartcontract_executor_cursor/SmartcontractContextMover.h"
+
 namespace codablecash {
 
 ProcessSmartcontractOperation::ProcessSmartcontractOperation() {
@@ -75,8 +77,8 @@ void ProcessSmartcontractOperation::execute(ModularSmartcontractExecutor *execut
 	// find last session id
 	const CdbDatabaseSessionId* currentSessionId = space->getDatabaseSessionId();
 	if(!currentSessionId->equals(this->lastTrxId)){
-
-		// FIXME goto last session
+		// SmartcontractContextMover mover(executor, this->address, currentSessionId, this->lastTrxId);
+		// mover.execute(); //FIXME mover
 	}
 
 	// new session

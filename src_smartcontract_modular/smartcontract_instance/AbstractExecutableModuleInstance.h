@@ -102,6 +102,7 @@ public:
 	void loadDatabase();
 	void newSession(const CdbDatabaseSessionId *sessionId);
 	const CdbDatabaseSessionId* getDatabaseSessionId() const noexcept;
+	void undoCurrentSession();
 
 	// invoke method
 	SmartcontractExecResult* invokeMainObjectMethodProxy(UnicodeString *methodName, ArrayList<AbstractFunctionExtArguments>* args);

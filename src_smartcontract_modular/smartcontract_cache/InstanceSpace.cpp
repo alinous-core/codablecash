@@ -129,6 +129,10 @@ void InstanceSpace::newSession(const CdbDatabaseSessionId *sessionId) {
 	this->instance->newSession(sessionId);
 }
 
+void InstanceSpace::undoCurrentSession() {
+	this->instance->undoCurrentSession();
+}
+
 const CdbDatabaseSessionId* InstanceSpace::getDatabaseSessionId() const noexcept {
 	const CdbDatabaseSessionId* sessionId = this->instance->getDatabaseSessionId();
 	return sessionId;

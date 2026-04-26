@@ -79,10 +79,10 @@ public:
 	CreateSmartcontractInstanceOperation* makeCreateSmartcontractInstanceOperation(const SmartcontractInstanceAddress* address, const SmartcontractProjectId* projectId,
 			CdbDatabaseSessionId* trxId, uint64_t height, BlockHeaderId* blockHeaderId);
 	ProcessSmartcontractOperation* makeProcessSmartcontractOperation(const SmartcontractInstanceAddress* address,
-			CdbDatabaseSessionId* sessionId, CdbDatabaseSessionId* lastSessionId,
+			const CdbDatabaseSessionId* sessionId, const CdbDatabaseSessionId* lastSessionId,
 			const UnicodeString* module, const UnicodeString* methodName,
 			ArrayList<AbstractFunctionExtArguments>* args,
-			uint64_t height, BlockHeaderId* blockHeaderId);
+			uint64_t height, const BlockHeaderId* blockHeaderId);
 
 
 	// data

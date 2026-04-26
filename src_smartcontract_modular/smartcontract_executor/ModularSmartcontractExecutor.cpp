@@ -179,10 +179,10 @@ CreateSmartcontractInstanceOperation* ModularSmartcontractExecutor::makeCreateSm
 }
 
 ProcessSmartcontractOperation* ModularSmartcontractExecutor::makeProcessSmartcontractOperation(
-		const SmartcontractInstanceAddress *address, CdbDatabaseSessionId *sessionId,
-		CdbDatabaseSessionId *lastSessionId,
+		const SmartcontractInstanceAddress *address, const CdbDatabaseSessionId *sessionId,
+		const CdbDatabaseSessionId *lastSessionId,
 		const UnicodeString* module, const UnicodeString* methodName,
-		ArrayList<AbstractFunctionExtArguments> *args, uint64_t height, BlockHeaderId* blockHeaderId) {
+		ArrayList<AbstractFunctionExtArguments> *args, uint64_t height, const BlockHeaderId* blockHeaderId) {
 	ProcessSmartcontractOperation* op = new ProcessSmartcontractOperation(); __STP(op);
 
 	op->setHeaderId(height, blockHeaderId);

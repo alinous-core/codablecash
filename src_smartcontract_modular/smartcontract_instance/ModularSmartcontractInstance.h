@@ -69,6 +69,7 @@ public:
 
 	void newSession(const CdbDatabaseSessionId *sessionId);
 	const CdbDatabaseSessionId* getDatabaseSessionId() const noexcept;
+	void undoCurrentSession();
 
 	// binary
 	int binarySize() const;

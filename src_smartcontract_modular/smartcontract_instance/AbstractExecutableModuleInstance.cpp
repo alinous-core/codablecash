@@ -87,6 +87,7 @@
 
 #include "trx/session/base/CdbDatabaseSession.h"
 
+#include "trx/session/base/CdbDatabaseSessionId.h"
 
 namespace codablecash {
 
@@ -580,6 +581,16 @@ const CdbDatabaseSessionId* AbstractExecutableModuleInstance::getDatabaseSession
 
 	const CdbDatabaseSessionId* sessionId = session->getSessionId();
 	return sessionId;
+}
+
+void AbstractExecutableModuleInstance::undoCurrentSession() {
+	CodableDatabase* database = this->vm->getDb();
+
+	CdbTransactionManager* trxManager = database->getTransactionxManager();
+	CdbDatabaseSession* session = trxManager->getCdbDatabaseSession();
+
+	const CdbDatabaseSessionId* sessionId = session->getSessionId();
+	database->undoSession(sessionId);
 }
 
 bool AbstractExecutableModuleInstance::checkDirectAccess() {

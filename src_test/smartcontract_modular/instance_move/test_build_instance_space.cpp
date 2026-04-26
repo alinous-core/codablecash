@@ -29,7 +29,7 @@
 #include "bc_block/BlockHeaderId.h"
 using namespace codablecash;
 
-TEST_GROUP(TestInstanceSpaceMovenGroup) {
+TEST_GROUP(TestBuildInstanceSpaceGroup) {
 	TEST_SETUP() {
 		env->setup();
 	}
@@ -39,7 +39,7 @@ TEST_GROUP(TestInstanceSpaceMovenGroup) {
 };
 
 
-TEST(TestInstanceSpaceMovenGroup, case01){
+TEST(TestBuildInstanceSpaceGroup, case01){
 	const File* projectFolder = this->env->getProjectRoot();
 	ModularProjectUtils utils(L"src_test/smartcontract_modular/instance_move/resources/case01/project01/", projectFolder);
 	const File* baseDir = utils.getFolder();

@@ -110,10 +110,10 @@ TEST(TestVmHashGroup, keySet){
 
 	for(int i = 0; i != 1000; ++i){
 		UnicodeString keystr(L"key");
-		keystr.append(i);
+		keystr.append((int64_t)i);
 
 		UnicodeString valuestr(L"value");
-		valuestr.append(i);
+		valuestr.append((int64_t)i);
 
 		VmStringInstance* key = new(vm) VmStringInstance(vm, &keystr); __STP(key);
 		VmStringInstance* value = new(vm) VmStringInstance(vm, &valuestr);
@@ -148,7 +148,7 @@ TEST(TestVmHashGroup, keySet02){
 		PrimitiveReference* key = PrimitiveReference::createIntReference(vm, i);
 
 		UnicodeString valuestr(L"value");
-		valuestr.append(i);
+		valuestr.append((int64_t)i);
 
 		VmStringInstance* value = new(vm) VmStringInstance(vm, &valuestr);
 
@@ -178,7 +178,7 @@ TEST(TestVmHashGroup, keySetWithNull){
 		PrimitiveReference* key = PrimitiveReference::createIntReference(vm, i);
 
 		UnicodeString valuestr(L"value");
-		valuestr.append(i);
+		valuestr.append((int64_t)i);
 
 		VmStringInstance* value = new(vm) VmStringInstance(vm, &valuestr);
 

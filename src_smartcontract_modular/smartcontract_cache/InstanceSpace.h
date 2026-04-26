@@ -55,6 +55,7 @@ public:
 
 	void newSession(const CdbDatabaseSessionId *sessionId);
 	const CdbDatabaseSessionId* getDatabaseSessionId() const noexcept;
+	void undoCurrentSession();
 
 	// exec
 	void loadDatabase();

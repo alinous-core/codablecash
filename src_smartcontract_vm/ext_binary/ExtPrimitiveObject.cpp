@@ -129,7 +129,7 @@ const UnicodeString* ExtPrimitiveObject::toString() const noexcept {
 	delete this->str;
 	this->str = new UnicodeString(L"");
 
-	this->str->append((int)getLongValue());
+	this->str->append((int64_t)getLongValue());
 
 	return this->str;
 }

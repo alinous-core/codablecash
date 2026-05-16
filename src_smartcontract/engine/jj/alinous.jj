@@ -510,7 +510,7 @@ ClassDeclare* classDeclare() :
 		}
 		|
 		cls="interface" {
-			clazz = new ClassDeclare();
+			clazz = new ClassDeclare(); __clazz.reset(clazz);
 			clazz->setInterface(true);
 		}
 	)
@@ -525,7 +525,7 @@ ClassDeclare* classDeclare() :
 			gclazz->setName(new UnicodeString(clazz->getName())); // copy class name
 			
 			delete clazz;
-			clazz = gclazz;
+			clazz = gclazz; __clazz.reset(clazz);
 		}
 		
 		name=<IDENTIFIER>{
@@ -942,7 +942,9 @@ AbstractType* typeBody() : {
 }
 
 ObjectType* objectType() : {
-	ObjectType* dec = new ObjectType(); __STP(dec);
+	StackRelease<ObjectType> __dec;
+	ObjectType* dec = new ObjectType(); __dec.reset(dec);
+	
 	PackageNameDeclare* packageName = nullptr;
 	Token* t=nullptr;
 	GenericsObjectType* geneticsObject = nullptr;
@@ -972,7 +974,7 @@ ObjectType* objectType() : {
 	 	t=<LT> {
 	 		geneticsObject = new GenericsObjectType(dec);
 	 		delete dec;
-	 		dec = geneticsObject;
+	 		dec = geneticsObject; __dec.reset(dec);
 	 	}
 	 	genericsType=typeDeclare() {
 	 		geneticsObject->addGenericsType(genericsType);
@@ -995,7 +997,7 @@ ObjectType* objectType() : {
 	 
 	 
 	 {
-		return __STP_MV(dec);
+		return __dec.move();
 	 }
 }
 
@@ -1148,10 +1150,14 @@ AbstractStatement* statement() : {
 		try{
 			std::rethrow_exception(p);
 		}catch(ParseException* e){
-			if(e != nullptr){
-				delete e;
-			}
+			delete e;
 		}
+		
+		StatementRepairSkipper skipper(this);
+		skipper.recoverStatement();
+	}
+	{
+		return nullptr;
 	}
 	
 }
@@ -1214,7 +1220,6 @@ AbstractStatement* substitutionStatement() : {
 		stmt->setPosition(t);
 	}
 	{
-		__ONERROR(stmt);
 		return stmt;
 	}
 }
@@ -1286,8 +1291,10 @@ StatementBlock* statementBlock() : {
 	
 	(
 		stmt=statement() {
-			block->addStatement(stmt);
-			block->setPosition(stmt);
+			if(stmt != nullptr){
+				block->addStatement(stmt);
+				block->setPosition(stmt);
+			}
 		}
 	)*
 	
@@ -1455,51 +1462,78 @@ ThrowStatement* throwStatement() : {
 	}
 }
 
-ForStatement* forStatement() : {
-	ForStatement* stmt = new ForStatement(); __STP(stmt);
+AbstractStatement* forStatement() : {
+	StackRelease<ForStatement> __stmt;
+	ForStatement* stmt = new ForStatement(); __stmt.reset(stmt);
+	
+	AbstractStatement* ret = nullptr;
+	StackRelease<AbstractStatement> __ret;
+	
 	AbstractExpression* exp = nullptr;
 	AbstractStatement* st = nullptr;
 	Token* t = nullptr;
 }
 {
-	t="for" {
-		stmt->setPosition(t);
+	try{
+		t="for" {
+			stmt->setPosition(t);
+		}
+		t="(" {
+			stmt->setPosition(t);
+		}
+		
+		st=forInnerStatement() {
+			stmt->setInit(st);
+			stmt->setPosition(st);
+		}
+		t=";" {
+			stmt->setPosition(t);
+		}
+		
+		exp=expression() {
+			stmt->setCondition(exp);
+			stmt->setPosition(exp);
+		}
+		t=";" {
+			stmt->setPosition(t);
+		}
+		
+		st=forInnerStatement() {
+			stmt->setPostLoop(st);
+			stmt->setPosition(st);
+		}
+		
+		t=")" {
+			stmt->setPosition(t);
+		}{
+			ret = __stmt.move(); __ret.reset(ret);
+		}
 	}
-	t="(" {
-		stmt->setPosition(t);
+	catch(ParseException* e){
+		std::exception_ptr p = std::current_exception();
+		try{
+			std::rethrow_exception(p);
+		}catch(ParseException* e){
+			delete e;
+		}
+		
+		StatementRepairSkipper skipper(this);
+		skipper.recoverForStatement();
 	}
+
 	
-	st=forInnerStatement() {
-		stmt->setInit(st);
-		stmt->setPosition(st);
-	}
-	t=";" {
-		stmt->setPosition(t);
-	}
-	
-	exp=expression() {
-		stmt->setCondition(exp);
-		stmt->setPosition(exp);
-	}
-	t=";" {
-		stmt->setPosition(t);
-	}
-	
-	st=forInnerStatement() {
-		stmt->setPostLoop(st);
-		stmt->setPosition(st);
-	}	
-	
-	t=")" {
-		stmt->setPosition(t);
-	}
 	st=statement() {
-		stmt->setStatement(st);
-		stmt->setPosition(st);
+		if(ret != nullptr){
+			stmt->setStatement(st);
+			stmt->setPosition(st);		
+		}
+		else {
+			ret = st; __ret.reset(st);
+		}
 	}
 	
 	{
-		return __STP_MV(stmt);
+		return __ret.move();
 	}
 }
 
@@ -1528,8 +1562,10 @@ DoWhileStatement* doWhileStatement() : {
 		stmt->setPosition(t);
 	}
 	st=statement() {
-		stmt->setStatement(st);
-		stmt->setPosition(st);
+		if(st != nullptr){
+			stmt->setStatement(st);
+			stmt->setPosition(st);	
+		}
 	}
 	t="while" {
 		stmt->setPosition(t);
@@ -1660,8 +1696,10 @@ IfStatement* ifStatement() : {
 	")"
 	
 	stmt=statement() {
-		ifstmt->setStatement(stmt);
-		ifstmt->setPosition(stmt);
+		if(stmt != nullptr){
+			ifstmt->setStatement(stmt);
+			ifstmt->setPosition(stmt);
+		}
 	}
 	
 	(LOOKAHEAD(2)
@@ -1674,8 +1712,10 @@ IfStatement* ifStatement() : {
 	[LOOKAHEAD(2)
 		t="else" { ifstmt->setPosition(t); }
 		stmt=statement() {
-			ifstmt->setElseStatement(stmt);
-			ifstmt->setPosition(stmt);
+			if(stmt != nullptr){
+				ifstmt->setElseStatement(stmt);
+				ifstmt->setPosition(stmt);
+			}
 		}
 	]
 	
@@ -1703,8 +1743,10 @@ IfStatement* elseifStatement() : {
 	t=")" {ifstmt->setPosition(t);}
 	
 	stmt=statement() {
-		ifstmt->setStatement(stmt);
-		ifstmt->setPosition(stmt);
+		if(stmt != nullptr){
+			ifstmt->setStatement(stmt);
+			ifstmt->setPosition(stmt);
+		}
 	}
 	{
 		return __STP_MV(ifstmt);
@@ -1896,10 +1938,10 @@ AbstractExpression* andExpression() : {
 
 		t="&" {
 			if(exp == nullptr){
-				exp = new AndExpression();
+				exp = new AndExpression(); __STP(exp);
 				exp->setPosition(left);
 				exp->addExp(left);
-				left = exp; __left.reset(left);
+				left = __STP_MV(exp); __left.reset(left);
 			}
 			
 			exp->setPosition(t);
@@ -1932,10 +1974,10 @@ AbstractExpression* equalityExpression() : {
 	[
 		(
 			t="==" {
-				exp = new EqualityExpression();
+				exp = new EqualityExpression(); __STP(exp);
 				exp->setPosition(left);
 				exp->setLeft(left);
-				left = exp;
+				left = __STP_MV(exp); __left.reset(left);
 
 				exp->setPosition(t);
 				exp->setOp(EqualityExpression::EQ);
@@ -2166,7 +2208,7 @@ AbstractExpression* multiplicativeExpression() : {
 					exp = new MultiplicativeExpression();
 					exp->setPosition(left);
 					exp->addExp(left);
-					left = exp;
+					left = exp; __left.reset(left);
 				}
 				exp->addOpe(MultiplicativeExpression::DIV);
 				exp->setPosition(t);

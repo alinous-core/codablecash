@@ -134,51 +134,78 @@ ThrowStatement* throwStatement() : {
 	}
 }
 
-ForStatement* forStatement() : {
-	ForStatement* stmt = new ForStatement(); __STP(stmt);
+AbstractStatement* forStatement() : {
+	StackRelease<ForStatement> __stmt;
+	ForStatement* stmt = new ForStatement(); __stmt.reset(stmt);
+	
+	AbstractStatement* ret = nullptr;
+	StackRelease<AbstractStatement> __ret;
+	
 	AbstractExpression* exp = nullptr;
 	AbstractStatement* st = nullptr;
 	Token* t = nullptr;
 }
 {
-	t="for" {
-		stmt->setPosition(t);
+	try{
+		t="for" {
+			stmt->setPosition(t);
+		}
+		t="(" {
+			stmt->setPosition(t);
+		}
+		
+		st=forInnerStatement() {
+			stmt->setInit(st);
+			stmt->setPosition(st);
+		}
+		t=";" {
+			stmt->setPosition(t);
+		}
+		
+		exp=expression() {
+			stmt->setCondition(exp);
+			stmt->setPosition(exp);
+		}
+		t=";" {
+			stmt->setPosition(t);
+		}
+		
+		st=forInnerStatement() {
+			stmt->setPostLoop(st);
+			stmt->setPosition(st);
+		}
+		
+		t=")" {
+			stmt->setPosition(t);
+		}{
+			ret = __stmt.move(); __ret.reset(ret);
+		}
 	}
-	t="(" {
-		stmt->setPosition(t);
+	catch(ParseException* e){
+		std::exception_ptr p = std::current_exception();
+		try{
+			std::rethrow_exception(p);
+		}catch(ParseException* e){
+			delete e;
+		}
+		
+		StatementRepairSkipper skipper(this);
+		skipper.recoverForStatement();
 	}
+
 	
-	st=forInnerStatement() {
-		stmt->setInit(st);
-		stmt->setPosition(st);
-	}
-	t=";" {
-		stmt->setPosition(t);
-	}
-	
-	exp=expression() {
-		stmt->setCondition(exp);
-		stmt->setPosition(exp);
-	}
-	t=";" {
-		stmt->setPosition(t);
-	}
-	
-	st=forInnerStatement() {
-		stmt->setPostLoop(st);
-		stmt->setPosition(st);
-	}	
-	
-	t=")" {
-		stmt->setPosition(t);
-	}
 	st=statement() {
-		stmt->setStatement(st);
-		stmt->setPosition(st);
+		if(ret != nullptr){
+			stmt->setStatement(st);
+			stmt->setPosition(st);		
+		}
+		else {
+			ret = st; __ret.reset(st);
+		}
 	}
 	
 	{
-		return __STP_MV(stmt);
+		return __ret.move();
 	}
 }
 
@@ -207,8 +234,10 @@ DoWhileStatement* doWhileStatement() : {
 		stmt->setPosition(t);
 	}
 	st=statement() {
-		stmt->setStatement(st);
-		stmt->setPosition(st);
+		if(st != nullptr){
+			stmt->setStatement(st);
+			stmt->setPosition(st);	
+		}
 	}
 	t="while" {
 		stmt->setPosition(t);
@@ -339,8 +368,10 @@ IfStatement* ifStatement() : {
 	")"
 	
 	stmt=statement() {
-		ifstmt->setStatement(stmt);
-		ifstmt->setPosition(stmt);
+		if(stmt != nullptr){
+			ifstmt->setStatement(stmt);
+			ifstmt->setPosition(stmt);
+		}
 	}
 	
 	(LOOKAHEAD(2)
@@ -353,8 +384,10 @@ IfStatement* ifStatement() : {
 	[LOOKAHEAD(2)
 		t="else" { ifstmt->setPosition(t); }
 		stmt=statement() {
-			ifstmt->setElseStatement(stmt);
-			ifstmt->setPosition(stmt);
+			if(stmt != nullptr){
+				ifstmt->setElseStatement(stmt);
+				ifstmt->setPosition(stmt);
+			}
 		}
 	]
 	
@@ -382,8 +415,10 @@ IfStatement* elseifStatement() : {
 	t=")" {ifstmt->setPosition(t);}
 	
 	stmt=statement() {
-		ifstmt->setStatement(stmt);
-		ifstmt->setPosition(stmt);
+		if(stmt != nullptr){
+			ifstmt->setStatement(stmt);
+			ifstmt->setPosition(stmt);
+		}
 	}
 	{
 		return __STP_MV(ifstmt);

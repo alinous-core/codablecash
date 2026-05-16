@@ -30,7 +30,7 @@
 
 using namespace codablecash;
 
-TEST_GROUP(TestTicketTransactioWalletGroup) {
+TEST_GROUP(TestTicketTransactionWalletGroup) {
 	TEST_SETUP(){
 		env->setup();
 	}
@@ -70,7 +70,7 @@ static bool balancecheck(AbstractFinalizerTransaction* trx, WalletAccount* accou
 	return right.compareTo(&left) == 0;
 }
 
-TEST(TestTicketTransactioWalletGroup, case01) {
+TEST(TestTicketTransactionWalletGroup, case01) {
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"wallet"))
 
@@ -105,7 +105,7 @@ TEST(TestTicketTransactioWalletGroup, case01) {
 
 }
 
-TEST(TestTicketTransactioWalletGroup, case02) {
+TEST(TestTicketTransactionWalletGroup, case02) {
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"wallet"))
 
@@ -147,7 +147,7 @@ TEST(TestTicketTransactioWalletGroup, case02) {
 	}
 }
 
-TEST(TestTicketTransactioWalletGroup, case03) {
+TEST(TestTicketTransactionWalletGroup, case03) {
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"wallet"))
 
@@ -158,7 +158,7 @@ TEST(TestTicketTransactioWalletGroup, case03) {
 		HdWalletSeed* seed = HdWalletSeed::newSeed(); __STP(seed);
 		HdWallet* wallet = HdWallet::create(baseDir, seed, 0, &enc, 10); __STP(wallet);
 		WalletAccount* account = wallet->getAccount(0);
-		BalanceUnit amount(296L);
+		BalanceUnit amount(299L);
 		GenesisTransaction* trx = account->createGenesisTransaction(amount, 5); __STP(trx);
 		account->importTransaction(trx);
 	}
@@ -181,7 +181,7 @@ TEST(TestTicketTransactioWalletGroup, case03) {
 	}
 }
 
-TEST(TestTicketTransactioWalletGroup, caseTicket01) {
+TEST(TestTicketTransactionWalletGroup, caseTicket01) {
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"wallet"))
 
@@ -194,7 +194,7 @@ TEST(TestTicketTransactioWalletGroup, caseTicket01) {
 		WalletAccount* account = wallet->getAccount(0);
 
 		{
-			BalanceUnit amount(296L);
+			BalanceUnit amount(299L);
 			GenesisTransaction* trx = account->createGenesisTransaction(amount, 5); __STP(trx);
 			account->importTransaction(trx);
 		}
@@ -236,7 +236,7 @@ TEST(TestTicketTransactioWalletGroup, caseTicket01) {
 	}
 }
 
-TEST(TestTicketTransactioWalletGroup, caseTicket02) {
+TEST(TestTicketTransactionWalletGroup, caseTicket02) {
 	File projectFolder = this->env->testCaseDir();
 	_ST(File, baseDir, projectFolder.get(L"wallet"))
 

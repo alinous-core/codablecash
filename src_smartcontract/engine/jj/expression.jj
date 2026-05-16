@@ -183,10 +183,10 @@ AbstractExpression* andExpression() : {
 
 		t="&" {
 			if(exp == nullptr){
-				exp = new AndExpression();
+				exp = new AndExpression(); __STP(exp);
 				exp->setPosition(left);
 				exp->addExp(left);
-				left = exp; __left.reset(left);
+				left = __STP_MV(exp); __left.reset(left);
 			}
 			
 			exp->setPosition(t);
@@ -219,10 +219,10 @@ AbstractExpression* equalityExpression() : {
 	[
 		(
 			t="==" {
-				exp = new EqualityExpression();
+				exp = new EqualityExpression(); __STP(exp);
 				exp->setPosition(left);
 				exp->setLeft(left);
-				left = exp;
+				left = __STP_MV(exp); __left.reset(left);
 
 				exp->setPosition(t);
 				exp->setOp(EqualityExpression::EQ);
@@ -453,7 +453,7 @@ AbstractExpression* multiplicativeExpression() : {
 					exp = new MultiplicativeExpression();
 					exp->setPosition(left);
 					exp->addExp(left);
-					left = exp;
+					left = exp; __left.reset(left);
 				}
 				exp->addOpe(MultiplicativeExpression::DIV);
 				exp->setPosition(t);

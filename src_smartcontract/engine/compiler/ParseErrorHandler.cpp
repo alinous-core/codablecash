@@ -31,7 +31,7 @@ ParseErrorHandler::~ParseErrorHandler() {
 void ParseErrorHandler::handleUnexpectedToken(int expectedKind,	const JJString& expectedToken, Token* actual, AlinousLang* parser) {
 	CompileError* error = new CompileError(new UnicodeString(expectedToken.c_str()),
 			new UnicodeString(actual->image.c_str()), actual->beginLine, actual->beginColumn);
-	list.addElement(error);
+	this->list.addElement(error);
 
 	this->error_count++;
 

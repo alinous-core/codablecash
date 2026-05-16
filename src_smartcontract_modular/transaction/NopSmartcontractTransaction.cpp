@@ -17,7 +17,7 @@
 
 #include "bc_trx/TransactionId.h"
 #include "bc_trx/AbstractUtxo.h"
-
+#include "bc_trx/TransactionVersion.h"
 
 namespace codablecash {
 
@@ -105,11 +105,12 @@ void NopSmartcontractTransaction::fromBinary(ByteBuffer *in) {
 void NopSmartcontractTransaction::build() {
 	setUtxoNonce();
 
-	int capacity = sizeof(uint8_t) + this->timestamp->binarySize() + sizeof(this->nonce);
+	int capacity = sizeof(uint8_t) + this->version->binarySize() + this->timestamp->binarySize() + sizeof(this->nonce);
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(capacity, true); __STP(buff);
 	buff->put(getType());
 
+	this->version->toBinary(buff);
 	this->timestamp->toBinary(buff);
 	buff->putLong(this->nonce);
 
@@ -122,10 +123,14 @@ void NopSmartcontractTransaction::build() {
 }
 
 void NopSmartcontractTransaction::setUtxoNonce() noexcept {
-	int capacity = sizeof(uint8_t) + this->timestamp->binarySize();
+	BinaryUtils::checkNotNull(this->timestamp);
+	BinaryUtils::checkNotNull(this->version);
+
+	int capacity = sizeof(uint8_t) + this->version->binarySize() + this->timestamp->binarySize();
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(capacity, true); __STP(buff);
 	buff->put(getType());
+	this->version->toBinary(buff);
 	this->timestamp->toBinary(buff);
 
 

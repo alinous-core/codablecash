@@ -11,6 +11,7 @@ set(__src
 	IUtxoRefChecker.cpp
 	NopInterChainCommunicationTransaction.cpp
 	TransactionId.cpp
+	TransactionVersion.cpp
 	UtxoId.cpp
 )
 handle_sub(codablecashlib "${__src}" blockchain bc_trx)

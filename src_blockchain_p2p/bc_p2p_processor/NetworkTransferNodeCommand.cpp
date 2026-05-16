@@ -14,6 +14,7 @@
 #include "bc_p2p/BlochchainP2pManager.h"
 #include "bc_p2p/StackHandshakeReleaser.h"
 #include "bc_p2p/BlockchainNodeHandshake.h"
+#include "bc_p2p/BlockchainNodeHandshakeException.h"
 
 #include "bc_p2p_processor/NetworkTransferNodeCommand.h"
 
@@ -22,6 +23,9 @@
 #include "base/StackRelease.h"
 
 #include "bc/ISystemLogger.h"
+
+#include "bc/ExceptionThrower.h"
+
 
 namespace codablecash {
 
@@ -44,6 +48,9 @@ void NetworkTransferNodeCommand::execute(ICommandParameter *param) {
 
 	BlockchainNodeHandshake* handshake = p2pManager->getNodeHandshakeByNodeId(this->nodeId);
 	StackHandshakeReleaser __releaser(handshake);
+
+	// exception handshake
+	ExceptionThrower<BlockchainNodeHandshakeException>::throwExceptionIfCondition(handshake == nullptr, L"Node connection has alrealy closed.", __FILE__, __LINE__);
 
 	AbstractCommandResponse* response = handshake->sendCommnad(this->command); __STP(response);
 	if(response != nullptr){

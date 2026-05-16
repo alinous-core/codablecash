@@ -13,6 +13,8 @@
 
 #include "alinous_lang/ParseException.h"
 
+#include "engine/compiler/StatementRepairSkipper.h"
+
 #include "engine/sc/CompilationUnit.h"
 
 #include "lang/sc_declare/AccessControlDeclare.h"

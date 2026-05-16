@@ -261,7 +261,7 @@ clazz = new ClassDeclare(); __clazz.reset(clazz);
       cls = jj_consume_token(CLASS_INTERFACE);
       }
       if (!hasError) {
-clazz = new ClassDeclare();
+clazz = new ClassDeclare(); __clazz.reset(clazz);
                         clazz->setInterface(true);
       }
       break;
@@ -289,7 +289,7 @@ gclazz = new GenericsClassDeclare();
                         gclazz->setName(new UnicodeString(clazz->getName())); // copy class name
 
                         delete clazz;
-                        clazz = gclazz;
+                        clazz = gclazz; __clazz.reset(clazz);
       }
       if (!hasError) {
       name = jj_consume_token(IDENTIFIER);
@@ -1071,7 +1071,9 @@ assert(false);
 }
 
 
-ObjectType          * AlinousLang::objectType() {ObjectType* dec = new ObjectType(); __STP(dec);
+ObjectType          * AlinousLang::objectType() {StackRelease<ObjectType> __dec;
+        ObjectType* dec = new ObjectType(); __dec.reset(dec);
+
         PackageNameDeclare* packageName = nullptr;
         Token* t=nullptr;
         GenericsObjectType* geneticsObject = nullptr;
@@ -1120,7 +1122,7 @@ dec->setName(_STR(t));
       if (!hasError) {
 geneticsObject = new GenericsObjectType(dec);
                         delete dec;
-                        dec = geneticsObject;
+                        dec = geneticsObject; __dec.reset(dec);
       }
       if (!hasError) {
       genericsType = typeDeclare();
@@ -1164,7 +1166,7 @@ geneticsObject->setPosition(t);
       ;
     }
     }
-return __STP_MV(dec);
+return __dec.move();
 assert(false);
 }
 
@@ -1375,12 +1377,14 @@ std::exception_ptr p = std::current_exception();
                 try{
                         std::rethrow_exception(p);
                 }catch(ParseException* e){
-                        if(e != nullptr){
-                                delete e;
-                        }
+                        delete e;
                 }
+
+                StatementRepairSkipper skipper(this);
+                skipper.recoverStatement();
     }
     }
+return nullptr;
 assert(false);
 }
 
@@ -1459,8 +1463,7 @@ AbstractStatement                 * AlinousLang::substitutionStatement() {Abstra
     if (!hasError) {
 stmt->setPosition(t);
     }
-__ONERROR(stmt);
-                return stmt;
+return stmt;
 assert(false);
 }
 
@@ -1639,8 +1642,10 @@ block->setPosition(t);
       stmt = statement();
       }
       if (!hasError) {
-block->addStatement(stmt);
-                        block->setPosition(stmt);
+if(stmt != nullptr){
+                                block->addStatement(stmt);
+                                block->setPosition(stmt);
+                        }
       }
     }
     end_label_13: ;
@@ -1880,69 +1885,96 @@ assert(false);
 }
 
 
-ForStatement            * AlinousLang::forStatement() {ForStatement* stmt = new ForStatement(); __STP(stmt);
+AbstractStatement                 * AlinousLang::forStatement() {StackRelease<ForStatement> __stmt;
+        ForStatement* stmt = new ForStatement(); __stmt.reset(stmt);
+
+        AbstractStatement* ret = nullptr;
+        StackRelease<AbstractStatement> __ret;
+
         AbstractExpression* exp = nullptr;
         AbstractStatement* st = nullptr;
         Token* t = nullptr;
     if (!hasError) {
-    t = jj_consume_token(FOR);
-    }
-    if (!hasError) {
+    try {
+      if (!hasError) {
+      t = jj_consume_token(FOR);
+      }
+      if (!hasError) {
 stmt->setPosition(t);
-    }
-    if (!hasError) {
-    t = jj_consume_token(L_PARENTHESIS);
-    }
-    if (!hasError) {
+      }
+      if (!hasError) {
+      t = jj_consume_token(L_PARENTHESIS);
+      }
+      if (!hasError) {
 stmt->setPosition(t);
-    }
-    if (!hasError) {
-    st = forInnerStatement();
-    }
-    if (!hasError) {
+      }
+      if (!hasError) {
+      st = forInnerStatement();
+      }
+      if (!hasError) {
 stmt->setInit(st);
-                stmt->setPosition(st);
-    }
-    if (!hasError) {
-    t = jj_consume_token(SEMI_COLON);
-    }
-    if (!hasError) {
+                        stmt->setPosition(st);
+      }
+      if (!hasError) {
+      t = jj_consume_token(SEMI_COLON);
+      }
+      if (!hasError) {
 stmt->setPosition(t);
-    }
-    if (!hasError) {
-    exp = expression();
-    }
-    if (!hasError) {
+      }
+      if (!hasError) {
+      exp = expression();
+      }
+      if (!hasError) {
 stmt->setCondition(exp);
-                stmt->setPosition(exp);
-    }
-    if (!hasError) {
-    t = jj_consume_token(SEMI_COLON);
-    }
-    if (!hasError) {
+                        stmt->setPosition(exp);
+      }
+      if (!hasError) {
+      t = jj_consume_token(SEMI_COLON);
+      }
+      if (!hasError) {
 stmt->setPosition(t);
-    }
-    if (!hasError) {
-    st = forInnerStatement();
-    }
-    if (!hasError) {
+      }
+      if (!hasError) {
+      st = forInnerStatement();
+      }
+      if (!hasError) {
 stmt->setPostLoop(st);
-                stmt->setPosition(st);
-    }
-    if (!hasError) {
-    t = jj_consume_token(R_PARENTHESIS);
-    }
-    if (!hasError) {
+                        stmt->setPosition(st);
+      }
+      if (!hasError) {
+      t = jj_consume_token(R_PARENTHESIS);
+      }
+      if (!hasError) {
 stmt->setPosition(t);
+      }
+      if (!hasError) {
+ret = __stmt.move(); __ret.reset(ret);
+      }
+    } catch ( ...) {
+std::exception_ptr p = std::current_exception();
+                try{
+                        std::rethrow_exception(p);
+                }catch(ParseException* e){
+                        delete e;
+                }
+
+                StatementRepairSkipper skipper(this);
+                skipper.recoverForStatement();
+    }
     }
     if (!hasError) {
     st = statement();
     }
     if (!hasError) {
-stmt->setStatement(st);
-                stmt->setPosition(st);
+if(ret != nullptr){
+                        stmt->setStatement(st);
+                        stmt->setPosition(st);
+                }
+                else {
+                        ret = st; __ret.reset(st);
+                }
     }
-return __STP_MV(stmt);
+return __ret.move();
 assert(false);
 }
 
@@ -1996,8 +2028,10 @@ stmt->setPosition(t);
     st = statement();
     }
     if (!hasError) {
-stmt->setStatement(st);
-                stmt->setPosition(st);
+if(st != nullptr){
+                        stmt->setStatement(st);
+                        stmt->setPosition(st);
+                }
     }
     if (!hasError) {
     t = jj_consume_token(WHILE);
@@ -2231,8 +2265,10 @@ ifstmt->setExpression(exp);
     stmt = statement();
     }
     if (!hasError) {
-ifstmt->setStatement(stmt);
-                ifstmt->setPosition(stmt);
+if(stmt != nullptr){
+                        ifstmt->setStatement(stmt);
+                        ifstmt->setPosition(stmt);
+                }
     }
     if (!hasError) {
     while (!hasError) {
@@ -2263,8 +2299,10 @@ ifstmt->setPosition(t);
       stmt = statement();
       }
       if (!hasError) {
-ifstmt->setElseStatement(stmt);
-                        ifstmt->setPosition(stmt);
+if(stmt != nullptr){
+                                ifstmt->setElseStatement(stmt);
+                                ifstmt->setPosition(stmt);
+                        }
       }
     } else {
       ;
@@ -2314,8 +2352,10 @@ ifstmt->setPosition(t);
     stmt = statement();
     }
     if (!hasError) {
-ifstmt->setStatement(stmt);
-                ifstmt->setPosition(stmt);
+if(stmt != nullptr){
+                        ifstmt->setStatement(stmt);
+                        ifstmt->setPosition(stmt);
+                }
     }
 return __STP_MV(ifstmt);
 assert(false);
@@ -2581,10 +2621,10 @@ __left.reset(left);
       }
       if (!hasError) {
 if(exp == nullptr){
-                                exp = new AndExpression();
+                                exp = new AndExpression(); __STP(exp);
                                 exp->setPosition(left);
                                 exp->addExp(left);
-                                left = exp; __left.reset(left);
+                                left = __STP_MV(exp); __left.reset(left);
                         }
 
                         exp->setPosition(t);
@@ -2630,10 +2670,10 @@ __left.reset(left);
         t = jj_consume_token(CMP_EQUALS);
         }
         if (!hasError) {
-exp = new EqualityExpression();
+exp = new EqualityExpression(); __STP(exp);
                                 exp->setPosition(left);
                                 exp->setLeft(left);
-                                left = exp;
+                                left = __STP_MV(exp); __left.reset(left);
 
                                 exp->setPosition(t);
                                 exp->setOp(EqualityExpression::EQ);
@@ -3008,7 +3048,7 @@ if(exp == nullptr){
                                         exp = new MultiplicativeExpression();
                                         exp->setPosition(left);
                                         exp->addExp(left);
-                                        left = exp;
+                                        left = exp; __left.reset(left);
                                 }
                                 exp->addOpe(MultiplicativeExpression::DIV);
                                 exp->setPosition(t);

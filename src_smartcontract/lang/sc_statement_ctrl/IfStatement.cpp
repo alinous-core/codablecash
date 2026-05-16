@@ -48,8 +48,11 @@ void IfStatement::preAnalyze(AnalyzeContext* actx) {
 	this->exp->setParent(this);
 	this->exp->preAnalyze(actx);
 
-	this->stmt->setParent(this);
-	this->stmt->preAnalyze(actx);
+	if(this->stmt != nullptr){
+		this->stmt->setParent(this);
+		this->stmt->preAnalyze(actx);
+	}
+
 
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -67,7 +70,10 @@ void IfStatement::preAnalyze(AnalyzeContext* actx) {
 
 void IfStatement::analyzeTypeRef(AnalyzeContext* actx) {
 	this->exp->analyzeTypeRef(actx);
-	this->stmt->analyzeTypeRef(actx);
+
+	if(this->stmt != nullptr){
+		this->stmt->analyzeTypeRef(actx);
+	}
 
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -83,7 +89,10 @@ void IfStatement::analyzeTypeRef(AnalyzeContext* actx) {
 
 void IfStatement::analyze(AnalyzeContext* actx) {
 	this->exp->analyze(actx);
-	this->stmt->analyze(actx);
+
+	if(this->stmt != nullptr){
+		this->stmt->analyze(actx);
+	}
 
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -112,13 +121,13 @@ void IfStatement::analyze(AnalyzeContext* actx) {
 	}
 
 	// bctrl
-	this->bctrl = this->bctrl || this->stmt->hasCtrlStatement();
+	this->bctrl = this->bctrl || (this->stmt != nullptr && this->stmt->hasCtrlStatement());
 
 	maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
 		IfStatement* stmt = this->list.get(i);
 
-		this->bctrl = this->bctrl || stmt->hasCtrlStatement();
+		this->bctrl = this->bctrl || (this->stmt != nullptr && stmt->hasCtrlStatement());
 	}
 	if(this->elseStmt != nullptr){
 		this->bctrl = this->bctrl || this->elseStmt->hasCtrlStatement();
@@ -287,7 +296,7 @@ bool IfStatement::hasCtrlStatement() const noexcept {
 }
 
 bool IfStatement::hasConstructor() const noexcept {
-	bool ret = this->stmt->hasConstructor();
+	bool ret = this->stmt != nullptr ? this->stmt->hasConstructor() : false;
 
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -313,8 +322,10 @@ AbstractStatement* IfStatement::generateGenericsImplement(HashMap<UnicodeString,
 	copiedExp = this->exp->generateGenericsImplement(input);
 	inst->setExpression(copiedExp);
 
-	copiedStmt = this->stmt->generateGenericsImplement(input);
-	inst->setStatement(copiedStmt);
+	if(this->stmt != nullptr){
+		copiedStmt = this->stmt->generateGenericsImplement(input);
+		inst->setStatement(copiedStmt);
+	}
 
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){

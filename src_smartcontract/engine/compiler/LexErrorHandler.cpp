@@ -9,6 +9,9 @@
 #include "engine/compiler/LexError.h"
 #include "base/UnicodeString.h"
 
+#include "alinous_lang/ParseException.h"
+
+
 namespace alinous {
 
 LexErrorHandler::LexErrorHandler() {
@@ -32,6 +35,8 @@ void LexErrorHandler::lexicalError(bool EOFSeen, int lexState, int errorLine,
 
 	LexError* er = new LexError(errorAfterStr, endoutedChar, errorLine, errorColumn);
 	this->list.addElement(er);
+
+	throw new ParseException();
 }
 
 bool LexErrorHandler::hasError() const noexcept {

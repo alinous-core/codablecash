@@ -26,7 +26,6 @@
 #include "ipconnect/UnexpectedProtocolException.h"
 
 #include "pow_pool_client_cmd/PoWPoolCheckDataCommand.h"
-
 #include "pow_pool_client_cmd/PoWPoolCheckDataCommandResponse.h"
 
 #include "base/StackRelease.h"
@@ -76,7 +75,13 @@ void PoWClientMainThread::mainProcess() {
 
 		// calculate use PoWWorkerClient#start
 		if(request != nullptr && !request->isWaiting()){
-			calculate(request);
+			try{
+				calculate(request);
+			}
+			catch(Exception* e){
+				this->logger->logException(e);
+				delete e;
+			}
 		}
 	}
 }
@@ -128,9 +133,12 @@ bool PoWClientMainThread::getMainStatus() {
 	PoWPoolStatusCommandResponse* poolStatusRes = dynamic_cast<PoWPoolStatusCommandResponse*>(res);
 
 	ExceptionThrower<UnexpectedProtocolException>::throwExceptionIfCondition(poolStatusRes == nullptr, L"Unexpected response comes from server.", __FILE__, __LINE__);
-
 	PoWRequestStatusData* data = poolStatusRes->getPoWRequestStatusData();
-	bool waiting = data->isWaiting();
+
+	UnicodeString _str(L"data");
+	this->logger->debugLog(ISystemLogger::DEBUG_POOL_TRANSFER_RESPONSE, &_str, __FILE__, __LINE__);
+
+	bool waiting = data != nullptr ? data->isWaiting() : true;
 
 	return !waiting;
 }

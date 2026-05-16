@@ -158,7 +158,7 @@ ClassDeclare* classDeclare() :
 		}
 		|
 		cls="interface" {
-			clazz = new ClassDeclare();
+			clazz = new ClassDeclare(); __clazz.reset(clazz);
 			clazz->setInterface(true);
 		}
 	)
@@ -173,7 +173,7 @@ ClassDeclare* classDeclare() :
 			gclazz->setName(new UnicodeString(clazz->getName())); // copy class name
 			
 			delete clazz;
-			clazz = gclazz;
+			clazz = gclazz; __clazz.reset(clazz);
 		}
 		
 		name=<IDENTIFIER>{

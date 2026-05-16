@@ -28,10 +28,14 @@ AbstractStatement* statement() : {
 		try{
 			std::rethrow_exception(p);
 		}catch(ParseException* e){
-			if(e != nullptr){
-				delete e;
-			}
+			delete e;
 		}
+		
+		StatementRepairSkipper skipper(this);
+		skipper.recoverStatement();
+	}
+	{
+		return nullptr;
 	}
 	
 }
@@ -94,7 +98,6 @@ AbstractStatement* substitutionStatement() : {
 		stmt->setPosition(t);
 	}
 	{
-		__ONERROR(stmt);
 		return stmt;
 	}
 }
@@ -166,8 +169,10 @@ StatementBlock* statementBlock() : {
 	
 	(
 		stmt=statement() {
-			block->addStatement(stmt);
-			block->setPosition(stmt);
+			if(stmt != nullptr){
+				block->addStatement(stmt);
+				block->setPosition(stmt);
+			}
 		}
 	)*
 	

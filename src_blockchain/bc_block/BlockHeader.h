@@ -28,6 +28,7 @@ class Block;
 class IVoteTransactionIdCertificateBuilder;
 class IVoteTransactionIdCertificatevisitor;
 class TransactionId;
+class BlockVersion;
 
 class BlockHeader : public alinous::IBlockObject {
 public:
@@ -40,6 +41,8 @@ public:
 	static BlockHeader* createFromBinary(ByteBuffer* in);
 
 	virtual IBlockObject* copyData() const noexcept;
+
+	void setVersion(const BlockVersion* ver);
 
 	void setHeight(uint64_t height) noexcept {
 		this->height = height;
@@ -104,6 +107,8 @@ public:
 	void visitVoteTransactionIdCertificate(IVoteTransactionIdCertificatevisitor* visitor) const;
 
 private:
+	BlockVersion* version;
+
 	uint16_t zone;
 	uint64_t height;
 	SystemTimestamp* timestamp;

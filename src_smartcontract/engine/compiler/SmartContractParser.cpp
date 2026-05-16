@@ -88,6 +88,10 @@ AlinousLang* SmartContractParser::getDebugAlinousLang() {
 	return this->alinousLang;
 }
 
+/**
+ * Throws ParseException
+ * @return
+ */
 CompilationUnit* SmartContractParser::parse() {
 	if(this->inStream == nullptr){
 		this->length = this->file->length();
@@ -117,7 +121,7 @@ CompilationUnit* SmartContractParser::parseStream() {
 }
 
 bool SmartContractParser::hasError() const noexcept {
-	return this->parserErrorHandler != nullptr && this->parserErrorHandler != nullptr &&
+	return (this->parserErrorHandler != nullptr && this->parserErrorHandler != nullptr) &&
 			(this->parserErrorHandler->hasError() || this->lexErrorHandler->hasError());
 }
 

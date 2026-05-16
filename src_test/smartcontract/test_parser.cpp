@@ -10,6 +10,7 @@
 #include "engine/compiler/SmartContractParser.h"
 #include "engine/sc/CompilationUnit.h"
 
+#include "../../src_gen/alinous_lang/ParseException.h"
 using namespace alinous;
 
 TEST_GROUP(TestParserGroup) {
@@ -46,9 +47,11 @@ TEST(TestParserGroup, parseError01){
 	_ST(File, sourceFile, projectFolder->get(L"src_test/smartcontract/resources/parser/helloerr1.alns"))
 
 	SmartContractParser parser(sourceFile);
-	CompilationUnit* unit = parser.parse();
-	if(unit != nullptr){
-		delete unit;
+
+	try{
+		CompilationUnit* unit = parser.parse(); __STP(unit);
+	}catch(ParseException* e){
+		delete e;
 	}
 
 	CHECK(parser.hasError())
@@ -60,9 +63,10 @@ TEST(TestParserGroup, lexError01){
 	_ST(File, sourceFile, projectFolder->get(L"src_test/smartcontract/resources/parser/helloerrlex.alns"))
 
 	SmartContractParser parser(sourceFile);
-	CompilationUnit* unit = parser.parse();
-	if(unit != nullptr){
-		delete unit;
+	try{
+		CompilationUnit* unit = parser.parse(); __STP(unit);
+	}catch(ParseException* e){
+		delete e;
 	}
 
 	CHECK(parser.hasError())
@@ -73,9 +77,10 @@ TEST(TestParserGroup, lexError02){
 	_ST(File, sourceFile, projectFolder->get(L"src_test/smartcontract/resources/parser/helloerrlexeof.alns"))
 
 	SmartContractParser parser(sourceFile);
-	CompilationUnit* unit = parser.parse();
-	if(unit != nullptr){
-		delete unit;
+	try{
+		CompilationUnit* unit = parser.parse(); __STP(unit);
+	}catch(ParseException* e){
+		delete e;
 	}
 
 	CHECK(parser.hasError())
@@ -87,9 +92,10 @@ TEST(TestParserGroup, lexError03){
 	_ST(File, sourceFile, projectFolder->get(L"src_test/smartcontract/resources/parser/helloerrlexeof2.alns"))
 
 	SmartContractParser parser(sourceFile);
-	CompilationUnit* unit = parser.parse();
-	if(unit != nullptr){
-		delete unit;
+	try{
+		CompilationUnit* unit = parser.parse(); __STP(unit);
+	}catch(ParseException* e){
+		delete e;
 	}
 
 	CHECK(parser.hasError())

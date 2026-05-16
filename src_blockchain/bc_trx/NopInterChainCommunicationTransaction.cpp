@@ -6,6 +6,9 @@
  */
 
 #include "bc_trx/NopInterChainCommunicationTransaction.h"
+#include "bc_trx/TransactionVersion.h"
+#include "bc_trx/TransactionId.h"
+#include "bc_trx/AbstractUtxo.h"
 
 #include "bc_base/BalanceUnit.h"
 #include "bc_base/BinaryUtils.h"
@@ -14,8 +17,7 @@
 
 #include "crypto/Sha256.h"
 
-#include "bc_trx/TransactionId.h"
-#include "bc_trx/AbstractUtxo.h"
+
 
 #include "base_timestamp/SystemTimestamp.h"
 
@@ -125,10 +127,14 @@ void NopInterChainCommunicationTransaction::build() {
 }
 
 void NopInterChainCommunicationTransaction::setUtxoNonce() noexcept {
-	int capacity = sizeof(uint8_t) + this->timestamp->binarySize();
+	BinaryUtils::checkNotNull(this->timestamp);
+	BinaryUtils::checkNotNull(this->version);
+
+	int capacity = sizeof(uint8_t) + this->version->binarySize() + this->timestamp->binarySize();
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(capacity, true); __STP(buff);
 	buff->put(getType());
+	this->version->toBinary(buff);
 	this->timestamp->toBinary(buff);
 
 

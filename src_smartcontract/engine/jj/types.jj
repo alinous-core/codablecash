@@ -51,7 +51,9 @@ AbstractType* typeBody() : {
 }
 
 ObjectType* objectType() : {
-	ObjectType* dec = new ObjectType(); __STP(dec);
+	StackRelease<ObjectType> __dec;
+	ObjectType* dec = new ObjectType(); __dec.reset(dec);
+	
 	PackageNameDeclare* packageName = nullptr;
 	Token* t=nullptr;
 	GenericsObjectType* geneticsObject = nullptr;
@@ -81,7 +83,7 @@ ObjectType* objectType() : {
 	 	t=<LT> {
 	 		geneticsObject = new GenericsObjectType(dec);
 	 		delete dec;
-	 		dec = geneticsObject;
+	 		dec = geneticsObject; __dec.reset(dec);
 	 	}
 	 	genericsType=typeDeclare() {
 	 		geneticsObject->addGenericsType(genericsType);
@@ -104,7 +106,7 @@ ObjectType* objectType() : {
 	 
 	 
 	 {
-		return __STP_MV(dec);
+		return __dec.move();
 	 }
 }
 

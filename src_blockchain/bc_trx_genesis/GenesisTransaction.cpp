@@ -18,6 +18,8 @@
 #include "bc_trx/TransactionId.h"
 
 #include "bc_base/BinaryUtils.h"
+
+#include "bc_trx/TransactionVersion.h"
 namespace codablecash {
 
 GenesisTransaction::GenesisTransaction(const GenesisTransaction &inst)
@@ -44,9 +46,11 @@ void GenesisTransaction::addBalanceUtxo(const BalanceUtxo *utxo) noexcept {
 }
 
 int GenesisTransaction::binarySize() const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	int total = sizeof(uint8_t);
+	total += this->version->binarySize();
 	total += this->timestamp->binarySize();
 
 	total += sizeof(uint16_t);
@@ -61,9 +65,11 @@ int GenesisTransaction::binarySize() const {
 }
 
 void GenesisTransaction::toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	out->put(getType());
+	this->version->toBinary(out);
 	this->timestamp->toBinary(out);
 
 	int maxLoop = this->list.size();
@@ -76,6 +82,9 @@ void GenesisTransaction::toBinary(ByteBuffer *out) const {
 }
 
 void GenesisTransaction::fromBinary(ByteBuffer *in) {
+	delete this->version, this->version = nullptr;
+	this->version = TransactionVersion::createFromBinary(in);
+
 	delete this->timestamp;
 	this->timestamp = SystemTimestamp::fromBinary(in);
 
@@ -124,11 +133,13 @@ void GenesisTransaction::build() {
 }
 
 void GenesisTransaction::setUtxoNonce() noexcept {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
-	int capacity = sizeof(uint8_t) + this->timestamp->binarySize();
+	int capacity = sizeof(uint8_t) + this->version->binarySize() + this->timestamp->binarySize();
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(capacity, true); __STP(buff);
 	buff->put(getType());
+	this->version->toBinary(buff);
 	this->timestamp->toBinary(buff);
 
 	ByteBuffer* sha = Sha256::sha256(buff, true); __STP(sha);

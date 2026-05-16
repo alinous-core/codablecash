@@ -27,7 +27,7 @@ namespace codablecash {
 
 class ZoneStore;
 class StatusStore;
-class SoftwareVersion;
+class BlockchainSoftwareVersion;
 class Block;
 class BlockHeader;
 class IBlockchainEventListner;
@@ -102,7 +102,7 @@ private:
 
 private:
 	File* baseDir;
-	SoftwareVersion* version;
+	BlockchainSoftwareVersion* version;
 
 	int sectionLimit;
 

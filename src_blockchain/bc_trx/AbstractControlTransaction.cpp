@@ -28,6 +28,8 @@
 #include "crypto/Sha256.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+
+#include "bc_trx/TransactionVersion.h"
 namespace codablecash {
 
 AbstractControlTransaction::AbstractControlTransaction(const AbstractControlTransaction &inst)
@@ -76,10 +78,11 @@ int AbstractControlTransaction::binarySize() const {
 }
 
 int AbstractControlTransaction::__binarySize() const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	int total = sizeof(uint8_t);
-
+	total += this->version->binarySize();
 	total += this->timestamp->binarySize();
 
 	total += this->inputs->binarySize();
@@ -106,10 +109,11 @@ void AbstractControlTransaction::toBinary(ByteBuffer *out) const {
 	}
 }
 void AbstractControlTransaction::__toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	out->put(getType());
-
+	this->version->toBinary(out);
 	this->timestamp->toBinary(out);
 
 	this->inputs->toBinary(out);
@@ -135,6 +139,9 @@ void AbstractControlTransaction::fromBinary(ByteBuffer *in) {
 }
 
 void AbstractControlTransaction::__fromBinary(ByteBuffer *in) {
+	delete this->version, this->version = nullptr;
+	this->version = TransactionVersion::createFromBinary(in);
+
 	delete this->timestamp;
 	this->timestamp = SystemTimestamp::fromBinary(in);
 
@@ -206,10 +213,14 @@ bool AbstractControlTransaction::verify() const {
 }
 
 void AbstractControlTransaction::setUtxoNonce() noexcept {
-	int capacity = sizeof(uint8_t) + this->timestamp->binarySize() + this->inputs->binarySize();
+	BinaryUtils::checkNotNull(this->version);
+	BinaryUtils::checkNotNull(this->timestamp);
+
+	int capacity = sizeof(uint8_t) + this->version->binarySize() + this->timestamp->binarySize() + this->inputs->binarySize();
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(capacity, true); __STP(buff);
 	buff->put(getType());
+	this->version->toBinary(buff);
 	this->timestamp->toBinary(buff);
 	this->inputs->toBinary(buff);
 

@@ -50,8 +50,10 @@ void DoWhileStatement::preAnalyze(AnalyzeContext* actx) {
 	this->exp->setParent(this);
 	this->exp->preAnalyze(actx);
 
-	this->stmt->setParent(this);
-	this->stmt->preAnalyze(actx);
+	if(this->stmt != nullptr){
+		this->stmt->setParent(this);
+		this->stmt->preAnalyze(actx);
+	}
 
 	StatementBlock* block = dynamic_cast<StatementBlock*>(this->stmt);
 	if(block != nullptr){
@@ -61,13 +63,18 @@ void DoWhileStatement::preAnalyze(AnalyzeContext* actx) {
 
 void DoWhileStatement::analyzeTypeRef(AnalyzeContext* actx) {
 	this->exp->analyzeTypeRef(actx);
-	this->stmt->analyzeTypeRef(actx);
+	if(this->stmt != nullptr){
+		this->stmt->analyzeTypeRef(actx);
+	}
 }
 
 
 void alinous::DoWhileStatement::analyze(AnalyzeContext* actx) {
 	this->exp->analyze(actx);
-	this->stmt->analyze(actx);
+
+	if(this->stmt != nullptr){
+		this->stmt->analyze(actx);
+	}
 
 	AnalyzedType atype = this->exp->getType(actx);
 	uint8_t type = atype.getType();
@@ -178,7 +185,7 @@ bool DoWhileStatement::hasCtrlStatement() const noexcept {
 }
 
 bool DoWhileStatement::hasConstructor() const noexcept {
-	return this->stmt->hasConstructor();
+	return this->stmt != nullptr ? this->stmt->hasConstructor() : false;
 }
 
 AbstractStatement* DoWhileStatement::generateGenericsImplement(HashMap<UnicodeString, AbstractType> *input) const {
@@ -188,8 +195,10 @@ AbstractStatement* DoWhileStatement::generateGenericsImplement(HashMap<UnicodeSt
 	AbstractExpression* copiedExp = this->exp->generateGenericsImplement(input);
 	inst->setExpression(copiedExp);
 
-	AbstractStatement* copiedStmt = this->stmt->generateGenericsImplement(input);
-	inst->setStatement(copiedStmt);
+	if(this->stmt != nullptr){
+		AbstractStatement* copiedStmt = this->stmt->generateGenericsImplement(input);
+		inst->setStatement(copiedStmt);
+	}
 
 	return inst;
 }

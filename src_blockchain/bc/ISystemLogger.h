@@ -29,6 +29,7 @@ public:
 
 	static const constexpr int DEBUG_DBSESSION_INFO{101};
 	static const constexpr int DEBUG_POOL_TRANSFER_RESPONSE{102};
+	static const constexpr int DEBUG_TRX_MEMPOOL_REGISTER{103};
 
 	ISystemLogger();
 	virtual ~ISystemLogger();

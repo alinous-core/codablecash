@@ -67,6 +67,23 @@ TestnetInstanceWrapper* ZoneTestnet::getInstance(int index) const noexcept {
 	return this->instances.get(index);
 }
 
+TestnetInstanceWrapper* ZoneTestnet::getInstance(const UnicodeString *name) const noexcept {
+	TestnetInstanceWrapper* ret = nullptr;
+
+	int maxLoop = this->instances.size();
+	for(int i = 0; i != maxLoop; ++i){
+		TestnetInstanceWrapper* instWrapper = this->instances.get(i);
+		const UnicodeString* nname = instWrapper->getNodeName();
+
+		if(nname != nullptr && nname->equals(name)){
+			ret = instWrapper;
+			break;
+		}
+	}
+
+	return ret;
+}
+
 void ZoneTestnet::suspendMining() {
 	int maxLoop = this->instances.size();
 	for(int i = 0; i != maxLoop; ++i){

@@ -620,4 +620,8 @@ uint64_t StatusCacheContext::getPreAnalyzedHeight() const noexcept {
 	return this->statusCache->getFinalizedHeight(this->zone);
 }
 
+AbstractBlockchainTransaction* StatusCacheContext::getTransaction(const TransactionId *trxId) {
+	return this->trxCache->getTransaction(trxId);
+}
+
 } /* namespace codablecash */

@@ -157,6 +157,10 @@ void MemoryPool::__removeSmartcontractTransaction(const AbstractSmartcontractTra
 AbstractBlockchainTransaction* MemoryPool::getTransactionById(const TransactionId *trxId) const {
 	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
+	return __getTransactionById(trxId);
+}
+
+AbstractBlockchainTransaction* MemoryPool::__getTransactionById(const TransactionId *trxId) const {
 	AbstractBlockchainTransaction* trx = __getBalanceTransaction(trxId);
 	if(trx == nullptr){
 		trx = __getControlTransaction(trxId);

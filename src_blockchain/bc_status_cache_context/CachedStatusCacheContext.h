@@ -28,6 +28,7 @@ class TransactionContextCache;
 class UtxoCacheContext;
 class VoterStatusCacheContext;
 class AbstractBlockchainTransaction;
+class TransactionId;
 
 class CachedStatusCacheContext : public StatusCacheContext {
 public:
@@ -50,6 +51,8 @@ public:
 	virtual void loadInitialVotersData();
 
 	virtual uint64_t getPreAnalyzedHeight() const noexcept;
+
+	virtual AbstractBlockchainTransaction* getTransaction(const TransactionId *trxId);
 
 protected:
 	virtual void putUtxo(const AbstractUtxo* utxo, const AbstractBlockchainTransaction *trx, const BlockHeader *header);

@@ -34,6 +34,7 @@ public:
 	void close();
 
 	void putTransaction(const AbstractBlockchainTransaction* trx);
+	AbstractBlockchainTransaction* getTransaction(const TransactionId* trxId);
 	bool hasTransaction(const TransactionId* trxId);
 
 	BtreeScanner* getBtreeScanner() const noexcept;

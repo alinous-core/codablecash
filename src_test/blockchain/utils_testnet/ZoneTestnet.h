@@ -34,6 +34,7 @@ public:
 	void startFrom(IDebugSeeder* seeder, int fromIndex);
 
 	TestnetInstanceWrapper* getInstance(int index) const noexcept;
+	TestnetInstanceWrapper* getInstance(const UnicodeString *name) const noexcept;
 
 	void suspendMining();
 	void resumeMining();

@@ -125,6 +125,8 @@ public:
 		this->topHeight = height;
 	}
 
+	virtual AbstractBlockchainTransaction* getTransaction(const TransactionId *trxId);
+
 protected:
 	void importBalanceTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
 	void importControlTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);

@@ -152,13 +152,19 @@ void NetworkWallet::initNetwork(INetworkSeeder *seeder, const IWalletDataEncoder
 	this->networkManager->maintainNetwork(filters);
 }
 
-void NetworkWallet::syncBlockchain() {
+void NetworkWallet::syncBlockchain(bool resume) {
 	NetworkWalletSync sync((uint64_t)1, this->walletData, this->networkManager, this->walletConfig, this->logger);
 	sync.sync();
+
+	if(resume){
+		resumeNetwork();
+	}
 }
 
 void NetworkWallet::resumeNetwork() {
-	this->clientCommandProcessor->resumeRequestProcessor();
+	if(this->clientCommandProcessor->__isSuspended()){
+		this->clientCommandProcessor->resumeRequestProcessor();
+	}
 }
 
 void NetworkWallet::setStakingSourceId(const NodeIdentifierSource *source, const IWalletDataEncoder* encoder) {

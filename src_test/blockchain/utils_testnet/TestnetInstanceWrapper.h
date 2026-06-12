@@ -11,6 +11,7 @@
 
 namespace alinous {
 class File;
+class UnicodeString;
 }
 using namespace alinous;
 
@@ -23,6 +24,8 @@ class GenesisBalanceConfig;
 class MiningConfig;
 class FinalizerConfig;
 class IDebugSeeder;
+class NodeIdentifierSource;
+class TransactionId;
 
 class TestnetInstanceWrapper {
 public:
@@ -37,7 +40,6 @@ public:
 	void setFinalizerConfig(const FinalizerConfig* config);
 	const FinalizerConfig* getFinalizerConfig() const noexcept;
 
-
 	void initGenesis();
 	void initBlank();
 
@@ -48,6 +50,19 @@ public:
 
 	void suspendMining();
 	void resumeMining();
+
+	int getListeningPort() const noexcept;
+
+	const UnicodeString* getNodeName() const noexcept;
+	const NodeIdentifierSource* getNetworkKey() const noexcept;
+	const NodeIdentifierSource* getVoterIdentifierSource() const noexcept;
+
+	bool hasTransactionInMempool(const TransactionId* trxId) const;
+	bool __hasTransactionInMempool(const TransactionId* trxId) const;
+	bool hasTransactionInchain(const TransactionId* trxId) const;
+	bool hasTransaction(const TransactionId* trxId);
+
+	int getMempoolTransctionCount() const;
 
 private:
 	uint16_t zone;

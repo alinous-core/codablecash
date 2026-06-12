@@ -237,6 +237,7 @@ TEST(TestNetWalletGroup, case01){
 
 	testnet->suspendMining(0);
 
+	// staking tickets
 	int maxLoop = 20;
 	for(int i = 0; i != maxLoop; ++i){
 		BalanceUnit fee(1L);

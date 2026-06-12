@@ -67,6 +67,7 @@ public:
 	uint16_t getDefaultZone() const noexcept;
 
 	void addTransactionDataToMempool(const TransactionTransferData *data);
+	void __addTransactionDataToMempool(const AbstractBlockchainTransaction* trx);
 	uint8_t getTransactionStoreStatus(const TransactionId* trxId) const noexcept;
 
 	void addHeader(const BlockHeader* header, const ArrayList<AbstractBlockchainTransaction>* trxlist);

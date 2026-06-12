@@ -147,7 +147,7 @@ SystemTimestamp* VoteManager::getPosVoteLimit(uint64_t lastHeight) {
 
 	SystemTimestamp mills(0, consensusPosVoteLimitMillis * 1000);
 
-	HeightVoteData* data = getHeightVoteData(lastHeight);
+	HeightVoteData* data = getHeightVoteData(lastHeight); __STP(data);
 	const SystemTimestamp* tm = data->getNonceCalculatedTimestamp();
 	if(tm != nullptr){
 		SystemTimestamp lim = *tm + mills;

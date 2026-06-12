@@ -60,6 +60,7 @@ public:
 	void __removeSmartcontractTransaction(const AbstractSmartcontractTransaction* trx);
 
 	AbstractBlockchainTransaction* getTransactionById(const TransactionId* trxId) const;
+	AbstractBlockchainTransaction* __getTransactionById(const TransactionId* trxId) const;
 
 	AbstractBalanceTransaction* getBalanceTransaction(const TransactionId* trxId) const;
 	AbstractBalanceTransaction* __getBalanceTransaction(const TransactionId* trxId) const;

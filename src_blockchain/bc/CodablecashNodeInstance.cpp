@@ -61,10 +61,11 @@
 #include "bc_blockstore/InvalidZoneException.h"
 
 #include "bc_p2p_cmd_network/NodeShutdownCommand.h"
+#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
 
 #include "base_timestamp/SystemTimestamp.h"
 
-#include "bc_p2p_cmd_network/NodeNetworkInfo.h"
+
 namespace codablecash {
 
 CodablecashNodeInstance::CodablecashNodeInstance(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* param) {
@@ -508,6 +509,10 @@ void CodablecashNodeInstance::broadCastShutdownCommand(const NodeIdentifierSourc
 	command.sign(source);
 
 	this->p2pManager->broadCastAllZones(nullptr, &command, this->p2pRequestProcessor);
+}
+
+int CodablecashNodeInstance::getListningPort() const noexcept {
+	return this->p2pServer->getListningPort();
 }
 
 } /* namespace codablecash */

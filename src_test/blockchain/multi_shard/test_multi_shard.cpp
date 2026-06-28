@@ -44,11 +44,15 @@
 #include "bc_network/NodeIdentifier.h"
 
 #include "../wallet_util/TransactionUtxoChecker.h"
+#include "bc_status_cache/BlockchainController.h"
+
+#include "bc/CodablecashNodeInstance.h"
 #include "blockchain/utils_testnet/ArrayDebugSeeder.h"
 #include "blockchain/utils_testnet/TestnetInstanceWrapper.h"
 #include "blockchain/utils_testnet/MultizoneTestnet.h"
 #include "blockchain/utils/DebugCodablecashSystemParamSetup.h"
 #include "blockchain/wallet_util/WalletDriver.h"
+#include "NewShardAdder.h"
 
 
 using namespace codablecash;
@@ -69,6 +73,7 @@ TEST(TestMultiShardGroup, case01){
 
 	StackTestPortGetter portSel;
 	File projectFolder = this->env->testCaseDir();
+	File* dirWallet00 = projectFolder.get(L"wallet00"); __STP(dirWallet00);
 	File* dirWallet01 = projectFolder.get(L"wallet01"); __STP(dirWallet01);
 
 	DebugDefaultLogger logger;
@@ -91,7 +96,10 @@ TEST(TestMultiShardGroup, case01){
 	UnicodeString pass(L"changeit");
 	PasswordEncoder enc(&pass);
 	WalletConfig walletConfig;
-	NetworkWallet* wallet = NetworkWallet::createNewWallet(dirWallet01, &pass, 0, 10, &logger, &param, &walletConfig); __STP(wallet);
+	NetworkWallet* wallet = NetworkWallet::createNewWallet(dirWallet00, &pass, 0, 10, &logger, &param, &walletConfig); __STP(wallet);
+
+	// wallet shard01
+	NetworkWallet* wallet01 = NetworkWallet::createNewWallet(dirWallet01, &pass, 1, 10, &logger, &param, &walletConfig); __STP(wallet01);
 
 	// genesis address
 	AddressDescriptor* desc = wallet->getAddressDescriptor(0, 0); __STP(desc);// walletDriver->getAddressDesc(0, 0); __STP(desc);
@@ -125,6 +133,9 @@ TEST(TestMultiShardGroup, case01){
 
 	{
 		TestnetInstanceWrapper* inst = testnet.getInstance(0, L"first");
+		NewShardAdder adder;
+		adder.setHeight(6);
+		inst->addIBlockGenerationListner(&adder);
 
 		int port01 = inst->getListeningPort();
 		const NodeIdentifierSource* source = inst->getVoterIdentifierSource();
@@ -224,7 +235,7 @@ TEST(TestMultiShardGroup, case01){
 	}
 	testnet.resumeMining(0);
 
-	testnet.waitForBlockHeight(0, 0, 12);
+
 
 	// zone 1 stand by node
 	File* dirNode01 = projectFolder.get(L"node01"); __STP(dirNode01);
@@ -234,9 +245,27 @@ TEST(TestMultiShardGroup, case01){
 
 	CodablecashNetworkNode node01(dirNode01, config01, &logger);
 	{
+		// second
+		node01.initBlank(1); // zone 0
 
+		// after init
+		node01.setNodeName(L"node02");
+		node01.startNetwork(&seeder, true);
+
+		node01.syncNetwork();
+
+		CodablecashNodeInstance* inst = node01.getInstance();
+
+		BlockchainController* ctrl = inst->getController();
+		uint64_t h = ctrl->getHeadHeight(0);
+
+		while(h <= 6){
+			Os::usleep(100*1000);
+			h = ctrl->getHeadHeight(0);
+		}
 	}
 
+	testnet.waitForBlockHeight(0, 0, 10);
 	wallet->shutdownNetwork();
 }
 

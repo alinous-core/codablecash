@@ -316,4 +316,14 @@ ArrayList<Block>* CodablecashBlockchain::getBlocksHeightAt(uint16_t zone, uint64
 	return list;
 }
 
+ArrayList<BlockHeader>* CodablecashBlockchain::getBlockHeadersHeightAt(uint16_t zone, uint64_t height) const {
+	ZoneStore* store = this->zonesStore->get(zone);
+	BlockHeaderStoreManager* headerManager = store->getBlockHeaderStoreManager();
+	BlockBodyStoreManager* bodyManaer = store->getBlockBodyStoreManager();
+
+	ArrayList<BlockHeader>* headers = headerManager->getBlocksAtHeight(height); __STP(headers);
+
+	return __STP_MV(headers);
+}
+
 } /* namespace codablecash */

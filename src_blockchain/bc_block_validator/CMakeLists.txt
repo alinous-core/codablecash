@@ -1,6 +1,7 @@
 
 
 set(__src
+	BlockHeaderValidator.cpp
 	BlockValidator.cpp
 	BlockValidationException.cpp
 )

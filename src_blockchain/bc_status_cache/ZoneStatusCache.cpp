@@ -68,6 +68,7 @@ ZoneStatusCache::ZoneStatusCache(const File* baseDir, uint16_t zone, bool header
 	this->voteManager = new VoteManager(this->baseDir, config);
 
 	this->ticketPrice = config->getTicketPriceDefault(1L);
+	this->requestedNewShards = 0;
 }
 
 ZoneStatusCache::ZoneStatusCache(const File *baseDir, ISystemLogger* logger, bool headerOnly, const CodablecashSystemParam* config) {
@@ -87,6 +88,7 @@ ZoneStatusCache::ZoneStatusCache(const File *baseDir, ISystemLogger* logger, boo
 	this->voteManager = new VoteManager(this->baseDir, config);
 
 	this->ticketPrice = 0;
+	this->requestedNewShards = 0;
 }
 
 ZoneStatusCache::~ZoneStatusCache() {
@@ -157,6 +159,7 @@ void ZoneStatusCache::saveStatus() {
 	this->statusStore->addShortValue(KEY_HEADER_ONLY, this->headerOnly ? 1 : 0);
 	this->statusStore->addLongValue(KEY_FINALIZED_HEIGHT, this->finalizedHeight);
 	this->statusStore->addLongValue(KEY_FINALIZED_TICKET_PRICE, this->ticketPrice);
+	this->statusStore->addShortValue(KEY_REQUESTED_SHARDS, this->requestedNewShards);
 }
 
 void ZoneStatusCache::loadStatus() {
@@ -167,6 +170,7 @@ void ZoneStatusCache::loadStatus() {
 	this->headerOnly = (bl == 1);
 	this->finalizedHeight = this->statusStore->getLongValue(KEY_FINALIZED_HEIGHT);
 	this->ticketPrice = this->statusStore->getLongValue(KEY_FINALIZED_TICKET_PRICE);
+	this->requestedNewShards = this->statusStore->getShortValue(KEY_REQUESTED_SHARDS);
 }
 
 void ZoneStatusCache::updateBlockStatus(MemPoolTransaction* memTrx, CodablecashBlockchain *chain, const CodablecashSystemParam* config) {

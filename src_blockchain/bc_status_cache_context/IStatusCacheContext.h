@@ -60,7 +60,7 @@ public:
 	virtual VotingBlockStatus* getVotingBlockStatus(const BlockHeaderId *blockHeaderId) = 0;
 	virtual VotingBlockStatus* getVotingBlockStatus(const BlockHeader *header) = 0;
 	virtual const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId) const noexcept = 0;
-	virtual uint16_t getNumZones(uint64_t height) const = 0;
+	virtual uint16_t getNumZones() const = 0;
 
 	virtual const CodablecashSystemParam* getConfig() const noexcept = 0;
 	virtual CodablecashBlockchain* getBlockChain() const noexcept = 0;

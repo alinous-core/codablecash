@@ -9,6 +9,8 @@
 #include "bc_block/BlockHeaderId.h"
 #include "bc_block/BlockVersion.h"
 
+#include "bc_block_header_command/AbstractBlockHeaderCommand.h"
+
 #include "base/StackRelease.h"
 
 #include "base_timestamp/SystemTimestamp.h"
@@ -27,6 +29,7 @@
 #include "bc_block_vote/VotedHeaderIdGroup.h"
 
 #include "bc_base/BinaryUtils.h"
+
 
 namespace codablecash {
 
@@ -50,6 +53,8 @@ BlockHeader::BlockHeader() {
 
 	this->votePart = new VotePart();
 	this->lastNouceCalculated = dynamic_cast<SystemTimestamp*>(Os::now().copyData());
+
+	this->commnads = new ArrayList<AbstractBlockHeaderCommand>();
 }
 
 BlockHeader::~BlockHeader() {
@@ -63,6 +68,9 @@ BlockHeader::~BlockHeader() {
 	delete this->timestamp;
 	delete this->nonceGeneratedtimestamp;
 	delete this->lastNouceCalculated;
+
+	this->commnads->deleteElements();
+	delete this->commnads;
 }
 
 int BlockHeader::binarySize() const {
@@ -77,6 +85,13 @@ int BlockHeader::binarySize() const {
 	total += this->nonce->binarySize();
 	total += this->votePart->binarySize();
 	total += this->lastNouceCalculated->binarySize();
+
+	total += sizeof(uint8_t);
+	int maxLoop = this->commnads->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockHeaderCommand* cmd = this->commnads->get(i);
+		total += cmd->binarySize();
+	}
 
 	return total;
 }
@@ -95,6 +110,13 @@ void BlockHeader::toBinary(ByteBuffer *out) const {
 	this->nonce->toBinary(out);
 	this->votePart->toBinary(out);
 	this->lastNouceCalculated->toBinary(out);
+
+	int maxLoop = this->commnads->size();
+	out->put(maxLoop);
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockHeaderCommand* cmd = this->commnads->get(i);
+		cmd->toBinary(out);
+	}
 }
 
 BlockHeader* BlockHeader::createFromBinary(ByteBuffer* in) {
@@ -130,6 +152,14 @@ BlockHeader* BlockHeader::createFromBinary(ByteBuffer* in) {
 	delete header->lastNouceCalculated;
 	header->lastNouceCalculated = SystemTimestamp::fromBinary(in);
 
+	int maxLoop = in->get();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockHeaderCommand* cmd = AbstractBlockHeaderCommand::createFromBinary(in);
+		BinaryUtils::checkNotNull(cmd);
+
+		header->commnads->addElement(cmd);
+	}
+
 	header->buildHeaderId();
 
 	return __STP_MV(header);
@@ -158,15 +188,25 @@ void BlockHeader::setHeaderId(BlockHeaderId* id) noexcept {
 void BlockHeader::buildHeaderId() {
 	BinaryUtils::checkNotNull(this->version);
 
-	int total = this->version->binarySize() + sizeof(this->zone) + sizeof(this->height);
-	total += this->timestamp->binarySize();
-	//total += this->nonceGeneratedtimestamp->binarySize(); // do not include calculated time
+	int total = 0;
+	{
+		total += this->version->binarySize() + sizeof(this->zone) + sizeof(this->height);
+		total += this->timestamp->binarySize();
+		//total += this->nonceGeneratedtimestamp->binarySize(); // do not include calculated time
 
-	total += this->merkleRoot->binarySize();
-	total += this->lastid->binarySize();
-	// total += this->nonce->binarySize();
-	total += this->votePart->binarySize();
-	total += this->lastNouceCalculated->binarySize();
+		total += this->merkleRoot->binarySize();
+		total += this->lastid->binarySize();
+		// total += this->nonce->binarySize();
+		total += this->votePart->binarySize();
+		total += this->lastNouceCalculated->binarySize();
+
+		total += sizeof(uint8_t);
+		int maxLoop = this->commnads->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractBlockHeaderCommand* cmd = this->commnads->get(i);
+			total += cmd->binarySize();
+		}
+	}
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(total, true); __STP(buff);
 	this->version->toBinary(buff);
@@ -180,6 +220,13 @@ void BlockHeader::buildHeaderId() {
 	// this->nonce->toBinary(buff);
 	this->votePart->toBinary(buff);
 	this->lastNouceCalculated->toBinary(buff);
+
+	int maxLoop = this->commnads->size();
+	buff->put(maxLoop);
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockHeaderCommand* cmd = this->commnads->get(i);
+		cmd->toBinary(buff);
+	}
 
 	ByteBuffer* sha = Sha256::sha256(buff, true); __STP(sha);
 	sha->position(0);
@@ -246,6 +293,14 @@ bool BlockHeader::isScheduledBlock() const noexcept {
 void BlockHeader::setLastNouceCalculated(const SystemTimestamp *tm) noexcept {
 	delete this->lastNouceCalculated;
 	this->lastNouceCalculated = dynamic_cast<SystemTimestamp*>(tm->copyData());
+}
+
+void BlockHeader::addHeaderCommand(const AbstractBlockHeaderCommand *cmd) {
+	this->commnads->addElement(dynamic_cast<AbstractBlockHeaderCommand*>(cmd->copyData()));
+}
+
+bool BlockHeader::hasHeaderCommnads() const noexcept {
+	return !this->commnads->isEmpty();
 }
 
 } /* namespace codablecash */

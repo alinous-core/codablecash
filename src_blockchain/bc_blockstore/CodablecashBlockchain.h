@@ -69,6 +69,7 @@ public:
 	void addHeader(MemPoolTransaction* memTrx, const BlockHeader* header);
 
 	ArrayList<Block>* getBlocksHeightAt(uint16_t zone, uint64_t height) const;
+	ArrayList<BlockHeader>* getBlockHeadersHeightAt(uint16_t zone, uint64_t height) const;
 
 	void cleanOnFinalize(uint16_t zone, uint64_t finalizingHeight, const BlockHeaderId *headerId, uint16_t lastFinalizedHeight);
 

@@ -33,6 +33,8 @@
 #include "bc_trx/AbstractBlockchainTransaction.h"
 
 #include "bc_memorypool/MemPoolTransaction.h"
+
+#include "bc_block_generator/BlockGenerator.h"
 #include "IDebugSeeder.h"
 
 namespace codablecash {
@@ -210,6 +212,13 @@ int TestnetInstanceWrapper::getMempoolTransctionCount() const {
 	MemPoolTransaction* memTrx = pool->begin(); __STP(memTrx);
 
 	return memTrx->getTransactionsCount();
+}
+
+void TestnetInstanceWrapper::addIBlockGenerationListner(const IBlockGenerationListner *listner) {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+	BlockGenerator* generator = instance->getBlockGenerator();
+
+	generator->addBlockGenerationListner(listner);
 }
 
 } /* namespace codablecash */

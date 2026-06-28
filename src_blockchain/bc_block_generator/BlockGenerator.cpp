@@ -69,6 +69,9 @@
 #include "base_timestamp/SystemTimestamp.h"
 #include "bc/CodablecashSystemParam.h"
 
+#include "bc_block_generator/IBlockGenerationListner.h"
+
+
 namespace codablecash {
 
 BlockGenerator::BlockGenerator(uint16_t zone, CodablecashSystemParam* config, MemoryPool* memoryPool, BlockchainController* ctrl
@@ -80,6 +83,7 @@ BlockGenerator::BlockGenerator(uint16_t zone, CodablecashSystemParam* config, Me
 	this->processor = nullptr;
 	this->miningConfig = miningConfig != nullptr ? new MiningConfig(*miningConfig) : nullptr;
 	this->zone = zone;
+	this->listners = new ArrayList<IBlockGenerationListner>();
 }
 
 BlockGenerator::~BlockGenerator() {
@@ -88,6 +92,9 @@ BlockGenerator::~BlockGenerator() {
 	this->ctrl = nullptr;
 	this->processor = nullptr;
 	delete this->miningConfig;
+
+	this->listners->deleteElements();
+	delete this->listners;
 }
 
 void BlockGenerator::nonceCalculated(uint64_t lastBlockHeight, const BlockHeaderId *lastBlockId, const PoWNonce *nonce) {
@@ -131,6 +138,15 @@ Block* BlockGenerator::generateBlock(uint64_t lastBlockHeight,	const BlockHeader
 
 		// import into Block from memory pool
 		importTransactions2Block(memTrx, block);
+
+		// [multishard]
+		if(!this->listners->isEmpty()){
+			int maxLoop = this->listners->size();
+			for(int i = 0; i != maxLoop; ++i){
+				IBlockGenerationListner* listner = this->listners->get(i);
+				listner->onBlockGenerated(block, memTrx, this->ctrl);
+			}
+		}
 
 		block->build();
 
@@ -259,7 +275,7 @@ void BlockGenerator::buildRewordBase(MemPoolTransaction *memTrx, IStatusCacheCon
 	BlockHeader* header = block->getHeader();
 	BlockBody* body = block->getBody();
 
-	uint16_t numZones = context->getNumZones(height);
+	uint16_t numZones = context->getNumZones(); // get numZones at last block
 
 	BlockRewardCalculator calc(numZones);
 
@@ -476,6 +492,10 @@ BigInteger BlockGenerator::calcTargetDiff(uint64_t lastHeight, const BlockHeader
 
 void BlockGenerator::setScheduledBlock(const Block *block) {
 	this->ctrl->setScheduledBlock(block);
+}
+
+void BlockGenerator::addBlockGenerationListner(const IBlockGenerationListner *listner) {
+	this->listners->addElement(listner->copy());
 }
 
 } /* namespace codablecash */

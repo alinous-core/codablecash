@@ -52,6 +52,7 @@ public:
 
 	uint64_t getHeadHeight(uint16_t zone);
 	uint16_t getZoneSelf() const noexcept;
+	uint16_t getNUmZones() const noexcept;
 
 	uint64_t getFinalizedHeight(uint16_t zone) const;
 
@@ -84,6 +85,11 @@ public:
 
 	ArrayList<Block>* getBlocksHeightAt(uint16_t zone, uint64_t height) const;
 	Block* getBlockHeightAt(uint16_t zone, uint64_t height, const BlockHeaderId* headerId) const;
+
+	ArrayList<BlockHeader>* getBlockHeadersHeightAt(uint16_t zone, uint64_t height) const;
+	BlockHeader* getBlockHeaderHeightAt(uint16_t zone, uint64_t height, const BlockHeaderId* headerId) const;
+
+	static BlockHeader* getBlockHeaderById(ArrayList<BlockHeader>* list, const BlockHeaderId* headerId);
 	static Block* getBlockById(ArrayList<Block>* list, const BlockHeaderId* headerId);
 
 	bool hasHeaderId(uint16_t zone, uint64_t height, const BlockHeaderId* headerId) const;

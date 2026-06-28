@@ -5,8 +5,8 @@
  *      Author: iizuka
  */
 
-#ifndef BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONDATAFACTORY_H_
-#define BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONDATAFACTORY_H_
+#ifndef BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONSDATAFACTORY_H_
+#define BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONSDATAFACTORY_H_
 
 #include "btree/AbstractBtreeDataFactory.h"
 
@@ -14,10 +14,10 @@ using namespace alinous;
 
 namespace codablecash {
 
-class LockInOperationDataFactory: public alinous::AbstractBtreeDataFactory {
+class LockInOperationsDataFactory: public alinous::AbstractBtreeDataFactory {
 public:
-	LockInOperationDataFactory();
-	virtual ~LockInOperationDataFactory();
+	LockInOperationsDataFactory();
+	virtual ~LockInOperationsDataFactory();
 
 	virtual IBlockObject* makeDataFromBinary(ByteBuffer* in);
 
@@ -29,4 +29,4 @@ public:
 
 } /* namespace codablecash */
 
-#endif /* BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONDATAFACTORY_H_ */
+#endif /* BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONSDATAFACTORY_H_ */

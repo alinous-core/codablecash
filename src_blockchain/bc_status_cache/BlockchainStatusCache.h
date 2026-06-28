@@ -89,7 +89,7 @@ public:
 
 	void importCosumedMemTransactions(uint16_t zone, MemPoolTransaction* memTrx, uint64_t heigh, const BlockHeaderId *headerId, CodablecashBlockchain* blockchain);
 
-	uint16_t getNumZones(uint64_t height) const;
+	uint16_t getNumZones() const;
 
 	ZoneStatusCache* getZoneStatusCache(uint16_t zone) const noexcept {
 		return this->zoneList.get(zone);

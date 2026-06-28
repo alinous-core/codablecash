@@ -26,6 +26,8 @@ class FinalizerConfig;
 class IDebugSeeder;
 class NodeIdentifierSource;
 class TransactionId;
+class IBlockGenerationListner;
+
 
 class TestnetInstanceWrapper {
 public:
@@ -63,6 +65,8 @@ public:
 	bool hasTransaction(const TransactionId* trxId);
 
 	int getMempoolTransctionCount() const;
+
+	void addIBlockGenerationListner(const IBlockGenerationListner* listner);
 
 private:
 	uint16_t zone;

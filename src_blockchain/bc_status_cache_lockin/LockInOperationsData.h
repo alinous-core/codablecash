@@ -5,8 +5,8 @@
  *      Author: iizuka
  */
 
-#ifndef BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONDATA_H_
-#define BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONDATA_H_
+#ifndef BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONSDATA_H_
+#define BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONSDATA_H_
 
 #include "filestore_block/IBlockObject.h"
 
@@ -20,20 +20,20 @@ class AbstractLockinOperation;
 class BlockHeader;
 class IStatusCacheContext;
 
-class LockInOperationData : public IBlockObject {
+class LockInOperationsData : public IBlockObject {
 public:
-	LockInOperationData();
-	virtual ~LockInOperationData();
+	LockInOperationsData();
+	virtual ~LockInOperationsData();
 
 	virtual int binarySize() const;
 	virtual void toBinary(ByteBuffer* out) const;
-	static LockInOperationData* fromBinary(ByteBuffer* in);
+	static LockInOperationsData* fromBinary(ByteBuffer* in);
 
 	virtual IBlockObject* copyData() const noexcept;
 
 	void add(const AbstractLockinOperation* op);
 
-	void join(const LockInOperationData* value) noexcept;
+	void join(const LockInOperationsData* value) noexcept;
 	bool contains(const AbstractLockinOperation* value) const noexcept;
 
 	void apply(const BlockHeader *header, IStatusCacheContext* context);
@@ -44,4 +44,4 @@ private:
 
 } /* namespace codablecash */
 
-#endif /* BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONDATA_H_ */
+#endif /* BC_STATUS_CACHE_LOCKIN_LOCKINOPERATIONSDATA_H_ */

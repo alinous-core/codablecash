@@ -185,6 +185,12 @@ uint16_t BlockchainController::getZoneSelf() const noexcept {
 	return this->blockchain->getZoneSelf();
 }
 
+uint16_t BlockchainController::getNUmZones() const noexcept {
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
+
+	return this->blockchain->getNumZones();
+}
+
 uint64_t BlockchainController::getFinalizedHeight(uint16_t zone) const {
 	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
 
@@ -569,6 +575,38 @@ Block* BlockchainController::getBlockHeightAt(uint16_t zone, uint64_t height, co
 	}
 
 	return list != nullptr ? getBlockById(list, headerId) : nullptr;
+}
+
+ArrayList<BlockHeader>* BlockchainController::getBlockHeadersHeightAt(uint16_t zone, uint64_t height) const {
+	StackReadLock __lock(this->rwLock, __FILE__, __LINE__);
+
+	return this->blockchain->getBlockHeadersHeightAt(zone, height);
+}
+
+BlockHeader* BlockchainController::getBlockHeaderHeightAt(uint16_t zone, uint64_t height, const BlockHeaderId* headerId) const {
+	ArrayList<BlockHeader>* list = getBlockHeadersHeightAt(zone, height); __STP(list);
+	if(list != nullptr){
+		list->setDeleteOnExit();
+	}
+
+	return list != nullptr ? getBlockHeaderById(list, headerId) : nullptr;
+}
+
+BlockHeader* BlockchainController::getBlockHeaderById(ArrayList<BlockHeader>* list, const BlockHeaderId* headerId) {
+	BlockHeader* ret = nullptr;
+
+	int maxLoop = list->size();
+	for(int i = 0; i != maxLoop; ++i){
+		const BlockHeader* header = list->get(i);
+		const BlockHeaderId* id = header->getId();
+
+		if(headerId->equals(id)){
+			ret = dynamic_cast<BlockHeader*>(header->copyData());
+			break;
+		}
+	}
+
+	return ret;
 }
 
 Block* BlockchainController::getBlockById(ArrayList<Block> *list, const BlockHeaderId *headerId) {

@@ -67,13 +67,12 @@
 #include "transaction/AbstractSmartcontractTransaction.h"
 
 #include "bc_status_cache_lockin/ILockinManager.h"
-#include "bc_status_cache_lockin/LockInOperationData.h"
-
 #include "bc_status_cache/ZoneStatusCache.h"
 
 #include "bc_status_cache_data/FinalizedDataCache.h"
 
 #include "bc_network/NodeIdentifier.h"
+#include "bc_status_cache_lockin/LockInOperationsData.h"
 
 #include "numeric/BigInteger.h"
 
@@ -179,7 +178,7 @@ void StatusCacheContext::beginBlock(const BlockHeader *header, ILockinManager* l
 
 	{
 		uint64_t height = header->getHeight();
-		LockInOperationData* lockins = lockinManager->getOperantions(height); __STP(lockins);
+		LockInOperationsData* lockins = lockinManager->getOperantions(height); __STP(lockins);
 		if(lockins != nullptr){
 			lockins->apply(header, this);
 		}
@@ -563,8 +562,8 @@ const VoterEntry* StatusCacheContext::getVoterEntry(const NodeIdentifier *nodeId
 	return entry;
 }
 
-uint16_t StatusCacheContext::getNumZones(uint64_t height) const {
-	return this->statusCache->getNumZones(height);
+uint16_t StatusCacheContext::getNumZones() const {
+	return this->numZones;
 }
 
 void StatusCacheContext::loadInitialVotersData() {

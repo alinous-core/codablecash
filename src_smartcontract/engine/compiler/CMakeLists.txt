@@ -7,6 +7,7 @@ set(__src
 	ParseErrorHandler.cpp
 	ParserReaderStream.cpp
 	SmartContractParser.cpp
+	StatementRepairSkipper.cpp
 )
 handle_sub(codablecashlib "${__src}" smartcontract engine/compiler)
 

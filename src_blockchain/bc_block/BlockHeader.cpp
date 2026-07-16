@@ -7,6 +7,9 @@
 
 #include "bc_block/BlockHeader.h"
 #include "bc_block/BlockHeaderId.h"
+#include "bc_block/BlockVersion.h"
+
+#include "bc_block_header_command/AbstractBlockHeaderCommand.h"
 
 #include "base/StackRelease.h"
 
@@ -25,11 +28,13 @@
 #include "bc_block_vote/VotePart.h"
 #include "bc_block_vote/VotedHeaderIdGroup.h"
 
+#include "bc_base/BinaryUtils.h"
 
 
 namespace codablecash {
 
 BlockHeader::BlockHeader() {
+	this->version = new BlockVersion(1, 0, 0);
 	this->zone = 0;
 	this->height = 0;
 	this->id = new BlockHeaderId();
@@ -47,10 +52,13 @@ BlockHeader::BlockHeader() {
 	this->nonce = new PoWNonce(&defaultNonce);
 
 	this->votePart = new VotePart();
-	this->lastNouceCalculated = dynamic_cast<SystemTimestamp*>(Os::now().copyData());;
+	this->lastNouceCalculated = dynamic_cast<SystemTimestamp*>(Os::now().copyData());
+
+	this->commnads = new ArrayList<AbstractBlockHeaderCommand>();
 }
 
 BlockHeader::~BlockHeader() {
+	delete this->version;
 	delete this->id;
 	delete this->merkleRoot;
 	delete this->lastid;
@@ -60,10 +68,15 @@ BlockHeader::~BlockHeader() {
 	delete this->timestamp;
 	delete this->nonceGeneratedtimestamp;
 	delete this->lastNouceCalculated;
+
+	this->commnads->deleteElements();
+	delete this->commnads;
 }
 
 int BlockHeader::binarySize() const {
-	int total = sizeof(this->zone) + sizeof(this->height);
+	BinaryUtils::checkNotNull(this->version);
+
+	int total = this->version->binarySize() + sizeof(this->zone) + sizeof(this->height);
 
 	total += this->timestamp->binarySize();
 	total += this->nonceGeneratedtimestamp->binarySize();
@@ -73,10 +86,20 @@ int BlockHeader::binarySize() const {
 	total += this->votePart->binarySize();
 	total += this->lastNouceCalculated->binarySize();
 
+	total += sizeof(uint8_t);
+	int maxLoop = this->commnads->size();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockHeaderCommand* cmd = this->commnads->get(i);
+		total += cmd->binarySize();
+	}
+
 	return total;
 }
 
 void BlockHeader::toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->version);
+
+	this->version->toBinary(out);
 	out->putShort(this->zone);
 	out->putLong(this->height);
 
@@ -87,10 +110,20 @@ void BlockHeader::toBinary(ByteBuffer *out) const {
 	this->nonce->toBinary(out);
 	this->votePart->toBinary(out);
 	this->lastNouceCalculated->toBinary(out);
+
+	int maxLoop = this->commnads->size();
+	out->put(maxLoop);
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockHeaderCommand* cmd = this->commnads->get(i);
+		cmd->toBinary(out);
+	}
 }
 
 BlockHeader* BlockHeader::createFromBinary(ByteBuffer* in) {
 	BlockHeader* header = new BlockHeader(); __STP(header);
+
+	BlockVersion* ver = BlockVersion::createFromBinary(in); __STP(ver);
+	header->setVersion(ver);
 
 	uint16_t zone = in->getShort();
 	header->setZone(zone);
@@ -119,6 +152,14 @@ BlockHeader* BlockHeader::createFromBinary(ByteBuffer* in) {
 	delete header->lastNouceCalculated;
 	header->lastNouceCalculated = SystemTimestamp::fromBinary(in);
 
+	int maxLoop = in->get();
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockHeaderCommand* cmd = AbstractBlockHeaderCommand::createFromBinary(in);
+		BinaryUtils::checkNotNull(cmd);
+
+		header->commnads->addElement(cmd);
+	}
+
 	header->buildHeaderId();
 
 	return __STP_MV(header);
@@ -134,23 +175,41 @@ IBlockObject* BlockHeader::copyData() const noexcept {
 	return BlockHeader::createFromBinary(buff);
 }
 
+void BlockHeader::setVersion(const BlockVersion *ver) {
+	delete this->version, this->version = nullptr;
+	this->version = new BlockVersion(*ver);
+}
+
 void BlockHeader::setHeaderId(BlockHeaderId* id) noexcept {
 	delete this->id;
 	this->id = id;
 }
 
 void BlockHeader::buildHeaderId() {
-	int total = sizeof(this->zone) + sizeof(this->height);
-	total += this->timestamp->binarySize();
-	//total += this->nonceGeneratedtimestamp->binarySize(); // do not include calculated time
+	BinaryUtils::checkNotNull(this->version);
 
-	total += this->merkleRoot->binarySize();
-	total += this->lastid->binarySize();
-	// total += this->nonce->binarySize();
-	total += this->votePart->binarySize();
-	total += this->lastNouceCalculated->binarySize();
+	int total = 0;
+	{
+		total += this->version->binarySize() + sizeof(this->zone) + sizeof(this->height);
+		total += this->timestamp->binarySize();
+		//total += this->nonceGeneratedtimestamp->binarySize(); // do not include calculated time
+
+		total += this->merkleRoot->binarySize();
+		total += this->lastid->binarySize();
+		// total += this->nonce->binarySize();
+		total += this->votePart->binarySize();
+		total += this->lastNouceCalculated->binarySize();
+
+		total += sizeof(uint8_t);
+		int maxLoop = this->commnads->size();
+		for(int i = 0; i != maxLoop; ++i){
+			AbstractBlockHeaderCommand* cmd = this->commnads->get(i);
+			total += cmd->binarySize();
+		}
+	}
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(total, true); __STP(buff);
+	this->version->toBinary(buff);
 	buff->putShort(this->zone);
 	buff->putLong(this->height);
 	this->timestamp->toBinary(buff);
@@ -161,6 +220,13 @@ void BlockHeader::buildHeaderId() {
 	// this->nonce->toBinary(buff);
 	this->votePart->toBinary(buff);
 	this->lastNouceCalculated->toBinary(buff);
+
+	int maxLoop = this->commnads->size();
+	buff->put(maxLoop);
+	for(int i = 0; i != maxLoop; ++i){
+		AbstractBlockHeaderCommand* cmd = this->commnads->get(i);
+		cmd->toBinary(buff);
+	}
 
 	ByteBuffer* sha = Sha256::sha256(buff, true); __STP(sha);
 	sha->position(0);
@@ -227,6 +293,14 @@ bool BlockHeader::isScheduledBlock() const noexcept {
 void BlockHeader::setLastNouceCalculated(const SystemTimestamp *tm) noexcept {
 	delete this->lastNouceCalculated;
 	this->lastNouceCalculated = dynamic_cast<SystemTimestamp*>(tm->copyData());
+}
+
+void BlockHeader::addHeaderCommand(const AbstractBlockHeaderCommand *cmd) {
+	this->commnads->addElement(dynamic_cast<AbstractBlockHeaderCommand*>(cmd->copyData()));
+}
+
+bool BlockHeader::hasHeaderCommnads() const noexcept {
+	return !this->commnads->isEmpty();
 }
 
 } /* namespace codablecash */

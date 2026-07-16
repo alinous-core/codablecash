@@ -55,7 +55,7 @@ public:
 	NodeIdentifierSource* getStakingSourceId(const IWalletDataEncoder* encoder) const noexcept;
 
 	void initNetwork(INetworkSeeder *seeder, const IWalletDataEncoder* encoder);
-	void syncBlockchain();
+	void syncBlockchain(bool resume = false);
 	void resumeNetwork();
 
 	void shutdownNetwork();

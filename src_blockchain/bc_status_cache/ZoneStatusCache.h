@@ -48,6 +48,7 @@ public:
 	static const constexpr wchar_t* KEY_HEADER_ONLY{L"headerOnly"};
 	static const constexpr wchar_t* KEY_FINALIZED_HEIGHT{L"finalizedHeight"};
 	static const constexpr wchar_t* KEY_FINALIZED_TICKET_PRICE{L"finalizedTicketPrice"};
+	static const constexpr wchar_t* KEY_REQUESTED_SHARDS{L"requestedShards"};
 
 	ZoneStatusCache(const File* baseDir, uint16_t zone, bool headerOnly, ISystemLogger* logger, const CodablecashSystemParam* config);
 	ZoneStatusCache(const File* baseDir, ISystemLogger* logger, bool headerOnly, const CodablecashSystemParam* config);
@@ -113,6 +114,8 @@ private:
 	FinalizedDataCache* finalizedCache;
 	LockinManager* lockinManager;
 	VoteManager* voteManager;
+
+	int requestedNewShards;
 };
 
 } /* namespace codablecash */

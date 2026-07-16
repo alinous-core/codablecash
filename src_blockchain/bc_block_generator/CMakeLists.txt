@@ -5,6 +5,7 @@ set(__src
 	BlockRewardCalculator.cpp
 	BlockRewardMiningBase.cpp
 	BlockRewardStakeBase.cpp
+	IBlockGenerationListner.cpp
 	MiningConfig.cpp
 )
 handle_sub(codablecashlib "${__src}" blockchain bc_block_generator)

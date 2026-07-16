@@ -12,6 +12,7 @@
 #include "bc_trx/IUtxoRefChecker.h"
 #include "bc_trx/IAddressChecker.h"
 #include "bc_trx/UtxoId.h"
+#include "bc_trx/TransactionVersion.h"
 
 #include "bc_trx_genesis/GenesisTransaction.h"
 
@@ -41,6 +42,7 @@
 
 #include "bc_wallet_filter/BloomFilter1024.h"
 
+
 using alinous::Os;
 
 namespace codablecash {
@@ -48,16 +50,19 @@ namespace codablecash {
 AbstractBlockchainTransaction::AbstractBlockchainTransaction(const AbstractBlockchainTransaction &inst) {
 	this->trxId = inst.trxId != nullptr ? dynamic_cast<TransactionId*>(inst.trxId->copyData()) : nullptr;
 	this->timestamp = dynamic_cast<SystemTimestamp*>(inst.timestamp->copyData());
+	this->version = new TransactionVersion(*inst.version);
 }
 
 AbstractBlockchainTransaction::AbstractBlockchainTransaction() {
 	this->trxId = nullptr;
 	this->timestamp = dynamic_cast<SystemTimestamp*>(Os::now().copyData());
+	this->version = new TransactionVersion(1, 0 , 0);
 }
 
 AbstractBlockchainTransaction::~AbstractBlockchainTransaction() {
 	delete this->trxId;
 	delete this->timestamp;
+	delete this->version;
 }
 
 AbstractBlockchainTransaction* AbstractBlockchainTransaction::createFromBinary(ByteBuffer *in) {

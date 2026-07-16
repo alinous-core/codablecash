@@ -24,7 +24,7 @@
 #include "base_thread/ConcurrentGate.h"
 #include "base_thread/SysMutex.h"
 
-#include "bc/SoftwareVersion.h"
+#include "bc/BlockchainSoftwareVersion.h"
 
 #include "bc_block/Block.h"
 #include "bc_block/BlockHeader.h"
@@ -36,6 +36,8 @@
 #include "base_thread/StackUnlocker.h"
 
 #include "bc_block/BlockMerkleRoot.h"
+
+
 namespace codablecash {
 
 const UnicodeString CodablecashBlockchain::CONFIG_BIN_FILE(L"config.bin");
@@ -57,7 +59,7 @@ CodablecashBlockchain::CodablecashBlockchain(const File *baseDir, uint16_t zoneS
 	this->sectionLimit = DEFAULT_SECTION_LIMIT;
 
 	this->configStore = nullptr;
-	this->version = new SoftwareVersion(0, 1, 0);
+	this->version = new BlockchainSoftwareVersion(0, 1, 0);
 
 	this->rwLock = new ConcurrentGate();
 	this->processor = nullptr;
@@ -71,7 +73,7 @@ CodablecashBlockchain::CodablecashBlockchain(const File* baseDir) {
 	this->numZones = 0;
 	this->sectionLimit = 0;
 	this->configStore = nullptr;
-	this->version = new SoftwareVersion(0, 1, 0);
+	this->version = new BlockchainSoftwareVersion(0, 1, 0);
 
 	this->rwLock = new ConcurrentGate();
 	this->processor = nullptr;
@@ -223,7 +225,7 @@ void CodablecashBlockchain::loadCondig() {
 	int patch = this->configStore->getShortValue(&KEY_BLOCK_VERSION_PATCH);
 
 	delete this->version;
-	this->version = new SoftwareVersion(major, minor, patch);
+	this->version = new BlockchainSoftwareVersion(major, minor, patch);
 }
 
 void CodablecashBlockchain::addBlock(MemPoolTransaction* memTrx, const Block *block) {
@@ -312,6 +314,16 @@ ArrayList<Block>* CodablecashBlockchain::getBlocksHeightAt(uint16_t zone, uint64
 	}
 
 	return list;
+}
+
+ArrayList<BlockHeader>* CodablecashBlockchain::getBlockHeadersHeightAt(uint16_t zone, uint64_t height) const {
+	ZoneStore* store = this->zonesStore->get(zone);
+	BlockHeaderStoreManager* headerManager = store->getBlockHeaderStoreManager();
+	BlockBodyStoreManager* bodyManaer = store->getBlockBodyStoreManager();
+
+	ArrayList<BlockHeader>* headers = headerManager->getBlocksAtHeight(height); __STP(headers);
+
+	return __STP_MV(headers);
 }
 
 } /* namespace codablecash */

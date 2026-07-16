@@ -28,7 +28,7 @@ uint64_t NullLockinManager::getFinalizingHeight() const noexcept {
 	return 0;
 }
 
-LockInOperationData* NullLockinManager::getOperantions(uint64_t height) {
+LockInOperationsData* NullLockinManager::getOperantions(uint64_t height) {
 	return this->lockinManage->getOperantions(height);
 }
 

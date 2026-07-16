@@ -37,7 +37,7 @@ protected:
 	virtual void process(CentralProcessor* processor);
 
 private:
-	bool importHeader(BlockchainController* ctrl);
+	bool importHeader(MemoryPool* memPool, BlockchainController* ctrl, CodablecashSystemParam* config);
 	bool importBlock(MemoryPool* memPool, BlockchainController* ctrl, BlochchainP2pManager* p2pManager, NodeIdentifierSource* networkKey
 			,ISystemLogger* logger, CodablecashSystemParam* config);
 

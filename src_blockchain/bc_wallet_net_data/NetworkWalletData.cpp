@@ -9,6 +9,7 @@
 #include "bc_wallet_net_data/WalletMemoryPool.h"
 #include "bc_wallet_net_data/HeaderTransactionGroup.h"
 #include "bc_wallet_net_data/TransactionGroupDataStore.h"
+#include "bc_wallet_net_data/WalletMemoryPoolScanner.h"
 
 #include "bc_wallet_net_data_management/ManagementAccountsCollection.h"
 #include "bc_wallet_net_data_management/ManagementAccount.h"
@@ -148,6 +149,10 @@ void NetworkWalletData::addTransactionDataToMempool(const TransactionTransferDat
 	StackWriteLock __lock(this->gateLock, __FILE__, __LINE__);
 
 	AbstractBlockchainTransaction* trx = data->getTransaction();
+	__addTransactionDataToMempool(trx);
+}
+
+void NetworkWalletData::__addTransactionDataToMempool(const AbstractBlockchainTransaction *trx) {
 	const TransactionId* trxId = trx->getTransactionId();
 
 	if(!this->mempool->hasTransaction(trxId)){
@@ -414,15 +419,17 @@ void NetworkWalletData::__buildMempoolAccount() {
 	ma->importOtherAccount(uma);
 
 	{
-		BtreeScanner* scanner = this->mempool->getScanner(); __STP(scanner);
+		// mempool scan
+		WalletMemoryPoolScanner* scanner =  this->mempool->getScanner(); __STP(scanner);
 		scanner->begin();
 
 		while(scanner->hasNext()){
-			const IBlockObject* obj = scanner->next();
-			const TransactionData* data = dynamic_cast<const TransactionData*>(obj);
+			AbstractBlockchainTransaction* trx = scanner->next(); __STP(trx);
+			const TransactionId* trxId = trx->getTransactionId();
 
-			const AbstractBlockchainTransaction* trx = data->getTrx();
-			ma->addTransaction(trx, waccount);
+			if(!uma->hasTransaction(trxId)){
+				ma->addTransaction(trx, waccount);
+			}
 		}
 	}
 }
@@ -442,7 +449,8 @@ void NetworkWalletData::__buildUnfinalizedAccount() {
 		int maxLoop = list->size();
 
 		// i = 1, because the first element is finalized height
-		for(int i = 1; i != maxLoop; ++i){
+		int begin = this->finalizedHeight == 0 ? 0 : 1;
+		for(int i = begin; i != maxLoop; ++i){
 			const BlockHeadElement* element = list->get(i);
 			const BlockHeader* header = element->getBlockHeader();
 

@@ -140,6 +140,8 @@ void BlockValidator::validateTransactionsInBlock(MemPoolTransaction *memTrx) {
 
 	IStatusCacheContext* context = this->ctrl->getStatusCacheContext(zone, lastheaderId, lastheight); __STP(context);
 
+	// FIXME [multishard] header command validate
+
 	validateControlTransactions(memTrx, header, context);
 	validateInterChainCommunicationTransactions(memTrx, header, context);
 	validateBalanceTransactions(memTrx, header, context);
@@ -252,7 +254,7 @@ void BlockValidator::validateRewordBase(MemPoolTransaction *memTrx, IStatusCache
 	BlockBody* body = this->block->getBody();
 	const BlockRewordBase* rewardBase =  body->getBlockRewordBase();
 
-	uint16_t numZones = context->getNumZones(height);
+	uint16_t numZones = context->getNumZones(); // get numZones at last block
 
 	BlockRewardCalculator calc(numZones);
 	// set fee

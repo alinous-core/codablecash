@@ -15,10 +15,12 @@
 
 #include "bc_trx/AbstractUtxo.h"
 #include "bc_trx/AbstractUtxoReference.h"
+#include "bc_trx/TransactionVersion.h"
 
 #include "bc_base/BinaryUtils.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+
 
 namespace codablecash {
 
@@ -55,9 +57,10 @@ void AbstractRevokeTransaction::setUtxoNonce() noexcept {
 }
 
 int AbstractRevokeTransaction::__binarySize() const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
-	int capacity = sizeof(uint8_t) + this->timestamp->binarySize();
+	int capacity = sizeof(uint8_t) + this->version->binarySize() + this->timestamp->binarySize();
 
 	int maxLoop = getUtxoReferenceSize();
 	for(int i = 0; i != maxLoop; ++i){
@@ -69,9 +72,11 @@ int AbstractRevokeTransaction::__binarySize() const {
 }
 
 void AbstractRevokeTransaction::__toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	out->put(getType());
+	this->version->toBinary(out);
 	this->timestamp->toBinary(out);
 
 	int maxLoop = getUtxoReferenceSize();

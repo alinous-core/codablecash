@@ -58,6 +58,7 @@
 
 #include "bc_block_body/OmittedBlockBodyFixer.h"
 
+#include "bc_block_validator/BlockHeaderValidator.h"
 namespace codablecash {
 
 TransferedMinedReportCommandMessage::TransferedMinedReportCommandMessage() {
@@ -109,9 +110,10 @@ void TransferedMinedReportCommandMessage::process(CentralProcessor *processor) {
 		NodeIdentifierSource* networkKey = requestProcessor->getNetworkKey();
 		dataAdded = importBlock(memPool, ctrl, p2pManager, networkKey, logger, config);
 	}else{
-		dataAdded = importHeader(ctrl);
+		dataAdded = importHeader(memPool, ctrl, config);
 	}
 
+	// if the data contains new data, transfer it
 	if(dataAdded){
 		{
 			NodeIdentifierSource* networkKey = requestProcessor->getNetworkKey();
@@ -137,8 +139,12 @@ void TransferedMinedReportCommandMessage::process(CentralProcessor *processor) {
 	}
 }
 
-bool TransferedMinedReportCommandMessage::importHeader(BlockchainController *ctrl) {
+bool TransferedMinedReportCommandMessage::importHeader(MemoryPool* memPool, BlockchainController *ctrl, CodablecashSystemParam* config) {
 	const BlockHeader* header = this->data->getHeader();
+
+	// check the hashrate
+	BlockHeaderValidator validator(header, config, memPool, ctrl);
+	validator.validate();
 
 	return ctrl->addBlockHeader(header);
 }
@@ -197,6 +203,7 @@ bool TransferedMinedReportCommandMessage::importBlock(MemoryPool* memPool, Block
 
 	Block block(dynamic_cast<BlockHeader*>(header->copyData()), __STP_MV(body));
 
+	// validate
 	BlockValidator validator(&block, config, memPool, ctrl);
 	validator.validate();
 

@@ -55,7 +55,7 @@ TEST(TestPoWPoolGroup, case01){
 
 
 	DebugDefaultLogger logger;
-	logger.setSection(ISystemLogger::DEBUG_POOL_TRANSFER_RESPONSE);
+	logger.addSection(ISystemLogger::DEBUG_POOL_TRANSFER_RESPONSE);
 	PoWManager manager(&logger, &mconfig);
 
 	File* memdir = projectFolder.get(L"mempool"); __STP(memdir);
@@ -77,12 +77,12 @@ TEST(TestPoWPoolGroup, case01){
 	{
 		manager.start();
 
+		manager.requestNewHeaderId();
+
 		// start client
 		PoWWorkerClient client(&logger, 8, 20000);
 		UnicodeString host(L"127.0.0.1");
 		client.start(P2pNodeRecord::TCP_IP_V4, &host, port);
-
-		manager.requestNewHeaderId();
 
 		generator.waitUntilGetData();
 

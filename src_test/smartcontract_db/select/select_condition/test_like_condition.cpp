@@ -31,6 +31,8 @@
 #include "ext_binary/ExtDomArrayObject.h"
 
 #include "ext_binary/ExtDomObject.h"
+
+#include "../../../../src_gen/alinous_lang/ParseException.h"
 using alinouslang::AlinousLang;
 
 using namespace alinous;
@@ -135,8 +137,12 @@ TEST(TestLikeConditionGroup, case03_err){
 	{
 		SmartContractParser parser(sourceFile);
 		AlinousLang* lang = parser.getDebugAlinousLang();
-
-		SelectStatement* stmt = lang->selectStatement(); __STP(stmt);
+		try{
+			SelectStatement* stmt = lang->selectStatement(); __STP(stmt);
+		}
+		catch(ParseException* e){
+			delete e;
+		}
 		CHECK(parser.hasError())
 	}
 }

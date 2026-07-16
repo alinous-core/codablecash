@@ -292,6 +292,9 @@ void NetworkTransactionHandler::setLastTransaction(const AbstractBlockchainTrans
 uint8_t NetworkTransactionHandler::getTransactionStoreStatus(const TransactionId *trxId) const noexcept {
 	NetworkWalletData* data = this->netWallet->getWalletData();
 
+	ConcurrentGate* lock = data->getLock();
+	StackReadLock __lock(lock, __FILE__, __LINE__);
+
 	ManagementAccountsCollection* collection = data->getManagementAccountsCollection();
 	uint8_t storeType = collection->getTransactionStoreStatus(trxId);
 

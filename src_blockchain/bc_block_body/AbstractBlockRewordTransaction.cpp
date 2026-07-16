@@ -11,6 +11,7 @@
 
 #include "bc_trx/AbstractUtxo.h"
 #include "bc_trx/AbstractUtxoReference.h"
+#include "bc_trx/TransactionVersion.h"
 
 #include "base/StackRelease.h"
 
@@ -81,8 +82,9 @@ AbstractUtxoReference* AbstractBlockRewordTransaction::getUtxoReference(int i) c
 void AbstractBlockRewordTransaction::setUtxoNonce() noexcept {
 	assert(this->height != 0L);
 	BinaryUtils::checkNotNull(this->timestamp);
+	BinaryUtils::checkNotNull(this->version);
 
-	int capacity = sizeof(uint8_t) + this->timestamp->binarySize() + sizeof(this->height);
+	int capacity = sizeof(uint8_t) + this->version->binarySize() + this->timestamp->binarySize() + sizeof(this->height);
 	{
 		int maxLoop = getUtxoReferenceSize();
 		for(int i = 0; i != maxLoop; ++i){
@@ -94,6 +96,7 @@ void AbstractBlockRewordTransaction::setUtxoNonce() noexcept {
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(capacity, true); __STP(buff);
 	buff->put(getType());
+	this->version->toBinary(buff);
 	this->timestamp->toBinary(buff);
 	buff->putLong(this->height);
 	{
@@ -119,9 +122,11 @@ void AbstractBlockRewordTransaction::setUtxoNonce() noexcept {
 }
 
 int AbstractBlockRewordTransaction::__binarySize() const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	int total = sizeof(uint8_t);
+	total += this->version->binarySize();
 	total += this->timestamp->binarySize();
 	total += sizeof(this->height);
 
@@ -149,9 +154,11 @@ int AbstractBlockRewordTransaction::__binarySize() const {
 }
 
 void AbstractBlockRewordTransaction::__toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	out->put(getType());
+	this->version->toBinary(out);
 	this->timestamp->toBinary(out);
 	out->putLong(this->height);
 
@@ -181,7 +188,10 @@ BalanceUnit AbstractBlockRewordTransaction::getFee() const noexcept {
 }
 
 void AbstractBlockRewordTransaction::__fromBinary(ByteBuffer *in) {
-	delete this->timestamp;
+	delete this->version, this->version = nullptr;
+	this->version = TransactionVersion::createFromBinary(in);
+
+	delete this->timestamp, timestamp = nullptr;
 	this->timestamp = SystemTimestamp::fromBinary(in);
 	this->height = in->getLong();
 

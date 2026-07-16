@@ -10,6 +10,8 @@
 
 #include <cstdint>
 
+#include "base/ArrayList.h"
+
 namespace alinous {
 class SystemTimestamp;
 class BigInteger;
@@ -35,6 +37,7 @@ class PoWNonce;
 class ISystemLogger;
 class VoteBlockTransaction;
 class ReservedVotes;
+class IBlockGenerationListner;
 
 class BlockGenerator {
 public:
@@ -67,6 +70,7 @@ public:
 		return this->ctrl;
 	}
 
+	void addBlockGenerationListner(const IBlockGenerationListner* listner);
 
 protected:
 	void importTransactions2Block(MemPoolTransaction* memTrx, Block* block);
@@ -94,6 +98,8 @@ protected:
 
 	CentralProcessor* processor;
 	const MiningConfig *miningConfig;
+
+	ArrayList<IBlockGenerationListner>* listners;
 };
 
 } /* namespace codablecash */

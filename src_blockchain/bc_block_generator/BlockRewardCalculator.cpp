@@ -59,7 +59,7 @@ void BlockRewardCalculator::setPoWConfig(const AddressDescriptor *desc) noexcept
 	this->pow = new BlockRewardMiningBase(desc);
 }
 
-void BlockRewardCalculator::importVotes(const VotedHeaderIdGroup *group,	const VotingBlockStatus *status, const BlockBody* body) {
+void BlockRewardCalculator::importVotes(const VotedHeaderIdGroup *group, const VotingBlockStatus *status, const BlockBody* body) {
 	int maxLoop = group->size();
 	for(int i = 0; i != maxLoop; ++i){
 		const TransactionId* trxId = group->get(i);

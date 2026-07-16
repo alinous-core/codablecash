@@ -77,4 +77,12 @@ int TransactionId::hashCode() const {
 	return ret;
 }
 
+TransactionId* TransactionId::makeRandomTransactionId() {
+	ByteBuffer* buff = makeRandom16Bytes(); __STP(buff);
+
+	TransactionId* trxId = new TransactionId((const char *)buff->array(), buff->capacity());
+
+	return trxId;
+}
+
 } /* namespace codablecash */

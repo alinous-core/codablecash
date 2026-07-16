@@ -12,6 +12,8 @@
 
 #include "filestore_block/IBlockObject.h"
 
+#include "base/ArrayList.h"
+
 namespace alinous {
 class SystemTimestamp;
 }
@@ -28,6 +30,8 @@ class Block;
 class IVoteTransactionIdCertificateBuilder;
 class IVoteTransactionIdCertificatevisitor;
 class TransactionId;
+class BlockVersion;
+class AbstractBlockHeaderCommand;
 
 class BlockHeader : public alinous::IBlockObject {
 public:
@@ -40,6 +44,8 @@ public:
 	static BlockHeader* createFromBinary(ByteBuffer* in);
 
 	virtual IBlockObject* copyData() const noexcept;
+
+	void setVersion(const BlockVersion* ver);
 
 	void setHeight(uint64_t height) noexcept {
 		this->height = height;
@@ -103,7 +109,12 @@ public:
 	void buildVoteTransactionIdCertificate(const Block* block, IVoteTransactionIdCertificateBuilder* callback) const;
 	void visitVoteTransactionIdCertificate(IVoteTransactionIdCertificatevisitor* visitor) const;
 
+	void addHeaderCommand(const AbstractBlockHeaderCommand* cmd);
+	bool hasHeaderCommnads() const noexcept;
+
 private:
+	BlockVersion* version;
+
 	uint16_t zone;
 	uint64_t height;
 	SystemTimestamp* timestamp;
@@ -120,6 +131,9 @@ private:
 
 	VotePart* votePart;
 	SystemTimestamp* lastNouceCalculated;
+
+	ArrayList<AbstractBlockHeaderCommand>* commnads;
+
 };
 
 class IVoteTransactionIdCertificateBuilder {

@@ -135,4 +135,8 @@ UtxoData* CachedStatusCache::getData(const UtxoId *utxoId) const {
 	return this->utxoCache->getData(utxoId);
 }
 
+AbstractBlockchainTransaction* CachedStatusCache::getTransaction(const TransactionId *trxId) const {
+	return this->trxCache->getTransaction(trxId);
+}
+
 } /* namespace codablecash */

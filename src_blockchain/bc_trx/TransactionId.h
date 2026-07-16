@@ -31,6 +31,8 @@ public:
 
 	virtual IBlockObject* copyData() const noexcept;
 
+	static TransactionId* makeRandomTransactionId();
+
 	struct ValueCompare {
 	public:
 		int operator() (const TransactionId* const a, const TransactionId* const b) const noexcept;

@@ -7,5 +7,6 @@ set(__src
 	BlockMerkleRoot.cpp
 	BlockMerkleRootKey.cpp
 	BlockMerkleRootKeyFactory.cpp
+	BlockVersion.cpp
 )
 handle_sub(codablecashlib "${__src}" blockchain bc_block)

@@ -98,6 +98,15 @@ void TransactionContextCache::putTransaction(const AbstractBlockchainTransaction
 	}
 }
 
+AbstractBlockchainTransaction* TransactionContextCache::getTransaction(const TransactionId *trxId) {
+	TransactionIdKey key(trxId);
+	IBlockObject* obj = this->trxStore->findByKey(&key); __STP(obj);
+
+	AbstractBlockchainTransaction* trx = dynamic_cast<AbstractBlockchainTransaction*>(obj);
+
+	return trx != nullptr ? dynamic_cast<AbstractBlockchainTransaction*>(trx->copyData()) :nullptr;
+}
+
 bool TransactionContextCache::hasTransaction(const TransactionId *trxId) {
 	TransactionIdKey key(trxId);
 

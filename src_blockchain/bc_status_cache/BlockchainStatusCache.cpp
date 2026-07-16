@@ -378,7 +378,7 @@ void BlockchainStatusCache::importCosumedMemTransactions(uint16_t zone,
 	}
 }
 
-uint16_t BlockchainStatusCache::getNumZones(uint64_t height) const {
+uint16_t BlockchainStatusCache::getNumZones() const {
 	return this->numZones;
 }
 

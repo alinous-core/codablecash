@@ -30,6 +30,7 @@ class IUtxoRefChecker;
 class IAddressChecker;
 class MerkleTree;
 class UtxoId;
+class TransactionVersion;
 
 enum class TrxValidationResult
 {
@@ -128,7 +129,7 @@ private:
 protected:
 	TransactionId* trxId;
 	SystemTimestamp* timestamp;
-
+	TransactionVersion* version;
 };
 
 } /* namespace codablecash */

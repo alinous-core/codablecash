@@ -21,7 +21,7 @@ public:
 
 	virtual uint64_t getFinalizingHeight() const noexcept;
 	virtual void addOperation(uint64_t height, const AbstractLockinOperation* op);
-	virtual LockInOperationData* getOperantions(uint64_t height);
+	virtual LockInOperationsData* getOperantions(uint64_t height);
 
 private:
 	LockinManager* lockinManage;

@@ -10,6 +10,7 @@ set(testsrc
 	test_unfinalized_repo.cpp
 	test_wallet_account_utxo_collector.cpp
 	test_wallet_encoder.cpp
+	test_wallet_mempool_index.cpp
 	test_wallet_mempool.cpp
 	test_wallet_misc.cpp
 	test_wallet.cpp

@@ -84,7 +84,7 @@ public:
 	}
 
 	virtual const VoterEntry* getVoterEntry(const NodeIdentifier* nodeId) const noexcept;
-	virtual uint16_t getNumZones(uint64_t height) const;
+	virtual uint16_t getNumZones() const;
 
 	virtual const CodablecashSystemParam* getConfig() const noexcept {
 		return this->config;
@@ -125,6 +125,8 @@ public:
 		this->topHeight = height;
 	}
 
+	virtual AbstractBlockchainTransaction* getTransaction(const TransactionId *trxId);
+
 protected:
 	void importBalanceTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
 	void importControlTransactions(const BlockHeader* header, const BlockBody* blockBody, ISystemLogger* logger);
@@ -162,6 +164,11 @@ protected:
 	const CodablecashSystemParam* config;
 
 	uint64_t topHeight;
+
+	// new shards history
+	int requestedNewShards;
+	uint16_t numZones;
+
 };
 
 } /* namespace codablecash */

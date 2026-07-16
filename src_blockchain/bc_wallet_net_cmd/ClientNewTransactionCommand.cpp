@@ -17,6 +17,11 @@
 
 #include "bc_wallet_net_data/NetworkWalletData.h"
 
+#include "bc_trx/AbstractBlockchainTransaction.h"
+
+#include "bc/ISystemLogger.h"
+
+#include "bc_trx/TransactionId.h"
 namespace codablecash {
 
 ClientNewTransactionCommand::ClientNewTransactionCommand(const ClientNewTransactionCommand &inst)
@@ -70,6 +75,18 @@ void ClientNewTransactionCommand::setData(const TransactionTransferData *d) {
 }
 
 void ClientNewTransactionCommand::process(NetworkWallet *wallet) const {
+	{
+		ISystemLogger* logger  = wallet->getLogger();
+		AbstractBlockchainTransaction* trx = this->data->getTransaction();
+		const TransactionId* trxId = trx->getTransactionId();
+
+		UnicodeString msg(L"WalletAdd TrxId : ");
+		UnicodeString* trxIdStr = trxId->toString(); __STP(trxIdStr);
+		msg.append(trxIdStr);
+
+		logger->debugLog(ISystemLogger::DEBUG_TRX_MEMPOOL_REGISTER, &msg, __FILE__, __LINE__);
+	}
+
 	NetworkWalletData* walletData = wallet->getWalletData();
 	walletData->addTransactionDataToMempool(this->data);
 }

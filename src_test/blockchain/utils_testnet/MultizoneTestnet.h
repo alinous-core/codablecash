@@ -35,7 +35,7 @@ public:
 	ZoneTestnet* getZone(uint16_t zone);
 
 	TestnetInstanceWrapper* createInstance(uint16_t zone, const wchar_t* name);
-
+	TestnetInstanceWrapper* getInstance(uint16_t zone, const wchar_t* name);
 
 	void startGenesis(uint16_t zone, IDebugSeeder* seeder);
 	void startInstancesFrom(uint16_t zone, int fromIndex, IDebugSeeder* seeder);

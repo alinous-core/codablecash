@@ -5,23 +5,23 @@
  *      Author: iizuka
  */
 
-#include "bc_status_cache_lockin/LockInOperationData.h"
 #include "bc_status_cache_lockin/AbstractLockinOperation.h"
 
 #include "base/StackRelease.h"
+#include "bc_status_cache_lockin/LockInOperationsData.h"
 
 
 namespace codablecash {
 
-LockInOperationData::LockInOperationData() {
+LockInOperationsData::LockInOperationsData() {
 
 }
 
-LockInOperationData::~LockInOperationData() {
+LockInOperationsData::~LockInOperationsData() {
 	this->list.deleteElements();
 }
 
-int LockInOperationData::binarySize() const {
+int LockInOperationsData::binarySize() const {
 	int total = sizeof(uint16_t);
 
 	int maxLoop = this->list.size();
@@ -33,7 +33,7 @@ int LockInOperationData::binarySize() const {
 	return total;
 }
 
-void LockInOperationData::toBinary(ByteBuffer *out) const {
+void LockInOperationsData::toBinary(ByteBuffer *out) const {
 	int maxLoop = this->list.size();
 	out->putShort(maxLoop);
 
@@ -43,8 +43,8 @@ void LockInOperationData::toBinary(ByteBuffer *out) const {
 	}
 }
 
-LockInOperationData* LockInOperationData::fromBinary(ByteBuffer *in) {
-	LockInOperationData* data = new LockInOperationData();
+LockInOperationsData* LockInOperationsData::fromBinary(ByteBuffer *in) {
+	LockInOperationsData* data = new LockInOperationsData();
 
 	int maxLoop = in->getShort();
 	for(int i = 0; i != maxLoop; ++i){
@@ -55,8 +55,8 @@ LockInOperationData* LockInOperationData::fromBinary(ByteBuffer *in) {
 	return data;
 }
 
-IBlockObject* LockInOperationData::copyData() const noexcept {
-	LockInOperationData * data = new LockInOperationData();
+IBlockObject* LockInOperationsData::copyData() const noexcept {
+	LockInOperationsData * data = new LockInOperationsData();
 
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
@@ -69,11 +69,11 @@ IBlockObject* LockInOperationData::copyData() const noexcept {
 	return data;
 }
 
-void LockInOperationData::add(const AbstractLockinOperation *op) {
+void LockInOperationsData::add(const AbstractLockinOperation *op) {
 	this->list.addElement(dynamic_cast<AbstractLockinOperation*>(op->copyData()));
 }
 
-void LockInOperationData::join(const LockInOperationData *value) noexcept {
+void LockInOperationsData::join(const LockInOperationsData *value) noexcept {
 	const ArrayList<AbstractLockinOperation>* newList = &value->list;
 
 	int maxLoop = newList->size();
@@ -88,7 +88,7 @@ void LockInOperationData::join(const LockInOperationData *value) noexcept {
 	}
 }
 
-bool LockInOperationData::contains(const AbstractLockinOperation *value) const noexcept {
+bool LockInOperationsData::contains(const AbstractLockinOperation *value) const noexcept {
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractLockinOperation* v = this->list.get(i);
@@ -100,7 +100,7 @@ bool LockInOperationData::contains(const AbstractLockinOperation *value) const n
 	return false;
 }
 
-void LockInOperationData::apply(const BlockHeader *header, IStatusCacheContext *context) {
+void LockInOperationsData::apply(const BlockHeader *header, IStatusCacheContext *context) {
 	int maxLoop = this->list.size();
 	for(int i = 0; i != maxLoop; ++i){
 		AbstractLockinOperation* v = this->list.get(i);

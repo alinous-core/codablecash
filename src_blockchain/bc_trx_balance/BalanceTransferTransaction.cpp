@@ -28,6 +28,7 @@
 
 #include "bc_base/AddressDescriptor.h"
 
+#include "bc_trx/TransactionVersion.h"
 
 namespace codablecash {
 
@@ -71,10 +72,11 @@ int BalanceTransferTransaction::binarySize() const {
 }
 
 int BalanceTransferTransaction::__binarySize() const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	int total = sizeof(uint8_t);
-
+	total += this->version->binarySize();
 	total += this->timestamp->binarySize();
 
 	total += this->inputs->binarySize();
@@ -105,10 +107,11 @@ void BalanceTransferTransaction::toBinary(ByteBuffer *out) const {
 }
 
 void BalanceTransferTransaction::__toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 
 	out->put(getType());
-
+	this->version->toBinary(out);
 	this->timestamp->toBinary(out);
 
 	this->inputs->toBinary(out);
@@ -125,7 +128,10 @@ void BalanceTransferTransaction::__toBinary(ByteBuffer *out) const {
 }
 
 void BalanceTransferTransaction::fromBinary(ByteBuffer *in) {
-	delete this->timestamp;
+	delete this->version, this->version = nullptr;
+	this->version = TransactionVersion::createFromBinary(in);
+
+	delete this->timestamp, this->timestamp = nullptr;
 	this->timestamp = SystemTimestamp::fromBinary(in);
 
 	delete this->inputs;
@@ -217,10 +223,11 @@ void BalanceTransferTransaction::build() {
 }
 
 void BalanceTransferTransaction::setUtxoNonce() noexcept {
-	int capacity = sizeof(uint8_t) + this->timestamp->binarySize() + this->inputs->binarySize();
+	int capacity = sizeof(uint8_t) +  this->version->binarySize() + this->timestamp->binarySize() + this->inputs->binarySize();
 
 	ByteBuffer* buff = ByteBuffer::allocateWithEndian(capacity, true); __STP(buff);
 	buff->put(getType());
+	this->version->toBinary(buff);
 	this->timestamp->toBinary(buff);
 	this->inputs->toBinary(buff);
 

@@ -127,6 +127,11 @@ public:
 
 	void broadCastShutdownCommand(const NodeIdentifierSource *source);
 
+	int getListningPort() const noexcept;
+	BlockGenerator* getBlockGenerator() const noexcept {
+		return this->blockGenerator;
+	}
+
 private:
 	void __init(const File* baseDir, ISystemLogger* logger, const CodablecashSystemParam* config);
 	void __maintainNetwork(uint16_t zone);

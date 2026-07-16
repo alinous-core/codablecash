@@ -33,6 +33,7 @@ class VotingBlockStatus;
 class BlockHeaderId;
 class UtxoData;
 class TransactionId;
+class AbstractBlockchainTransaction;
 
 class CachedStatusCache {
 public:
@@ -57,6 +58,8 @@ public:
 	const VoterStatusMappedCacheContext* getVoterStatusCacheContext() const noexcept {
 		return this->voterCache;
 	}
+
+	AbstractBlockchainTransaction* getTransaction(const TransactionId *trxId) const;
 
 private:
 	void importOtherCache(const CachedStatusCache* previousCache);

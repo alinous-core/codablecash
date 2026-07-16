@@ -23,6 +23,18 @@
 #include "bc_status_cache/BlockchainController.h"
 
 #include "bc_p2p_info/P2pNodeRecord.h"
+
+#include "bc_finalizer_pool/FinalizerPool.h"
+
+#include "bc_memorypool/MemoryPool.h"
+
+#include "bc_status_cache_context/IStatusCacheContext.h"
+
+#include "bc_trx/AbstractBlockchainTransaction.h"
+
+#include "bc_memorypool/MemPoolTransaction.h"
+
+#include "bc_block_generator/BlockGenerator.h"
 #include "IDebugSeeder.h"
 
 namespace codablecash {
@@ -132,6 +144,81 @@ void TestnetInstanceWrapper::resumeMining() {
 
 const FinalizerConfig* TestnetInstanceWrapper::getFinalizerConfig() const noexcept {
 	return this->nwconfig->getFinalizerConfig();
+}
+
+int TestnetInstanceWrapper::getListeningPort() const noexcept {
+	CodablecashNodeInstance* inst = this->node->getInstance();
+	return inst->getListningPort();
+}
+
+const UnicodeString* TestnetInstanceWrapper::getNodeName() const noexcept {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+	return instance->getNodeName();
+}
+
+const NodeIdentifierSource* TestnetInstanceWrapper::getNetworkKey() const noexcept {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+
+	return instance->getNetworkKey();
+}
+
+const NodeIdentifierSource* TestnetInstanceWrapper::getVoterIdentifierSource() const noexcept {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+	FinalizerPool* fpool = instance->getFinalizerPool();
+
+	return fpool->getVoterIdentifierSource();
+}
+
+bool TestnetInstanceWrapper::hasTransactionInMempool(const TransactionId *trxId) const {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+
+	MemoryPool* pool = instance->getMemoryPool();
+	MemPoolTransaction* memTrx = pool->begin(); __STP(memTrx);
+
+	AbstractBlockchainTransaction* trx = pool->__getTransactionById(trxId); __STP(trx);
+	return trx != nullptr;
+}
+
+bool TestnetInstanceWrapper::__hasTransactionInMempool(const TransactionId *trxId) const {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+	MemoryPool* pool = instance->getMemoryPool();
+
+	AbstractBlockchainTransaction* trx = pool->__getTransactionById(trxId); __STP(trx);
+	return trx != nullptr;
+}
+
+bool TestnetInstanceWrapper::hasTransactionInchain(const TransactionId *trxId) const {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+	BlockchainController* ctrl = instance->getController();
+
+	IStatusCacheContext* context = ctrl->getStatusCacheContext(this->zone); __STP(context);
+	AbstractBlockchainTransaction* trx = context->getTransaction(trxId); __STP(trx);
+	return trx != nullptr;
+}
+
+bool TestnetInstanceWrapper::hasTransaction(const TransactionId *trxId) {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+	MemoryPool* pool = instance->getMemoryPool();
+
+	MemPoolTransaction* memTrx = pool->begin(); __STP(memTrx);
+
+	return __hasTransactionInMempool(trxId) || hasTransactionInchain(trxId);
+}
+
+int TestnetInstanceWrapper::getMempoolTransctionCount() const {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+	MemoryPool* pool = instance->getMemoryPool();
+
+	MemPoolTransaction* memTrx = pool->begin(); __STP(memTrx);
+
+	return memTrx->getTransactionsCount();
+}
+
+void TestnetInstanceWrapper::addIBlockGenerationListner(const IBlockGenerationListner *listner) {
+	CodablecashNodeInstance* instance = this->node->getInstance();
+	BlockGenerator* generator = instance->getBlockGenerator();
+
+	generator->addBlockGenerationListner(listner);
 }
 
 } /* namespace codablecash */

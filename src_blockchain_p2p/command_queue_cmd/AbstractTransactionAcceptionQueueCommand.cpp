@@ -16,10 +16,13 @@
 #include "pubsub/IPubsubCommandListner.h"
 
 #include "bc/CodablecashNodeInstance.h"
+#include "bc/ISystemLogger.h"
 
 #include "bc_trx/AbstractBlockchainTransaction.h"
 
 #include "bc_memorypool/MemoryPool.h"
+#include "bc_memorypool/MemPoolTransaction.h"
+
 
 namespace codablecash {
 
@@ -70,15 +73,24 @@ void AbstractTransactionAcceptionQueueCommand::execute(const PubSubId *pubsubId,
 	IPubsubCommandExecutor* exec = listner->getExecutor();
 	CodablecashNodeInstance* inst = dynamic_cast<CodablecashNodeInstance*>(exec);
 
+	ISystemLogger* logger = inst->getLogger();
+
 	AbstractBlockchainTransaction* trx = this->data->getTransaction();
 
 	MemoryPool* memPool = inst->getMemoryPool();
+	MemPoolTransaction* memTrx = memPool->begin(); __STP(memTrx);
 
 	const TransactionId* trxId = trx->getTransactionId();
-	AbstractBlockchainTransaction* mtrx = memPool->getTransactionById(trxId); __STP(mtrx);
+	AbstractBlockchainTransaction* mtrx = memPool->__getTransactionById(trxId); __STP(mtrx);
 
 	if(mtrx == nullptr){
-		memPool->putTransaction(trx);
+		memPool->__putTransaction(trx);
+
+		UnicodeString msg(L"put mempool : ");
+		UnicodeString* trxIdStr = trxId->toString(); __STP(trxIdStr);
+		msg.append(trxIdStr);
+
+		logger->debugLog(ISystemLogger::DEBUG_TRX_MEMPOOL_REGISTER, &msg, __FILE__, __LINE__);
 	}
 }
 

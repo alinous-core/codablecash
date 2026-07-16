@@ -112,9 +112,6 @@ void DetectVotingTicketCommandMessage::putTransaction(const BlockHeader *header2
 	uint16_t voteBeforeNBlocks = config->getVoteBeforeNBlocks(this->height);
 	uint16_t voteBlockIncludeAfterNBlocks = config->getVoteBlockIncludeAfterNBlocks(this->height);
 
-	uint64_t rewordBlockHeight = this->height + voteBlockIncludeAfterNBlocks;
-	uint16_t numZones = context->getNumZones(rewordBlockHeight);
-
 	// block to vote
 	uint64_t height2Vote = header2vote->getHeight();
 	const BlockHeaderId* headerId = header2vote->getId();

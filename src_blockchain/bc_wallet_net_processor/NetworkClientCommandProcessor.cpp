@@ -147,6 +147,13 @@ bool NetworkClientCommandProcessor::__isSuspended() const {
 	return this->queueProcessor->__isSuspended();
 }
 
+bool NetworkClientCommandProcessor::isSuspended() const {
+	SynchronizedLock* lock = getQueueSynchrinizedLock();
+
+	StackUnlocker unlocker(lock, __FILE__, __LINE__);
+	return this->queueProcessor->__isSuspended();
+}
+
 SynchronizedLock* NetworkClientCommandProcessor::getQueueSynchrinizedLock() const noexcept {
 	return this->queueProcessor->getSynchrinizedLock();
 }

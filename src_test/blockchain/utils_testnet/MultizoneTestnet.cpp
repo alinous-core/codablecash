@@ -19,6 +19,7 @@
 
 #include "osenv/funcs.h"
 
+#include "base/UnicodeString.h"
 
 namespace codablecash {
 
@@ -66,6 +67,14 @@ TestnetInstanceWrapper* MultizoneTestnet::createInstance(uint16_t zone, const wc
 	return instWrapper;
 }
 
+TestnetInstanceWrapper* MultizoneTestnet::getInstance(uint16_t zone, const wchar_t *name) {
+	ZoneTestnet* zoneNet = getZone(zone);
+
+	UnicodeString nameStr(name);
+	TestnetInstanceWrapper* inst = zoneNet->getInstance(&nameStr);
+	return inst;
+}
+
 void MultizoneTestnet::startGenesis(uint16_t zone, IDebugSeeder* seeder) {
 	ZoneTestnet* zoneNet = getZone(zone);
 
@@ -105,5 +114,7 @@ void MultizoneTestnet::resumeMining(uint16_t zone) {
 	ZoneTestnet* testnet = this->zones.get(zone);
 	testnet->resumeMining();
 }
+
+
 
 } /* namespace codablecash */

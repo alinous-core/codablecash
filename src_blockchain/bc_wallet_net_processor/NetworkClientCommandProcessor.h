@@ -44,6 +44,7 @@ public:
 
 	SynchronizedLock* getQueueSynchrinizedLock() const noexcept;
 	bool __isSuspended() const;
+	bool isSuspended() const;
 
 	virtual void fireExecuteCommand(const PubSubId* pubsubId, const AbstractPubSubCommand* cmd);
 	virtual void fireOnExeptionOnSubscriber(const PubSubId* pubsubId, const Exception* e);

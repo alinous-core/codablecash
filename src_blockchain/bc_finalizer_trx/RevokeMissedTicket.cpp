@@ -11,6 +11,7 @@
 #include "bc_base/BinaryUtils.h"
 
 #include "bc_trx/TransactionId.h"
+#include "bc_trx/TransactionVersion.h"
 
 #include "bc_trx_balance/BalanceUtxo.h"
 
@@ -19,6 +20,7 @@
 #include "crypto/Sha256.h"
 
 #include "base_timestamp/SystemTimestamp.h"
+
 
 namespace codablecash {
 
@@ -35,11 +37,13 @@ RevokeMissedTicket::~RevokeMissedTicket() {
 }
 
 int RevokeMissedTicket::binarySize() const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 	BinaryUtils::checkNotNull(this->ticketUtxoRef);
 
 	int total = sizeof(uint8_t);
 
+	total += this->version->binarySize();
 	total += this->timestamp->binarySize();
 	total += this->ticketUtxoRef->binarySize();
 
@@ -55,11 +59,12 @@ int RevokeMissedTicket::binarySize() const {
 }
 
 void RevokeMissedTicket::toBinary(ByteBuffer *out) const {
+	BinaryUtils::checkNotNull(this->version);
 	BinaryUtils::checkNotNull(this->timestamp);
 	BinaryUtils::checkNotNull(this->ticketUtxoRef);
 
 	out->put(getType());
-
+	this->version->toBinary(out);
 	this->timestamp->toBinary(out);
 	this->ticketUtxoRef->toBinary(out);
 
@@ -73,6 +78,9 @@ void RevokeMissedTicket::toBinary(ByteBuffer *out) const {
 }
 
 void RevokeMissedTicket::fromBinary(ByteBuffer *in) {
+	delete this->version, this->version = nullptr;
+	this->version = TransactionVersion::createFromBinary(in);
+
 	delete this->timestamp;
 	this->timestamp = SystemTimestamp::fromBinary(in);
 

@@ -27,7 +27,7 @@ namespace codablecash {
 
 class ZoneStore;
 class StatusStore;
-class SoftwareVersion;
+class BlockchainSoftwareVersion;
 class Block;
 class BlockHeader;
 class IBlockchainEventListner;
@@ -69,6 +69,7 @@ public:
 	void addHeader(MemPoolTransaction* memTrx, const BlockHeader* header);
 
 	ArrayList<Block>* getBlocksHeightAt(uint16_t zone, uint64_t height) const;
+	ArrayList<BlockHeader>* getBlockHeadersHeightAt(uint16_t zone, uint64_t height) const;
 
 	void cleanOnFinalize(uint16_t zone, uint64_t finalizingHeight, const BlockHeaderId *headerId, uint16_t lastFinalizedHeight);
 
@@ -102,7 +103,7 @@ private:
 
 private:
 	File* baseDir;
-	SoftwareVersion* version;
+	BlockchainSoftwareVersion* version;
 
 	int sectionLimit;
 

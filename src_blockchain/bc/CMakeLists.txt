@@ -1,6 +1,7 @@
 
 
 set(__src
+	BlockchainSoftwareVersion.cpp
 	CodablecashNodeInstance.cpp
 	CodablecashSystemParam.cpp
 	DebugDefaultLogger.cpp

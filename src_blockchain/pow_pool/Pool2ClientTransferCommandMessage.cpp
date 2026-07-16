@@ -25,6 +25,10 @@
 #include "base/StackRelease.h"
 
 #include "bc/ISystemLogger.h"
+#include "bc/ExceptionThrower.h"
+
+#include "bc_p2p/BlockchainNodeHandshakeException.h"
+
 
 namespace codablecash {
 
@@ -47,6 +51,9 @@ void Pool2ClientTransferCommandMessage::execute(ICommandParameter *param) {
 
 	P2pHandshake* handshake = conManager->getP2pHandshake(this->pusubId);
 	StackRawHandshakeReleaser __releaser(handshake);
+
+	// exception handshake
+	ExceptionThrower<BlockchainNodeHandshakeException>::throwExceptionIfCondition(handshake == nullptr, L"Node connection has alrealy closed.", __FILE__, __LINE__);
 
 	AbstractCommandResponse* response = handshake->publishCommand(this->command); __STP(response);
 	if(response != nullptr){

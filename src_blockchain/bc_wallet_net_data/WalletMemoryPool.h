@@ -21,10 +21,12 @@ namespace codablecash {
 
 class AbstractBlockchainTransaction;
 class TransactionId;
+class WalletMemoryPoolScanner;
 
 class WalletMemoryPool {
 public:
 	static const constexpr wchar_t* NAME_TRX_STORE{L"trxStore"};
+	static const constexpr wchar_t* NAME_TRX_ORDER_INDEX{L"trxOrderIndex"};
 
 	explicit WalletMemoryPool(File* baseDir);
 	virtual ~WalletMemoryPool();
@@ -42,7 +44,9 @@ public:
 	AbstractBlockchainTransaction* getBlockchainTransaction(const TransactionId* trxId) const;
 	bool hasTransaction(const TransactionId* trxId) const;
 
-	BtreeScanner* getScanner() const noexcept;
+	WalletMemoryPoolScanner* getScanner() const noexcept;
+
+	BtreeScanner* getBtreeScanner() const noexcept;
 
 private:
 	File* baseDir;
@@ -50,6 +54,7 @@ private:
 	DiskCacheManager* cacheManager;
 
 	Btree* trxStore;
+	Btree* trxOrderIndex;
 };
 
 } /* namespace codablecash */

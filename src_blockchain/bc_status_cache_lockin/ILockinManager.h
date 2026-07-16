@@ -13,7 +13,7 @@
 namespace codablecash {
 
 class AbstractLockinOperation;
-class LockInOperationData;
+class LockInOperationsData;
 
 class ILockinManager {
 public:
@@ -22,7 +22,7 @@ public:
 
 	virtual uint64_t getFinalizingHeight() const noexcept = 0;
 	virtual void addOperation(uint64_t height, const AbstractLockinOperation* op) = 0;
-	virtual LockInOperationData* getOperantions(uint64_t height) = 0;
+	virtual LockInOperationsData* getOperantions(uint64_t height) = 0;
 };
 
 } /* namespace codablecash */

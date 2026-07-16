@@ -47,14 +47,16 @@ public:
 	void newHandShake(CommandSubscriber* subscriber);
 	void registerHandshake(P2pHandshake* handshake);
 
-
-
 	ISystemLogger* getLogger() const noexcept {
 		return logger;
 	}
 
 	P2pServerConnectionManager* getConnectionManager() const noexcept {
 		return this->conManager;
+	}
+
+	int getListningPort() const noexcept {
+		return this->portSelf;
 	}
 
 private:

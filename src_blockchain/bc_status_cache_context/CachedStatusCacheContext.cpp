@@ -114,4 +114,10 @@ uint64_t CachedStatusCacheContext::getPreAnalyzedHeight() const noexcept {
 	return this->cache->getHeight();
 }
 
+AbstractBlockchainTransaction* CachedStatusCacheContext::getTransaction(const TransactionId *trxId) {
+	AbstractBlockchainTransaction* trx = StatusCacheContext::getTransaction(trxId);
+
+	return trx != nullptr ? trx : this->cache->getTransaction(trxId);
+}
+
 } /* namespace codablecash */
